@@ -1,0 +1,402 @@
+'use client';
+
+import React, { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Command, KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { useDictionary, normalizeQuery, searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
+import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+
+interface SearchInputProps {
+  onSearch: (query: string) => void;
+  placeholder?: string;
+  className?: string;
+  initialValue?: string;
+}
+
+type CommandItem =
+  | { kind: 'term'; id: string; href: string; result: DictionarySearchResult }
+  | { kind: 'kanji'; id: string; href: string; result: KanjiDictionarySearchResult };
+
+export function SearchInput({
+  onSearch,
+  placeholder = 'Tìm kiếm từ vựng, kanji...',
+  className = '',
+  initialValue = '',
+}: SearchInputProps) {
+  const router = useRouter();
+  const listboxId = useId();
+  const { isReady } = useDictionary();
+  const [query, setQuery] = useState(initialValue);
+  const [termSuggestions, setTermSuggestions] = useState<DictionarySearchResult[]>([]);
+  const [kanjiSuggestions, setKanjiSuggestions] = useState<KanjiDictionarySearchResult[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [isResolving, setIsResolving] = useState(false);
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setQuery(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    if (!isReady || query.trim().length < 2) {
+      setTermSuggestions([]);
+      setKanjiSuggestions([]);
+      setActiveIndex(-1);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setIsResolving(true);
+      const [terms, kanji] = await Promise.all([
+        searchDictionary(query, 7),
+        searchKanjiDictionary(query, 5),
+      ]);
+      if (!cancelled) {
+        setTermSuggestions(terms);
+        setKanjiSuggestions(kanji);
+        setActiveIndex(terms.length || kanji.length ? 0 : -1);
+        setIsResolving(false);
+      }
+    }, 90);
+
+    return () => {
+      cancelled = true;
+      setIsResolving(false);
+      clearTimeout(timer);
+    };
+  }, [isReady, query]);
+
+  const commandItems = useMemo<CommandItem[]>(() => [
+    ...termSuggestions.map((result) => ({
+      kind: 'term' as const,
+      id: `term-${result.term.id}`,
+      href: `/word/${encodeURIComponent(result.term.id)}`,
+      result,
+    })),
+    ...kanjiSuggestions.map((result) => ({
+      kind: 'kanji' as const,
+      id: `kanji-${result.kanji.literal}`,
+      href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
+      result,
+    })),
+  ], [termSuggestions, kanjiSuggestions]);
+
+  const activeItem = activeIndex >= 0 ? commandItems[activeIndex] : commandItems[0];
+  const showSuggestions = isFocused && query.trim().length >= 2 && commandItems.length > 0;
+  const showSearchPulse = isFocused && query.trim().length >= 2;
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    onSearch(query.trim());
+    setIsFocused(false);
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setTermSuggestions([]);
+    setKanjiSuggestions([]);
+    setActiveIndex(-1);
+    onSearch('');
+  };
+
+  const handleFocus = () => {
+    if (blurTimer.current) clearTimeout(blurTimer.current);
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    blurTimer.current = setTimeout(() => setIsFocused(false), 120);
+  };
+
+  const openActiveItem = () => {
+    if (!activeItem) return;
+    router.push(activeItem.href);
+  };
+
+  return (
+    <form
+      onSubmit={handleSearch}
+      className={`relative mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-start ${className}`}
+    >
+      <div className="relative min-w-0 flex-1">
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-0 rounded-[--radius-md] border transition-colors ${
+            showSearchPulse ? 'border-[var(--color-primary-300)]' : 'border-transparent'
+          }`}
+        />
+        <div className="pointer-events-none absolute left-4 top-7 -translate-y-1/2 text-[var(--color-primary-700)]">
+          <MagnifyingGlass size={20} />
+        </div>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          className="search-shell h-14 border-[var(--color-border-strong)] pl-12 pr-24 text-base"
+          role="combobox"
+          aria-expanded={showSuggestions}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={showSuggestions && activeItem ? activeItem.id : undefined}
+          onKeyDown={(e) => {
+            if (!showSuggestions) {
+              if (e.key === 'Enter') handleSearch();
+              return;
+            }
+
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setActiveIndex((value) => Math.min(value + 1, commandItems.length - 1));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setActiveIndex((value) => Math.max(value - 1, 0));
+            } else if (e.key === 'Escape') {
+              setIsFocused(false);
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              openActiveItem();
+            }
+          }}
+        />
+        <div className="pointer-events-none absolute right-12 top-7 hidden -translate-y-1/2 items-center gap-1.5 rounded-full bg-[var(--color-surface-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)] sm:flex">
+          {isResolving ? (
+            <>
+              <span className="status-dot h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]" />
+              resolving
+            </>
+          ) : (
+            <>
+              <Command size={12} />
+              Enter
+            </>
+          )}
+        </div>
+        {query && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="tactile absolute right-2.5 top-7 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
+            aria-label="Xóa nội dung tìm kiếm"
+          >
+            <X size={16} />
+          </button>
+        )}
+
+        {showSuggestions && (
+          <div
+            id={listboxId}
+            role="listbox"
+            className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-[var(--z-dropdown)] overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-md)]"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
+              <span className="inline-flex items-center gap-1.5 font-semibold">
+                <Sparkle size={13} weight="duotone" />
+                {commandItems.length} offline matches
+              </span>
+              <span className="hidden items-center gap-1 sm:inline-flex">
+                arrows to choose <KeyReturn size={13} />
+              </span>
+            </div>
+            <div className="grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_240px]">
+              <div className="min-w-0 py-1">
+                <SuggestionSection
+                  title="Từ vựng"
+                  emptyLabel="Không có từ phù hợp"
+                  items={termSuggestions.map((result) => ({
+                    key: `term-${result.term.id}`,
+                    item: commandItems.findIndex((entry) => entry.kind === 'term' && entry.id === `term-${result.term.id}`),
+                    content: <TermSuggestion result={result} query={query} />,
+                  }))}
+                  activeIndex={activeIndex}
+                  onActive={setActiveIndex}
+                />
+
+                <SuggestionSection
+                  title="Hán tự"
+                  emptyLabel="Không có Hán tự phù hợp"
+                  items={kanjiSuggestions.map((result) => ({
+                    key: `kanji-${result.kanji.literal}`,
+                    item: commandItems.findIndex((entry) => entry.kind === 'kanji' && entry.id === `kanji-${result.kanji.literal}`),
+                    content: <KanjiSuggestion result={result} query={query} />,
+                  }))}
+                  activeIndex={activeIndex}
+                  onActive={setActiveIndex}
+                />
+              </div>
+
+              <SuggestionPreview item={activeItem} query={query} />
+            </div>
+          </div>
+        )}
+      </div>
+      <Button type="submit" variant="primary" size="lg" className="h-14 w-full px-6 text-base sm:w-auto">
+        Tìm kiếm
+      </Button>
+    </form>
+  );
+}
+
+function SuggestionSection({
+  title,
+  emptyLabel,
+  items,
+  activeIndex,
+  onActive,
+}: {
+  title: string;
+  emptyLabel: string;
+  items: Array<{ key: string; item: number; content: React.ReactNode }>;
+  activeIndex: number;
+  onActive: (index: number) => void;
+}) {
+  return (
+    <section className="py-1">
+      <div className="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)]">{title}</div>
+      {items.length ? (
+        items.map(({ key, item, content }) => (
+          <Fragment key={key}>
+            <div
+              id={key}
+              role="option"
+              aria-selected={activeIndex === item}
+              onMouseEnter={() => onActive(item)}
+              className={`relative block transition-colors ${
+                activeIndex === item ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
+              }`}
+            >
+              {activeIndex === item && (
+                <span className="absolute left-0 top-2 h-[calc(100%-16px)] w-1 rounded-r-full bg-[var(--color-primary-600)]" />
+              )}
+              {content}
+            </div>
+          </Fragment>
+        ))
+      ) : (
+        <div className="px-4 py-3 text-sm text-[var(--color-text-muted)]">{emptyLabel}</div>
+      )}
+    </section>
+  );
+}
+
+function TermSuggestion({ result, query }: { result: DictionarySearchResult; query: string }) {
+  const { term } = result;
+  return (
+    <Link href={`/word/${encodeURIComponent(term.id)}`} className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="jp-text text-lg font-semibold leading-6 text-[var(--color-text-primary)]">
+            <Highlight text={term.surface} query={query} />
+          </span>
+          <span className="jp-text text-sm leading-5 text-[var(--color-text-muted)]">
+            <Highlight text={term.reading} query={query} />
+          </span>
+          {term.romaji && (
+            <span className="text-xs leading-5 text-[var(--color-text-muted)]">
+              <Highlight text={term.romaji} query={query} />
+            </span>
+          )}
+        </div>
+        <p className="mt-1 line-clamp-1 text-sm leading-5 text-[var(--color-text-secondary)]">
+          <Highlight text={term.meaningsVi.slice(0, 2).join('; ') || 'Chưa có nghĩa hiển thị'} query={query} />
+        </p>
+      </div>
+      {term.isCommon && (
+        <span className="mt-1 shrink-0 rounded-full bg-[var(--color-primary-100)] px-2 py-0.5 text-xs font-medium text-[var(--color-primary-700)]">
+          phổ biến
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResult; query: string }) {
+  const { kanji } = result;
+  return (
+    <Link href={`/kanji/${encodeURIComponent(kanji.literal)}`} className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
+      <div className="jp-text flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-surface-subtle)] text-2xl font-semibold text-[var(--color-text-primary)]">
+        {kanji.literal}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="text-base font-semibold leading-6 text-[var(--color-text-primary)]">
+            <Highlight text={kanji.hanViet.join(', ') || 'Không rõ'} query={query} />
+          </span>
+          {kanji.jlpt && <span className="text-xs font-medium text-[var(--color-primary-700)]">{kanji.jlpt}</span>}
+        </div>
+        <p className="mt-1 line-clamp-1 text-sm leading-5 text-[var(--color-text-secondary)]">
+          <Highlight text={kanji.meanings.slice(0, 3).join(', ')} query={query} />
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function SuggestionPreview({ item, query }: { item?: CommandItem; query: string }) {
+  if (!item) return null;
+
+  if (item.kind === 'kanji') {
+    const kanji = item.result.kanji;
+    return (
+      <aside className="hidden border-l border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 lg:block">
+        <div className="jp-text text-6xl leading-none text-[var(--color-text-primary)]">{kanji.literal}</div>
+        <div className="mt-3 text-lg font-semibold text-[var(--color-text-primary)]">{kanji.hanViet.join(', ') || 'Không rõ'}</div>
+        <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
+          <Highlight text={kanji.meanings.slice(0, 4).join(', ')} query={query} />
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+          <KeyReturn size={14} />
+          Enter để mở Hán tự
+        </div>
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-muted)]">
+          <div className="confidence-track h-full rounded-full" style={{ '--confidence': '72%' } as React.CSSProperties} />
+        </div>
+      </aside>
+    );
+  }
+
+  const term = item.result.term;
+  return (
+    <aside className="hidden border-l border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 lg:block">
+      <div className="jp-text text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">{term.surface}</div>
+      <div className="jp-text mt-2 text-sm text-[var(--color-text-muted)]">{term.reading}</div>
+      <p className="mt-4 text-sm leading-6 text-[var(--color-text-secondary)]">
+        <Highlight text={term.meaningsVi.slice(0, 3).join('; ') || 'Chưa có nghĩa hiển thị'} query={query} />
+      </p>
+      <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+        <KeyReturn size={14} />
+        Enter để mở mục từ
+      </div>
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-muted)]">
+        <div className="confidence-track h-full rounded-full" style={{ '--confidence': term.isCommon ? '86%' : '58%' } as React.CSSProperties} />
+      </div>
+    </aside>
+  );
+}
+
+function Highlight({ text, query }: { text: string; query: string }) {
+  const normalizedText = normalizeQuery(text);
+  const normalizedQuery = normalizeQuery(query);
+  if (!normalizedQuery) return <>{text}</>;
+
+  const matchIndex = normalizedText.indexOf(normalizedQuery);
+  if (matchIndex < 0) return <>{text}</>;
+
+  const before = text.slice(0, matchIndex);
+  const match = text.slice(matchIndex, matchIndex + normalizedQuery.length);
+  const after = text.slice(matchIndex + normalizedQuery.length);
+
+  return (
+    <>
+      {before}
+      <mark className="rounded bg-[var(--color-highlight)] px-0.5 text-[var(--color-text-primary)]">{match}</mark>
+      {after}
+    </>
+  );
+}
