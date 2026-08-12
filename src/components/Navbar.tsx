@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@phosphor-icons/react';
 
@@ -36,12 +37,11 @@ export function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[--radius-md] bg-[var(--color-primary-700)] text-sm font-bold text-white transition-colors group-hover:bg-[var(--color-primary-800)]">
-              JP
+            <div className="relative h-9 w-9 overflow-hidden rounded-[--radius-md]">
+              <Image src="/Logo.png" alt="YomuJi Logo" fill className="object-cover" />
             </div>
             <div className="leading-tight">
-              <span className="block text-base font-bold tracking-tight text-[var(--color-text-primary)]">YomuJi</span>
-              <span className="hidden text-xs text-[var(--color-text-muted)] sm:block">Nhật Việt rõ nghĩa</span>
+              <span className="block text-xl font-black tracking-tight text-[var(--color-text-primary)]">読む字</span>
             </div>
           </Link>
 
