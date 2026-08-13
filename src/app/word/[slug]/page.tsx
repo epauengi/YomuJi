@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenText, LinkSimple, Repeat, Star } from '@phosphor-icons/react';
@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useWordDetail } from '@/hooks/useDictionary';
-import type { TermRecord } from '@/types/dictionary';
 
 export default function WordDetailPage() {
   const params = useParams();
@@ -29,8 +28,15 @@ export default function WordDetailPage() {
   }
 
   const kanjiReadings = term.kanjiReadings || [];
-  const meaningList = filterKanjiReadingMeanings(term.meaningsVi, kanjiReadings);
   const audioText = term.reading || term.surface;
+
+  // Extract per-kanji characters from surface for clickable links
+  const surfaceKanjiChars: string[] = [];
+  for (const ch of term.surface) {
+    if (/[\u4e00-\u9faf\u3400-\u4dbf]/.test(ch)) {
+      surfaceKanjiChars.push(ch);
+    }
+  }
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8">
@@ -39,34 +45,63 @@ export default function WordDetailPage() {
         Quay lại trang chủ
       </Link>
 
+      {/* === HEADER CARD === */}
       <Card className="content-rise border-[var(--color-primary-200)] shadow-none">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
-          <div className="min-w-0">
+          <div className="min-w-0 flex flex-col gap-2">
+            {/* Line 1: Surface + Badge */}
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="jp-text text-4xl font-bold text-[var(--color-text-primary)] md:text-5xl">
                 {term.surface}
               </h1>
               {term.isCommon && <Badge variant="success">Phổ biến</Badge>}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+
+            {/* Line 2: Hán Việt string (uppercase, teal) */}
+            {term.hanVietStr && (
+              <p className="text-lg font-semibold tracking-wide text-[var(--color-primary-600)]">
+                {term.hanVietStr}
+              </p>
+            )}
+
+            {/* Line 3: Reading hiragana + [romaji] */}
+            <div className="flex flex-wrap items-center gap-2">
               <span className="jp-text text-lg font-medium text-[var(--color-text-secondary)]">{term.reading}</span>
               {term.romaji && <span className="text-sm text-[var(--color-text-muted)]">[{term.romaji}]</span>}
             </div>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+
+            {/* Line 4: Audio button + Per-kanji clickable characters */}
+            <div className="mt-2 flex flex-wrap items-center gap-3">
               <AudioButton text={audioText} />
-              {!!kanjiReadings.length && <span className="text-sm font-medium text-[var(--color-text-muted)]">Hán Việt</span>}
-              {kanjiReadings.map((item) => (
-                <Link
-                  key={item.literal}
-                  href={`/kanji/${encodeURIComponent(item.literal)}`}
-                  className="tactile inline-flex items-center gap-1.5 rounded-[--radius-md] border border-[var(--color-border)] px-2.5 py-1.5 text-sm hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
-                >
-                  <span className="jp-text text-base text-[var(--color-text-primary)]">{item.literal}</span>
-                  <span className="font-medium text-[var(--color-primary-700)]">{item.hanViet.join(', ')}</span>
-                </Link>
-              ))}
+              {surfaceKanjiChars.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {surfaceKanjiChars.map((ch, idx) => {
+                    // Find per-kanji Hán Việt from kanjiReadings
+                    const reading = kanjiReadings.find((r) => r.literal === ch);
+                    const hvLabel = reading?.hanViet?.[0] || '';
+                    return (
+                      <Link
+                        key={`${ch}-${idx}`}
+                        href={`/kanji/${encodeURIComponent(ch)}`}
+                        className="tactile group inline-flex flex-col items-center rounded-[--radius-md] border border-[var(--color-border)] px-2.5 py-1.5 transition-all hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
+                        title={hvLabel ? `${ch} — ${hvLabel}` : ch}
+                      >
+                        <span className="jp-text text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)]">
+                          {ch}
+                        </span>
+                        {hvLabel && (
+                          <span className="text-[11px] font-medium leading-tight text-[var(--color-primary-600)]">
+                            {hvLabel}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
+
           <Button variant="secondary" size="sm" className="gap-2">
             <Star size={16} />
             Lưu từ
@@ -74,6 +109,7 @@ export default function WordDetailPage() {
         </div>
       </Card>
 
+      {/* === CONTENT === */}
       <div className={term.related.length ? 'grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_280px]' : 'grid grid-cols-1 gap-8'}>
         <main className="flex flex-col gap-8">
           <section className="flex flex-col gap-4">
@@ -81,18 +117,19 @@ export default function WordDetailPage() {
               <BookOpenText size={20} className="text-[var(--color-primary-600)]" />
               <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Nghĩa của từ</h2>
             </div>
-            {meaningList.map((meaning, index) => (
+            {term.meaningsVi.length > 0 ? (
+              term.meaningsVi.map((meaning, index) => (
                 <Card key={`${meaning}-${index}`} variant="subtle" className="surface-lift">
-                <div className="flex gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-xs font-bold text-[var(--color-primary-700)]">
-                    {index + 1}
-                  </span>
-                  <p className="text-lg text-[var(--color-text-primary)]">{meaning}</p>
-                </div>
-              </Card>
-            ))}
-            {!meaningList.length && (
-              <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có nghĩa tiếng Việt rõ ràng cho mục từ này.</p>
+                  <div className="flex gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-xs font-bold text-[var(--color-primary-700)]">
+                      {index + 1}
+                    </span>
+                    <p className="text-lg text-[var(--color-text-primary)]">{meaning}</p>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có nghĩa tiếng Việt cho mục từ này.</p>
             )}
           </section>
 
@@ -136,47 +173,7 @@ export default function WordDetailPage() {
   );
 }
 
-function filterKanjiReadingMeanings(
-  meanings: string[],
-  readings: NonNullable<TermRecord['kanjiReadings']>
-) {
-  if (!readings.length || meanings.length < 2) return meanings;
-  const firstReadings = readings.map((item) => item.hanViet[0]).filter(Boolean);
-  const blocked = new Set<string>();
-  if (firstReadings.length) {
-    blocked.add(normalizeMeaning(firstReadings.join(' ')));
-    blocked.add(normalizeMeaning(firstReadings.join('')));
-    blocked.add(normalizeMeaning(firstReadings.join(', ')));
-  }
-  for (const item of readings) {
-    for (const reading of item.hanViet) blocked.add(normalizeMeaning(reading));
-  }
 
-  const filtered = meanings.filter((meaning) => !isKanjiReadingMeaning(meaning, blocked));
-  return filtered.length ? filtered : meanings;
-}
-
-function isKanjiReadingMeaning(meaning: string, blocked: Set<string>) {
-  const normalized = normalizeMeaning(meaning);
-  if (blocked.has(normalized)) return true;
-  for (const phrase of blocked) {
-    if (!phrase) continue;
-    const startsWithPhrase = normalized.startsWith(`${phrase} `);
-    const hasDictionarySeparator = /[,;\/\\]|[\u3040-\u30ff]/.test(meaning);
-    if (startsWithPhrase && hasDictionarySeparator) return true;
-  }
-  return false;
-}
-
-function normalizeMeaning(text: string) {
-  return String(text || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 function CenteredMessage({ title, message }: { title: string; message: string }) {
   return (

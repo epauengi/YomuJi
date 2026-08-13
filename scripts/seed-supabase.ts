@@ -30,8 +30,12 @@ const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
 });
 
 const DICT_DIR = path.join(process.cwd(), 'public', 'dict');
-const BATCH_SIZE_TERMS = 500;
-const BATCH_SIZE_KANJI = 250;
+const BATCH_SIZE_TERMS = 100;
+const BATCH_SIZE_KANJI = 200;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function main() {
   console.log('🚀 Starting YomuJi Supabase PostgreSQL Data Seeding...');
@@ -111,8 +115,8 @@ async function main() {
         surface: t.surface,
         reading: t.reading,
         romaji: t.romaji,
-        meanings_vi: t.meaningsVi || [],
-        glosses_raw: t.glossesRaw || [],
+        meanings_vi: (t.meaningsVi || []).map((m) => (m && m.length > 500 ? m.slice(0, 500) + '...' : m)).slice(0, 10),
+        glosses_raw: (t.glossesRaw || []).map((g) => (g && g.length > 300 ? g.slice(0, 300) + '...' : g)).slice(0, 5),
         part_of_speech: t.partOfSpeech || [],
         tags: t.tags || [],
         score: t.score || 0,
@@ -125,9 +129,22 @@ async function main() {
       const { error } = await supabaseAdmin.from('terms').upsert(chunk, { onConflict: 'id' });
       if (error) {
         console.error(`❌ Error inserting terms chunk at shard ${sIdx + 1}, index ${i}:`, error.message);
+        // If timeout, retry once after 5s
+        if (error.message.includes('timeout')) {
+          await sleep(5000);
+          const { error: retryError } = await supabaseAdmin.from('terms').upsert(chunk, { onConflict: 'id' });
+          if (retryError) {
+            console.error(`   ↳ Retry failed:`, retryError.message);
+          } else {
+            totalTermsInserted += chunk.length;
+          }
+        }
       } else {
         totalTermsInserted += chunk.length;
       }
+
+      // Small delay between batches to avoid timeout
+      await sleep(150);
     }
 
     if ((sIdx + 1) % 10 === 0 || sIdx === termShards.length - 1) {

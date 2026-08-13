@@ -33,20 +33,28 @@ export async function GET(
       return NextResponse.json({ term: null }, { status: 444 });
     }
 
+    const kanjiReadings = termData.kanji_readings || [];
+    const kanjiList = termData.kanji || [];
+    const hvParts = kanjiReadings.map((r: any) => r.hanViet?.[0]).filter(Boolean);
+    const derivedHanVietStr = (hvParts.length === kanjiList.length && hvParts.length > 0)
+      ? hvParts.join(' ').toUpperCase()
+      : (termData.han_viet_str || undefined);
+
     const term: TermRecord = {
       id: termData.id,
       sequence: termData.sequence,
       surface: termData.surface,
       reading: termData.reading,
       romaji: termData.romaji,
+      hanVietStr: derivedHanVietStr,
       meaningsVi: termData.meanings_vi || [],
       glossesRaw: termData.glosses_raw || [],
       partOfSpeech: termData.part_of_speech || [],
       tags: termData.tags || [],
       score: termData.score,
       isCommon: termData.is_common,
-      kanji: termData.kanji || [],
-      kanjiReadings: termData.kanji_readings || [],
+      kanji: kanjiList,
+      kanjiReadings: kanjiReadings,
       examples: [],
       related: [],
       searchAliases: termData.search_aliases || [],

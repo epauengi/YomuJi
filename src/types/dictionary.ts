@@ -19,6 +19,7 @@ export interface TermRecord {
   surface: string;
   reading: string;
   romaji: string;
+  hanVietStr?: string;
   kanjiReadings?: Array<{
     literal: string;
     hanViet: string[];

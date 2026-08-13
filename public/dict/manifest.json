@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "dataVersion": "1.0.0",
-  "generatedAt": "2026-08-13T07:54:33.982Z",
+  "generatedAt": "2026-08-13T08:26:10.014Z",
   "basePath": "/dict",
   "totals": {
     "terms": 245661,
@@ -16,984 +16,984 @@
       "id": "terms-0001",
       "type": "terms",
       "url": "/dict/terms/shard-0001.json",
-      "bytes": 6116461,
-      "sha256": "5e67eb8bbd3cb6d0d3bdc5934f556b578bd4c7ebfe4f0323177a0e7f9fca6967",
+      "bytes": 6390025,
+      "sha256": "9556ba9b088eee9ab684a917c450828ca1e1239033b3313262a8bf2e36337cc5",
       "recordCount": 2000
     },
     {
       "id": "terms-0002",
       "type": "terms",
       "url": "/dict/terms/shard-0002.json",
-      "bytes": 2306746,
-      "sha256": "d12f969313243b31be25a844594ab1beb01b41496098be65756577adf1e2a6d5",
+      "bytes": 2437168,
+      "sha256": "fe8b3aa6a8009c452d694c209d590011630d46661536b678dfc507ef487b9ef3",
       "recordCount": 2000
     },
     {
       "id": "terms-0003",
       "type": "terms",
       "url": "/dict/terms/shard-0003.json",
-      "bytes": 2076066,
-      "sha256": "574f074b80c0b49e946810b503407f4ad6f7c0566ed174fbc259e87ec3ccc630",
+      "bytes": 2196810,
+      "sha256": "ab7fdc70ca5473d052ea233ded816e55296a038d2a75572c661e9e73f9694a1a",
       "recordCount": 2000
     },
     {
       "id": "terms-0004",
       "type": "terms",
       "url": "/dict/terms/shard-0004.json",
-      "bytes": 2440020,
-      "sha256": "5c0598f37bea291609758c3891bb94a29823186a7385313c10d1bae3ae226f1f",
+      "bytes": 2629371,
+      "sha256": "e2f7b17105f786fb8f52064606337b17acf2e61e4e662d65180530dc1b48890e",
       "recordCount": 2000
     },
     {
       "id": "terms-0005",
       "type": "terms",
       "url": "/dict/terms/shard-0005.json",
-      "bytes": 2237720,
-      "sha256": "81c5552096016824c6d5730854a576c9d9be7cca64e7dcd41716cb2866ada4cf",
+      "bytes": 2332912,
+      "sha256": "fb7b2b2d3ed2a12042031bca9c26d7e42b47ff017e9dfdf67a06e55113543360",
       "recordCount": 2000
     },
     {
       "id": "terms-0006",
       "type": "terms",
       "url": "/dict/terms/shard-0006.json",
-      "bytes": 2203144,
-      "sha256": "3966258a0a254a81c143b4c2710497c4f6c8d5a36f4d2fe999a9749ae531e852",
+      "bytes": 2303976,
+      "sha256": "2bb178d7d15f1166538f1e6fd1f8639667b52a11b0f1415cadaf56add6c169b0",
       "recordCount": 2000
     },
     {
       "id": "terms-0007",
       "type": "terms",
       "url": "/dict/terms/shard-0007.json",
-      "bytes": 1810731,
-      "sha256": "b2cbe999c9a8c6beed6d3b3119cfc2dfe621b85fd5ea33d558f696f1c1a6fd7c",
+      "bytes": 1914982,
+      "sha256": "11de25781105cd7444d855bfaee85e5a54ffd8e9863d034a96b1daff71f83e9b",
       "recordCount": 2000
     },
     {
       "id": "terms-0008",
       "type": "terms",
       "url": "/dict/terms/shard-0008.json",
-      "bytes": 1598409,
-      "sha256": "798b01289cb0f0a87ea6bc17744ed749f313442a9f298211f0b6f883e11295f0",
+      "bytes": 1682488,
+      "sha256": "35c25ba22337d6c78b4f804cd3693547775d65c528aabf8ba8a2e9b0579aeefb",
       "recordCount": 2000
     },
     {
       "id": "terms-0009",
       "type": "terms",
       "url": "/dict/terms/shard-0009.json",
-      "bytes": 1420044,
-      "sha256": "217f57d8210bf0c3236c0ed167ecf1bb7393b6f0e2ed7f9ef29e1ac8cf355574",
+      "bytes": 1431997,
+      "sha256": "cde6be7e11b291219d89397f73385dc68cb405dfecf0a6c089ec1c3393e7d854",
       "recordCount": 2000
     },
     {
       "id": "terms-0010",
       "type": "terms",
       "url": "/dict/terms/shard-0010.json",
-      "bytes": 1231203,
-      "sha256": "141ace9e70bf7c0512b97964ae9da01eae0e5e01b1efab3068a46a925c317040",
+      "bytes": 1015960,
+      "sha256": "d902e0e49ad34d03d1a58059f014e297e36f36a4b32eadc1ae8e67cb04e04aa6",
       "recordCount": 2000
     },
     {
       "id": "terms-0011",
       "type": "terms",
       "url": "/dict/terms/shard-0011.json",
-      "bytes": 1386016,
-      "sha256": "1858a035fdd502bdb8d3dc8ae027b2d862291bdfb802f061e1f91380d9221ef1",
+      "bytes": 1344180,
+      "sha256": "bbc8c0297f513188a84a2ff24850dcc529148f074dac947650bb13e821b6f23d",
       "recordCount": 2000
     },
     {
       "id": "terms-0012",
       "type": "terms",
       "url": "/dict/terms/shard-0012.json",
-      "bytes": 1917313,
-      "sha256": "db1244d89b6320020a05d8040c187702fcfe85d0051fa0c0707b1a85aa68c964",
+      "bytes": 2021683,
+      "sha256": "668687b98ed1a8529daaac9975580dcd22746aa509a7f6421da47007ee76eeaa",
       "recordCount": 2000
     },
     {
       "id": "terms-0013",
       "type": "terms",
       "url": "/dict/terms/shard-0013.json",
-      "bytes": 1843883,
-      "sha256": "9cd0ba4151d129078caa3aefeba910e33a8ba7f48943b610f0a879fd3a85a7bc",
+      "bytes": 1939227,
+      "sha256": "5f3ff133c5163ea21a46f77d323184dcbd2de806587ad1de17f461e40c6e03ec",
       "recordCount": 2000
     },
     {
       "id": "terms-0014",
       "type": "terms",
       "url": "/dict/terms/shard-0014.json",
-      "bytes": 1653668,
-      "sha256": "7dc9ecbb6cae6b624a74a590914ce96e9ff7b9d65bbb883dd650479ef5bcdc6b",
+      "bytes": 1736576,
+      "sha256": "35203c03c73e4278b3938e8c478423da2ee5ac3ad13d8ecb3643da71a5886cac",
       "recordCount": 2000
     },
     {
       "id": "terms-0015",
       "type": "terms",
       "url": "/dict/terms/shard-0015.json",
-      "bytes": 1265836,
-      "sha256": "c5968df635b5075f0a42585124fd5be9bffb76d1c5da2df0116bbd3afd190b56",
+      "bytes": 1344132,
+      "sha256": "654040e23c276292b04807482977a614013674f8b26a6d031ef1f6a6d1d7035b",
       "recordCount": 2000
     },
     {
       "id": "terms-0016",
       "type": "terms",
       "url": "/dict/terms/shard-0016.json",
-      "bytes": 1877037,
-      "sha256": "9f258a28d507dec627114dbefeae534d6b1247b4576c7162b47a1424720827b6",
+      "bytes": 2009562,
+      "sha256": "61b08d02641789f654ef1a5b063fd3cfc265ccbfaa19998beabf4fc6917273d8",
       "recordCount": 2000
     },
     {
       "id": "terms-0017",
       "type": "terms",
       "url": "/dict/terms/shard-0017.json",
-      "bytes": 1648660,
-      "sha256": "694eef1b272fe570291e9e55da6088069769c45fb9c538f7e2d0f4759d8bb1b5",
+      "bytes": 1751348,
+      "sha256": "5cf5ea134e4e94e2953a8c90452cb5b65d1b0b0edbb3f282f504f4671e8e6242",
       "recordCount": 2000
     },
     {
       "id": "terms-0018",
       "type": "terms",
       "url": "/dict/terms/shard-0018.json",
-      "bytes": 1603882,
-      "sha256": "7cdb6d023febfb094b2763f1efe080f038a994dd2f865c53bc1363e483863364",
+      "bytes": 1703850,
+      "sha256": "944213b71f2980a18e1552ad63a9e79a6889db3ce0e75bd665cfd2c8a2715896",
       "recordCount": 2000
     },
     {
       "id": "terms-0019",
       "type": "terms",
       "url": "/dict/terms/shard-0019.json",
-      "bytes": 1438400,
-      "sha256": "babcf1a05504b3584e6f4fce562ed79b7bd8953fea488a215cc021abd211e10b",
+      "bytes": 1492146,
+      "sha256": "4cccbf4d87dc071af76dc19e6189b0cbea1f2ba8faed533f665137e4b9d408d5",
       "recordCount": 2000
     },
     {
       "id": "terms-0020",
       "type": "terms",
       "url": "/dict/terms/shard-0020.json",
-      "bytes": 1708569,
-      "sha256": "14bd4ee4dffa3ef880c489b094fbae6e32a1204f097adf0e1e28e1d394fef136",
+      "bytes": 1766205,
+      "sha256": "b4f968d3ab2df9bd915633cb088fd4fa7f6349de28fab7b0a437c00d88367358",
       "recordCount": 2000
     },
     {
       "id": "terms-0021",
       "type": "terms",
       "url": "/dict/terms/shard-0021.json",
-      "bytes": 1430476,
-      "sha256": "0389ca4d5785b249b60290871e780c929d3d624b03cda550d6450864de7d9a43",
+      "bytes": 1479731,
+      "sha256": "e22619d47ce44c7823e488b15c28e3bc9be9b9d58acc964419364165b97b45d6",
       "recordCount": 2000
     },
     {
       "id": "terms-0022",
       "type": "terms",
       "url": "/dict/terms/shard-0022.json",
-      "bytes": 1336503,
-      "sha256": "16bf6794d142c89e7dc8cf7c90e395b1953d5f1871383a28c54ba9240d58f8d7",
+      "bytes": 1380790,
+      "sha256": "f12092fac51aea5d5119074b4f6c32eba7eb3a142db062efb1f6d36bb9faa737",
       "recordCount": 2000
     },
     {
       "id": "terms-0023",
       "type": "terms",
       "url": "/dict/terms/shard-0023.json",
-      "bytes": 1380214,
-      "sha256": "6e5e31df0fc18f18f9b1007e528502348b9db8cc9e2f5634d88bc99fa1459bc5",
+      "bytes": 1427122,
+      "sha256": "1342d85d1ee5ff3b0d38e95763a3734a248b08f6e8c7510a683437b68365d672",
       "recordCount": 2000
     },
     {
       "id": "terms-0024",
       "type": "terms",
       "url": "/dict/terms/shard-0024.json",
-      "bytes": 1549901,
-      "sha256": "84b1bcfa33f7e3ab8610f813da345971a9b8efefdd1c686a10a479555cc985bf",
+      "bytes": 1655221,
+      "sha256": "88947d55e35865803aea000b3b1caf8f497237785815740a8161de647275847e",
       "recordCount": 2000
     },
     {
       "id": "terms-0025",
       "type": "terms",
       "url": "/dict/terms/shard-0025.json",
-      "bytes": 1155546,
-      "sha256": "3b33ae54e45206e476430e692d3c9430b45f346d5fc954dcccb13f4df1a159c4",
+      "bytes": 1201350,
+      "sha256": "d1fc8a659dd8f236ad90bb64baf09f4f05c188f5ea449c86ccd8d7ddead0fbd7",
       "recordCount": 2000
     },
     {
       "id": "terms-0026",
       "type": "terms",
       "url": "/dict/terms/shard-0026.json",
-      "bytes": 1567671,
-      "sha256": "ab7042a0ebd6f21f4d2ed327a9908c33d804b5227a6e74a5d9028b08fe568b17",
+      "bytes": 1638132,
+      "sha256": "fc3b10d62fca150d452634f65ac5f02585c35bf167d3da58eeac4a107a54c156",
       "recordCount": 2000
     },
     {
       "id": "terms-0027",
       "type": "terms",
       "url": "/dict/terms/shard-0027.json",
-      "bytes": 1305561,
-      "sha256": "7401ec5caef842de2aafe43f309455dfaca157c6bdc297493a95726625a4855d",
+      "bytes": 1343611,
+      "sha256": "269450dd45c3518ae764c9837d00406c0fddc2673591d527ed2570dfe4d004f4",
       "recordCount": 2000
     },
     {
       "id": "terms-0028",
       "type": "terms",
       "url": "/dict/terms/shard-0028.json",
-      "bytes": 1578578,
-      "sha256": "d3847420c99c88d956df0fc2c65fc2a501a4970ee6618d600df072243ad4099b",
+      "bytes": 1667552,
+      "sha256": "c408c05f6e68d48e4a6d64a71611acff0e6fad58b4e81099b0e56bedf75a2238",
       "recordCount": 2000
     },
     {
       "id": "terms-0029",
       "type": "terms",
       "url": "/dict/terms/shard-0029.json",
-      "bytes": 1493236,
-      "sha256": "58918b5a0e4c9d4c9abf758b2c32f104320356568d34946cc5beb4b4986c562b",
+      "bytes": 1588991,
+      "sha256": "7581da213482f6566624712a8c7f31a82984d0cf126ff6b2b567b21ef6a99067",
       "recordCount": 2000
     },
     {
       "id": "terms-0030",
       "type": "terms",
       "url": "/dict/terms/shard-0030.json",
-      "bytes": 1241925,
-      "sha256": "3a655d02e19fe2b910d7a66ede481ce21d40034eb1910af3d30da10a2803c360",
+      "bytes": 1315331,
+      "sha256": "74aa2887fd3c310922fc324e426540ae94ec3ae2f63d62d1c467e1b7cd88fb31",
       "recordCount": 2000
     },
     {
       "id": "terms-0031",
       "type": "terms",
       "url": "/dict/terms/shard-0031.json",
-      "bytes": 992067,
-      "sha256": "98852f3d49037cfafb38d29831b94e3a994cfe96d54ac135d592ae4ed469d5e6",
+      "bytes": 985159,
+      "sha256": "7934ee85c0830bf25f7843e422ff9da85c4dbb5d8c5b08ce34a8c19ad6391a23",
       "recordCount": 2000
     },
     {
       "id": "terms-0032",
       "type": "terms",
       "url": "/dict/terms/shard-0032.json",
-      "bytes": 1354048,
-      "sha256": "fcf7b02b6afd6c08c9c44fc838d76a865b705526cf5c0f54c8385bf6f8fe0d2d",
+      "bytes": 1424876,
+      "sha256": "2800e8e91f01cbb8f8eb46930817a668a7991a5c12d3fb603998ff29558b4a76",
       "recordCount": 2000
     },
     {
       "id": "terms-0033",
       "type": "terms",
       "url": "/dict/terms/shard-0033.json",
-      "bytes": 1524764,
-      "sha256": "67a3b4e6b28236fa50fc909c2fd7031ac05f92b575c7268b213f1eaee17e94d0",
+      "bytes": 1612891,
+      "sha256": "3f4ca006c60589b2393ff38879e4c34ddafc72defd8c91cff1a71a11823fa8f7",
       "recordCount": 2000
     },
     {
       "id": "terms-0034",
       "type": "terms",
       "url": "/dict/terms/shard-0034.json",
-      "bytes": 1475418,
-      "sha256": "9d8ee7bb15e1ce1d952665efa5bd61f72c6761e289cffd78d7ddbd95d6b473a1",
+      "bytes": 1545524,
+      "sha256": "03f51ac7ee42624de1d940c58462132ca7a7e0dc04c68c1d9c4637bf35216fb4",
       "recordCount": 2000
     },
     {
       "id": "terms-0035",
       "type": "terms",
       "url": "/dict/terms/shard-0035.json",
-      "bytes": 1261550,
-      "sha256": "d8c6a3aa99e1f5adb939fa6d0c9daa5127a9188d9fa7a04114f98bb7a8cd592a",
+      "bytes": 1280027,
+      "sha256": "1a4a22d2b96a85861d1b8beb2033850e9eb003991bafb33030dc709174c0a17d",
       "recordCount": 2000
     },
     {
       "id": "terms-0036",
       "type": "terms",
       "url": "/dict/terms/shard-0036.json",
-      "bytes": 1592216,
-      "sha256": "932fb9b8d5d05c367ef3efb544a31b075a32331886c3d64f97a9a58a99a8c07b",
+      "bytes": 1675393,
+      "sha256": "3f22f984f70a4577705b24098913f4f96e797ddcbfb6e9c883b165294b2ba0b4",
       "recordCount": 2000
     },
     {
       "id": "terms-0037",
       "type": "terms",
       "url": "/dict/terms/shard-0037.json",
-      "bytes": 1404323,
-      "sha256": "22efc1c8fb3b11d99f057b1df074326e92eff45bb8fdc254e78aa1bc4de89a08",
+      "bytes": 1506588,
+      "sha256": "048e1ec2e1347642af922a17b7cac20e1301c350403e4422a9f45c94645fb0fd",
       "recordCount": 2000
     },
     {
       "id": "terms-0038",
       "type": "terms",
       "url": "/dict/terms/shard-0038.json",
-      "bytes": 1337399,
-      "sha256": "df75836662a90fe8dc129c1e95b026b6f0155ec3b37fd62dcaa9de6ad958e1c2",
+      "bytes": 1436475,
+      "sha256": "4cfc5a4709069cdf5e47e87b21aa5a0292998de52e7500deeab7cac5d0a211e7",
       "recordCount": 2000
     },
     {
       "id": "terms-0039",
       "type": "terms",
       "url": "/dict/terms/shard-0039.json",
-      "bytes": 1285246,
-      "sha256": "e7fae5ad4ac6f4a7d72197d50b020d9185c1c4d767654aa27bdd218a1ade12cf",
+      "bytes": 1376177,
+      "sha256": "97b21f0e5fc5428801fd4a431b89318875a41d1613a1b77e56eaa7fd600e8112",
       "recordCount": 2000
     },
     {
       "id": "terms-0040",
       "type": "terms",
       "url": "/dict/terms/shard-0040.json",
-      "bytes": 971579,
-      "sha256": "6b5d248d9e9d8c8a0dd8c81d94bd76d7005ac091f8a7489456c707529b6ce72f",
+      "bytes": 1044945,
+      "sha256": "65b250e7ae019860fbfb264c7794560138e6b186f18af8456b46e3284b376d84",
       "recordCount": 2000
     },
     {
       "id": "terms-0041",
       "type": "terms",
       "url": "/dict/terms/shard-0041.json",
-      "bytes": 985586,
-      "sha256": "16f2f0f37314565fd918809fc0ac8e39d17e6e85d267471db06aff068dff31de",
+      "bytes": 952559,
+      "sha256": "d65f1d8286f57c5fc55e5d177c52cd44058ed6433422b526f9507442a16c99f4",
       "recordCount": 2000
     },
     {
       "id": "terms-0042",
       "type": "terms",
       "url": "/dict/terms/shard-0042.json",
-      "bytes": 953016,
-      "sha256": "b7c24fcb3987452c21e788e72f9e4bec2127cfc89d94fabd2b050f9322980675",
+      "bytes": 1037445,
+      "sha256": "eb25c189600bc56df764122dc2fd698d313b94ee1bf2193c55755468cec7ef1e",
       "recordCount": 2000
     },
     {
       "id": "terms-0043",
       "type": "terms",
       "url": "/dict/terms/shard-0043.json",
-      "bytes": 978393,
-      "sha256": "7e105be2c261313f3b39d4155e5e7bab886d4d285cffa7b5a370cf14db1bedb4",
+      "bytes": 1061628,
+      "sha256": "f9c0f931a815eec4f3d2ea10c1c880f3eb30f483152c96bfaae26fc826215906",
       "recordCount": 2000
     },
     {
       "id": "terms-0044",
       "type": "terms",
       "url": "/dict/terms/shard-0044.json",
-      "bytes": 1392375,
-      "sha256": "29fe71a4ac13514d599567e52ecff10fa460b1cdd92cdbd0e17ba6a3abd2839c",
+      "bytes": 1479820,
+      "sha256": "4822eacceae756baa74c824a95651cda185d4007c63e60e72e68186683744f92",
       "recordCount": 2000
     },
     {
       "id": "terms-0045",
       "type": "terms",
       "url": "/dict/terms/shard-0045.json",
-      "bytes": 1486186,
-      "sha256": "5e2e82e69fb88e9e689d440408a9bb579e141fc39f15576b279b1ee510c53dcc",
+      "bytes": 1587211,
+      "sha256": "18034544e5995be62128e3652861b995a2c00d3cb102a35e1e2191b75979fee3",
       "recordCount": 2000
     },
     {
       "id": "terms-0046",
       "type": "terms",
       "url": "/dict/terms/shard-0046.json",
-      "bytes": 1448529,
-      "sha256": "249546bdcf79c4ebd90eac7c38517fe175e7332632a7552f74ca94f157e26de9",
+      "bytes": 1541839,
+      "sha256": "5bceb83c3051a42d9e34edda66361db7c71da38bf349ab8f87aeb33e5b51cbc7",
       "recordCount": 2000
     },
     {
       "id": "terms-0047",
       "type": "terms",
       "url": "/dict/terms/shard-0047.json",
-      "bytes": 1089447,
-      "sha256": "a953af0a46527f114b8383bc323655103f8fcc396940f26e5df4fa8866489b8c",
+      "bytes": 1067367,
+      "sha256": "b002b1e4c04630221ce5d7e07cb8a32f85181c8eee854b725d3f532026d5bd03",
       "recordCount": 2000
     },
     {
       "id": "terms-0048",
       "type": "terms",
       "url": "/dict/terms/shard-0048.json",
-      "bytes": 1273446,
-      "sha256": "e9a9008e4c1032dccaa0357a4ff02c8b42868254e87a592f7a89a82b3ea4016d",
+      "bytes": 1333275,
+      "sha256": "5998b84db21334aa8003fd4a4a9b8f8141d601b723cd18a0f23bba2f9bf15c40",
       "recordCount": 2000
     },
     {
       "id": "terms-0049",
       "type": "terms",
       "url": "/dict/terms/shard-0049.json",
-      "bytes": 1201106,
-      "sha256": "a6f0a9319db5e04739ba80e476a3f4206c0438a1af1c3102554aa1bce134df3c",
+      "bytes": 1298916,
+      "sha256": "37c1356815493360307e958379b37746e770f29556c9deeef931d0c30496ee33",
       "recordCount": 2000
     },
     {
       "id": "terms-0050",
       "type": "terms",
       "url": "/dict/terms/shard-0050.json",
-      "bytes": 1195036,
-      "sha256": "c2979fc4ef0a17e184cd37b571d858bd1d7b72731f64526d41e6f0b5d5922d76",
+      "bytes": 1293854,
+      "sha256": "4fa77392304ab5b60c607d7b881290190de9363a3f47e0ae5436e574f81fc9f3",
       "recordCount": 2000
     },
     {
       "id": "terms-0051",
       "type": "terms",
       "url": "/dict/terms/shard-0051.json",
-      "bytes": 1192179,
-      "sha256": "64d212212606770f21c5ced819f0b9e122ede3aac5c2c101647918e10cd98015",
+      "bytes": 1285608,
+      "sha256": "a590b9f5f53f15ae2bbd9fe6b6c640d154df8e7951aa83671964de7e9583729c",
       "recordCount": 2000
     },
     {
       "id": "terms-0052",
       "type": "terms",
       "url": "/dict/terms/shard-0052.json",
-      "bytes": 1308782,
-      "sha256": "793bbb2ef74cd2d5a88e5296db0309c7b02589c060b4f3dbed86b168e2a6cdd7",
+      "bytes": 1375287,
+      "sha256": "ff62bcc4c135fd328e8c61e4c58fb6d4583d3e2fc237d5c97cadc716cc706856",
       "recordCount": 2000
     },
     {
       "id": "terms-0053",
       "type": "terms",
       "url": "/dict/terms/shard-0053.json",
-      "bytes": 1080496,
-      "sha256": "b0d3d36cfffbbc3507dce60b946b91fefbbc8f56c069b2434c6935bf80d90875",
+      "bytes": 1217249,
+      "sha256": "24a068662c1f1fdd20c1f1a2ecb6ae73274cd029a7684bfe8544031ab121a813",
       "recordCount": 2000
     },
     {
       "id": "terms-0054",
       "type": "terms",
       "url": "/dict/terms/shard-0054.json",
-      "bytes": 993582,
-      "sha256": "491129ae8c6ed1e56f376f3e487d97bc4b5e1adee23fee170e1de2aad095ab27",
+      "bytes": 1093555,
+      "sha256": "c0a088cf631167c007db11882858b14a3c2de2dcd6410ef21fe6d17374d4696e",
       "recordCount": 2000
     },
     {
       "id": "terms-0055",
       "type": "terms",
       "url": "/dict/terms/shard-0055.json",
-      "bytes": 995848,
-      "sha256": "80e5752c00e783e1da8c94626b21ede33c0f20bee01d8c4db172c41ff6a8d7a8",
+      "bytes": 1085640,
+      "sha256": "cd85def487454d45ba6aa0ac9c1c6f523b2acc7a15111826c80b81271e63bf7a",
       "recordCount": 2000
     },
     {
       "id": "terms-0056",
       "type": "terms",
       "url": "/dict/terms/shard-0056.json",
-      "bytes": 962195,
-      "sha256": "a6a21268618caa5505969085999e0a9ba3a09717860ff4a1688dc4196f96ff63",
+      "bytes": 983003,
+      "sha256": "1654b52a7e9eb8f936304b7c40d38cf8f0462a1d949673c180304704e10f1dc1",
       "recordCount": 2000
     },
     {
       "id": "terms-0057",
       "type": "terms",
       "url": "/dict/terms/shard-0057.json",
-      "bytes": 989203,
-      "sha256": "e3269812141bcab953ba46aff349d2b2cabbd7f147642ba52b8c2bd8ff5dd740",
+      "bytes": 963498,
+      "sha256": "60ed4ef6d29872060300f242b416a13e276d0ee940c1d1d0d6dd297360228cef",
       "recordCount": 2000
     },
     {
       "id": "terms-0058",
       "type": "terms",
       "url": "/dict/terms/shard-0058.json",
-      "bytes": 1000665,
-      "sha256": "861462e5ddb68eb7a3dd441c85d4c9e2c70f92309831392a93dd5090b51d0f41",
+      "bytes": 1052138,
+      "sha256": "844edb3ec316f8e44fbf3a2c1174413e3d481d7a0fe79b947743176991cc90db",
       "recordCount": 2000
     },
     {
       "id": "terms-0059",
       "type": "terms",
       "url": "/dict/terms/shard-0059.json",
-      "bytes": 929994,
-      "sha256": "2b51f3de67a1ed30181119b9c05bc6a9672d52869960afa233461c8804d318c0",
+      "bytes": 1016923,
+      "sha256": "3084d0d4f6c8d22b22866e2b55e969225a2eac8ce21977e27f7d3d99a17b5167",
       "recordCount": 2000
     },
     {
       "id": "terms-0060",
       "type": "terms",
       "url": "/dict/terms/shard-0060.json",
-      "bytes": 988618,
-      "sha256": "427e9c5bc64cd258da64fc06e540d20e8ce02b3284cd2ceb23f0a9e08f6382a8",
+      "bytes": 1143799,
+      "sha256": "326acd808af0b1cdb7cbe645866680f44c7aa9740aa0b898fd87b49c93fe9a1d",
       "recordCount": 2000
     },
     {
       "id": "terms-0061",
       "type": "terms",
       "url": "/dict/terms/shard-0061.json",
-      "bytes": 995789,
-      "sha256": "d7a188deca5f69374334a6dfb23efd13a6d81613d7108847372f46c2f6f7c620",
+      "bytes": 1185911,
+      "sha256": "cf12227f70a9337d582bbc1583f1dc7dcadb6bc2d158b5fff48452f17177a1de",
       "recordCount": 2000
     },
     {
       "id": "terms-0062",
       "type": "terms",
       "url": "/dict/terms/shard-0062.json",
-      "bytes": 1002337,
-      "sha256": "cbfb882a7a46238b338833ffbccc6373a64f09995cae08dc8fd9ada930163900",
+      "bytes": 1131000,
+      "sha256": "3c730c73b08c64ad83fb987f9a5348e69c1c410673d41e08af57b6ab64e27c4b",
       "recordCount": 2000
     },
     {
       "id": "terms-0063",
       "type": "terms",
       "url": "/dict/terms/shard-0063.json",
-      "bytes": 1118832,
-      "sha256": "02134b9cec0def82f5a0f5df98cd716b1263af74ef6b41318560755b66fca2bf",
+      "bytes": 1158452,
+      "sha256": "e8a755bd7e695bc160a48c0d66241e3910e7efeeb406d4b27325ba7ad91ea9d2",
       "recordCount": 2000
     },
     {
       "id": "terms-0064",
       "type": "terms",
       "url": "/dict/terms/shard-0064.json",
-      "bytes": 1229104,
-      "sha256": "40a5d2d06c58db1a3d3bb74cd0a3ea0d099a1d38709955bd9fd8fc488c211412",
+      "bytes": 1330050,
+      "sha256": "ee08cafe72953cf49642fac60babaa3f0ca73cefbe5c197fd52babf65fadef73",
       "recordCount": 2000
     },
     {
       "id": "terms-0065",
       "type": "terms",
       "url": "/dict/terms/shard-0065.json",
-      "bytes": 1252044,
-      "sha256": "29cb4aa18c83d094cc9315e688888204ea0e7f820e65a6674f6eb1012d0f4191",
+      "bytes": 1355189,
+      "sha256": "93e63d6ef8ab8ff67ffc13bd46c0a4315e9b885f2564ca8ba4dbeacc9d499026",
       "recordCount": 2000
     },
     {
       "id": "terms-0066",
       "type": "terms",
       "url": "/dict/terms/shard-0066.json",
-      "bytes": 1187704,
-      "sha256": "924cd81a57a4373128724ecd583f8ddb54fd52b2375b678037a42738b9e8b821",
+      "bytes": 1252631,
+      "sha256": "afcbd23c5b1270a65fa7c87e3826bef2e20e95dbad9998ca3a655a1ddb635d58",
       "recordCount": 2000
     },
     {
       "id": "terms-0067",
       "type": "terms",
       "url": "/dict/terms/shard-0067.json",
-      "bytes": 1190871,
-      "sha256": "a2116438558cbaf36fbd762a76cdac58d2207ac6bbba9a32776b772b07afeb78",
+      "bytes": 1249705,
+      "sha256": "2437be274ebefbbac9952965df6e0935221afb753a5e8d640c0b1d887ae16f63",
       "recordCount": 2000
     },
     {
       "id": "terms-0068",
       "type": "terms",
       "url": "/dict/terms/shard-0068.json",
-      "bytes": 1257245,
-      "sha256": "2d00c61c3e536dd9aae3411d48e4eb58c391b4f628f8947f6d0ddd7af48f6aeb",
+      "bytes": 1393095,
+      "sha256": "4524e17fafb1e532aecf50e117308a53edd4b1fea7dd5d265d4ed83af9673bf0",
       "recordCount": 2000
     },
     {
       "id": "terms-0069",
       "type": "terms",
       "url": "/dict/terms/shard-0069.json",
-      "bytes": 1286253,
-      "sha256": "8b90e9d9a5ba5b0b12fda6210be61488e97a8062a4dca65ae2a2b43f859205c7",
+      "bytes": 1384774,
+      "sha256": "abd44b76aa7bebee7023eb2fd0bf1e9847a60164a646d4971ffa17d18199e077",
       "recordCount": 2000
     },
     {
       "id": "terms-0070",
       "type": "terms",
       "url": "/dict/terms/shard-0070.json",
-      "bytes": 1217858,
-      "sha256": "168d71ee5def69929f4128f585e2d348a2bbe466bf235cce8bb4da5e0fe1ddff",
+      "bytes": 1321951,
+      "sha256": "fdb08798bb77661009e54a8f5e1232d773c75c69135a13f2f6fedf78e9dbbc1d",
       "recordCount": 2000
     },
     {
       "id": "terms-0071",
       "type": "terms",
       "url": "/dict/terms/shard-0071.json",
-      "bytes": 1062101,
-      "sha256": "1bd3e4ee81767fec24055b73fa3b758e9cece1de7523afc7d37fdf10e14a8192",
+      "bytes": 1249668,
+      "sha256": "d6cd36e84b3bcbb361bbe21ee8bca06476fba3e340ba0e475d317054d777da56",
       "recordCount": 2000
     },
     {
       "id": "terms-0072",
       "type": "terms",
       "url": "/dict/terms/shard-0072.json",
-      "bytes": 1032827,
-      "sha256": "e5295fce840a54f787fb3567da999aaa6ea81c7d408728b5b2bcab906327a37a",
+      "bytes": 1172017,
+      "sha256": "b5913ffbada06636b5a051d9f344b33a4fa801a6b7b192187553f681fcab9d4e",
       "recordCount": 2000
     },
     {
       "id": "terms-0073",
       "type": "terms",
       "url": "/dict/terms/shard-0073.json",
-      "bytes": 1015049,
-      "sha256": "3062d8fb4c5fb35db5999cc0bc58fbdbb762dd7296dc656e043d4caefa679a5d",
+      "bytes": 1131632,
+      "sha256": "99197d181db6e3e0a728a55eb76350e08063212ee14ac055d8dea732714019fe",
       "recordCount": 2000
     },
     {
       "id": "terms-0074",
       "type": "terms",
       "url": "/dict/terms/shard-0074.json",
-      "bytes": 1002403,
-      "sha256": "8ce63bcca30041ed1af1283477b3f4c8cc307e31a61e505ad50b29bd2991a79b",
+      "bytes": 1127744,
+      "sha256": "e7c1f7340903ce0615b920924db808933487bd05defd4bc070b1322e4343abac",
       "recordCount": 2000
     },
     {
       "id": "terms-0075",
       "type": "terms",
       "url": "/dict/terms/shard-0075.json",
-      "bytes": 983372,
-      "sha256": "5161dce80be4ab10faba93b7acfe07c2c61e1a7a508606a538092386887e0fb8",
+      "bytes": 1076294,
+      "sha256": "3b2fc3585967cb93418e56dcb47bf72474d1bc9d276f36a3b43288ab7518f2ae",
       "recordCount": 2000
     },
     {
       "id": "terms-0076",
       "type": "terms",
       "url": "/dict/terms/shard-0076.json",
-      "bytes": 984763,
-      "sha256": "e4868ef719d5ea0c1c51ac7eda82bdca2f94c6630688f66db8d6586349428dd8",
+      "bytes": 1014958,
+      "sha256": "06f2ff03283bb7a5a39de70f01bfb4cd89092044f30d8d7a89d42d85be8caf6a",
       "recordCount": 2000
     },
     {
       "id": "terms-0077",
       "type": "terms",
       "url": "/dict/terms/shard-0077.json",
-      "bytes": 1010122,
-      "sha256": "bc397444735c58df31d4694f1844c5c5be3c836e2a686bc1bd92a71e33462e5c",
+      "bytes": 1066395,
+      "sha256": "680cd1167fd5859d25e03076a35cd243ed7e5a537a519dd187322cb11649d351",
       "recordCount": 2000
     },
     {
       "id": "terms-0078",
       "type": "terms",
       "url": "/dict/terms/shard-0078.json",
-      "bytes": 1027074,
-      "sha256": "7d11f8246697095205378ba4d8d51c633546aabb00e9fcf7adcaa0a99a46a633",
+      "bytes": 1071741,
+      "sha256": "c2827be6c6512ab0c6d1cfe38dce091408b2b7600226dbcd4f6dc9dea4b05ff0",
       "recordCount": 2000
     },
     {
       "id": "terms-0079",
       "type": "terms",
       "url": "/dict/terms/shard-0079.json",
-      "bytes": 1029436,
-      "sha256": "9d62df4d767dbf47b61b0db034c6d854d9489656388c51317de1b3319d8d42df",
+      "bytes": 1008885,
+      "sha256": "34db729f734558f67070feb6477ed28be6ac6c9112c5da61c0078a3bc05d13a9",
       "recordCount": 2000
     },
     {
       "id": "terms-0080",
       "type": "terms",
       "url": "/dict/terms/shard-0080.json",
-      "bytes": 1007814,
-      "sha256": "fdb98fa621bc225593b6e03b4741bf2f13d9cdf9a0cc5d44c4a737d70d522f76",
+      "bytes": 1175875,
+      "sha256": "d7930c5b336ce0601dd088774c71390d9450be8a5a440141f9dc629015caf571",
       "recordCount": 2000
     },
     {
       "id": "terms-0081",
       "type": "terms",
       "url": "/dict/terms/shard-0081.json",
-      "bytes": 987852,
-      "sha256": "1ba9347cc4692c59c666fd28ebeb9c66380ef1dd5eced7d1d71ff6c9a19dbc3a",
+      "bytes": 1117805,
+      "sha256": "ebc6049630864da0d8b4a8625aa6333a528520c25752c0974dd0a2f0b0324b77",
       "recordCount": 2000
     },
     {
       "id": "terms-0082",
       "type": "terms",
       "url": "/dict/terms/shard-0082.json",
-      "bytes": 923257,
-      "sha256": "797d4e857c3535623a91c70282bf566ae63e65fcc68aa6fede127b38c73dd1dc",
+      "bytes": 897298,
+      "sha256": "c558a48e4e3556a74e263f514e72c62c5b0a65decca68fa10a9a9af23287ec0c",
       "recordCount": 2000
     },
     {
       "id": "terms-0083",
       "type": "terms",
       "url": "/dict/terms/shard-0083.json",
-      "bytes": 923898,
-      "sha256": "57e55a10451a3f501c7cc91f4ec398ca99f03f60ed4b9c8d7200215cabc1e504",
+      "bytes": 939256,
+      "sha256": "20167dcc69ed9186169cb8822e6caac8165b370074cd906be70cc50c4f22ac89",
       "recordCount": 2000
     },
     {
       "id": "terms-0084",
       "type": "terms",
       "url": "/dict/terms/shard-0084.json",
-      "bytes": 1006677,
-      "sha256": "202ad9221d14503ff9f456c1cd0d668dcd120648c542b10e4c255bb33bc06163",
+      "bytes": 1128695,
+      "sha256": "25469326002456473e3d665d2fa732d158c72f58e9d85e0a860bb1e5f819280a",
       "recordCount": 2000
     },
     {
       "id": "terms-0085",
       "type": "terms",
       "url": "/dict/terms/shard-0085.json",
-      "bytes": 999405,
-      "sha256": "317f190f02749c38d4d90bbf15765890312de9606823df1f3c2471a2704ec646",
+      "bytes": 1148429,
+      "sha256": "02a8ed91174334736e27ffe0cc10badbe87c4f7be5f1706605eccbb42f2066f3",
       "recordCount": 2000
     },
     {
       "id": "terms-0086",
       "type": "terms",
       "url": "/dict/terms/shard-0086.json",
-      "bytes": 994111,
-      "sha256": "ec7be3fad920cf4985d0221323226b12bc7d79b6b04bea79d42fafba90b70a6c",
+      "bytes": 1171450,
+      "sha256": "ebb0e5dbc61fd5fc4d8005ec4c0766cae2d25844ef383dae525c3f4364631f61",
       "recordCount": 2000
     },
     {
       "id": "terms-0087",
       "type": "terms",
       "url": "/dict/terms/shard-0087.json",
-      "bytes": 996633,
-      "sha256": "377b30f9b693dc6b7ba4362e57a940376843552d6c9061959e0dd3d03573b62e",
+      "bytes": 1154815,
+      "sha256": "e7c239900b595fcbd98c5b7f57d628d89e12f7b56461f216a5744da705ec3f80",
       "recordCount": 2000
     },
     {
       "id": "terms-0088",
       "type": "terms",
       "url": "/dict/terms/shard-0088.json",
-      "bytes": 1017066,
-      "sha256": "31cc21389be7c24ac9ec2df580f5fd0f13fda3e5997869e2bbb58d1d59071623",
+      "bytes": 1132477,
+      "sha256": "01c6c9435e5fb0fa34e857db9589a3ba2dcb75491211d865ea30efa380cba6e5",
       "recordCount": 2000
     },
     {
       "id": "terms-0089",
       "type": "terms",
       "url": "/dict/terms/shard-0089.json",
-      "bytes": 986483,
-      "sha256": "898e16ec7b9a0d6deadd1ad1fe3d22081bda7d4fd9ab37a3130529da99312015",
+      "bytes": 1123482,
+      "sha256": "476f9de02d4e1167226f4a29f6309b3fdfcb3f125b7802da4cc2d3e7e6a0fb15",
       "recordCount": 2000
     },
     {
       "id": "terms-0090",
       "type": "terms",
       "url": "/dict/terms/shard-0090.json",
-      "bytes": 981325,
-      "sha256": "07fd4b47777def52b21fc08a760661e9928e0ad0ccb74a4148394d66be5cfe88",
+      "bytes": 1111019,
+      "sha256": "d36f54c50c964fbaf18e91f4d88ac84c96118dad95ef684194aca742a274aa74",
       "recordCount": 2000
     },
     {
       "id": "terms-0091",
       "type": "terms",
       "url": "/dict/terms/shard-0091.json",
-      "bytes": 1000070,
-      "sha256": "aedfa76f2fbc210c954c59aa862ac5da779ba31f5ac582bd1110a7dca84fe1f1",
+      "bytes": 1048496,
+      "sha256": "ffe9e8b5c7abb63c1324f677a33f26b86eaf08a32e87a90a86d215eef5a12313",
       "recordCount": 2000
     },
     {
       "id": "terms-0092",
       "type": "terms",
       "url": "/dict/terms/shard-0092.json",
-      "bytes": 1206867,
-      "sha256": "4883000f7d693bf3355bca6a8ea1df5cbea84b9c992eb250988f87f94439cbb3",
+      "bytes": 1306287,
+      "sha256": "f486cbddd481e596af397d2b5d6d2fe9a8f759f4f484fc14031244253f0ed358",
       "recordCount": 2000
     },
     {
       "id": "terms-0093",
       "type": "terms",
       "url": "/dict/terms/shard-0093.json",
-      "bytes": 1237810,
-      "sha256": "422e349c6a95d2775ff50034e3b0ae72272fadeecfa50914b981b15e3f21915a",
+      "bytes": 1360723,
+      "sha256": "189c12883f04b9b497c50135c179e6cf13be1770510a9dd33149f7d94a5eb6cc",
       "recordCount": 2000
     },
     {
       "id": "terms-0094",
       "type": "terms",
       "url": "/dict/terms/shard-0094.json",
-      "bytes": 1219393,
-      "sha256": "581a737fdab4c045a8c0c2f1aefebca3f10a152c2dfc23854d4839d2db34cfb8",
+      "bytes": 1320417,
+      "sha256": "b741df428364e347b27947d6a1e411ef56dc607d439ed10e763f9d6d0e044342",
       "recordCount": 2000
     },
     {
       "id": "terms-0095",
       "type": "terms",
       "url": "/dict/terms/shard-0095.json",
-      "bytes": 1160275,
-      "sha256": "31c19ffea658b0b97e849d5c243895997f86f7098d1f09412461248c4068b7e9",
+      "bytes": 1282024,
+      "sha256": "1aed566a4c76a3b9802e826b6ab99fbca17f79535842c6713daee4221e35f6ff",
       "recordCount": 2000
     },
     {
       "id": "terms-0096",
       "type": "terms",
       "url": "/dict/terms/shard-0096.json",
-      "bytes": 1096841,
-      "sha256": "854cb0ec707f659daa969cbcfe2567245bccb0e2ef23833240bfa9d675d4288c",
+      "bytes": 1334983,
+      "sha256": "a99ae9ea48ab43c2d758452fd58631e2b6f4f680f02975ff87e149146ab92bc8",
       "recordCount": 2000
     },
     {
       "id": "terms-0097",
       "type": "terms",
       "url": "/dict/terms/shard-0097.json",
-      "bytes": 1042818,
-      "sha256": "bff714ed87eadd0d32f6ad3c5c1841338f15fe4b6a0835d3ea192df2600bc85f",
+      "bytes": 1201482,
+      "sha256": "1003f11cbe4029102b26acf16c6ea223a0f55c249e49aa2bc17f17c38ff63f3a",
       "recordCount": 2000
     },
     {
       "id": "terms-0098",
       "type": "terms",
       "url": "/dict/terms/shard-0098.json",
-      "bytes": 1025360,
-      "sha256": "be8ed540da1b155f4f588bf50052b156bc666acc229ac1ea8bc9c2badc7b8590",
+      "bytes": 1179637,
+      "sha256": "5a9c2944e95a5445604ecf3faf40100c936a5cf61c45c6ecabb464e81b8384f7",
       "recordCount": 2000
     },
     {
       "id": "terms-0099",
       "type": "terms",
       "url": "/dict/terms/shard-0099.json",
-      "bytes": 1021928,
-      "sha256": "ae2a44a6b662d0204a6c828540b5cbae4b0b99877a3c41693bd05cb151abd858",
+      "bytes": 1112541,
+      "sha256": "7a9f12151ecc5d28885c8f19f8b1c116eec558e6948a16c26295b22d764fc75d",
       "recordCount": 2000
     },
     {
       "id": "terms-0100",
       "type": "terms",
       "url": "/dict/terms/shard-0100.json",
-      "bytes": 1003280,
-      "sha256": "09c6d637e89103113c12b02e8cce30f8dbccb5dce258feb1a92d7926e06efbe5",
+      "bytes": 1077896,
+      "sha256": "a1845b9f6c08c3a04ed8dd685e79f79ee98d600b9a2b27e6c47e25c0ee73f282",
       "recordCount": 2000
     },
     {
       "id": "terms-0101",
       "type": "terms",
       "url": "/dict/terms/shard-0101.json",
-      "bytes": 1051114,
-      "sha256": "217f9d5087923fc5a139fe4d65c100715b8b87529384f06a3a72f0ccd39b7cee",
+      "bytes": 1083936,
+      "sha256": "ca00d6cb9206383950e7231f8bb9af9346c0f21ecaef47eadf0eb8c5a714ca1c",
       "recordCount": 2000
     },
     {
       "id": "terms-0102",
       "type": "terms",
       "url": "/dict/terms/shard-0102.json",
-      "bytes": 1022700,
-      "sha256": "01665667e3f5728acf77eab44edd9416a815b8bac7722a82404035257ef9bdb4",
+      "bytes": 1001070,
+      "sha256": "e5a74d6406e013953504f8d6102bcd4aded73be6fdcd422c59ae6e111599641a",
       "recordCount": 2000
     },
     {
       "id": "terms-0103",
       "type": "terms",
       "url": "/dict/terms/shard-0103.json",
-      "bytes": 1060709,
-      "sha256": "00b4f60690f6887f038b66ec9412b0b45e90d1aba782a75c274e5358c01d0efe",
+      "bytes": 1323877,
+      "sha256": "d329a9e6c62d3eb000d2b8dd928fff9370078f4c918fc98b57309bcfb0a8104a",
       "recordCount": 2000
     },
     {
       "id": "terms-0104",
       "type": "terms",
       "url": "/dict/terms/shard-0104.json",
-      "bytes": 1069243,
-      "sha256": "58c8f97f7852c778fc275cbe29f65119695f1635973e7848d8b21936853ff2e3",
+      "bytes": 1401094,
+      "sha256": "748079ee8996707a493fc603d98201ac3f7aa123d989f8df8c3cfea6fc8e67b7",
       "recordCount": 2000
     },
     {
       "id": "terms-0105",
       "type": "terms",
       "url": "/dict/terms/shard-0105.json",
-      "bytes": 1049831,
-      "sha256": "45c98b4950fcf42c3bca32aa74ded94876445c99764bbbf752a4290912b476b7",
+      "bytes": 1256721,
+      "sha256": "9c68850306c900b2428ccc9cfb0973ca9625cf9a860b785d4099b1581e625c87",
       "recordCount": 2000
     },
     {
       "id": "terms-0106",
       "type": "terms",
       "url": "/dict/terms/shard-0106.json",
-      "bytes": 973423,
-      "sha256": "0cbf26206e7a8fa69dc2d4618d426462d897345eb9d20f04f273d21ec8b53e5c",
+      "bytes": 1039380,
+      "sha256": "92f3aa6ecb0750a47e0651ddbde98bf5f6a90704278b50f323030e2033b16b4f",
       "recordCount": 2000
     },
     {
       "id": "terms-0107",
       "type": "terms",
       "url": "/dict/terms/shard-0107.json",
-      "bytes": 904092,
-      "sha256": "5b38b74c6ca701a3de30f7671a2b24d67552c27841213a125cc2eb1f13fb6e64",
+      "bytes": 848416,
+      "sha256": "eea0bda329df8464fcfc6c4f942386d1f13a7ee9c81c29878ea14f3feddec507",
       "recordCount": 2000
     },
     {
       "id": "terms-0108",
       "type": "terms",
       "url": "/dict/terms/shard-0108.json",
-      "bytes": 1071276,
-      "sha256": "592cfe94026ff21c60311b5b2326175b2f0f21530635e7070ab7204c1598bd1f",
+      "bytes": 967001,
+      "sha256": "4b88277cf3c616ac93e532d9ea6304cbece7862e4f81b22744dece3fd07daa5d",
       "recordCount": 2000
     },
     {
       "id": "terms-0109",
       "type": "terms",
       "url": "/dict/terms/shard-0109.json",
-      "bytes": 1035781,
-      "sha256": "bc0927e1bbbcc93b43d8f291193237aadb9c3ecd7801cb510fd69c650441b211",
+      "bytes": 1044372,
+      "sha256": "17211656a4b082c3857686953fea83ae05285d5aae850cc235c950b7a78f53de",
       "recordCount": 2000
     },
     {
       "id": "terms-0110",
       "type": "terms",
       "url": "/dict/terms/shard-0110.json",
-      "bytes": 1000134,
-      "sha256": "94afa600496066d2a1f7ea31a69f062a6992060758873a0198ca04b3ac365478",
+      "bytes": 1135624,
+      "sha256": "36a8aa362e4b7bc67a808495f943837a31e709961f81597ae1ee104c6adcf283",
       "recordCount": 2000
     },
     {
       "id": "terms-0111",
       "type": "terms",
       "url": "/dict/terms/shard-0111.json",
-      "bytes": 1035155,
-      "sha256": "b0ed0abd2424a267f4d70a43b957e7fc2de7f1b72d469aaea514b7bd08421074",
+      "bytes": 1132006,
+      "sha256": "d6edd1bcf8563c3c0357aa157fd5781a4828bf2303da33676f1062b5989114a6",
       "recordCount": 2000
     },
     {
       "id": "terms-0112",
       "type": "terms",
       "url": "/dict/terms/shard-0112.json",
-      "bytes": 1012503,
-      "sha256": "2280fefc3922261f871869a21c2b5874837c778da575dae05aacfaa3b1ebd370",
+      "bytes": 1089334,
+      "sha256": "9d8d32f760bd395fbbeaceec545e897896f8b6e0673e4b4111ed3fb1df1191df",
       "recordCount": 2000
     },
     {
       "id": "terms-0113",
       "type": "terms",
       "url": "/dict/terms/shard-0113.json",
-      "bytes": 1011779,
-      "sha256": "319d3a079cdcf229f7740d3aa5970fb210b74c3cf733a524872da0d58a21ad22",
+      "bytes": 1106609,
+      "sha256": "dac6670041144911fd164f000cacfa1507e9cae55acde61f36b5f331e982a162",
       "recordCount": 2000
     },
     {
       "id": "terms-0114",
       "type": "terms",
       "url": "/dict/terms/shard-0114.json",
-      "bytes": 1011466,
-      "sha256": "36f725b0fe508b623a055fe5e2bd1f0ac1fa84799870193d9827166b9af062b6",
+      "bytes": 1097437,
+      "sha256": "39f00e807d2ec1d3d79eea50154cd16a2dd86eab2c75a45ddd744fa4e98c49f6",
       "recordCount": 2000
     },
     {
       "id": "terms-0115",
       "type": "terms",
       "url": "/dict/terms/shard-0115.json",
-      "bytes": 993753,
-      "sha256": "4398b89c909720cf0dd36d0e5dc24cf1e5c91becd53d8f3573bd7049b62e762c",
+      "bytes": 1103772,
+      "sha256": "22e31a006812f88bb9b722ba842eacf4eaeaf4612b3700f4db223ce78c3da8c2",
       "recordCount": 2000
     },
     {
       "id": "terms-0116",
       "type": "terms",
       "url": "/dict/terms/shard-0116.json",
-      "bytes": 1006697,
-      "sha256": "a70e0b0e17c51275e259536c8183b07a45f168b60184d14b8480b96ed4d6c9e0",
+      "bytes": 1085083,
+      "sha256": "ec6c49b9cad381721ccd0817e07fc9a8c1862f64943f7e6060f89fb902ff93c2",
       "recordCount": 2000
     },
     {
       "id": "terms-0117",
       "type": "terms",
       "url": "/dict/terms/shard-0117.json",
-      "bytes": 1014573,
-      "sha256": "ebfd2c22932ca369d8271406aa68d0fe8ca1f0799966ec0030175d64defea217",
+      "bytes": 1079639,
+      "sha256": "a278bda1af634f7ac5e727adb1d82b4f3ad1969e0d50f6dd857bd7b74267c457",
       "recordCount": 2000
     },
     {
       "id": "terms-0118",
       "type": "terms",
       "url": "/dict/terms/shard-0118.json",
-      "bytes": 1004750,
-      "sha256": "054a8a3721cce65c26b92238d1a26047744e80e2766184f3b6454992143af8cc",
+      "bytes": 1050071,
+      "sha256": "e4ac811f0bbd6bb0978a8654e52e2ae088e30357b433fcc064c07fe4eeb2d606",
       "recordCount": 2000
     },
     {
       "id": "terms-0119",
       "type": "terms",
       "url": "/dict/terms/shard-0119.json",
-      "bytes": 1128972,
-      "sha256": "27aad7ae911d371291afa1308c38c8fe1488794162a701838e41ab273db43736",
+      "bytes": 1198753,
+      "sha256": "3fc37d4e3fa80744d62f98dcd093ef4913d3ab863e77517df671a2f91ddcbc0e",
       "recordCount": 2000
     },
     {
       "id": "terms-0120",
       "type": "terms",
       "url": "/dict/terms/shard-0120.json",
-      "bytes": 1498916,
-      "sha256": "d3778cfaadbab47e650ba58815b8718a65e0845773c1dafa02d480a68ec0c1e4",
+      "bytes": 1588524,
+      "sha256": "891fa4149c05e9fc5bfc18b7eb9dadd58c1fcf972da265720f6b81ed95e622e9",
       "recordCount": 2000
     },
     {
       "id": "terms-0121",
       "type": "terms",
       "url": "/dict/terms/shard-0121.json",
-      "bytes": 1238338,
-      "sha256": "c9fbf0da71df48fc817ae1f91216cd67ceb675631a55c0609f4bc1070d86a88d",
+      "bytes": 1339667,
+      "sha256": "42681e50062fef936c78adfef1edfabbc0e883a88079798ced1fa3932ecb99bf",
       "recordCount": 2000
     },
     {
       "id": "terms-0122",
       "type": "terms",
       "url": "/dict/terms/shard-0122.json",
-      "bytes": 1156043,
-      "sha256": "ebe67fbeb4f426f94e163b9c3e6f6a833641dcfec979e11b27d4bfa06cb57887",
+      "bytes": 1287061,
+      "sha256": "3a5adef5342296cc43c73432c11630eab1917918ba3d02fb06ee75e4c28af055",
       "recordCount": 2000
     },
     {
       "id": "terms-0123",
       "type": "terms",
       "url": "/dict/terms/shard-0123.json",
-      "bytes": 899320,
-      "sha256": "c2e17da4695ff9445db0cacf4554e85eccd0d5f8d6c95392eba6449e159cf2b1",
+      "bytes": 999793,
+      "sha256": "8297bcc8ddd779a7089c94b6f419e552c1a77335bf8b71c2f3966790b2931a5e",
       "recordCount": 1661
     },
     {
@@ -1168,400 +1168,400 @@
       "id": "search-0001",
       "type": "search",
       "url": "/dict/search/index-0001.json",
-      "bytes": 3837556,
-      "sha256": "089dab0a0f6c6350d8058a9856161e7d3d8380382334b637b575d3b4b8c472cd",
+      "bytes": 4625970,
+      "sha256": "9dbc8b089236ade9db7a5067a9510206d33ac01f6fc157ed82693415f92863fd",
       "recordCount": 5000
     },
     {
       "id": "search-0002",
       "type": "search",
       "url": "/dict/search/index-0002.json",
-      "bytes": 3288508,
-      "sha256": "18e05d92c3ff091f8869826b6e8e765ea38c8752c02a8e0153559a6c79cb3163",
+      "bytes": 3744033,
+      "sha256": "04e00e303fc3a700ca21afc58f8e37e978a1106a4964556947a907b2dd1ba969",
       "recordCount": 5000
     },
     {
       "id": "search-0003",
       "type": "search",
       "url": "/dict/search/index-0003.json",
-      "bytes": 2928716,
-      "sha256": "dc2cd4137e53fb448925043be554e5bb7ad82cf7a7dd4c8850497068162b0d24",
+      "bytes": 3103066,
+      "sha256": "af7d3ef389a5e1aa0ea6e3cf352daabf989313d72f4e42e9e716ca35d4a28c75",
       "recordCount": 5000
     },
     {
       "id": "search-0004",
       "type": "search",
       "url": "/dict/search/index-0004.json",
-      "bytes": 2388694,
-      "sha256": "6e872f8db037bf44a91c54aff74aa700905a451695811687ab44387482670177",
+      "bytes": 1936342,
+      "sha256": "82224fa5a0a4f33640235f9ac34223b1040a270f75b69ba1b45baf0f319ba466",
       "recordCount": 5000
     },
     {
       "id": "search-0005",
       "type": "search",
       "url": "/dict/search/index-0005.json",
-      "bytes": 2795562,
-      "sha256": "88835c30e2962c06504f805f326589cc6d3dc3c0a875d20565d6708dfe994155",
+      "bytes": 2817402,
+      "sha256": "02312e10464f49ecb8aacd0e37d46478ab5cd1951cb86fba8b5a82c22d315595",
       "recordCount": 5000
     },
     {
       "id": "search-0006",
       "type": "search",
       "url": "/dict/search/index-0006.json",
-      "bytes": 2438773,
-      "sha256": "f5d6289f1e2f59976a885ad37890ef923060f36987fe8fa03ce303e51433ddc4",
+      "bytes": 2343220,
+      "sha256": "e4ed13fe3feeec26a32dca72439c6a2f3be36ce9e439ec47981172f0d6fb1e9c",
       "recordCount": 5000
     },
     {
       "id": "search-0007",
       "type": "search",
       "url": "/dict/search/index-0007.json",
-      "bytes": 2660841,
-      "sha256": "017d7a73a267affddcd723e628db68d7f91a3de448abfc7191494c77b0a2e85a",
+      "bytes": 2876405,
+      "sha256": "d66704f51f9eb0bf011ece54135ce5c521425bee0521302ee82ac5d797bdb318",
       "recordCount": 5000
     },
     {
       "id": "search-0008",
       "type": "search",
       "url": "/dict/search/index-0008.json",
-      "bytes": 2473385,
-      "sha256": "7178f30607aa39831d04c4905e1c9e74f4980391ee10ad47fef949209b82d406",
+      "bytes": 2448272,
+      "sha256": "113b1c5ecfeebdb8b306107c6ede9f3fd4ca48f29e5266fe88561ec2d170a64a",
       "recordCount": 5000
     },
     {
       "id": "search-0009",
       "type": "search",
       "url": "/dict/search/index-0009.json",
-      "bytes": 2433802,
-      "sha256": "cf97e5db4d78f140d0ae17b62d6fb2f296ad3a9cfb6cac00b60282adea0eb094",
+      "bytes": 2334409,
+      "sha256": "e6ad8295f8dd159eb35807bc05753d2694d0c7fabcd3b57ab34dc90c87dd10e6",
       "recordCount": 5000
     },
     {
       "id": "search-0010",
       "type": "search",
       "url": "/dict/search/index-0010.json",
-      "bytes": 2311398,
-      "sha256": "ae4db21cb00d6319061adc8969657147518f2e66978899b2c85de9f1c11f78d5",
+      "bytes": 2212158,
+      "sha256": "748065c6fb509393fed04333d1922a11e9d121f43c745d68b28bb742f1208ea7",
       "recordCount": 5000
     },
     {
       "id": "search-0011",
       "type": "search",
       "url": "/dict/search/index-0011.json",
-      "bytes": 2456097,
-      "sha256": "f5364e695daf9e95946a983ce1c02b75ed566fbcbc9060d34a547c0767212f16",
+      "bytes": 2388573,
+      "sha256": "6e47d54ecaf4fb246f9822e07f648dc434c33cfd29159f7d5b8f0e211a1276b6",
       "recordCount": 5000
     },
     {
       "id": "search-0012",
       "type": "search",
       "url": "/dict/search/index-0012.json",
-      "bytes": 2443394,
-      "sha256": "e0de5ac8a2a93b1d091bd3aced8fc74161d966feb1cd2083031bf5d02fbf9851",
+      "bytes": 2318343,
+      "sha256": "0f586aeb395412608fdd9f93d9a450439f3d45cf4fbc765a3a28fcad198e7b18",
       "recordCount": 5000
     },
     {
       "id": "search-0013",
       "type": "search",
       "url": "/dict/search/index-0013.json",
-      "bytes": 2226929,
-      "sha256": "8a3a4abf8bce9152cf4eb7bfb614d99218590c363bca0202df16408daba8f4f3",
+      "bytes": 2010929,
+      "sha256": "052e1cfc3a09d1e1f34fa0f3c659527760835e2f142f4bfdadd4ed9b408a1711",
       "recordCount": 5000
     },
     {
       "id": "search-0014",
       "type": "search",
       "url": "/dict/search/index-0014.json",
-      "bytes": 2396289,
-      "sha256": "bf345914ab81cf9886f7f7783b59ad61fcc133e9e6a791c20daf182f484e152d",
+      "bytes": 2277416,
+      "sha256": "992d95dd84ec3baba41821e6f451b06ada1ad97911912916d63f55cb9209308e",
       "recordCount": 5000
     },
     {
       "id": "search-0015",
       "type": "search",
       "url": "/dict/search/index-0015.json",
-      "bytes": 2435740,
-      "sha256": "f2685b73721f2f0ce863eb3ac379f6dac39148508f9761b74b845a3000a42149",
+      "bytes": 2320456,
+      "sha256": "e8279ac3024fa25f5747752504559f79a6bf364ad1ef70d1c9a4822cf58c161a",
       "recordCount": 5000
     },
     {
       "id": "search-0016",
       "type": "search",
       "url": "/dict/search/index-0016.json",
-      "bytes": 2123127,
-      "sha256": "9acbc73d597a67992a049cf92aa24ae9e3775f5978f683333d48ca67af7830f4",
+      "bytes": 1876497,
+      "sha256": "91518ec409a78418df541a6a3e0e71fbed24d7588284f0058d30c86bcfd94ef8",
       "recordCount": 5000
     },
     {
       "id": "search-0017",
       "type": "search",
       "url": "/dict/search/index-0017.json",
-      "bytes": 1928087,
-      "sha256": "f76799c4774d4faade57232517b92532322f2eb15b4cf532a885ccc75be53f28",
+      "bytes": 1602852,
+      "sha256": "53d2d7d81b7d6d129f9fff7fbc9ba6159ef779f91ab222b0ac46ead258799370",
       "recordCount": 5000
     },
     {
       "id": "search-0018",
       "type": "search",
       "url": "/dict/search/index-0018.json",
-      "bytes": 2283978,
-      "sha256": "09d0ed1bb2d1a3d66ddf50235f7ec53a4b339b91be9cabe5684efe31281add59",
+      "bytes": 2112611,
+      "sha256": "c3c459fa98f328427cf6d68bb7fa9120db95cb00260cda6bd44e2c595cd272e5",
       "recordCount": 5000
     },
     {
       "id": "search-0019",
       "type": "search",
       "url": "/dict/search/index-0019.json",
-      "bytes": 2189640,
-      "sha256": "db15161d5bb268ca202e0eefd310d571ff21ed6975d037b780c260b47739dacc",
+      "bytes": 2006132,
+      "sha256": "2210d3d722959296dc1aa4b3336cd9885d31f83c47c250649d1b938977d4cc97",
       "recordCount": 5000
     },
     {
       "id": "search-0020",
       "type": "search",
       "url": "/dict/search/index-0020.json",
-      "bytes": 1952165,
-      "sha256": "d54b60abbe9e64469ed247c3cca443b5af55a4c729b8a8f88ce302f374093f56",
+      "bytes": 1672983,
+      "sha256": "d064f6cc157bf9caabc6053a86779ddf19371599e12d116dbba17f8b42d36ec4",
       "recordCount": 5000
     },
     {
       "id": "search-0021",
       "type": "search",
       "url": "/dict/search/index-0021.json",
-      "bytes": 2072364,
-      "sha256": "be69b15a7582ff8cbbeb9e19eb9e80d3532086a76ac25a0cc9e5e99cedd35d52",
+      "bytes": 1810851,
+      "sha256": "d6502091bbce6e48aa859d5243e850a9bbd94543d108e91e606f2020ccffa860",
       "recordCount": 5000
     },
     {
       "id": "search-0022",
       "type": "search",
       "url": "/dict/search/index-0022.json",
-      "bytes": 2023752,
-      "sha256": "cde4b504139ac981acd5db63e64416357c64a3bf8d3948d87b5e4fcdc8214302",
+      "bytes": 1661211,
+      "sha256": "0eb647d81e8ccfef64ad48df4cf0ee9992783f4dfb489617b348da8e0a6d4463",
       "recordCount": 5000
     },
     {
       "id": "search-0023",
       "type": "search",
       "url": "/dict/search/index-0023.json",
-      "bytes": 1969910,
-      "sha256": "3fecf80aa7e73aac56b8e591baed25468edde5c1655dcfdcded416eb95bcc6b8",
+      "bytes": 1691303,
+      "sha256": "3bac045fa2cd0542b670800305ee9d2a5d56d12540c60297f3b26a82b014bed6",
       "recordCount": 5000
     },
     {
       "id": "search-0024",
       "type": "search",
       "url": "/dict/search/index-0024.json",
-      "bytes": 1949772,
-      "sha256": "de0ddf24bdd7be92eea265a6e7835a6e73c544646d3fed08167047188e3673d4",
+      "bytes": 1628765,
+      "sha256": "3edf038bce700aaa9f2d38c090d4a31f314508bbf34cc96172e44f1ca0b9bfd6",
       "recordCount": 5000
     },
     {
       "id": "search-0025",
       "type": "search",
       "url": "/dict/search/index-0025.json",
-      "bytes": 1984391,
-      "sha256": "e0c3f25f59e5da0b53741412730d9ab074587f5833e8cffd185a1968c19ab7cc",
+      "bytes": 1647649,
+      "sha256": "b92c40a5f19fa641f70549da00689d89714ca860b6bc49ff337a1fa913cc0ff0",
       "recordCount": 5000
     },
     {
       "id": "search-0026",
       "type": "search",
       "url": "/dict/search/index-0026.json",
-      "bytes": 2025490,
-      "sha256": "cf93cefce94c5623b444f3503e3c6177d839a632a0aa78215afecf2581e4576a",
+      "bytes": 1782818,
+      "sha256": "3accc08cc4672532d003edcee8f91a84cde2a5a1d07151ca227a44943a824b84",
       "recordCount": 5000
     },
     {
       "id": "search-0027",
       "type": "search",
       "url": "/dict/search/index-0027.json",
-      "bytes": 2020074,
-      "sha256": "18830cb34964a791eb540eb9293f0d81fad65e1a8c7c5e39688d6a03b38b852e",
+      "bytes": 1756313,
+      "sha256": "30a8fdb6543c37ddc98ce68e2f1187e92632b7c861aa85cc659d48ae7b70accf",
       "recordCount": 5000
     },
     {
       "id": "search-0028",
       "type": "search",
       "url": "/dict/search/index-0028.json",
-      "bytes": 2068380,
-      "sha256": "92ddea19d78c0320e991081a65e63c7241b9427f4f12aceb849aa1520c07cfa1",
+      "bytes": 1790172,
+      "sha256": "ad9c204daa0b1750562973870fef7bed278fd087d2f472e08bb17468b8358fc5",
       "recordCount": 5000
     },
     {
       "id": "search-0029",
       "type": "search",
       "url": "/dict/search/index-0029.json",
-      "bytes": 2086107,
-      "sha256": "8810655188cc5e13f5d37fd0421f32fd5e7df449760a75abcce6c4f046b94a1a",
+      "bytes": 1726864,
+      "sha256": "1e36a6ad5be044047b32ebb67cecbf6a11ca1c9cb951ddf1b2de255739810e93",
       "recordCount": 5000
     },
     {
       "id": "search-0030",
       "type": "search",
       "url": "/dict/search/index-0030.json",
-      "bytes": 2048111,
-      "sha256": "eb6e454f59f3fd0ff3e1cf46e6eaceb1f7f506effd6178ad3d9b97a3d9ca2396",
+      "bytes": 1670723,
+      "sha256": "2949555172f8934f9e21acc7cca4329d8be02e8f3db23f48918eb6c0d4ccbce1",
       "recordCount": 5000
     },
     {
       "id": "search-0031",
       "type": "search",
       "url": "/dict/search/index-0031.json",
-      "bytes": 2001140,
-      "sha256": "2d221cdc7f5d12174d5e5323cb22e7542a19cedfceb887f687e1da60689419e5",
+      "bytes": 1699838,
+      "sha256": "f64edab698c9939ebdd1ab6517bc2335cefcbc6540830a45f3afb95512d431e1",
       "recordCount": 5000
     },
     {
       "id": "search-0032",
       "type": "search",
       "url": "/dict/search/index-0032.json",
-      "bytes": 2100035,
-      "sha256": "bfd6bab3ecc8cbf49787f2e9147ca19dfca68619cf9fcc85da3fd88b0763805d",
+      "bytes": 1898399,
+      "sha256": "fb8ba10af69d6136fbdae6e91357c8863786d51e406f35b4286e48cad2a86eda",
       "recordCount": 5000
     },
     {
       "id": "search-0033",
       "type": "search",
       "url": "/dict/search/index-0033.json",
-      "bytes": 1905763,
-      "sha256": "c53dcc51aeec8f42913fc7997d91ee9a5163d0f876fce21db74bea861dc68331",
+      "bytes": 1670043,
+      "sha256": "b94221fd6229a50ce4076de7636b667ed91b3a0e039f9d4fb845b4d653fae1b8",
       "recordCount": 5000
     },
     {
       "id": "search-0034",
       "type": "search",
       "url": "/dict/search/index-0034.json",
-      "bytes": 2047505,
-      "sha256": "6fbde881c9c617f5d6af20cc304d5e7a3f6fe1bfbe7991264325e325fa4baf3f",
+      "bytes": 1639428,
+      "sha256": "ab6ac58330e2d909667f240573dae6a33a0c2401a8ad9a8af5e126a3c4eb6b15",
       "recordCount": 5000
     },
     {
       "id": "search-0035",
       "type": "search",
       "url": "/dict/search/index-0035.json",
-      "bytes": 2033993,
-      "sha256": "0f895acce4102df607e66044c0ba96ebb73b519476dca686f3f8c017a720dfd2",
+      "bytes": 1667375,
+      "sha256": "1d21e7e0a57482c30073d93b7cf823cb351cdd5b2fc57079d32a8dc191e90ba7",
       "recordCount": 5000
     },
     {
       "id": "search-0036",
       "type": "search",
       "url": "/dict/search/index-0036.json",
-      "bytes": 1998774,
-      "sha256": "80e23b6431c815a437460fed9a5d2703436e365e402e461a142fb81c9e47cba7",
+      "bytes": 1646089,
+      "sha256": "4b28f1f5eff5488398af7e127412c0f3082406432e2d5e379dac650379bc9097",
       "recordCount": 5000
     },
     {
       "id": "search-0037",
       "type": "search",
       "url": "/dict/search/index-0037.json",
-      "bytes": 1993328,
-      "sha256": "b7380d2ba8b0d5d46245c45a201891bec8c9675ff3b9d1b690ffac080d32b849",
+      "bytes": 1711594,
+      "sha256": "4fab8ddcc503a16fb2d213ed508347f703b5b11a403ceee059ea8da1726da39c",
       "recordCount": 5000
     },
     {
       "id": "search-0038",
       "type": "search",
       "url": "/dict/search/index-0038.json",
-      "bytes": 1996026,
-      "sha256": "0505bb2e1a905a5a799cd476b057db69a2eaf673022f7cafe740e99e0b347e0f",
+      "bytes": 1727896,
+      "sha256": "6906de1ba31b2a12fc0d15c33ee3c0596ac84bb154b5b252b8eaff1fea24ef2c",
       "recordCount": 5000
     },
     {
       "id": "search-0039",
       "type": "search",
       "url": "/dict/search/index-0039.json",
-      "bytes": 2166486,
-      "sha256": "857b845134132064b7132a0ec5236fbdcbdae08be9f4aa884d256e63f27bfec4",
+      "bytes": 1750407,
+      "sha256": "337a12dae05357f933b30ca9a2cd23130e257b469b60daf4aeb05c88b69dd752",
       "recordCount": 5000
     },
     {
       "id": "search-0040",
       "type": "search",
       "url": "/dict/search/index-0040.json",
-      "bytes": 2076232,
-      "sha256": "ef2037c3c467fcfb5722cf89a1b6a5c3dbe3227a4fb5cafe214bd7c0634aae85",
+      "bytes": 1693466,
+      "sha256": "15a1e7e8682892d6f0a4d5a2e80beaddaaaa322d9a9902bb5adc1a9341ad3880",
       "recordCount": 5000
     },
     {
       "id": "search-0041",
       "type": "search",
       "url": "/dict/search/index-0041.json",
-      "bytes": 2125544,
-      "sha256": "beb1154d4f870286e0032266d6ee65f73256e953d4f9bdc7a9bf898ba6ddb53b",
+      "bytes": 1925414,
+      "sha256": "6112f398fbc5df1ee1c57b80de0b267b3ae923fd3c20e73d7db9480d46a1bd59",
       "recordCount": 5000
     },
     {
       "id": "search-0042",
       "type": "search",
       "url": "/dict/search/index-0042.json",
-      "bytes": 2204625,
-      "sha256": "bc14444255820d0d22d0fe3431ae259370cd03a22a1730aa3fbdc7207d9d7182",
+      "bytes": 1927217,
+      "sha256": "42254d6f9005353087707927a1b5e6e82c7eeba337481951c29dd6a025d10493",
       "recordCount": 5000
     },
     {
       "id": "search-0043",
       "type": "search",
       "url": "/dict/search/index-0043.json",
-      "bytes": 1913037,
-      "sha256": "e006b03c55b1255bef92d31f7cc9a48a9bbde892b36da77cc7b1e71cb9f658dd",
+      "bytes": 1691662,
+      "sha256": "98b084315a654c77a5c228de5fc4d987022c9d245926956745b439c5e9726bf1",
       "recordCount": 5000
     },
     {
       "id": "search-0044",
       "type": "search",
       "url": "/dict/search/index-0044.json",
-      "bytes": 2182349,
-      "sha256": "ec8e4727c72b121ef9e5c1d16fafbf2cd14d0180cb2f699f0b31ae0189d5548a",
+      "bytes": 1728633,
+      "sha256": "f25848471a2e6cc55c298dd762e63e3aa766c3f7f611ddb7eea7cea814105596",
       "recordCount": 5000
     },
     {
       "id": "search-0045",
       "type": "search",
       "url": "/dict/search/index-0045.json",
-      "bytes": 2091594,
-      "sha256": "ea5c14559f485b2572ab478286021d2bba7721e181b4e438ec8f6d40b0c3930f",
+      "bytes": 1692156,
+      "sha256": "f26b3d1cf66af5301345f720d80156b8f9bc73e4276a9c15a1e63d4f3175a2c1",
       "recordCount": 5000
     },
     {
       "id": "search-0046",
       "type": "search",
       "url": "/dict/search/index-0046.json",
-      "bytes": 2049216,
-      "sha256": "3851e3b0dd2e28ed721c31b60c921eb1c0ad905702d0a8984a23b166ab039095",
+      "bytes": 1663681,
+      "sha256": "ea35caea58fd5fb0187c8eacf3a953d90ba8f103f8a8a1203cbdd29f050ce2a3",
       "recordCount": 5000
     },
     {
       "id": "search-0047",
       "type": "search",
       "url": "/dict/search/index-0047.json",
-      "bytes": 2042149,
-      "sha256": "6e15b89e5809676c6773ebbc1dfcd485ff9e0205698f251dbed19b3d53bf98ab",
+      "bytes": 1674783,
+      "sha256": "7b0db4294a085d65a347f195b613afc4a401aa1f10e4ea036b307f5144d22cec",
       "recordCount": 5000
     },
     {
       "id": "search-0048",
       "type": "search",
       "url": "/dict/search/index-0048.json",
-      "bytes": 2161768,
-      "sha256": "f4f97533f61d9f452aedb8e4835585226cc1482d52632b2f5c9c3a12d2071698",
+      "bytes": 1967089,
+      "sha256": "169def86048ceac91567fad9d44dd734564444460d2510d2ee98e9e2b111b302",
       "recordCount": 5000
     },
     {
       "id": "search-0049",
       "type": "search",
       "url": "/dict/search/index-0049.json",
-      "bytes": 2134470,
-      "sha256": "0d366ce404864ee555336424a5ea301e2d37e4bb4416467c719b33d7aab9bd01",
+      "bytes": 1895644,
+      "sha256": "93fe809f308e4a59c66e662dd71883246fd7243106315a117cf425415f099c82",
       "recordCount": 5000
     },
     {
       "id": "search-0050",
       "type": "search",
       "url": "/dict/search/index-0050.json",
-      "bytes": 269158,
-      "sha256": "1517fe9ee8374a020c35a731b5430494abdf4d065f5e97a9ddd165775fad7376",
+      "bytes": 226496,
+      "sha256": "4a97b5751c64f4459ef7d0cf4b8e5109367b2466619064c8dfb3f87db16d0c4c",
       "recordCount": 661
     }
   ],
