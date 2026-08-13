@@ -1,22 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Noto_Sans, Noto_Sans_JP } from 'next/font/google';
 import { Navbar } from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import '@/app/globals.css';
-
-const notoSans = Noto_Sans({
-  subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-sans',
-});
-
-const notoSansJP = Noto_Sans_JP({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-jp',
-});
 
 export default function RootLayout({
   children,
@@ -25,7 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`${notoSans.variable} ${notoSansJP.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <div className="scroll-progress no-print" aria-hidden="true" />
         <a href="#main-content" className="skip-link">
           Nhảy đến nội dung chính
