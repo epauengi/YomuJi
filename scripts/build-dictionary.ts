@@ -95,26 +95,63 @@ function computeSha256(content: string): string {
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 
-function parseVietnameseMeanings(defs: any[]): { meaningsVi: string[]; glossesRaw: string[] } {
+function parseJmdictEntryDefs(
+  surface: string,
+  reading: string,
+  defs: any[]
+): {
+  meaningsVi: string[];
+  kanjiReadings: Array<{ literal: string; hanViet: string[] }>;
+  glossesRaw: string[];
+} {
   const meaningsVi: string[] = [];
   const glossesRaw: string[] = [];
+  const kanjiReadings: Array<{ literal: string; hanViet: string[] }> = [];
+  const extractedHanVietSet = new Set<string>();
 
-  for (const def of defs) {
-    if (typeof def === 'string') {
-      glossesRaw.push(def);
+  for (const def of defs || []) {
+    if (typeof def !== 'string') continue;
 
-      // Clean Yomichan formatting notation like {xxx}
-      const cleaned = def.replace(/\{[^}]+\}/g, '').replace(/\\n/g, '\n').trim();
-      const lines = cleaned.split('\n').map((l) => l.trim()).filter(Boolean);
+    // 1. Extract Hán Việt reading strings (ALL UPPERCASE VIETNAMESE WORDS)
+    // E.g. "にほんがくじゅつかいぎ NHẬT BẢN HỌC THUẬT HỘI NGHỊ" or "MINH BẠCH, [めいはく], MINH BẠCH"
+    const hanVietMatches = def.match(/[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỊ\s]{2,}/g);
+    if (hanVietMatches) {
+      for (const m of hanVietMatches) {
+        const cleaned = m.trim();
+        // Ignore single short tags like "P", "N1", "N2"
+        if (cleaned.length >= 2 && !/^(P|N1|N2|N3|N4|N5|CD|OK|SPEC|NEWS)$/.test(cleaned)) {
+          extractedHanVietSet.add(cleaned);
+        }
+      }
+    }
 
-      for (const line of lines) {
-        let text = line.replace(/^-\s*/, '').trim();
-        if (text && !text.startsWith('{')) {
-          // If line has vietnamese translation markers or non-english text
-          const parts = text.split(/;|\//).map((p) => p.trim()).filter(Boolean);
-          for (const p of parts) {
-            if (p.length > 0 && !meaningsVi.includes(p)) {
-              meaningsVi.push(p);
+    glossesRaw.push(def);
+
+    // 2. Parse Yomichan formatted lines e.g. "{めいはく}\n- {obvious}, rõ ràng, rành mạch\n- {overt}, công khai"
+    const lines = def.replace(/\\n/g, '\n').split('\n');
+    for (const line of lines) {
+      let text = line.trim();
+
+      // Skip lines that are purely Hán Việt uppercase text
+      if (/[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỊ]{2,}/.test(text) && !/[a-zà-ỹ]{3,}/.test(text)) {
+        continue;
+      }
+
+      // Remove Yomichan tag notations like {xxx}
+      text = text.replace(/\{[^}]+\}/g, '').replace(/^-\s*/, '').trim();
+
+      if (text && text.length > 0) {
+        const parts = text.split(/;|\//).map((p) => p.trim()).filter(Boolean);
+        for (const p of parts) {
+          // Filter out pure Hiragana/Katakana lines or uppercase Hán Việt strings
+          if (p && !/^[\u3040-\u30ff\s]+$/.test(p) && !/^[A-Z\s]{2,}$/.test(p)) {
+            if (!meaningsVi.includes(p)) {
+              // Prioritize Vietnamese translations at the front of meaningsVi
+              if (/[à-ỹ]/i.test(p)) {
+                meaningsVi.unshift(p);
+              } else {
+                meaningsVi.push(p);
+              }
             }
           }
         }
@@ -122,7 +159,27 @@ function parseVietnameseMeanings(defs: any[]): { meaningsVi: string[]; glossesRa
     }
   }
 
-  return { meaningsVi: meaningsVi.slice(0, 5), glossesRaw };
+  // Populate kanjiReadings if Hán Việt string was found
+  const hanVietList = Array.from(extractedHanVietSet);
+  if (hanVietList.length > 0) {
+    kanjiReadings.push({
+      literal: surface,
+      hanViet: hanVietList,
+    });
+  }
+
+  // Clean remaining Hán Việt or Kana noise from meaningsVi
+  const filteredMeanings = meaningsVi.filter((m) => {
+    const isPureHanViet = hanVietList.some((hv) => m.includes(hv));
+    const isKanaOnly = /^[\u3040-\u30ff\s\-_]+$/.test(m);
+    return !isPureHanViet && !isKanaOnly;
+  });
+
+  return {
+    meaningsVi: filteredMeanings.length > 0 ? filteredMeanings.slice(0, 5) : [defs[0] || 'Chưa có nghĩa'],
+    kanjiReadings,
+    glossesRaw,
+  };
 }
 
 async function main() {
@@ -168,7 +225,7 @@ async function main() {
       const kanaReading = reading || surface;
       const romaji = toRomaji(kanaReading);
       const kanjiChars = extractKanji(surface);
-      const { meaningsVi, glossesRaw } = parseVietnameseMeanings(defs || []);
+      const { meaningsVi, kanjiReadings, glossesRaw } = parseJmdictEntryDefs(surface, kanaReading, defs || []);
 
       const termRecord: TermRecord = {
         id: termId,
@@ -176,7 +233,8 @@ async function main() {
         surface,
         reading: kanaReading,
         romaji,
-        meaningsVi: meaningsVi.length > 0 ? meaningsVi : [defs?.[0] || 'Chưa có nghĩa'],
+        kanjiReadings,
+        meaningsVi,
         glossesRaw,
         partOfSpeech: tags,
         tags,
