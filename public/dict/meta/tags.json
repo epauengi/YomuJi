@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "tags": {
+    "P": "Từ phổ biến",
+    "ichi": "Tập từ phổ biến Ichimango",
+    "news": "Từ phổ biến trên báo chí",
+    "spec": "Từ chuyên ngành",
+    "adj-na": "Tính từ đuôi na",
+    "adj-i": "Tính từ đuôi i",
+    "n": "Danh từ",
+    "v1": "Động từ nhóm 1 (Ichidan)",
+    "v5": "Động từ nhóm 5 (Godan)"
+  }
+}

@@ -1,0 +1,47 @@
+<!--
+AnimCJK 2016-2025 Copyright FM-SH - https://github.com/parsimonhi/animCJK
+Derived from:
+    MakeMeAHanzi project - https://github.com/skishore/makemeahanzi
+    Arphic PL KaitiM GB font
+    Arphic PL UKai font
+You can redistribute and/or modify this file under the terms of the Arphic Public License
+as published by Arphic Technology Co., Ltd.
+You should have received a copy of this license along with this file.
+If not, see https://ftp.gnu.org/non-gnu/chinese-fonts-truetype/LICENSE.
+-->
+<svg id="z22829" class="acjk" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+<style>
+<![CDATA[
+@keyframes zk {
+	to {
+		stroke-dashoffset:0;
+	}
+}
+svg.acjk path[clip-path] {
+	--t:0.8s;
+	animation:zk var(--t) linear forwards var(--d);
+	stroke-dasharray:3337;
+	stroke-dashoffset:3339;
+	stroke-width:128;
+	stroke-linecap:round;
+	fill:none;
+	stroke:#000;
+}
+svg.acjk path[id] {fill:#ccc;}
+]]>
+</style>
+<path id="z22829d1" d="M478 250C514 236 586 209 645 188C662 181 695 167 676 152C663 142 643 126 611 110C573 91 578 121 559 143C532 172 456 205 353 249C314 265 246 281 305 292C319 294 371 289 430 268C462 256 462 256 478 250Z"/>
+<path id="z22829d2" d="M508 463C576 453 658 443 765 442C811 441 836 436 840 429C844 421 839 411 828 403C789 376 758 365 734 372C676 386 604 405 507 419C463 425 463 425 441 428C361 438 280 453 192 467C177 469 174 478 187 489C207 507 240 516 282 505C330 492 379 480 436 473C484 466 484 466 508 463Z"/>
+<path id="z22829d3" d="M436 473C417 643 330 740 197 828C103 889 146 888 222 854C428 758 471 621 494 494C503 444 503 444 507 419C531 277 549 288 478 250C462 244 427 251 430 268C446 323 446 382 441 428C438 458 438 458 436 473Z"/>
+<path id="z22829d4" d="M494 494C542 585 608 693 706 832C721 854 739 867 760 868C815 869 868 867 916 870C966 872 960 852 916 833C861 808 816 782 781 761C692 706 634 614 508 463C494 446 484 474 494 494Z"/>
+<defs>
+	<clipPath id="z22829c1"><use href="#z22829d1"/></clipPath>
+	<clipPath id="z22829c2"><use href="#z22829d2"/></clipPath>
+	<clipPath id="z22829c3"><use href="#z22829d3"/></clipPath>
+	<clipPath id="z22829c4"><use href="#z22829d4"/></clipPath>
+</defs>
+<path style="--d:1s;" pathLength="3333" clip-path="url(#z22829c1)" d="M588 110L617 160L289 282"/>
+<path style="--d:2s;" pathLength="3333" clip-path="url(#z22829c2)" d="M184 476L241 485L745 406L837 417"/>
+<path style="--d:3s;" pathLength="3333" clip-path="url(#z22829c3)" d="M436 261L484 311L460 516L425 627L333 753L152 871"/>
+<path style="--d:4s;" pathLength="3333" clip-path="url(#z22829c4)" d="M499 466L659 703L759 812L946 858"/>
+</svg>
