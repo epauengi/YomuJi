@@ -371,8 +371,21 @@ export async function searchDictionary(query: string, limit = 50): Promise<Dicti
 }
 
 export async function searchKanjiDictionary(query: string, limit = 8): Promise<KanjiDictionarySearchResult[]> {
-  const normalized = normalizeQuery(query);
+  const trimmed = query.trim();
+  const normalized = normalizeQuery(trimmed);
   if (!normalized) return [];
+
+  try {
+    const apiRes = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`);
+    if (apiRes.ok) {
+      const data = await apiRes.json();
+      if (data && Array.isArray(data.kanji) && data.kanji.length > 0) {
+        return data.kanji;
+      }
+    }
+  } catch (e) {
+    // Offline fallback to client-side kanji map
+  }
 
   const results: KanjiDictionarySearchResult[] = [];
 
@@ -500,56 +513,49 @@ export async function getPopularTerms(limit = 12): Promise<DictionarySearchResul
     }));
 }
 
+const DAILY_WORD_POOL = [
+  '日本', '勉強', '学校', '生活', '友達', '人間', '社会', '自由', '世界', '家族',
+  '元気', '希望', '未来', '旅行', '文化', '愛', '平和', '桜', '自然', '歴史',
+  '音楽', '季節', '感謝', '挑戦'
+];
+
 export async function getWordOfTheDay(): Promise<TermRecord> {
-  if (globalSearchIndex.length === 0) {
-    await initDictionary();
-  }
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-  const commonEntries = globalSearchIndex.filter((e) => e.isCommon && e.surface.length >= 2);
-  const selected = commonEntries[dayOfYear % (commonEntries.length || 1)] || globalSearchIndex[0];
+  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const selectedSlug = DAILY_WORD_POOL[daysSinceEpoch % DAILY_WORD_POOL.length];
 
-  if (!selected) {
-    return {
-      id: 'nihon',
-      sequence: 1,
-      surface: '日本',
-      reading: 'にほん',
-      romaji: 'nihon',
-      meaningsVi: ['Nhật Bản'],
-      glossesRaw: ['Japan'],
-      partOfSpeech: ['n'],
-      tags: ['P'],
-      score: 1000,
-      isCommon: true,
-      kanji: ['日', '本'],
-      examples: [{ id: 'ex-1', termSequence: 1, textJa: '日本は美しい国です。', textVi: 'Nhật Bản là một đất nước xinh đẹp.' }],
-      related: [],
-      searchAliases: ['日本', 'にほん'],
-      source: { jmdict: true },
-    };
-  }
-
-  const term = await findTerm(selected.termId);
-  return (
-    term || {
-      id: selected.termId,
-      sequence: selected.sequence,
-      surface: selected.surface,
-      reading: selected.reading,
-      romaji: selected.romaji,
-      meaningsVi: selected.meaningsPreview,
-      glossesRaw: selected.meaningsPreview,
-      partOfSpeech: selected.partOfSpeech,
-      tags: selected.tags,
-      score: selected.score,
-      isCommon: selected.isCommon,
-      kanji: selected.kanji,
-      examples: [],
-      related: [],
-      searchAliases: [selected.surface, selected.reading],
-      source: { jmdict: true },
+  try {
+    const apiRes = await fetch(`/api/word/${encodeURIComponent(selectedSlug)}`);
+    if (apiRes.ok) {
+      const data = await apiRes.json();
+      if (data && data.term) {
+        return data.term;
+      }
     }
-  );
+  } catch (e) {
+    // Fallback to local index
+  }
+
+  const term = await findTerm(selectedSlug);
+  if (term) return term;
+
+  return {
+    id: selectedSlug,
+    sequence: 1,
+    surface: selectedSlug,
+    reading: 'にほん',
+    romaji: 'nihon',
+    meaningsVi: ['Nhật Bản'],
+    glossesRaw: ['Japan'],
+    partOfSpeech: ['n'],
+    tags: ['P'],
+    score: 1000,
+    isCommon: true,
+    kanji: ['日', '本'],
+    examples: [{ id: 'ex-1', termSequence: 1, textJa: '日本は美しい国です。', textVi: 'Nhật Bản là một đất nước xinh đẹp.' }],
+    related: [],
+    searchAliases: ['日本', 'にほん'],
+    source: { jmdict: true },
+  };
 }
 
 export async function getKanjiByLevel(level?: JLPTLevel): Promise<KanjiRecord[]> {

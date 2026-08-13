@@ -3,10 +3,8 @@
 import React, { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Command, KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { useDictionary, normalizeQuery, searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
+import { KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
+import { searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
 import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 
 interface SearchInputProps {
@@ -28,7 +26,6 @@ export function SearchInput({
 }: SearchInputProps) {
   const router = useRouter();
   const listboxId = useId();
-  const { isReady } = useDictionary();
   const [query, setQuery] = useState(initialValue);
   const [termSuggestions, setTermSuggestions] = useState<DictionarySearchResult[]>([]);
   const [kanjiSuggestions, setKanjiSuggestions] = useState<KanjiDictionarySearchResult[]>([]);
@@ -42,7 +39,8 @@ export function SearchInput({
   }, [initialValue]);
 
   useEffect(() => {
-    if (!isReady || query.trim().length < 2) {
+    const trimmed = query.trim();
+    if (!trimmed) {
       setTermSuggestions([]);
       setKanjiSuggestions([]);
       setActiveIndex(-1);
@@ -52,15 +50,20 @@ export function SearchInput({
     let cancelled = false;
     const timer = setTimeout(async () => {
       setIsResolving(true);
-      const [terms, kanji] = await Promise.all([
-        searchDictionary(query, 7),
-        searchKanjiDictionary(query, 5),
-      ]);
-      if (!cancelled) {
-        setTermSuggestions(terms);
-        setKanjiSuggestions(kanji);
-        setActiveIndex(terms.length || kanji.length ? 0 : -1);
-        setIsResolving(false);
+      try {
+        const [terms, kanji] = await Promise.all([
+          searchDictionary(trimmed, 7),
+          searchKanjiDictionary(trimmed, 5),
+        ]);
+        if (!cancelled) {
+          setTermSuggestions(terms || []);
+          setKanjiSuggestions(kanji || []);
+          setActiveIndex(terms.length || kanji.length ? 0 : -1);
+        }
+      } catch (err) {
+        console.error('Search error:', err);
+      } finally {
+        if (!cancelled) setIsResolving(false);
       }
     }, 90);
 
@@ -69,7 +72,7 @@ export function SearchInput({
       setIsResolving(false);
       clearTimeout(timer);
     };
-  }, [isReady, query]);
+  }, [query]);
 
   const commandItems = useMemo<CommandItem[]>(() => [
     ...termSuggestions.map((result) => ({
@@ -87,8 +90,7 @@ export function SearchInput({
   ], [termSuggestions, kanjiSuggestions]);
 
   const activeItem = activeIndex >= 0 ? commandItems[activeIndex] : commandItems[0];
-  const showSuggestions = isFocused && query.trim().length >= 2 && commandItems.length > 0;
-  const showSearchPulse = isFocused && query.trim().length >= 2;
+  const showSuggestions = isFocused && query.trim().length >= 1 && commandItems.length > 0;
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -110,7 +112,7 @@ export function SearchInput({
   };
 
   const handleBlur = () => {
-    blurTimer.current = setTimeout(() => setIsFocused(false), 120);
+    blurTimer.current = setTimeout(() => setIsFocused(false), 200);
   };
 
   const openActiveItem = () => {
@@ -121,7 +123,7 @@ export function SearchInput({
   return (
     <form
       onSubmit={handleSearch}
-      className={`group relative z-50 mx-auto flex w-full max-w-[800px] items-center overflow-hidden rounded-[--radius-lg] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-0 shadow-md transition-all duration-200 ${
+      className={`group relative z-50 mx-auto flex w-full max-w-[800px] items-center rounded-[--radius-lg] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-0 shadow-md transition-all duration-200 ${
         isFocused
           ? 'border-teal-400 shadow-lg shadow-teal-950/20 ring-4 ring-teal-400/20'
           : 'hover:border-teal-400/60'
@@ -190,7 +192,7 @@ export function SearchInput({
       {/* Embedded Flush Right Search Button */}
       <button
         type="submit"
-        className="h-13 shrink-0 rounded-none rounded-r-[--radius-lg] border-0 bg-[var(--color-primary-700)] px-5 font-semibold text-white transition-all duration-200 hover:bg-[var(--color-primary-800)] active:bg-[var(--color-primary-900)] sm:px-7 focus:outline-none focus:ring-0 focus-visible:outline-none"
+        className="h-13 shrink-0 rounded-r-[--radius-lg] border-0 bg-[var(--color-primary-700)] px-5 font-semibold text-white transition-all duration-200 hover:bg-[var(--color-primary-800)] active:bg-[var(--color-primary-900)] sm:px-7 focus:outline-none focus:ring-0 focus-visible:outline-none"
       >
         <span className="hidden sm:inline">Tìm kiếm</span>
         <MagnifyingGlass size={18} className="sm:hidden" />
@@ -201,7 +203,7 @@ export function SearchInput({
         <div
           id={listboxId}
           role="listbox"
-          className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-[var(--z-dropdown)] overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl"
+          className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl"
         >
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
@@ -358,9 +360,6 @@ function SuggestionPreview({ item, query }: { item?: CommandItem; query: string 
           <KeyReturn size={14} />
           Enter để mở Hán tự
         </div>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-muted)]">
-          <div className="confidence-track h-full rounded-full" style={{ '--confidence': '72%' } as React.CSSProperties} />
-        </div>
       </aside>
     );
   }
@@ -377,16 +376,14 @@ function SuggestionPreview({ item, query }: { item?: CommandItem; query: string 
         <KeyReturn size={14} />
         Enter để mở mục từ
       </div>
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-muted)]">
-        <div className="confidence-track h-full rounded-full" style={{ '--confidence': term.isCommon ? '86%' : '58%' } as React.CSSProperties} />
-      </div>
     </aside>
   );
 }
 
 function Highlight({ text, query }: { text: string; query: string }) {
-  const normalizedText = normalizeQuery(text);
-  const normalizedQuery = normalizeQuery(query);
+  if (!text) return null;
+  const normalizedText = text.toLowerCase();
+  const normalizedQuery = query.toLowerCase().trim();
   if (!normalizedQuery) return <>{text}</>;
 
   const matchIndex = normalizedText.indexOf(normalizedQuery);
