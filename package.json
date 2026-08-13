@@ -7,10 +7,13 @@
     "build": "next build",
     "build:dict": "npx tsx scripts/build-dictionary.ts",
     "seed:supabase": "npx tsx scripts/seed-supabase.ts",
+    "turso:migrate": "npx tsx scripts/migrate-turso.ts",
+    "turso:validate": "npx tsx scripts/validate-turso.ts",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "@phosphor-icons/react": "^2.1.7",
     "@supabase/supabase-js": "^2.112.3",
     "framer-motion": "^12.40.0",
