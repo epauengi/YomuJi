@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useDictionary, findKanji, getCompoundsForKanji } from '@/lib/mockDictionary';
+import { useKanjiDetail } from '@/hooks/useDictionary';
+import { StrokeAnimator } from '@/components/dictionary/StrokeAnimator';
 import type { KanjiRecord, TermRecord } from '@/types/dictionary';
 
 function looksVietnamese(text: string) {
@@ -25,30 +27,14 @@ export default function KanjiDetailPage() {
   const params = useParams();
   const router = useRouter();
   const literal = decodeURIComponent(params.slug as string);
-  const { isReady, progress } = useDictionary();
+  const { kanji, compounds, isLoading, isReady, progress } = useKanjiDetail(literal);
   const [query, setQuery] = useState(literal);
-  const [kanji, setKanji] = useState<KanjiRecord | null | undefined>(undefined);
-  const [compounds, setCompounds] = useState<TermRecord[]>([]);
   const [currentStroke, setCurrentStroke] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     setQuery(literal);
   }, [literal]);
-
-  useEffect(() => {
-    if (!isReady) return;
-    let cancelled = false;
-    Promise.all([findKanji(literal), getCompoundsForKanji(literal, 12)]).then(([nextKanji, nextCompounds]) => {
-      if (!cancelled) {
-        setKanji(nextKanji || null);
-        setCompounds(nextCompounds);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [isReady, literal]);
 
   const totalStrokes = kanji?.strokePaths.length || 0;
 
@@ -78,7 +64,7 @@ export default function KanjiDetailPage() {
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
     const nextQuery = query.trim();
-    if (nextQuery) router.push(`/search?q=${encodeURIComponent(nextQuery)}`);
+    if (nextQuery) router.push(`/?q=${encodeURIComponent(nextQuery)}`);
   }
 
   if (!isReady) return <Centered title="Đang chuẩn bị từ điển" message={progress.message} />;
@@ -98,9 +84,9 @@ export default function KanjiDetailPage() {
         <Button type="submit" variant="ghost" size="sm">Tìm</Button>
       </form>
 
-      <Link href="/search" className="mb-4 flex w-fit items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]">
+      <Link href="/" className="mb-4 flex w-fit items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]">
         <ArrowLeft size={16} />
-        Quay lại tìm kiếm
+        Quay lại trang chủ
       </Link>
 
       <div className="mb-6 text-lg text-[var(--color-text-secondary)]">
@@ -133,13 +119,29 @@ export default function KanjiDetailPage() {
           </div>
 
           <div className="mt-6 flex flex-col gap-5">
-            <ReadingLine label="On" values={kanji.onReadings} lang="ja" />
-            <ReadingLine label="Kun" values={kanji.kunReadings} lang="ja" />
+            <ReadingLine label="On" values={kanji.onReadings} lang="ja" type="on" />
+            <ReadingLine label="Kun" values={kanji.kunReadings} lang="ja" type="kun" />
+
+            {kanji.radical && (
+              <InfoBlock label="Bộ thủ (Việt)">
+                <span className="inline-block rounded-[--radius-md] bg-[var(--color-radical-bg)] px-3 py-1 text-base font-semibold text-[var(--color-radical-text)] border border-[var(--color-radical-border)]">
+                  {kanji.radical}
+                </span>
+              </InfoBlock>
+            )}
+
+            {kanji.penStrokes && (
+              <InfoBlock label="Thứ tự nét">
+                <span className="font-mono text-lg font-medium text-[var(--color-text-secondary)]">
+                  {kanji.penStrokes}
+                </span>
+              </InfoBlock>
+            )}
 
             <InfoBlock label="Ý nghĩa">
               {meanings.length ? (
                 <div className="flex flex-wrap gap-x-2 gap-y-1 text-xl font-medium leading-relaxed text-[var(--color-primary-700)]">
-                  {meanings.slice(0, 6).map((meaning, index) => (
+                  {meanings.slice(0, 6).map((meaning: string, index: number) => (
                     <span key={`${meaning}-${index}`}>{meaning}{index < Math.min(meanings.length, 6) - 1 ? ',' : ''}</span>
                   ))}
                 </div>
@@ -160,7 +162,7 @@ export default function KanjiDetailPage() {
             <InfoBlock label="Ví dụ">
               {compounds.length ? (
                 <div className="flex flex-wrap gap-x-2 gap-y-2">
-                  {compounds.slice(0, 6).map((term, index) => (
+                  {compounds.slice(0, 6).map((term: TermRecord, index: number) => (
                     <Link key={term.id} href={`/word/${encodeURIComponent(term.id)}`} className="group inline-flex flex-col leading-tight">
                       <span className="jp-text text-[11px] text-[var(--color-primary-700)]">{term.reading}</span>
                       <span className="jp-text text-xl font-medium text-[var(--color-primary-700)] group-hover:underline">
@@ -184,7 +186,7 @@ export default function KanjiDetailPage() {
               {kanji.jlpt && <Badge variant="jlpt" jlptLevel={kanji.jlpt}>{kanji.jlpt}</Badge>}
               {kanji.grade && <Badge>Lớp {kanji.grade}</Badge>}
               {kanji.unicode && <Badge>U+{kanji.unicode.toUpperCase()}</Badge>}
-              {kanji.tags.slice(0, 4).map((tag) => <Badge key={tag}>{tag}</Badge>)}
+              {kanji.tags.slice(0, 4).map((tag: string) => <Badge key={tag}>{tag}</Badge>)}
             </div>
 
             <div className="flex flex-wrap gap-2 pt-3">
@@ -195,21 +197,11 @@ export default function KanjiDetailPage() {
         </main>
 
         <aside className="lg:sticky lg:top-24">
-          <StrokePanel
-            kanji={kanji}
-            currentStroke={currentStroke}
-            totalStrokes={totalStrokes}
-            isPlaying={isPlaying}
-            onReset={() => {
-              setCurrentStroke(0);
-              setIsPlaying(false);
-            }}
-            onPrev={() => setCurrentStroke((value) => Math.max(0, value - 1))}
-            onNext={() => setCurrentStroke((value) => Math.min(totalStrokes, value + 1))}
-            onPlayPause={() => {
-              if (currentStroke >= totalStrokes) setCurrentStroke(0);
-              setIsPlaying((value) => !value);
-            }}
+          <StrokeAnimator
+            literal={kanji.literal}
+            strokePaths={kanji.strokePaths}
+            strokeSvgRaw={kanji.strokeSvgRaw}
+            strokeCount={kanji.strokeCount}
           />
         </aside>
       </div>
@@ -217,13 +209,22 @@ export default function KanjiDetailPage() {
   );
 }
 
-function ReadingLine({ label, values, lang }: { label: string; values: string[]; lang?: 'ja' }) {
+function ReadingLine({ label, values, lang, type }: { label: string; values: string[]; lang?: 'ja'; type?: 'on' | 'kun' }) {
+  const isOn = type === 'on';
+  const badgeStyle = isOn
+    ? 'bg-[var(--color-onyomi-bg)] text-[var(--color-onyomi-text)] border-[var(--color-onyomi-border)]'
+    : 'bg-[var(--color-kunyomi-bg)] text-[var(--color-kunyomi-text)] border-[var(--color-kunyomi-border)]';
+
   return (
-    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-3">
+    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-3 items-center">
       <div className="text-2xl font-medium text-[var(--color-text-secondary)]">{label}</div>
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
+      <div className="flex flex-wrap gap-2">
         {values.length ? values.map((value) => (
-          <span key={value} lang={lang} className="jp-text text-2xl font-medium leading-tight text-[var(--color-text-primary)]">
+          <span
+            key={value}
+            lang={lang}
+            className={`jp-text inline-block rounded-[--radius-sm] border px-3 py-1 text-xl font-medium leading-tight ${badgeStyle}`}
+          >
             {value}
           </span>
         )) : <span className="text-[var(--color-text-secondary)]">Không có</span>}
@@ -239,83 +240,6 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
       <div>{children}</div>
     </section>
   );
-}
-
-function StrokePanel({
-  kanji,
-  currentStroke,
-  totalStrokes,
-  isPlaying,
-  onReset,
-  onPrev,
-  onNext,
-  onPlayPause,
-}: {
-  kanji: KanjiRecord;
-  currentStroke: number;
-  totalStrokes: number;
-  isPlaying: boolean;
-  onReset: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-  onPlayPause: () => void;
-}) {
-  return (
-    <Card padding="sm" className="study-card bg-[var(--color-surface)]">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <Button variant="ghost" size="sm" aria-label="Lưu kanji"><Star size={19} /></Button>
-        <span className="text-sm font-medium text-[var(--color-text-secondary)]">{currentStroke}/{totalStrokes || kanji.strokeCount || 0}</span>
-        <Button variant="ghost" size="sm" aria-label="Vẽ lại" onClick={onReset}><ArrowCounterClockwise size={18} /></Button>
-      </div>
-
-      <div className="relative aspect-square w-full overflow-hidden rounded-[--radius-sm] border border-[var(--color-border)] bg-black">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.08)_1px,transparent_1px)] bg-[length:37px_37px]" />
-        <div className="absolute left-1/2 top-0 h-full border-l border-white/15" />
-        <div className="absolute left-0 top-1/2 w-full border-t border-white/15" />
-        {totalStrokes ? (
-          <svg viewBox="0 0 109 109" className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét của chữ ${kanji.literal}`}>
-            {kanji.strokePaths.map((stroke, index) => (
-              <motion.path
-                key={stroke.id}
-                d={stroke.d}
-                fill="none"
-                stroke={index < currentStroke ? strokeColor(index) : index === currentStroke ? '#2DD4BF' : 'rgba(255,255,255,.32)'}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="3.4"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: index < currentStroke ? 1 : 0.1 }}
-                transition={{ duration: 0.22, ease: 'easeOut' }}
-              />
-            ))}
-          </svg>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-white/70">
-            Chưa có dữ liệu thứ tự nét cho Kanji này.
-          </div>
-        )}
-      </div>
-
-      {totalStrokes > 0 && (
-        <div className="mt-3 flex items-center justify-center gap-2">
-          <Button variant="secondary" size="sm" aria-label="Nét trước" onClick={onPrev} disabled={currentStroke === 0}>
-            <SkipBack size={17} />
-          </Button>
-          <Button variant="primary" size="sm" aria-label={isPlaying ? 'Tạm dừng' : 'Phát thứ tự nét'} onClick={onPlayPause}>
-            {isPlaying ? <Pause size={17} /> : <Play size={17} />}
-          </Button>
-          <Button variant="secondary" size="sm" aria-label="Nét tiếp theo" onClick={onNext} disabled={currentStroke >= totalStrokes}>
-            <SkipForward size={17} />
-          </Button>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function strokeColor(index: number) {
-  const colors = ['#5EEAD4', '#2DD4BF', '#14B8A6', '#0D9488', '#115E59'];
-  return colors[index % colors.length];
 }
 
 function Centered({ title, message }: { title: string; message: string }) {

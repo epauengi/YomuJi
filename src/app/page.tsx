@@ -3,59 +3,195 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import {
-  ArrowsClockwise,
+  ArrowClockwise,
+  ArrowSquareOut,
   BookOpenText,
-  Cards,
+  BookmarkSimple,
   CaretRight,
-  FileMagnifyingGlass,
-  GraduationCap,
-  MagnifyingGlass,
-  StackSimple,
-  Target,
-  Translate,
-  TrendUp,
+  ClockCounterClockwise,
+  Globe,
+  Sparkle,
+  SpeakerHigh,
+  Trash,
 } from '@phosphor-icons/react';
+import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
-import { useDictionary, getPopularTerms, searchDictionary } from '@/lib/mockDictionary';
-import type { DictionarySearchResult } from '@/types/dictionary';
+import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
-const quickLinks = [
-  { label: 'Tra từ vựng', detail: 'Kanji, kana, romaji', href: '/search', icon: MagnifyingGlass },
-  { label: 'Kanji JLPT', detail: 'Hán Việt và cấp độ', href: '/jlpt', icon: GraduationCap },
-  { label: 'Flashcards', detail: 'Lưu từ để ôn lại', href: '/flashcards', icon: Cards },
-  { label: 'Ôn tập', detail: 'Nhắc lại theo phiên', href: '/review', icon: ArrowsClockwise },
+const decorativeKanji = [
+  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
+  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-rev', blur: 'blur-[1px]' },
+  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.035]', anim: 'animate-kanji-rev', blur: 'none' },
+  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'none' },
 ];
 
-const studyFlow = [
-  {
-    icon: FileMagnifyingGlass,
-    title: 'Tra trong một ô',
-    description: 'Nhập kanji, kana, romaji hoặc tiếng Việt. Gợi ý hiện theo đúng dữ liệu từ điển.',
-  },
-  {
-    icon: Translate,
-    title: 'Đọc nghĩa theo ngữ cảnh',
-    description: 'Nghĩa chính, cách đọc, Hán Việt và ví dụ được đặt gần nhau để giảm đổi màn hình.',
-  },
-  {
-    icon: Target,
-    title: 'Giữ lại phần cần học',
-    description: 'Từ đã lưu đi tiếp sang flashcards và phiên ôn tập, không làm đứt mạch tra cứu.',
-  },
-];
+const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
 
-const previewRows = [
-  { label: 'Từ vựng', value: '食べる', meta: 'たべる - ăn' },
-  { label: 'Hán tự', value: '辞', meta: 'Từ điển, lời nói' },
-  { label: 'Romaji', value: 'benkyou', meta: '勉強 - học tập' },
-];
+interface ArticleItem {
+  title: string;
+  extract: string;
+  url: string;
+}
+
+const fallbackArticles: Record<string, ArticleItem> = {
+  '日本': {
+    title: '日本',
+    extract: '日本国（にほんこく、にっぽんこく）、または日本（にほん、にっぽん）は、東アジアに位置する島国である。首都は東京都。太平洋と日本海、東シナ海、オホーツク海に囲まれている。',
+    url: 'https://ja.wikipedia.org/wiki/日本',
+  },
+  '富士山': {
+    title: '富士山',
+    extract: '富士山（ふじさん）は、山梨県と静岡県にまたがる独立峰であり、標高3,776 mの日本最高峰である。日本の象徴として世界的に知られている。',
+    url: 'https://ja.wikipedia.org/wiki/富士山',
+  },
+  '桜': {
+    title: '桜',
+    extract: 'サクラ（桜）は、バラ科サクラ属の植物の総称、またはその花である。春に咲くピンクや白の美しい花で広く親しまれている。',
+    url: 'https://ja.wikipedia.org/wiki/桜',
+  },
+  '東京': {
+    title: '東京',
+    extract: '東京（とうきょう）は、日本の首都であり、東京都の主要都市である。政治、経済、文化の中心地として世界最大級の都市圏を形成している。',
+    url: 'https://ja.wikipedia.org/wiki/東京',
+  },
+  '新幹線': {
+    title: '新幹線',
+    extract: '新幹線（しんかんせん）は、JRグループが運営する日本の高速鉄道システムである。1964年の開業以来、高い安全性と定時性で知られる。',
+    url: 'https://ja.wikipedia.org/wiki/新幹線',
+  },
+};
+
+async function fetchRandomWikiArticle(): Promise<ArticleItem> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/random/summary`, {
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.extract && data.extract.trim().length > 30 && data.type === 'standard') {
+          return {
+            title: data.title || data.displaytitle || 'Wikipedia',
+            extract: data.extract,
+            url: data.content_urls?.desktop?.page || `https://ja.wikipedia.org/wiki/${encodeURIComponent(data.title)}`,
+          };
+        }
+      }
+    } catch (err) {
+      console.error('Random Wiki fetch error:', err);
+    }
+  }
+
+  const fallbackKeys = Object.keys(fallbackArticles);
+  const randomKey = fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
+  return fallbackArticles[randomKey];
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.03,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16, filter: 'blur(3px)' },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
 
 export default function HomePage() {
   const { isReady, progress } = useDictionary();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<DictionarySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
+  const [isSavedWotd, setIsSavedWotd] = useState(false);
+
+  const [readingArticle, setReadingArticle] = useState<ArticleItem | null>(null);
+  const [readingLoading, setReadingLoading] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+
+  const loadNewRandomArticle = async () => {
+    setReadingLoading(true);
+    const article = await fetchRandomWikiArticle();
+    setReadingArticle(article);
+    setReadingLoading(false);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('yomuji_recent_searches');
+        if (saved) setRecentSearches(JSON.parse(saved));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    getWordOfTheDay().then(setWordOfTheDay);
+    loadNewRandomArticle();
+  }, []);
+
+  const handleNextArticle = () => {
+    loadNewRandomArticle();
+  };
+
+  const addRecentSearch = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setRecentSearches((prev) => {
+      const next = [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 8);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('yomuji_recent_searches', JSON.stringify(next));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      return next;
+    });
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('yomuji_recent_searches');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const playPronunciation = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   useEffect(() => {
     if (!isReady) return;
@@ -64,12 +200,15 @@ export default function HomePage() {
     async function run() {
       setLoading(true);
       const next = query.trim()
-        ? await searchDictionary(query, 8)
-        : await getPopularTerms(8);
+        ? await searchDictionary(query, 12)
+        : await getPopularTerms(12);
 
       if (!cancelled) {
         setResults(next);
         setLoading(false);
+        if (query.trim()) {
+          addRecentSearch(query.trim());
+        }
       }
     }
 
@@ -81,230 +220,304 @@ export default function HomePage() {
 
   return (
     <div className="pb-16">
-      <section className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center lg:py-10">
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3 py-1.5 text-sm font-semibold text-[var(--color-primary-700)]">
-              <BookOpenText size={16} weight="duotone" />
-              YomuJi Dictionary
-            </div>
+      <section
+        onMouseMove={handleMouseMove}
+        className="relative z-20 bg-[#123b36] py-10 sm:py-12 md:py-14 text-white shadow-md select-none"
+      >
+        <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.22)_0%,transparent_65%)] blur-3xl" />
 
-            <h1 className="mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-[var(--color-text-primary)] text-balance sm:text-5xl lg:text-6xl">
-              Tra nhanh, học sâu với YomuJi
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--color-text-secondary)] sm:text-lg">
-              Tra từ, kanji, romaji và nghĩa tiếng Việt trong một ô tìm kiếm rõ ràng.
-            </p>
-
-            <div className="mt-7 max-w-3xl">
-              <SearchInput
-                onSearch={setQuery}
-                placeholder="Nhập từ cần tra: 日本, 食べる, benkyou, học tập..."
-              />
-            </div>
-
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              {quickLinks.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="surface-lift group flex min-h-20 items-center justify-between gap-3 rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left hover:border-[var(--color-primary-300)] hover:bg-[var(--color-surface-subtle)]"
-                  >
-                    <span className="flex min-w-0 items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]">
-                        <Icon size={20} weight="duotone" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-bold text-[var(--color-text-primary)]">{item.label}</span>
-                        <span className="mt-0.5 block truncate text-xs text-[var(--color-text-muted)]">{item.detail}</span>
-                      </span>
-                    </span>
-                    <CaretRight size={16} className="shrink-0 text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-700)]" />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          <HomePreview />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-          <article className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 sm:p-6">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="max-w-2xl text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
-                  Từ tra cứu sang ghi nhớ trong cùng một nhịp học
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">
-                  Trang chủ ưu tiên tốc độ tra cứu, sau đó mở đường sang kanji, flashcards và ôn tập khi bạn cần học lâu hơn.
-                </p>
-              </div>
-              <Link
-                href="/search"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-[--radius-md] bg-[var(--color-primary-700)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-primary-800)]"
+          <div
+            className="absolute inset-0 transition-transform duration-500 ease-out"
+            style={{
+              transform: `translate3d(${mousePos.x * 12}px, ${mousePos.y * 12}px, 0)`,
+            }}
+          >
+            {decorativeKanji.map((item, index) => (
+              <span
+                key={`${item.char}-${index}`}
+                aria-hidden="true"
+                style={{
+                  top: item.top,
+                  left: item.left,
+                  right: item.right,
+                }}
+                className={`floating-kanji-char absolute jp-text font-black leading-none text-white ${item.size} ${item.opacity} ${item.anim} ${item.blur}`}
               >
-                Mở trang tìm kiếm
-                <CaretRight size={16} weight="bold" />
-              </Link>
-            </div>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {studyFlow.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.title} className="rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-4">
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[--radius-md] bg-[var(--color-surface)] text-[var(--color-primary-700)]">
-                      <Icon size={20} weight="duotone" />
-                    </div>
-                    <h3 className="font-bold text-[var(--color-text-primary)]">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{item.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </article>
-
-          <aside className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]">
-                  <StackSimple size={20} weight="duotone" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-[var(--color-text-primary)]">Dữ liệu offline</h2>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-                    Khi tải xong, dữ liệu nằm trong trình duyệt để tra cứu nhanh hơn và dùng được lúc mạng yếu.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]">
-                  <Translate size={20} weight="duotone" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-[var(--color-text-primary)]">Rõ hai ngôn ngữ</h2>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-                    Tiếng Nhật, Hán Việt và tiếng Việt có tầng chữ riêng để dễ đọc trên cả màn hình nhỏ.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div>
-          <div className="mb-5 flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]">
-              {query ? <MagnifyingGlass size={20} weight="duotone" /> : <TrendUp size={20} weight="duotone" />}
-            </div>
-            <div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
-                {query ? 'Kết quả tra cứu nhanh' : 'Từ phổ biến'}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
-                {query ? 'Các mục gần đúng nhất theo từ khóa bạn vừa nhập.' : 'Một số mục thường gặp để bắt đầu tra cứu.'}
-              </p>
-            </div>
-          </div>
-
-          <div aria-live="polite">
-            {!isReady ? (
-              <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                {progress.message}
-              </div>
-            ) : loading ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="skeleton-quiet h-36 rounded-[--radius-lg] bg-[var(--color-surface-subtle)]" />
-                ))}
-              </div>
-            ) : results.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {results.map((result, index) => (
-                  <div key={result.term.id} className="result-enter" style={{ '--result-index': index } as CSSProperties}>
-                    <TermCard term={result.term} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                Không tìm thấy kết quả phù hợp.
-              </div>
-            )}
-          </div>
-        </div>
-
-        <aside className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-          <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Cách tra nhanh</h2>
-          <div className="mt-4 space-y-4 text-sm leading-6 text-[var(--color-text-secondary)]">
-            <p>
-              Gõ romaji như <span className="font-semibold text-[var(--color-text-primary)]">tabe</span>, tiếng Việt như{' '}
-              <span className="font-semibold text-[var(--color-text-primary)]">ăn</span>, hoặc nhập trực tiếp{' '}
-              <span className="jp-text font-semibold text-[var(--color-text-primary)]">食べる</span>.
-            </p>
-            <p>Trong hộp gợi ý, dùng phím mũi tên để chọn từ vựng hoặc Hán tự, rồi nhấn Enter để mở chi tiết.</p>
-          </div>
-        </aside>
-      </section>
-    </div>
-  );
-}
-
-function HomePreview() {
-  return (
-    <aside className="relative overflow-hidden rounded-[--radius-lg] bg-[#123b36] p-4 text-white shadow-[var(--shadow-md)]">
-      <div className="absolute -right-8 -top-10 jp-text text-[11rem] font-black leading-none text-white/10" aria-hidden="true">
-        辞
-      </div>
-      <div className="relative grid gap-3">
-        <div className="flex items-center justify-between rounded-[--radius-md] bg-white/10 px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold text-teal-100">YomuJi</p>
-            <p className="mt-1 text-xs text-teal-50/80">Bảng tra cứu nhanh</p>
-          </div>
-          <div className="rounded-full bg-teal-200 px-3 py-1 text-xs font-bold text-[#123b36]">Offline ready</div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-[0.9fr_1.1fr] lg:grid-cols-1 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[--radius-md] bg-white p-4 text-[#123b36]">
-            <div className="jp-text text-7xl font-bold leading-none">学</div>
-            <div className="mt-4 text-sm font-semibold">HỌC</div>
-            <p className="mt-2 text-sm leading-6 text-slate-700">Âm On, âm Kun, Hán Việt và ví dụ được gom trong cùng một thẻ.</p>
-          </div>
-
-          <div className="grid gap-2">
-            {previewRows.map((row) => (
-              <div key={row.value} className="rounded-[--radius-md] bg-white/10 p-3">
-                <div className="text-xs font-semibold text-teal-100">{row.label}</div>
-                <div className="mt-1 jp-text text-xl font-bold">{row.value}</div>
-                <div className="mt-1 text-xs text-teal-50/85">{row.meta}</div>
-              </div>
+                {item.char}
+              </span>
             ))}
           </div>
         </div>
 
-        <div className="rounded-[--radius-md] bg-white/10 p-4">
-          <div className="mb-3 flex items-center justify-between text-sm">
-            <span className="font-semibold text-teal-50">Lộ trình tiếp theo</span>
-            <span className="text-teal-100">tra - lưu - ôn</span>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center"
+        >
+          <motion.div variants={itemVariants}>
+            <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
+              Tra nhanh, hiểu sâu{' '}
+              <span className="relative inline-block bg-gradient-to-r from-teal-200 via-teal-100 to-emerald-300 bg-clip-text text-transparent pb-1">
+                tiếng Nhật
+                <motion.span
+                  className="absolute bottom-0 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 opacity-80"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.5, duration: 0.6, ease: 'easeOut' }}
+                />
+              </span>
+            </h1>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-teal-100/90 sm:text-base">
+              Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
+            </p>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-6 w-full max-w-[800px] text-left">
+            <SearchInput
+              onSearch={setQuery}
+              initialValue={query}
+              placeholder="Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt..."
+            />
+
+            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-100/80">
+              <span className="text-teal-200/90">Thử tìm:</span>
+              {suggestionChips.map((word) => (
+                <button
+                  key={word}
+                  type="button"
+                  onClick={() => setQuery(word)}
+                  className="tactile rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 transition-all duration-200 hover:border-teal-300/50 hover:bg-white/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      <main className="mx-auto max-w-[1120px] px-4 py-8">
+        {query.trim() ? (
+          <section aria-label="Kết quả tìm kiếm">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+                  Kết quả tra cứu cho &ldquo;{query}&rdquo;
+                </h2>
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                  Tìm thấy {results.length} từ phù hợp trong dữ liệu
+                </p>
+              </div>
+            </div>
+
+            <div aria-live="polite">
+              {!isReady ? (
+                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                  {progress.message}
+                </div>
+              ) : loading ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="skeleton-quiet h-36 rounded-[--radius-lg] bg-[var(--color-surface-subtle)]" />
+                  ))}
+                </div>
+              ) : results.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {results.map((result, index) => (
+                    <div key={result.term.id} className="result-enter" style={{ '--result-index': index } as CSSProperties}>
+                      <TermCard term={result.term} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                  Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
+                </div>
+              )}
+            </div>
+          </section>
+        ) : (
+          <div className="space-y-8">
+            {recentSearches.length > 0 && (
+              <section aria-label="Tìm kiếm gần đây">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-bold text-[var(--color-text-secondary)]">
+                    <ClockCounterClockwise size={18} weight="bold" className="text-[var(--color-primary-700)]" />
+                    <span>Tìm kiếm gần đây</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearRecentSearches}
+                    className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-red-500"
+                  >
+                    <Trash size={14} />
+                    <span>Xóa lịch sử</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recentSearches.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setQuery(item)}
+                      className="surface-lift rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)]"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)] items-stretch">
+              {wordOfTheDay && (
+                <article className="surface-lift relative flex flex-col justify-between overflow-hidden rounded-[--radius-xl] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-6 sm:p-7 shadow-sm">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-bold text-[var(--color-primary-700)]">
+                        <Sparkle size={14} weight="duotone" />
+                        Từ vựng hôm nay
+                      </div>
+                      <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
+                        {wordOfTheDay.isCommon ? 'Phổ biến • N5' : 'JLPT'}
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-baseline gap-3">
+                          <h3 className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)]">
+                            {wordOfTheDay.surface}
+                          </h3>
+                          <span className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                            {wordOfTheDay.reading}
+                          </span>
+                        </div>
+
+                        <p className="mt-1.5 text-lg font-bold text-[var(--color-text-primary)]">
+                          {wordOfTheDay.meaningsVi.join(', ')}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => playPronunciation(wordOfTheDay.surface)}
+                          className="surface-lift flex h-9 w-9 items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:bg-[var(--color-primary-50)]"
+                          title="Nghe phát âm"
+                          aria-label="Nghe phát âm"
+                        >
+                          <SpeakerHigh size={18} weight="duotone" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsSavedWotd(!isSavedWotd)}
+                          className={`surface-lift flex h-9 w-9 items-center justify-center rounded-[--radius-md] border transition-colors ${
+                            isSavedWotd
+                              ? 'border-amber-300 bg-amber-50 text-amber-600'
+                              : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-primary-700)]'
+                          }`}
+                          title={isSavedWotd ? 'Đã lưu' : 'Lưu từ'}
+                          aria-label={isSavedWotd ? 'Đã lưu' : 'Lưu từ'}
+                        >
+                          {isSavedWotd ? <BookmarkSimple size={18} weight="fill" /> : <BookmarkSimple size={18} weight="duotone" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
+                      <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
+                        <p className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                          {wordOfTheDay.examples[0].textJa}
+                        </p>
+                        <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                          {wordOfTheDay.examples[0].textVi}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-5 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
+                    <Link
+                      href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                    >
+                      Xem chi tiết từ vựng
+                      <CaretRight size={14} weight="bold" />
+                    </Link>
+                  </div>
+                </article>
+              )}
+
+              <article className="surface-lift relative flex flex-col justify-between overflow-hidden rounded-[--radius-xl] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-6 sm:p-7 shadow-sm">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700">
+                      <BookOpenText size={14} weight="duotone" />
+                      Bài đọc hôm nay
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-surface-subtle)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-secondary)]">
+                      <Globe size={13} className="text-blue-600" />
+                      Wikipedia
+                    </div>
+                  </div>
+
+                  <div className="mt-5">
+                    {readingLoading ? (
+                      <div className="space-y-3 py-3">
+                        <div className="h-6 w-1/3 rounded bg-[var(--color-surface-subtle)] skeleton-quiet" />
+                        <div className="h-20 w-full rounded bg-[var(--color-surface-subtle)] skeleton-quiet" />
+                      </div>
+                    ) : readingArticle ? (
+                      <>
+                        <h3 className="jp-text text-2xl font-bold text-[var(--color-text-primary)]">
+                          {readingArticle.title}
+                        </h3>
+
+                        <p className="jp-text mt-2.5 text-sm leading-6 text-[var(--color-text-secondary)] line-clamp-4">
+                          {readingArticle.extract}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-[var(--color-text-muted)]">Đang tải bài đọc...</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between pt-3 border-t border-[var(--color-border-subtle)] text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={handleNextArticle}
+                    disabled={readingLoading}
+                    className="inline-flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)] transition-colors disabled:opacity-50"
+                  >
+                    <ArrowClockwise size={14} className={readingLoading ? 'animate-spin' : ''} />
+                    Đọc bài khác
+                  </button>
+
+                  {readingArticle && (
+                    <a
+                      href={readingArticle.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      Đọc thêm trên Wikipedia
+                      <ArrowSquareOut size={14} />
+                    </a>
+                  )}
+                </div>
+              </article>
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold text-teal-50">
-            <div className="rounded-[--radius-sm] bg-white/10 px-2 py-2">Từ</div>
-            <div className="rounded-[--radius-sm] bg-white/10 px-2 py-2">Kanji</div>
-            <div className="rounded-[--radius-sm] bg-white/10 px-2 py-2">SRS</div>
-          </div>
-        </div>
-      </div>
-    </aside>
+        )}
+      </main>
+    </div>
   );
 }

@@ -121,25 +121,26 @@ export function SearchInput({
   return (
     <form
       onSubmit={handleSearch}
-      className={`relative mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-start ${className}`}
+      className={`group relative z-50 mx-auto flex w-full max-w-[800px] items-center overflow-hidden rounded-[--radius-lg] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-0 shadow-md transition-all duration-200 ${
+        isFocused
+          ? 'border-teal-400 shadow-lg shadow-teal-950/20 ring-4 ring-teal-400/20'
+          : 'hover:border-teal-400/60'
+      } ${className}`}
     >
-      <div className="relative min-w-0 flex-1">
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 rounded-[--radius-md] border transition-colors ${
-            showSearchPulse ? 'border-[var(--color-primary-300)]' : 'border-transparent'
-          }`}
-        />
-        <div className="pointer-events-none absolute left-4 top-7 -translate-y-1/2 text-[var(--color-primary-700)]">
-          <MagnifyingGlass size={20} />
-        </div>
-        <Input
+      {/* Left Search Icon */}
+      <div className="pl-4 flex shrink-0 items-center justify-center text-[var(--color-primary-700)]">
+        <MagnifyingGlass size={22} weight="bold" />
+      </div>
+
+      {/* Main Input Element */}
+      <div className="relative flex min-w-0 flex-1 items-center">
+        <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder={placeholder}
-          className="search-shell h-14 border-[var(--color-border-strong)] pl-12 pr-24 text-base"
+          placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
+          className="h-13 w-full min-w-0 border-0 bg-transparent px-3 text-base text-[var(--color-text-primary)] outline-none ring-0 placeholder:text-[var(--color-text-muted)] focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 shadow-none"
           role="combobox"
           aria-expanded={showSuggestions}
           aria-controls={listboxId}
@@ -165,80 +166,83 @@ export function SearchInput({
             }
           }}
         />
-        <div className="pointer-events-none absolute right-12 top-7 hidden -translate-y-1/2 items-center gap-1.5 rounded-full bg-[var(--color-surface-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)] sm:flex">
-          {isResolving ? (
-            <>
-              <span className="status-dot h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]" />
-              resolving
-            </>
-          ) : (
-            <>
-              <Command size={12} />
-              Enter
-            </>
+
+        {/* Status indicator or Clear button inside input */}
+        <div className="mr-3 flex shrink-0 items-center gap-1.5">
+          {isResolving && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary-600)]">
+              <span className="h-1.5 w-1.5 animate-ping rounded-full bg-[var(--color-primary-600)]" />
+            </span>
+          )}
+          {query && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:outline-none"
+              aria-label="Xóa nội dung tìm kiếm"
+            >
+              <X size={15} />
+            </button>
           )}
         </div>
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="tactile absolute right-2.5 top-7 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
-            aria-label="Xóa nội dung tìm kiếm"
-          >
-            <X size={16} />
-          </button>
-        )}
-
-        {showSuggestions && (
-          <div
-            id={listboxId}
-            role="listbox"
-            className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-[var(--z-dropdown)] overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-md)]"
-          >
-            <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
-              <span className="inline-flex items-center gap-1.5 font-semibold">
-                <Sparkle size={13} weight="duotone" />
-                {commandItems.length} offline matches
-              </span>
-              <span className="hidden items-center gap-1 sm:inline-flex">
-                arrows to choose <KeyReturn size={13} />
-              </span>
-            </div>
-            <div className="grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_240px]">
-              <div className="min-w-0 py-1">
-                <SuggestionSection
-                  title="Từ vựng"
-                  emptyLabel="Không có từ phù hợp"
-                  items={termSuggestions.map((result) => ({
-                    key: `term-${result.term.id}`,
-                    item: commandItems.findIndex((entry) => entry.kind === 'term' && entry.id === `term-${result.term.id}`),
-                    content: <TermSuggestion result={result} query={query} />,
-                  }))}
-                  activeIndex={activeIndex}
-                  onActive={setActiveIndex}
-                />
-
-                <SuggestionSection
-                  title="Hán tự"
-                  emptyLabel="Không có Hán tự phù hợp"
-                  items={kanjiSuggestions.map((result) => ({
-                    key: `kanji-${result.kanji.literal}`,
-                    item: commandItems.findIndex((entry) => entry.kind === 'kanji' && entry.id === `kanji-${result.kanji.literal}`),
-                    content: <KanjiSuggestion result={result} query={query} />,
-                  }))}
-                  activeIndex={activeIndex}
-                  onActive={setActiveIndex}
-                />
-              </div>
-
-              <SuggestionPreview item={activeItem} query={query} />
-            </div>
-          </div>
-        )}
       </div>
-      <Button type="submit" variant="primary" size="lg" className="h-14 w-full px-6 text-base sm:w-auto">
-        Tìm kiếm
-      </Button>
+
+      {/* Embedded Flush Right Search Button */}
+      <button
+        type="submit"
+        className="h-13 shrink-0 rounded-none rounded-r-[--radius-lg] border-0 bg-[var(--color-primary-700)] px-5 font-semibold text-white transition-all duration-200 hover:bg-[var(--color-primary-800)] active:bg-[var(--color-primary-900)] sm:px-7 focus:outline-none focus:ring-0 focus-visible:outline-none"
+      >
+        <span className="hidden sm:inline">Tìm kiếm</span>
+        <MagnifyingGlass size={18} className="sm:hidden" />
+      </button>
+
+      {/* Autocomplete Suggestions Dropdown */}
+      {showSuggestions && (
+        <div
+          id={listboxId}
+          role="listbox"
+          className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-[var(--z-dropdown)] overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl"
+        >
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
+            <span className="inline-flex items-center gap-1.5 font-semibold">
+              <Sparkle size={13} weight="duotone" />
+              {commandItems.length} kết quả từ điển
+            </span>
+            <span className="hidden items-center gap-1 sm:inline-flex">
+              dùng phím mũi tên <KeyReturn size={13} />
+            </span>
+          </div>
+          <div className="grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_240px]">
+            <div className="min-w-0 py-1">
+              <SuggestionSection
+                title="Từ vựng"
+                emptyLabel="Không có từ phù hợp"
+                items={termSuggestions.map((result) => ({
+                  key: `term-${result.term.id}`,
+                  item: commandItems.findIndex((entry) => entry.kind === 'term' && entry.id === `term-${result.term.id}`),
+                  content: <TermSuggestion result={result} query={query} />,
+                }))}
+                activeIndex={activeIndex}
+                onActive={setActiveIndex}
+              />
+
+              <SuggestionSection
+                title="Hán tự"
+                emptyLabel="Không có Hán tự phù hợp"
+                items={kanjiSuggestions.map((result) => ({
+                  key: `kanji-${result.kanji.literal}`,
+                  item: commandItems.findIndex((entry) => entry.kind === 'kanji' && entry.id === `kanji-${result.kanji.literal}`),
+                  content: <KanjiSuggestion result={result} query={query} />,
+                }))}
+                activeIndex={activeIndex}
+                onActive={setActiveIndex}
+              />
+            </div>
+
+            <SuggestionPreview item={activeItem} query={query} />
+          </div>
+        </div>
+      )}
     </form>
   );
 }

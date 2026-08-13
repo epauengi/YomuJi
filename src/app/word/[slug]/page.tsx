@@ -8,31 +8,19 @@ import { AudioButton } from '@/components/AudioButton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { useDictionary, findTerm } from '@/lib/mockDictionary';
+import { useWordDetail } from '@/hooks/useDictionary';
 import type { TermRecord } from '@/types/dictionary';
 
 export default function WordDetailPage() {
   const params = useParams();
   const id = decodeURIComponent(params.slug as string);
-  const { isReady, progress } = useDictionary();
-  const [term, setTerm] = useState<TermRecord | null | undefined>(undefined);
-
-  useEffect(() => {
-    if (!isReady) return;
-    let cancelled = false;
-    findTerm(id).then((next) => {
-      if (!cancelled) setTerm(next || null);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [id, isReady]);
+  const { term, isLoading, isReady, progress } = useWordDetail(id);
 
   if (!isReady) {
     return <CenteredMessage title="Đang chuẩn bị từ điển" message={progress.message} />;
   }
 
-  if (term === undefined) {
+  if (isLoading) {
     return <CenteredMessage title="Đang tải mục từ" message="Đang đọc dữ liệu từ điển..." />;
   }
 
@@ -46,9 +34,9 @@ export default function WordDetailPage() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8">
-      <Link href="/search" className="flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary-600)]">
+      <Link href="/" className="flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary-600)]">
         <ArrowLeft size={16} />
-        Quay lại tìm kiếm
+        Quay lại trang chủ
       </Link>
 
       <Card className="content-rise border-[var(--color-primary-200)] shadow-none">

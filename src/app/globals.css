@@ -249,6 +249,15 @@
   --color-selection: #164E47;
   --color-highlight: #4A3B0C;
   --color-focus: #5EEAD4;
+  --color-info: #93C5FD;
+  --color-info-bg: #172F50;
+
+  /* Interactive */
+  --color-link: #5EEAD4;
+  --color-link-hover: #99F6E4;
+  --color-selection: #164E47;
+  --color-highlight: #4A3B0C;
+  --color-focus: #5EEAD4;
 
   /* Shadows - Dark Mode (higher opacity) */
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.24);
@@ -258,7 +267,7 @@
 }
 
 /* ========================================
-   JLPT Semantic Colors
+   JLPT & Kanji Semantic Colors
    ======================================== */
 
 :root {
@@ -286,6 +295,27 @@
   --color-jlpt-n1-text: #9F1239;
   --color-jlpt-n1-bg: #FFE4E6;
   --color-jlpt-n1-border: #FDA4AF;
+
+  /* Linguistic / Kanji Semantic Tokens */
+  --color-onyomi-text: #6D28D9;
+  --color-onyomi-bg: #F3E8FF;
+  --color-onyomi-border: #C4B5FD;
+
+  --color-kunyomi-text: #047857;
+  --color-kunyomi-bg: #D1FAE5;
+  --color-kunyomi-border: #6EE7B7;
+
+  --color-hanviet-text: #B45309;
+  --color-hanviet-bg: #FEF3C7;
+  --color-hanviet-border: #FDE68A;
+
+  --color-radical-text: #C2410C;
+  --color-radical-bg: #FFEDD5;
+  --color-radical-border: #FDBA74;
+
+  --color-stroke-active: #0D9488;
+  --color-stroke-guide: #E2E8F0;
+  --color-stroke-number: #64748B;
 }
 
 [data-theme="dark"] {
@@ -308,14 +338,27 @@
   /* N1 - Rose */
   --color-jlpt-n1-text: #FDA4AF;
   --color-jlpt-n1-bg: #481B29;
-}
 
-/* ========================================
-   Base Styles
-   ======================================== */
+  /* Linguistic / Kanji Semantic Tokens */
+  --color-onyomi-text: #C4B5FD;
+  --color-onyomi-bg: #2E1065;
+  --color-onyomi-border: #4C1D95;
 
-* {
-  box-sizing: border-box;
+  --color-kunyomi-text: #6EE7B7;
+  --color-kunyomi-bg: #064E3B;
+  --color-kunyomi-border: #047857;
+
+  --color-hanviet-text: #FDE68A;
+  --color-hanviet-bg: #451A03;
+  --color-hanviet-border: #78350F;
+
+  --color-radical-text: #FDBA74;
+  --color-radical-bg: #431407;
+  --color-radical-border: #7C2D12;
+
+  --color-stroke-active: #2DD4BF;
+  --color-stroke-guide: #334155;
+  --color-stroke-number: #94A3B8;
 }
 
 html {
@@ -617,11 +660,64 @@ ruby.jp-ruby rt {
   .kanji-glow {
     transition: none;
   }
+  .hero-orb,
+  .floating-kanji-char {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 /* ========================================
-   Print Styles
+   Hero Section Animations
    ======================================== */
+
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(35px, -25px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-40px, 30px) scale(1.15); }
+  66% { transform: translate(25px, -20px) scale(0.9); }
+}
+
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, 25px) scale(1.08); }
+}
+
+@keyframes float-kanji-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+
+@keyframes float-kanji-rev {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(-3deg); }
+}
+
+.animate-orb-1 {
+  animation: orb-float-1 16s ease-in-out infinite;
+}
+
+.animate-orb-2 {
+  animation: orb-float-2 19s ease-in-out infinite;
+}
+
+.animate-orb-3 {
+  animation: orb-float-3 22s ease-in-out infinite;
+}
+
+.animate-kanji-slow {
+  animation: float-kanji-slow 14s ease-in-out infinite;
+}
+
+.animate-kanji-rev {
+  animation: float-kanji-rev 17s ease-in-out infinite;
+}
 
 @media print {
   .no-print {
@@ -636,4 +732,14 @@ ruby.jp-ruby rt {
   .print-expand {
     display: block !important;
   }
+}
+
+/* Eradicate any inner border, ring, or outline box inside search inputs */
+form input,
+form input:focus,
+form input:focus-visible,
+form input:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
 }

@@ -3,34 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { usePathname } from 'next/navigation';
+import { BookOpenText, Gear, GraduationCap, List, X } from '@phosphor-icons/react';
 
 const navItems = [
   { label: 'Từ điển', href: '/', icon: BookOpenText },
-  { label: 'Tìm kiếm', href: '/search', icon: MagnifyingGlass },
   { label: 'JLPT', href: '/jlpt', icon: GraduationCap },
   { label: 'Thiết lập', href: '/settings', icon: Gear },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isOpen, setIsOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isTyping = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable;
-      if (event.key === '/' && !isTyping) {
-        event.preventDefault();
-        router.push('/search');
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [router]);
 
   return (
     <nav className="sticky top-0 z-[var(--z-sticky)] w-full border-b border-[var(--color-border)] bg-[var(--color-surface)] backdrop-blur">
@@ -46,18 +30,6 @@ export function Navbar() {
           </Link>
 
           <div className="hidden items-center gap-2 md:flex">
-            <Link
-              href="/search"
-              className="tactile mr-2 hidden h-10 min-w-52 items-center justify-between gap-3 rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-3 text-sm text-[var(--color-text-muted)] hover:border-[var(--color-primary-300)] hover:text-[var(--color-text-primary)] lg:flex"
-            >
-              <span className="inline-flex items-center gap-2">
-                <MagnifyingGlass size={16} />
-                Quick search
-              </span>
-              <kbd className="rounded bg-[var(--color-surface)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--color-text-muted)]">
-                /
-              </kbd>
-            </Link>
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;

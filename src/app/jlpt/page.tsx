@@ -1,74 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { GraduationCap } from '@phosphor-icons/react';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
-import { useDictionary, getKanjiByLevel } from '@/lib/mockDictionary';
-import type { JLPTLevel, KanjiRecord } from '@/types/dictionary';
-
-const LEVELS: JLPTLevel[] = ['N4', 'N3', 'N2', 'N1'];
+import { ArrowLeft, HourglassMedium } from '@phosphor-icons/react';
 
 export default function JLPTPage() {
-  const { isReady, progress } = useDictionary();
-  const [level, setLevel] = useState<JLPTLevel>('N4');
-  const [kanji, setKanji] = useState<KanjiRecord[]>([]);
-
-  useEffect(() => {
-    if (!isReady) return;
-    getKanjiByLevel(level).then(setKanji);
-  }, [isReady, level]);
-
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div className="rounded-2xl bg-[var(--color-primary-50)] p-3 text-[var(--color-primary-600)]">
-          <GraduationCap size={32} weight="duotone" />
-        </div>
-        <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Kanji theo JLPT</h1>
-        <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Dữ liệu JLPT hiện lấy từ KANJIDIC cho kanji. Không tự gán cấp độ JLPT cho từ vựng khi chưa có nguồn chuẩn.
-        </p>
+    <div className="mx-auto flex min-h-[65vh] max-w-4xl flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--color-primary-50)] text-[var(--color-primary-600)] shadow-sm">
+        <HourglassMedium size={40} weight="duotone" className="animate-pulse" />
       </div>
 
-      <div className="flex flex-wrap justify-center gap-2">
-        {LEVELS.map((item) => (
-          <button
-            key={item}
-            onClick={() => setLevel(item)}
-            className={`rounded-xl border px-5 py-3 font-semibold transition-colors ${
-              level === item
-                ? 'border-[var(--color-primary-600)] bg-[var(--color-primary-600)] text-white'
-                : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)]'
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+      <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">
+        Tính năng này sẽ sớm ra mắt
+      </h1>
 
-      {!isReady ? (
-        <Card className="py-16 text-center text-[var(--color-text-secondary)]">{progress.message}</Card>
-      ) : kanji.length ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-          {kanji.map((item) => (
-            <Link key={item.literal} href={`/kanji/${encodeURIComponent(item.literal)}`}>
-              <Card className="flex h-full flex-col items-center gap-2 text-center hover:border-[var(--color-primary-400)]">
-                <span className="jp-text text-4xl font-bold text-[var(--color-text-primary)]">{item.literal}</span>
-                {item.jlpt && <Badge variant="jlpt" jlptLevel={item.jlpt} size="sm">{item.jlpt}</Badge>}
-                <span className="line-clamp-2 text-xs text-[var(--color-text-secondary)]">
-                  {item.hanViet[0] || item.meanings[0] || 'Không rõ'}
-                </span>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <Card className="py-16 text-center text-[var(--color-text-secondary)]">
-          Chưa có kanji ở cấp độ {level} trong nguồn hiện tại.
-        </Card>
-      )}
+      <p className="mt-3 max-w-md text-base leading-relaxed text-[var(--color-text-secondary)]">
+        Hệ thống tra cứu và luyện tập theo cấp độ JLPT đang được phát triển. Vui lòng quay lại sau!
+      </p>
+
+      <div className="mt-8 flex items-center justify-center">
+        <Link
+          href="/"
+          className="surface-lift inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-700)] px-6 py-3 text-sm font-bold text-white shadow-md transition-colors hover:bg-[var(--color-primary-800)]"
+        >
+          <ArrowLeft size={18} weight="bold" />
+          Quay lại trang chủ
+        </Link>
+      </div>
     </div>
   );
 }

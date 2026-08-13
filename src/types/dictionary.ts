@@ -43,6 +43,8 @@ export interface TermRecord {
 export interface StrokePath {
   id: number;
   d: string;
+  type?: string;
+  duration?: number;
 }
 
 export interface KanjiRecord {
@@ -52,6 +54,8 @@ export interface KanjiRecord {
   hanViet: string[];
   meanings: string[];
   meaningsRaw?: string[];
+  radical?: string;
+  penStrokes?: string;
   strokeCount?: number;
   jlpt?: JLPTLevel;
   grade?: number;
@@ -60,6 +64,7 @@ export interface KanjiRecord {
   tags: string[];
   components: string[];
   strokePaths: StrokePath[];
+  strokeSvgRaw?: string;
   rawReadings?: {
     on?: string;
     kun?: string;
