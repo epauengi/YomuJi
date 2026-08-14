@@ -6,13 +6,11 @@ import {
   ArrowCounterClockwise,
   Eye,
   EyeSlash,
-  Hash,
   Pause,
   Play,
   SkipBack,
   SkipForward,
   Spinner,
-  Star,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -30,8 +28,6 @@ interface StrokeAnimatorProps {
   strokeSvgRaw?: string;
   strokeCount?: number;
   className?: string;
-  onSaveToggle?: () => void;
-  isSaved?: boolean;
 }
 
 export function StrokeAnimator({
@@ -40,8 +36,6 @@ export function StrokeAnimator({
   strokeSvgRaw,
   strokeCount: initialStrokeCount,
   className = '',
-  onSaveToggle,
-  isSaved = false,
 }: StrokeAnimatorProps) {
   const [fetchedPaths, setFetchedPaths] = useState<StrokePath[]>([]);
   const [strokeNumbers, setStrokeNumbers] = useState<StrokeNumber[]>([]);
@@ -50,8 +44,9 @@ export function StrokeAnimator({
 
   const [currentStroke, setCurrentStroke] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [showNumbers, setShowNumbers] = useState(true);
-  const [speed, setSpeed] = useState<number>(600); // ms per stroke
+  const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
 
   // Determine active stroke paths to render
   const activeStrokePaths = useMemo(() => {
@@ -60,18 +55,74 @@ export function StrokeAnimator({
 
   const totalStrokes = activeStrokePaths.length || initialStrokeCount || 0;
 
+  // Helper: Parse raw SVG XML string into StrokePath[] and StrokeNumber[]
+  const parseSvgString = (svgText: string) => {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+      const pathElements = Array.from(xmlDoc.querySelectorAll('path'));
+      const paths: StrokePath[] = pathElements
+        .filter((p) => {
+          const d = p.getAttribute('d');
+          const style = p.getAttribute('style');
+          return d && d.trim().length > 0 && !style?.includes('stroke:#ddd');
+        })
+        .map((p, idx) => ({
+          id: idx + 1,
+          d: p.getAttribute('d') || '',
+        }));
+
+      const textElements = Array.from(xmlDoc.querySelectorAll('text'));
+      const numbers: StrokeNumber[] = textElements.map((t, idx) => {
+        const transform = t.getAttribute('transform') || '';
+        const matrixMatch = transform.match(
+          /matrix\s*\(\s*[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+([\d.-]+)\s+([\d.-]+)\s*\)/i
+        );
+        let x = matrixMatch ? parseFloat(matrixMatch[1]) : parseFloat(t.getAttribute('x') || '0');
+        let y = matrixMatch ? parseFloat(matrixMatch[2]) : parseFloat(t.getAttribute('y') || '0');
+        if (isNaN(x)) x = 0;
+        if (isNaN(y)) y = 0;
+        return {
+          num: parseInt(t.textContent || `${idx + 1}`, 10) || idx + 1,
+          x,
+          y,
+        };
+      });
+
+      if (paths.length > 0) {
+        setFetchedPaths(paths);
+        setStrokeNumbers(numbers);
+        setLoadError(false);
+      } else {
+        setLoadError(true);
+      }
+    } catch (err) {
+      console.error('Error parsing SVG text:', err);
+      setLoadError(true);
+    }
+  };
+
   // Reset state when literal changes
   useEffect(() => {
     setCurrentStroke(0);
     setIsPlaying(false);
+    setHasInteracted(false);
     setLoadError(false);
   }, [literal]);
 
-  // Fetch KanjiVG SVG dynamically if no initial strokePaths or strokeSvgRaw provided
+  // Fetch or parse stroke SVG when literal or props change
   useEffect(() => {
-    if (!literal || initialStrokePaths.length > 0 || strokeSvgRaw) {
+    if (!literal) return;
+
+    if (initialStrokePaths.length > 0) {
       setFetchedPaths([]);
-      setStrokeNumbers([]);
+      setIsLoadingSvg(false);
+      return;
+    }
+
+    if (strokeSvgRaw) {
+      parseSvgString(strokeSvgRaw);
       setIsLoadingSvg(false);
       return;
     }
@@ -86,67 +137,30 @@ export function StrokeAnimator({
       return;
     }
 
-    const hex = codePoint.toString(16).padStart(5, '0');
-    const primaryUrl = `https://cdn.jsdelivr.net/gh/kanjivg/kanjivg/kanji/${hex}.svg`;
+    const hex = codePoint.toString(16).padStart(5, '0').toLowerCase();
+    const localUrl = `/dict/strokes/${hex}.svg`;
+    const cdnUrl = `https://cdn.jsdelivr.net/gh/kanjivg/kanjivg/kanji/${hex}.svg`;
     const fallbackUrl = `https://raw.githubusercontent.com/kanjivg/kanjivg/master/kanji/${hex}.svg`;
 
-    const parseAndSetSvg = (svgText: string) => {
-      if (!isMounted) return;
-      try {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(svgText, 'image/svg+xml');
-
-        // Extract stroke paths
-        const pathElements = Array.from(xmlDoc.querySelectorAll('path'));
-        const paths: StrokePath[] = pathElements
-          .map((p, idx) => ({
-            id: idx + 1,
-            d: p.getAttribute('d') || '',
-          }))
-          .filter((p) => p.d && p.d.trim().length > 0);
-
-        // Extract stroke order numbers
-        const textElements = Array.from(xmlDoc.querySelectorAll('text'));
-        const numbers: StrokeNumber[] = textElements.map((t, idx) => {
-          const transform = t.getAttribute('transform') || '';
-          const matrixMatch = transform.match(
-            /matrix\s*\(\s*[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+([\d.-]+)\s+([\d.-]+)\s*\)/i
-          );
-          let x = matrixMatch ? parseFloat(matrixMatch[1]) : parseFloat(t.getAttribute('x') || '0');
-          let y = matrixMatch ? parseFloat(matrixMatch[2]) : parseFloat(t.getAttribute('y') || '0');
-          if (isNaN(x)) x = 0;
-          if (isNaN(y)) y = 0;
-          return {
-            num: parseInt(t.textContent || `${idx + 1}`, 10) || idx + 1,
-            x,
-            y,
-          };
-        });
-
-        if (paths.length > 0) {
-          setFetchedPaths(paths);
-          setStrokeNumbers(numbers);
-        } else {
-          setLoadError(true);
-        }
-      } catch (err) {
-        console.error('Error parsing KanjiVG SVG:', err);
-        setLoadError(true);
-      } finally {
-        setIsLoadingSvg(false);
-      }
-    };
-
-    fetch(primaryUrl)
+    fetch(localUrl)
+      .then((res) => {
+        if (!res.ok) return fetch(cdnUrl);
+        return res;
+      })
       .then((res) => {
         if (!res.ok) return fetch(fallbackUrl);
         return res;
       })
       .then((res) => {
-        if (!res.ok) throw new Error('KanjiVG SVG not found');
+        if (!res.ok) throw new Error('Stroke SVG not found');
         return res.text();
       })
-      .then(parseAndSetSvg)
+      .then((svgText) => {
+        if (isMounted) {
+          parseSvgString(svgText);
+          setIsLoadingSvg(false);
+        }
+      })
       .catch(() => {
         if (isMounted) {
           setLoadError(true);
@@ -160,62 +174,80 @@ export function StrokeAnimator({
   }, [literal, initialStrokePaths, strokeSvgRaw]);
 
   // Animation Timer Loop
+  const delayMs = Math.round(600 / speedMultiplier);
+
   useEffect(() => {
     if (!isPlaying || !totalStrokes) return;
+
     const timer = window.setInterval(() => {
       setCurrentStroke((val) => {
         if (val >= totalStrokes) {
           setIsPlaying(false);
-          return val;
+          return totalStrokes;
         }
         return val + 1;
       });
-    }, speed);
-    return () => window.clearInterval(timer);
-  }, [isPlaying, totalStrokes, speed]);
+    }, delayMs);
 
+    return () => window.clearInterval(timer);
+  }, [isPlaying, totalStrokes, delayMs]);
+
+  // Controls Handlers
   const handleReset = () => {
+    setHasInteracted(true);
     setCurrentStroke(0);
-    setIsPlaying(false);
+    setIsPlaying(true);
   };
 
   const handlePrev = () => {
-    setCurrentStroke((v) => Math.max(0, v - 1));
+    setIsPlaying(false);
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setCurrentStroke(Math.max(0, totalStrokes - 1));
+    } else {
+      setCurrentStroke((v) => Math.max(0, v - 1));
+    }
   };
 
   const handleNext = () => {
-    setCurrentStroke((v) => Math.min(totalStrokes, v + 1));
+    setIsPlaying(false);
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setCurrentStroke(1);
+    } else {
+      setCurrentStroke((v) => Math.min(totalStrokes, v + 1));
+    }
   };
 
   const handlePlayPause = () => {
-    if (currentStroke >= totalStrokes) {
-      setCurrentStroke(0);
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      if (currentStroke >= totalStrokes || !hasInteracted) {
+        setCurrentStroke(0);
+      }
+      setHasInteracted(true);
+      setIsPlaying(true);
     }
-    setIsPlaying((prev) => !prev);
   };
 
   const toggleSpeed = () => {
-    setSpeed((prev) => (prev === 600 ? 380 : prev === 380 ? 900 : 600));
+    setSpeedMultiplier((prev) => {
+      if (prev === 1) return 1.5;
+      if (prev === 1.5) return 2;
+      if (prev === 2) return 0.5;
+      return 1;
+    });
   };
 
-  const speedLabel = speed === 380 ? '1.5x' : speed === 900 ? '0.7x' : '1x';
+  const displayStrokeCount = !hasInteracted && currentStroke === 0 ? totalStrokes : currentStroke;
 
   return (
     <Card padding="sm" className={`study-card border-[var(--color-border)] bg-[var(--color-surface)] ${className}`}>
       {/* Controls Header */}
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label="Lưu Kanji"
-          onClick={onSaveToggle}
-          className={isSaved ? 'text-amber-500' : 'text-[var(--color-text-muted)]'}
-        >
-          <Star size={18} weight={isSaved ? 'fill' : 'regular'} />
-        </Button>
-
+      <div className="mb-3 flex items-center justify-between gap-2 px-1">
         <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
-          {currentStroke} / {totalStrokes} nét
+          {displayStrokeCount} / {totalStrokes} nét
         </span>
 
         <div className="flex items-center gap-1">
@@ -259,26 +291,20 @@ export function StrokeAnimator({
             <Spinner size={28} className="animate-spin text-[var(--color-primary-600)]" />
             <span className="text-xs text-[var(--color-text-muted)]">Đang tải nét vẽ Kanji...</span>
           </div>
-        ) : strokeSvgRaw ? (
-          /* animCJK Raw SVG Injection */
-          <div
-            className="stroke-svg-container absolute inset-0 flex items-center justify-center p-3"
-            dangerouslySetInnerHTML={{ __html: strokeSvgRaw }}
-          />
         ) : activeStrokePaths.length > 0 ? (
-          /* KanjiVG Framer Motion Path Animation */
+          /* Kanji stroke path animation */
           <svg viewBox="0 0 109 109" className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét chữ ${literal}`}>
             {activeStrokePaths.map((stroke, index) => {
-              const isFinished = currentStroke === 0 || index < currentStroke;
-              const isCurrent = currentStroke > 0 && index === currentStroke - 1;
+              const isDrawn = !hasInteracted && currentStroke === 0 ? true : index < currentStroke;
+              const isCurrent = hasInteracted && currentStroke > 0 && index === currentStroke - 1;
               
               const strokeColor = isCurrent
-                ? 'var(--color-stroke-active)'
-                : isFinished
-                ? 'var(--color-primary-800)'
-                : 'var(--color-stroke-guide)';
+                ? 'var(--color-stroke-active, #0D9488)'
+                : isDrawn
+                ? 'var(--color-primary-800, #1b4d4f)'
+                : 'var(--color-stroke-guide, rgba(0,0,0,0.1))';
 
-              const strokeWidth = isCurrent ? 4.2 : isFinished ? 3.8 : 2.5;
+              const strokeWidth = isCurrent ? 4.2 : isDrawn ? 3.8 : 2.5;
 
               return (
                 <motion.path
@@ -290,8 +316,8 @@ export function StrokeAnimator({
                   strokeLinejoin="round"
                   strokeWidth={strokeWidth}
                   initial={{ pathLength: 0 }}
-                  animate={{ pathLength: isFinished ? 1 : 0 }}
-                  transition={{ duration: 0.35, ease: 'easeInOut' }}
+                  animate={{ pathLength: isDrawn ? 1 : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 />
               );
             })}
@@ -299,8 +325,8 @@ export function StrokeAnimator({
             {/* Stroke Numbers Overlay */}
             {showNumbers &&
               strokeNumbers.map((sn) => {
-                const isVisible = currentStroke === 0 || sn.num <= currentStroke;
-                const isCurrentNum = currentStroke > 0 && sn.num === currentStroke;
+                const isVisible = !hasInteracted && currentStroke === 0 ? true : sn.num <= currentStroke;
+                const isCurrentNum = hasInteracted && currentStroke > 0 && sn.num === currentStroke;
 
                 return (
                   <text
@@ -311,12 +337,12 @@ export function StrokeAnimator({
                     fontWeight={isCurrentNum ? 'bold' : 'normal'}
                     fill={
                       isCurrentNum
-                        ? 'var(--color-stroke-active)'
+                        ? 'var(--color-stroke-active, #0D9488)'
                         : isVisible
-                        ? 'var(--color-primary-700)'
+                        ? 'var(--color-primary-700, #047857)'
                         : 'var(--color-text-muted)'
                     }
-                    opacity={isVisible ? (isCurrentNum ? 1 : 0.8) : 0.25}
+                    opacity={isVisible ? (isCurrentNum ? 1 : 0.8) : 0.2}
                     style={{ userSelect: 'none', transition: 'all 0.2s ease' }}
                   >
                     {sn.num}
@@ -346,7 +372,7 @@ export function StrokeAnimator({
               size="sm"
               aria-label="Nét trước"
               onClick={handlePrev}
-              disabled={currentStroke === 0}
+              disabled={hasInteracted && currentStroke === 0}
               title="Nét trước"
             >
               <SkipBack size={15} />
@@ -366,7 +392,7 @@ export function StrokeAnimator({
               size="sm"
               aria-label="Nét tiếp"
               onClick={handleNext}
-              disabled={currentStroke >= totalStrokes}
+              disabled={hasInteracted && currentStroke >= totalStrokes}
               title="Nét tiếp"
             >
               <SkipForward size={15} />
@@ -378,14 +404,13 @@ export function StrokeAnimator({
             size="sm"
             aria-label="Tốc độ phát"
             onClick={toggleSpeed}
-            className="text-xs font-medium text-[var(--color-text-secondary)]"
-            title="Đổi tốc độ phát"
+            className="text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"
+            title="Đổi tốc độ phát (0.5x, 1x, 1.5x, 2x)"
           >
-            {speedLabel}
+            {speedMultiplier}x
           </Button>
         </div>
       )}
     </Card>
   );
 }
-

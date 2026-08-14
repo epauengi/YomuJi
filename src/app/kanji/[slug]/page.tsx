@@ -73,17 +73,6 @@ export default function KanjiDetailPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 md:py-7">
-      <form onSubmit={submitSearch} className="search-shell mb-4 flex min-h-12 items-center gap-2 rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 shadow-[var(--shadow-xs)]">
-        <MagnifyingGlass size={19} className="shrink-0 text-[var(--color-text-muted)]" />
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          className="jp-text h-11 min-w-0 flex-1 bg-transparent text-xl font-medium text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
-          aria-label="Tìm kiếm từ vựng hoặc kanji"
-        />
-        <Button type="submit" variant="ghost" size="sm">Tìm</Button>
-      </form>
-
       <Link href="/" className="mb-4 flex w-fit items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]">
         <ArrowLeft size={16} />
         Quay lại trang chủ

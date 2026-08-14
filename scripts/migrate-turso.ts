@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient as createTursoClient, type Client as TursoClient } from '@libsql/client';
+import type { TermRecord, KanjiRecord, DictionaryManifest, DictionaryShardPayload } from '../src/types/dictionary';
 
 // 1. Load Environment Variables from .env.local if present
 const envPath = path.join(process.cwd(), '.env.local');
@@ -19,46 +19,10 @@ if (fs.existsSync(envPath)) {
 // 2. Parse CLI Options
 const args = process.argv.slice(2);
 const isDryRun = args.some((a) => a === '--dry-run');
-const isResume = args.some((a) => a === '--resume');
-const limitArg = args.find((a) => a.startsWith('--limit='));
 const batchSizeArg = args.find((a) => a.startsWith('--batch-size='));
+const batchSize = batchSizeArg ? parseInt(batchSizeArg.split('=')[1], 10) : 100;
 
-const maxLimit = limitArg ? parseInt(limitArg.split('=')[1], 10) : Infinity;
-const batchSize = batchSizeArg ? parseInt(batchSizeArg.split('=')[1], 10) : 500;
-
-const CHECKPOINT_FILE = path.join(process.cwd(), '.turso-checkpoint.json');
-
-interface MigrationCheckpoint {
-  lastTermId: string;
-  lastKanjiLiteral: string;
-  totalTermsProcessed: number;
-  totalKanjiProcessed: number;
-  timestamp: string;
-}
-
-function loadCheckpoint(): MigrationCheckpoint {
-  if (isResume && fs.existsSync(CHECKPOINT_FILE)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(CHECKPOINT_FILE, 'utf-8'));
-      console.log(`🔄 Resuming migration from checkpoint: lastTermId="${data.lastTermId}", lastKanji="${data.lastKanjiLiteral}"`);
-      return data;
-    } catch {
-      console.warn('⚠️ Failed to load checkpoint file. Starting fresh.');
-    }
-  }
-  return {
-    lastTermId: '',
-    lastKanjiLiteral: '',
-    totalTermsProcessed: 0,
-    totalKanjiProcessed: 0,
-    timestamp: new Date().toISOString(),
-  };
-}
-
-function saveCheckpoint(checkpoint: MigrationCheckpoint) {
-  checkpoint.timestamp = new Date().toISOString();
-  fs.writeFileSync(CHECKPOINT_FILE, JSON.stringify(checkpoint, null, 2));
-}
+const DICT_DIR = path.join(process.cwd(), 'public', 'dict');
 
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
@@ -67,16 +31,15 @@ function formatDuration(ms: number): string {
   return minutes > 0 ? `${minutes}m ${remSec}s` : `${remSec}s`;
 }
 
-async function retryOp<T>(fn: () => PromiseLike<T>, retries = 3, delayMs = 2000): Promise<T> {
+async function retryOp<T>(fn: () => PromiseLike<T>, retries = 3, delayMs = 1500): Promise<T> {
   let attempt = 0;
   while (attempt < retries) {
     try {
-      const res = await fn();
-      return res;
+      return await fn();
     } catch (err: any) {
       attempt++;
       if (attempt >= retries) throw err;
-      console.warn(`   ⚠️ Warning: Operation failed (Attempt ${attempt}/${retries}): ${err.message}. Retrying in ${delayMs}ms...`);
+      console.warn(`   ⚠️ Warning (Attempt ${attempt}/${retries}): ${err.message}. Retrying in ${delayMs}ms...`);
       await new Promise((r) => setTimeout(r, delayMs));
       delayMs *= 2;
     }
@@ -86,23 +49,10 @@ async function retryOp<T>(fn: () => PromiseLike<T>, retries = 3, delayMs = 2000)
 
 async function main() {
   console.log('================================================================');
-  console.log('🚀 YomuJi Dictionary Data Migration (Supabase → Turso libSQL)');
+  console.log('🚀 YomuJi Turso libSQL Seeding (Direct from public/dict/ JSON)');
   console.log('================================================================');
   console.log(`📋 Mode: ${isDryRun ? 'DRY-RUN (Validation only)' : 'PRODUCTION IMPORT'}`);
   console.log(`📦 Batch Size: ${batchSize}`);
-  console.log(`🛑 Max Limit: ${maxLimit === Infinity ? 'UNLIMITED (All rows)' : maxLimit.toLocaleString()}`);
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    console.error('❌ Error: Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment variables.');
-    process.exit(1);
-  }
-
-  const supabase = createSupabaseClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
 
   const tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
@@ -111,18 +61,35 @@ async function main() {
 
   if (!isDryRun) {
     if (!tursoUrl) {
-      console.error('❌ Error: TURSO_DATABASE_URL is missing! Pass credentials or run with --dry-run.');
+      console.error('❌ Error: TURSO_DATABASE_URL is missing in .env.local!');
       process.exit(1);
     }
     turso = createTursoClient({ url: tursoUrl, authToken: tursoAuthToken });
   }
 
-  const checkpoint = loadCheckpoint();
+  const manifestPath = path.join(DICT_DIR, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    console.error('❌ Manifest file not found at public/dict/manifest.json! Please run `npm run build:dict` first.');
+    process.exit(1);
+  }
+
+  const manifest: DictionaryManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+  const kanjiShards = manifest.shards.filter((s) => s.type === 'kanji');
+  const termShards = manifest.shards.filter((s) => s.type === 'terms');
+
   const startTime = Date.now();
 
-  // Step 1: Initialize Turso Schema DDL if Turso client is active
   if (turso) {
-    console.log('\n🛠️ Initializing Turso DDL schema...');
+    // Step 0: Fast Reset via DROP TABLE
+    console.log('\n🧹 Clearing old tables in Turso (DROP TABLE)...');
+    await turso.execute('DROP TABLE IF EXISTS terms_fts');
+    await turso.execute('DROP TABLE IF EXISTS kanjis_fts');
+    await turso.execute('DROP TABLE IF EXISTS terms');
+    await turso.execute('DROP TABLE IF EXISTS kanjis');
+    await turso.execute('DROP TABLE IF EXISTS migration_checkpoints');
+    console.log('✅ Old tables dropped.');
+
+    console.log('🛠️ Re-creating DDL Schema from turso/schema.sql...');
     const schemaSql = fs.readFileSync(path.join(process.cwd(), 'turso', 'schema.sql'), 'utf-8');
     const statements = schemaSql
       .split(';')
@@ -135,193 +102,161 @@ async function main() {
     console.log('✅ Schema initialization completed.');
   }
 
-  // Step 2: Migrate Kanji Records
-  console.log('\n漢 Step 1/2: Migrating Kanji records...');
-  let currentKanjiLiteral = checkpoint.lastKanjiLiteral;
-  let kanjiCount = checkpoint.totalKanjiProcessed;
+  // Step 1: Migrate Kanji Records
+  console.log('\n漢 Step 1/2: Seeding Kanji Records into Turso...');
+  let totalKanjiInserted = 0;
 
-  while (kanjiCount < maxLimit) {
-    const currentBatchLimit = Math.min(batchSize, maxLimit - kanjiCount);
-    let query = supabase
-      .from('kanjis')
-      .select('*')
-      .order('literal', { ascending: true })
-      .limit(currentBatchLimit);
+  for (const shard of kanjiShards) {
+    const shardFilePath = path.join(DICT_DIR, shard.url.replace('/dict/', ''));
+    if (!fs.existsSync(shardFilePath)) continue;
 
-    if (currentKanjiLiteral) {
-      query = query.gt('literal', currentKanjiLiteral);
+    const payload: DictionaryShardPayload<KanjiRecord> = JSON.parse(fs.readFileSync(shardFilePath, 'utf-8'));
+    const records = payload.records;
+
+    for (let i = 0; i < records.length; i += batchSize) {
+      const chunk = records.slice(i, i + batchSize);
+
+      if (turso) {
+        const batchStatements: any[] = [];
+        for (const k of chunk) {
+          batchStatements.push({
+            sql: `
+              INSERT OR REPLACE INTO kanjis (
+                literal, on_readings, kun_readings, han_viet, meanings, meanings_raw,
+                radical, pen_strokes, stroke_count, jlpt, grade, frequency, unicode,
+                tags, components, stroke_paths
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `,
+            args: [
+              k.literal,
+              JSON.stringify(k.onReadings || []),
+              JSON.stringify(k.kunReadings || []),
+              JSON.stringify(k.hanViet || []),
+              JSON.stringify(k.meanings || []),
+              JSON.stringify(k.meaningsRaw || []),
+              k.radical || null,
+              k.penStrokes || null,
+              k.strokeCount || null,
+              k.jlpt || null,
+              k.grade || null,
+              k.frequency || null,
+              k.unicode || null,
+              JSON.stringify(k.tags || []),
+              JSON.stringify(k.components || []),
+              JSON.stringify(k.strokePaths || []),
+            ],
+          });
+
+          // FTS
+          batchStatements.push({
+            sql: `
+              INSERT INTO kanjis_fts (literal, literal_text, han_viet, on_readings, kun_readings, meanings)
+              VALUES (?, ?, ?, ?, ?, ?)
+            `,
+            args: [
+              k.literal,
+              k.literal,
+              (k.hanViet || []).join(' '),
+              (k.onReadings || []).join(' '),
+              (k.kunReadings || []).join(' '),
+              (k.meanings || []).join(' '),
+            ],
+          });
+        }
+
+        await retryOp(() => turso!.batch(batchStatements, 'write'));
+      }
+
+      totalKanjiInserted += chunk.length;
     }
-
-    const { data, error } = await retryOp(() => query);
-    const rows: any[] = data || [];
-
-    if (error) {
-      console.error('❌ Error fetching kanji batch from Supabase:', error.message);
-      break;
-    }
-
-    if (!rows || rows.length === 0) {
-      console.log('✅ All Kanji records processed.');
-      break;
-    }
-
-    if (turso) {
-      const batchStatements = rows.map((k: any) => ({
-        sql: `
-          INSERT INTO kanjis (
-            literal, on_readings, kun_readings, han_viet, meanings, meanings_raw,
-            radical, pen_strokes, stroke_count, jlpt, grade, frequency, unicode,
-            tags, components, stroke_paths
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(literal) DO UPDATE SET
-            on_readings = excluded.on_readings,
-            kun_readings = excluded.kun_readings,
-            han_viet = excluded.han_viet,
-            meanings = excluded.meanings,
-            meanings_raw = excluded.meanings_raw,
-            radical = excluded.radical,
-            pen_strokes = excluded.pen_strokes,
-            stroke_count = excluded.stroke_count,
-            jlpt = excluded.jlpt,
-            grade = excluded.grade,
-            frequency = excluded.frequency,
-            unicode = excluded.unicode,
-            tags = excluded.tags,
-            components = excluded.components,
-            stroke_paths = excluded.stroke_paths
-        `,
-        args: [
-          k.literal,
-          JSON.stringify(k.on_readings || []),
-          JSON.stringify(k.kun_readings || []),
-          JSON.stringify(k.han_viet || []),
-          JSON.stringify(k.meanings || []),
-          JSON.stringify(k.meanings_raw || []),
-          k.radical || null,
-          k.pen_strokes || null,
-          k.stroke_count || null,
-          k.jlpt || null,
-          k.grade || null,
-          k.frequency || null,
-          k.unicode || null,
-          JSON.stringify(k.tags || []),
-          JSON.stringify(k.components || []),
-          JSON.stringify(k.stroke_paths || []),
-        ],
-      }));
-
-      await retryOp(() => turso!.batch(batchStatements, 'write'));
-    }
-
-    kanjiCount += rows.length;
-    currentKanjiLiteral = rows[rows.length - 1].literal;
-    checkpoint.lastKanjiLiteral = currentKanjiLiteral;
-    checkpoint.totalKanjiProcessed = kanjiCount;
-    saveCheckpoint(checkpoint);
-
-    console.log(`   [Kanji] Processed ${kanjiCount.toLocaleString()} kanji...`);
+    console.log(`   [Kanji] Processed ${totalKanjiInserted.toLocaleString()} / ${manifest.totals.kanji.toLocaleString()} kanji...`);
   }
+  console.log(`✅ Completed Kanji seeding: ${totalKanjiInserted.toLocaleString()} kanji records in Turso.`);
 
-  // Step 3: Migrate Terms Records (Keyset Pagination on `id`)
-  console.log('\n📖 Step 2/2: Migrating Term records...');
-  let currentTermId = checkpoint.lastTermId;
-  let termsCount = checkpoint.totalTermsProcessed;
+  // Step 2: Migrate Term Records
+  console.log('\n📖 Step 2/2: Seeding Term Records into Turso...');
+  let totalTermsInserted = 0;
+  const totalTermsTarget = manifest.totals.terms;
 
-  // Get total count estimate from Supabase
-  const { count: totalTermCount } = await supabase.from('terms').select('*', { count: 'exact', head: true });
-  const targetTotal = totalTermCount ? Math.min(totalTermCount, maxLimit) : maxLimit;
+  for (const shard of termShards) {
+    const shardFilePath = path.join(DICT_DIR, shard.url.replace('/dict/', ''));
+    if (!fs.existsSync(shardFilePath)) continue;
 
-  while (termsCount < maxLimit) {
-    const currentBatchLimit = Math.min(batchSize, maxLimit - termsCount);
-    let query = supabase
-      .from('terms')
-      .select('*')
-      .order('id', { ascending: true })
-      .limit(currentBatchLimit);
+    const payload: DictionaryShardPayload<TermRecord> = JSON.parse(fs.readFileSync(shardFilePath, 'utf-8'));
+    const records = payload.records;
 
-    if (currentTermId) {
-      query = query.gt('id', currentTermId);
+    for (let i = 0; i < records.length; i += batchSize) {
+      const chunk = records.slice(i, i + batchSize);
+
+      if (turso) {
+        const batchStatements: any[] = [];
+        for (const t of chunk) {
+          const searchAliases = Array.from(new Set([t.surface, t.reading, t.romaji, ...(t.hanVietStr ? [t.hanVietStr] : [])]));
+
+          batchStatements.push({
+            sql: `
+              INSERT OR REPLACE INTO terms (
+                id, sequence, surface, reading, romaji, meanings_vi, glosses_raw,
+                part_of_speech, tags, score, is_common, kanji, kanji_readings, search_aliases
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `,
+            args: [
+              t.id,
+              t.sequence || 0,
+              t.surface,
+              t.reading,
+              t.romaji,
+              JSON.stringify(t.meaningsVi || []),
+              JSON.stringify(t.glossesRaw || []),
+              JSON.stringify(t.partOfSpeech || []),
+              JSON.stringify(t.tags || []),
+              t.score || 0,
+              t.isCommon ? 1 : 0,
+              JSON.stringify(t.kanji || []),
+              JSON.stringify(t.kanjiReadings || []),
+              JSON.stringify(searchAliases),
+            ],
+          });
+
+          // FTS
+          batchStatements.push({
+            sql: `
+              INSERT INTO terms_fts (id, surface, reading, romaji, meanings_vi, search_aliases)
+              VALUES (?, ?, ?, ?, ?, ?)
+            `,
+            args: [
+              t.id,
+              t.surface,
+              t.reading,
+              t.romaji,
+              (t.meaningsVi || []).join(' '),
+              searchAliases.join(' '),
+            ],
+          });
+        }
+
+        await retryOp(() => turso!.batch(batchStatements, 'write'));
+      }
+
+      totalTermsInserted += chunk.length;
     }
-
-    const { data, error } = await retryOp(() => query);
-    const rows: any[] = data || [];
-
-    if (error) {
-      console.error('❌ Error fetching terms batch from Supabase:', error.message);
-      break;
-    }
-
-    if (!rows || rows.length === 0) {
-      console.log('✅ All Term records processed.');
-      break;
-    }
-
-    if (turso) {
-      const batchStatements = rows.map((t: any) => ({
-        sql: `
-          INSERT INTO terms (
-            id, sequence, surface, reading, romaji, meanings_vi, glosses_raw,
-            part_of_speech, tags, score, is_common, kanji, kanji_readings, search_aliases
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(id) DO UPDATE SET
-            sequence = excluded.sequence,
-            surface = excluded.surface,
-            reading = excluded.reading,
-            romaji = excluded.romaji,
-            meanings_vi = excluded.meanings_vi,
-            glosses_raw = excluded.glosses_raw,
-            part_of_speech = excluded.part_of_speech,
-            tags = excluded.tags,
-            score = excluded.score,
-            is_common = excluded.is_common,
-            kanji = excluded.kanji,
-            kanji_readings = excluded.kanji_readings,
-            search_aliases = excluded.search_aliases
-        `,
-        args: [
-          t.id,
-          t.sequence || 0,
-          t.surface,
-          t.reading,
-          t.romaji,
-          JSON.stringify(t.meanings_vi || []),
-          JSON.stringify(t.glosses_raw || []),
-          JSON.stringify(t.part_of_speech || []),
-          JSON.stringify(t.tags || []),
-          t.score || 0,
-          t.is_common ? 1 : 0,
-          JSON.stringify(t.kanji || []),
-          JSON.stringify(t.kanji_readings || []),
-          JSON.stringify(t.search_aliases || [t.surface, t.reading, t.romaji]),
-        ],
-      }));
-
-      await retryOp(() => turso!.batch(batchStatements, 'write'));
-    }
-
-    termsCount += rows.length;
-    currentTermId = rows[rows.length - 1].id;
-    checkpoint.lastTermId = currentTermId;
-    checkpoint.totalTermsProcessed = termsCount;
-    saveCheckpoint(checkpoint);
 
     const elapsed = Date.now() - startTime;
-    const rate = Math.round((termsCount / (elapsed / 1000)));
-    const percentStr = targetTotal !== Infinity ? ` (${((termsCount / targetTotal) * 100).toFixed(1)}%)` : '';
-
-    console.log(`   [Terms] Processed ${termsCount.toLocaleString()}${percentStr} terms. Speed: ${rate.toLocaleString()} items/s. Elapsed: ${formatDuration(elapsed)}`);
+    const rate = Math.round(totalTermsInserted / (elapsed / 1000));
+    const percentStr = `(${((totalTermsInserted / totalTermsTarget) * 100).toFixed(1)}%)`;
+    console.log(`   [Terms] Processed ${totalTermsInserted.toLocaleString()} / ${totalTermsTarget.toLocaleString()} ${percentStr}. Speed: ${rate.toLocaleString()} items/s. Elapsed: ${formatDuration(elapsed)}`);
   }
 
   const totalTime = formatDuration(Date.now() - startTime);
   console.log('\n================================================================');
-  console.log(`🎉 Migration Completed Successfully in ${totalTime}!`);
+  console.log(`🎉 Turso Database Seeding Completed Successfully in ${totalTime}!`);
   console.log(`📊 Summary:`);
-  console.log(`   - Kanji Processed: ${kanjiCount.toLocaleString()}`);
-  console.log(`   - Terms Processed: ${termsCount.toLocaleString()}`);
+  console.log(`   - Kanji Seeded: ${totalKanjiInserted.toLocaleString()}`);
+  console.log(`   - Terms Seeded: ${totalTermsInserted.toLocaleString()}`);
   console.log('================================================================\n');
 }
 
 main().catch((err) => {
-  console.error('❌ Fatal Migration Error:', err);
+  console.error('❌ Fatal Turso Migration Error:', err);
   process.exit(1);
 });

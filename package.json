@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:dict": "npx tsx scripts/build-dictionary.ts",
-    "seed:supabase": "npx tsx scripts/seed-supabase.ts",
+    "supabase:clear": "npx tsx scripts/clear-supabase.ts",
     "turso:migrate": "npx tsx scripts/migrate-turso.ts",
     "turso:validate": "npx tsx scripts/validate-turso.ts",
     "start": "next start",

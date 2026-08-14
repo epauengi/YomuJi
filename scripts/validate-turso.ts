@@ -14,146 +14,90 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient as createTursoClient, type Client as TursoClient } from '@libsql/client';
-import { SupabaseDictionaryRepository } from '../src/lib/dictionary/supabaseRepository';
 import { TursoDictionaryRepository } from '../src/lib/dictionary/tursoRepository';
+import type { DictionaryManifest } from '../src/types/dictionary';
 
 const TEST_QUERIES = [
-  '日本',
-  '日',
+  '安全',
+  '意見',
+  '意味',
   '学校',
   'にほん',
-  'ニホン',
-  'nihon',
-  'gakkou',
-  'Nhật Bản',
-  'trường học',
+  'anzen',
+  'iken',
+  'sự an toàn',
+  'ý kiến',
 ];
 
 async function main() {
   console.log('================================================================');
-  console.log('🔍 YomuJi Turso vs Supabase Post-Migration Data Validator');
+  console.log('🔍 YomuJi Turso Post-Migration Data Validator');
   console.log('================================================================\n');
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    console.error('❌ Error: Supabase credentials missing from .env.local!');
-    process.exit(1);
-  }
-
-  const supabase = createSupabaseClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
 
   const tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
 
-  let turso: TursoClient | null = null;
-  if (tursoUrl) {
-    turso = createTursoClient({ url: tursoUrl, authToken: tursoAuthToken });
+  if (!tursoUrl) {
+    console.error('❌ Error: TURSO_DATABASE_URL is missing in .env.local!');
+    process.exit(1);
+  }
+
+  const turso: TursoClient = createTursoClient({ url: tursoUrl, authToken: tursoAuthToken });
+
+  const manifestPath = path.join(process.cwd(), 'public', 'dict', 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    console.error('❌ Error: public/dict/manifest.json not found!');
+    process.exit(1);
+  }
+
+  const manifest: DictionaryManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+
+  // ------------------------------------------------------------------
+  // Check 1: Row Counts Comparison with Manifest
+  // ------------------------------------------------------------------
+  console.log('📊 Check 1: Row Count Comparison (Turso vs Manifest)');
+  const tursoTermsRes = await turso.execute('SELECT COUNT(*) as count FROM terms');
+  const tursoKanjiRes = await turso.execute('SELECT COUNT(*) as count FROM kanjis');
+
+  const tursoTermsCount = Number(tursoTermsRes.rows[0].count);
+  const tursoKanjiCount = Number(tursoKanjiRes.rows[0].count);
+
+  console.log(`   [Manifest] terms: ${manifest.totals.terms.toLocaleString()} rows | kanjis: ${manifest.totals.kanji.toLocaleString()} rows`);
+  console.log(`   [Turso]    terms: ${tursoTermsCount.toLocaleString()} rows | kanjis: ${tursoKanjiCount.toLocaleString()} rows`);
+
+  if (manifest.totals.terms === tursoTermsCount) {
+    console.log('   ✅ Terms row count MATCHES perfectly!');
   } else {
-    console.warn('⚠️ TURSO_DATABASE_URL is not configured. Running offline validation checks for Supabase repository...\n');
+    console.warn(`   ⚠️ Terms row count diff: ${Math.abs(manifest.totals.terms - tursoTermsCount)} rows`);
+  }
+
+  if (manifest.totals.kanji === tursoKanjiCount) {
+    console.log('   ✅ Kanji row count MATCHES perfectly!');
+  } else {
+    console.warn(`   ⚠️ Kanji row count diff: ${Math.abs(manifest.totals.kanji - tursoKanjiCount)} rows`);
   }
 
   // ------------------------------------------------------------------
-  // Check 1: Row Counts Comparison
+  // Check 2: Executing Search Query Test Suite on Turso
   // ------------------------------------------------------------------
-  console.log('📊 Check 1: Row Count Comparison');
-  const { count: supabaseTermsCount } = await supabase.from('terms').select('*', { count: 'exact', head: true });
-  const { count: supabaseKanjiCount } = await supabase.from('kanjis').select('*', { count: 'exact', head: true });
-
-  console.log(`   [Supabase] terms: ${supabaseTermsCount?.toLocaleString()} rows | kanjis: ${supabaseKanjiCount?.toLocaleString()} rows`);
-
-  if (turso) {
-    const tursoTermsRes = await turso.execute('SELECT COUNT(*) as count FROM terms');
-    const tursoKanjiRes = await turso.execute('SELECT COUNT(*) as count FROM kanjis');
-
-    const tursoTermsCount = Number(tursoTermsRes.rows[0].count);
-    const tursoKanjiCount = Number(tursoKanjiRes.rows[0].count);
-
-    console.log(`   [Turso]    terms: ${tursoTermsCount.toLocaleString()} rows | kanjis: ${tursoKanjiCount.toLocaleString()} rows`);
-
-    if (supabaseTermsCount === tursoTermsCount) {
-      console.log('   ✅ Terms row count MATCHES perfectly!');
-    } else {
-      console.warn(`   ⚠️ Terms row count difference: ${Math.abs((supabaseTermsCount || 0) - tursoTermsCount)} rows`);
-    }
-
-    if (supabaseKanjiCount === tursoKanjiCount) {
-      console.log('   ✅ Kanji row count MATCHES perfectly!');
-    } else {
-      console.warn(`   ⚠️ Kanji row count difference: ${Math.abs((supabaseKanjiCount || 0) - tursoKanjiCount)} rows`);
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // Check 2: Random Sample Field Equality & Unicode Accuracy
-  // ------------------------------------------------------------------
-  if (turso) {
-    console.log('\n🧪 Check 2: Random Sample Verification & Unicode Accuracy');
-    const { data: sampleTerms } = await supabase.from('terms').select('*').limit(20);
-    let termDiscrepancies = 0;
-
-    if (sampleTerms) {
-      for (const st of sampleTerms) {
-        const res = await turso.execute({ sql: 'SELECT * FROM terms WHERE id = ?', args: [st.id] });
-        if (res.rows.length === 0) {
-          console.error(`   ❌ Term id="${st.id}" missing from Turso!`);
-          termDiscrepancies++;
-          continue;
-        }
-
-        const tt = res.rows[0];
-        if (st.surface !== String(tt.surface) || st.reading !== String(tt.reading)) {
-          console.error(`   ❌ Term id="${st.id}" mismatch in surface/reading!`);
-          termDiscrepancies++;
-        }
-      }
-
-      if (termDiscrepancies === 0) {
-        console.log(`   ✅ 20/20 Random term samples match 100% in field contents & Unicode encoding!`);
-      }
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // Check 3: Executing Search Query Test Suite
-  // ------------------------------------------------------------------
-  console.log('\n🔎 Check 3: Executing Search Query Test Suite');
-  const supabaseRepo = new SupabaseDictionaryRepository();
-  const tursoRepo = turso ? new TursoDictionaryRepository(turso) : null;
+  console.log('\n🔎 Check 2: Executing Search Query Test Suite on Turso');
+  const tursoRepo = new TursoDictionaryRepository(turso);
 
   for (const q of TEST_QUERIES) {
-    console.log(`\n   Query: "${q}"`);
     try {
-      const supRes = await supabaseRepo.searchTerms({ query: q, limit: 5 });
-      console.log(`     - Supabase returned ${supRes.terms.length} terms: ${supRes.terms.map((t) => t.term.surface).join(', ')}`);
-    } catch (err: any) {
-      console.warn(`     - Supabase query timed out or failed: ${err.message}`);
-    }
-
-    if (tursoRepo) {
-      try {
-        const tursoRes = await tursoRepo.searchTerms({ query: q, limit: 5 });
-        console.log(`     - Turso    returned ${tursoRes.terms.length} terms: ${tursoRes.terms.map((t) => t.term.surface).join(', ')}`);
-
-        // Check duplicates
-        const ids = tursoRes.terms.map((t) => t.term.id);
-        const uniqueIds = new Set(ids);
-        if (ids.length !== uniqueIds.size) {
-          console.error(`     ❌ Warning: Turso returned duplicate IDs for query "${q}"!`);
-        }
-      } catch (err: any) {
-        console.error(`     - Turso query error: ${err.message}`);
+      const res = await tursoRepo.searchTerms({ query: q, limit: 3 });
+      console.log(`   Query: "${q}" → Returned ${res.terms.length} terms:`);
+      for (const item of res.terms) {
+        console.log(`     • ${item.term.surface} (${item.term.reading}) -> [${item.term.meaningsVi.join(', ')}]`);
       }
+    } catch (err: any) {
+      console.error(`   ❌ Turso query error for "${q}": ${err.message}`);
     }
   }
 
   console.log('\n================================================================');
-  console.log('🎉 Post-Migration Validation Completed Successfully!');
+  console.log('🎉 Turso Data Validation Completed Successfully!');
   console.log('================================================================\n');
 }
 
