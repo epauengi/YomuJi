@@ -13,7 +13,7 @@ import type {
 
 // Input raw data paths
 const RAW_DATA_BASE = 'D:\\IT\\Project\\Data JPVNDict\\Data';
-const JMDICT_DIR = path.join(RAW_DATA_BASE, 'jmdict_vietnamese');
+const OMOHA_FILE = path.join(RAW_DATA_BASE, 'OmohaDictionary', 'OmohaDictionary');
 const KANJIDIC_DIR = path.join(RAW_DATA_BASE, 'kanjidic_vietnamese');
 const KANJIDICT_VN_DIR = path.join(RAW_DATA_BASE, 'KanjiDictVN-master', 'KanjiDictVN-master', 'out_vn');
 const ANIM_CJK_DIR = path.join(RAW_DATA_BASE, 'animCJK-master', 'animCJK-master');
@@ -130,21 +130,6 @@ function loadKanjiHanVietMap(): Map<string, string[]> {
 }
 
 /**
- * Check if a string is pure ASCII English (no Vietnamese diacritics).
- */
-function isPureEnglish(str: string): boolean {
-  // Pure English: only ASCII letters, digits, spaces, basic punctuation
-  return /^[\x20-\x7E]+$/.test(str) && /[a-zA-Z]/.test(str);
-}
-
-/**
- * Check if a string contains Vietnamese diacritical characters.
- */
-function hasVietnamese(str: string): boolean {
-  return /[àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ]/i.test(str);
-}
-
-/**
  * Capitalize first letter of each word for Hán Việt display.
  * E.g. "nhật bản" → "Nhật Bản"
  */
@@ -155,179 +140,35 @@ function capitalizeWords(str: string): string {
     .join(' ');
 }
 
-/**
- * Core parser: Extract Vietnamese meanings, Hán Việt, and per-kanji readings from JMDict VN definitions.
- *
- * Data patterns in JMDict Vietnamese (Yomichan format):
- *
- * Pattern 1 - Pure EN gloss: "obvious", "clear", "to eat"
- * Pattern 2 - Hán Việt cross-ref: "めいはく MINH BẠCH" or "にほん NHẬT BẢN, [にっぽん], NHẬT BẢN"
- * Pattern 3a - Yomichan block with {}: "{めいはく}\n- {obvious}, rõ ràng, rành mạch"
- * Pattern 3b - Yomichan block with @: "@だいじょうぶ\n- an toàn, chắc chắn"
- */
-function parseJmdictEntryDefs(
-  surface: string,
-  reading: string,
-  defs: any[]
-): {
-  meaningsVi: string[];
-  hanVietStr: string;
+function getKanjiReadings(surface: string): {
   kanjiReadings: Array<{ literal: string; hanViet: string[] }>;
-  glossesRaw: string[];
+  hanVietStr?: string;
 } {
-  const meaningsVi: string[] = [];
-  const glossesRaw: string[] = [];
-  let hanVietStr = '';
+  const kanjiChars = extractKanji(surface);
+  if (kanjiChars.length === 0) return { kanjiReadings: [], hanVietStr: undefined };
 
-  // Regex to match UPPERCASE Vietnamese Hán Việt strings
-  const HAN_VIET_UPPER_RE = /[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỊ]{2,}(?:\s+[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỊ]+)*/g;
-
-  for (const def of defs || []) {
-    if (typeof def !== 'string') continue;
-    glossesRaw.push(def);
-
-    // === STEP 1: Extract Hán Việt from cross-reference lines ===
-    // Pattern: "にほん NHẬT BẢN, [にっぽん], NHẬT BẢN"
-    // or "たべる THỰC"
-    // These lines contain kana followed by uppercase Vietnamese
-    const hanVietLineMatch = def.match(/^[\u3040-\u30ff]+\s+((?:[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỊ]+(?:\s+|$))+)/);
-    if (hanVietLineMatch && !hanVietStr) {
-      // Extract the first Hán Việt phrase (before any comma or bracket)
-      const rawHv = hanVietLineMatch[1].trim();
-      const firstPhrase = rawHv.split(/[,\[]/)[0].trim();
-      if (firstPhrase.length >= 2) {
-        hanVietStr = firstPhrase;
-      }
-    }
-
-    // Also check for standalone Hán Việt in cross-ref lines (without leading kana)
-    if (!hanVietStr) {
-      const allMatches = def.match(HAN_VIET_UPPER_RE);
-      if (allMatches) {
-        for (const m of allMatches) {
-          const cleaned = m.trim();
-          // Ignore short tags like "P", "OK"
-          if (cleaned.length >= 2 && !/^(P|N[1-5]|CD|OK|SPEC|NEWS|JES|JIS|JST|JAS|NHK|JETRO)$/i.test(cleaned)) {
-            hanVietStr = cleaned;
-            break;
-          }
-        }
-      }
-    }
-
-    // === STEP 2: Extract Vietnamese meanings from Yomichan blocks ===
-    // Pattern 3a: "{reading}\n- {EN keyword}, nghĩa tiếng Việt"
-    // Pattern 3b: "@reading\n- nghĩa tiếng Việt"
-    const isYomichanBlock = def.includes('\\n') && (def.startsWith('{') || def.startsWith('@'));
-    if (isYomichanBlock) {
-      const lines = def.replace(/\\n/g, '\n').split('\n');
-      for (const line of lines) {
-        let text = line.trim();
-        // Skip the first line (reading header like "{めいはく}" or "@めいはく")
-        if (/^[\{@]/.test(text) && !text.includes(',')) continue;
-        // Remove leading "- "
-        text = text.replace(/^-\s*/, '').trim();
-        if (!text) continue;
-
-        // Pattern 3b: "@reading\n- nghĩa tiếng Việt (no {keyword} prefix)"
-        // E.g. "- trường học, nhà trường."
-        if (def.startsWith('@')) {
-          // This line is directly Vietnamese meaning
-          if (hasVietnamese(text) || !isPureEnglish(text)) {
-            // Clean trailing periods and references like "=日本の ..."
-            if (text.startsWith('=')) continue; // Skip reference lines like "=日本の..."
-            const cleaned = text.replace(/\.$/, '').trim();
-            if (cleaned && !meaningsVi.includes(cleaned)) {
-              meaningsVi.push(cleaned);
-            }
-          }
-          continue;
-        }
-
-        // Pattern 3a: "{EN keyword}, Vietnamese meaning here"
-        // E.g. "{obvious}, rõ ràng, rành mạch, hiển nhiên"
-        // Remove {keyword} tags
-        const withoutTags = text.replace(/\{[^}]+\}/g, '').trim();
-        if (!withoutTags) continue;
-
-        // The Vietnamese part is after the first comma following the English keyword
-        // But since we already stripped {keyword}, the remaining might start with comma
-        let viPart = withoutTags.replace(/^[,;]\s*/, '').trim();
-
-        if (viPart && hasVietnamese(viPart)) {
-          // Clean: remove trailing period, remove leading/trailing garbage
-          viPart = viPart.replace(/\.$/, '').trim();
-          if (viPart && !meaningsVi.includes(viPart)) {
-            meaningsVi.push(viPart);
-          }
-        }
-      }
-    }
-  }
-
-  // === STEP 3: Build per-kanji Hán Việt readings ===
   const kanjiReadings: Array<{ literal: string; hanViet: string[] }> = [];
+  const hvParts: string[] = [];
 
-  const surfaceKanjiOrdered: string[] = [];
-  for (const ch of surface) {
-    if (/[\u4e00-\u9faf\u3400-\u4dbf]/.test(ch)) {
-      surfaceKanjiOrdered.push(ch);
-    }
-  }
-
-  if (surfaceKanjiOrdered.length > 0) {
-    let hvWords: string[] = [];
-    if (hanVietStr) {
-      hvWords = hanVietStr.split(/\s+/).filter(Boolean);
-    }
-
-    if (hvWords.length === surfaceKanjiOrdered.length) {
-      // 1:1 mapping from extracted Hán Việt string
-      for (let i = 0; i < surfaceKanjiOrdered.length; i++) {
-        kanjiReadings.push({
-          literal: surfaceKanjiOrdered[i],
-          hanViet: [capitalizeWords(hvWords[i])],
-        });
-      }
+  for (const ch of kanjiChars) {
+    const dictReadings = kanjiHanVietMap.get(ch);
+    if (dictReadings && dictReadings.length > 0) {
+      const mainHv = capitalizeWords(dictReadings[0]);
+      kanjiReadings.push({ literal: ch, hanViet: [mainHv] });
+      hvParts.push(mainHv);
     } else {
-      // Lookup per-kanji from KanjiDictVN map
-      for (const ch of surfaceKanjiOrdered) {
-        const dictReadings = kanjiHanVietMap.get(ch);
-        if (dictReadings && dictReadings.length > 0) {
-          kanjiReadings.push({
-            literal: ch,
-            hanViet: [capitalizeWords(dictReadings[0])],
-          });
-        } else {
-          kanjiReadings.push({
-            literal: ch,
-            hanViet: [],
-          });
-        }
-      }
-    }
-
-    // Always synthesize complete hanVietStr from kanjiReadings if available
-    const completeHvParts = kanjiReadings.map((r) => r.hanViet[0]).filter(Boolean);
-    if (completeHvParts.length === surfaceKanjiOrdered.length) {
-      hanVietStr = completeHvParts.join(' ').toUpperCase();
+      kanjiReadings.push({ literal: ch, hanViet: [] });
     }
   }
 
-  const cleanedMeanings = meaningsVi
-    .map((m) => (m.length > 500 ? m.slice(0, 500) + '...' : m))
-    .slice(0, 10);
-
-  return {
-    meaningsVi: cleanedMeanings,
-    hanVietStr,
-    kanjiReadings,
-    glossesRaw,
-  };
+  const hanVietStr = hvParts.length === kanjiChars.length ? hvParts.join(' ').toUpperCase() : undefined;
+  return { kanjiReadings, hanVietStr };
 }
 
+let totalExampleCount = 0;
+
 async function main() {
-  console.log('🚀 Starting YomuJi Data Pipeline (Phase 2.1)...');
+  console.log('🚀 Starting YomuJi Data Pipeline (Phase 2.1 - Omoha XML)...');
   console.log(`📁 Raw Data Source: ${RAW_DATA_BASE}`);
   console.log(`📁 Output Destination: ${OUTPUT_DIR}`);
 
@@ -348,68 +189,125 @@ async function main() {
   kanjiHanVietMap = loadKanjiHanVietMap();
 
   // ==========================================
-  // 1. Process Terms (JMDict Vietnamese)
+  // 1. Process Terms (OmohaDictionary XML)
   // ==========================================
-  console.log('\n📖 Processing JMDict Vietnamese Terms...');
-  const termFiles = fs.readdirSync(JMDICT_DIR).filter((f) => f.startsWith('term_bank_') && f.endsWith('.json'));
+  console.log('\n📖 Processing OmohaDictionary XML Terms...');
   const termRecordsMap = new Map<string, TermRecord>();
+
+  if (!fs.existsSync(OMOHA_FILE)) {
+    throw new Error(`❌ OmohaDictionary file not found at: ${OMOHA_FILE}`);
+  }
+
+  const omohaContent = fs.readFileSync(OMOHA_FILE, 'utf-8');
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  let match: RegExpExecArray | null;
 
   let rawTermCount = 0;
   let termsWithVi = 0;
   let termsWithHanViet = 0;
-  for (const file of termFiles) {
-    const filePath = path.join(JMDICT_DIR, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const entries = JSON.parse(content);
-    rawTermCount += entries.length;
+  totalExampleCount = 0;
 
-    for (const entry of entries) {
-      // Entry format: [surface, reading, tags, inflection, score, definitions, sequence, tag_string]
-      const [surface, reading, tagStr, , score, defs, sequence] = entry;
-      const termId = `${surface}-${reading || surface}-${sequence}`;
+  while ((match = entryRegex.exec(omohaContent)) !== null) {
+    rawTermCount++;
+    const entryXml = match[1];
 
-      if (termRecordsMap.has(termId)) continue;
+    const seqMatch = entryXml.match(/<ent_seq>(\d+)<\/ent_seq>/);
+    const sequence = seqMatch ? parseInt(seqMatch[1], 10) : 0;
 
-      const tags = typeof tagStr === 'string' ? tagStr.split(' ').filter(Boolean) : [];
-      const isCommon = tags.some((t) => ['P', 'ichi', 'news', 'spec', 'gai'].includes(t)) || (score && score > 50);
+    const kebMatches = Array.from(entryXml.matchAll(/<keb>(.*?)<\/keb>/g)).map((m) => m[1]);
+    const rebMatches = Array.from(entryXml.matchAll(/<reb>(.*?)<\/reb>/g)).map((m) => m[1]);
+    const kePriMatches = Array.from(entryXml.matchAll(/<ke_pri>(.*?)<\/ke_pri>/g)).map((m) => m[1]);
+    const rePriMatches = Array.from(entryXml.matchAll(/<re_pri>(.*?)<\/re_pri>/g)).map((m) => m[1]);
 
-      const kanaReading = reading || surface;
-      const romaji = toRomaji(kanaReading);
-      const kanjiChars = extractKanji(surface);
-      const { meaningsVi, hanVietStr, kanjiReadings, glossesRaw } = parseJmdictEntryDefs(surface, kanaReading, defs || []);
+    const surface = kebMatches[0] || rebMatches[0] || '';
+    const reading = rebMatches[0] || surface;
 
-      if (meaningsVi.length > 0) termsWithVi++;
-      if (hanVietStr) termsWithHanViet++;
+    if (!surface) continue;
 
-      const termRecord: TermRecord = {
-        id: termId,
-        sequence: sequence || 0,
-        surface,
-        reading: kanaReading,
-        romaji,
-        hanVietStr: hanVietStr || undefined,
-        kanjiReadings: kanjiReadings.length > 0 ? kanjiReadings : undefined,
-        meaningsVi,
-        glossesRaw,
-        partOfSpeech: tags,
-        tags,
-        score: score || 0,
-        isCommon: Boolean(isCommon),
-        kanji: kanjiChars,
-        examples: [],
-        related: [],
-        searchAliases: Array.from(new Set([surface, kanaReading, romaji])),
-        source: { jmdict: true },
-      };
+    const termId = `${surface}-${reading}-${sequence}`;
+    if (termRecordsMap.has(termId)) continue;
 
-      termRecordsMap.set(termId, termRecord);
+    // Senses
+    const senseRegex = /<sense>([\s\S]*?)<\/sense>/g;
+    let senseMatch: RegExpExecArray | null;
+    const meaningsVi: string[] = [];
+    const partOfSpeech: string[] = [];
+    const examples: any[] = [];
+
+    while ((senseMatch = senseRegex.exec(entryXml)) !== null) {
+      const senseXml = senseMatch[1];
+
+      // pos
+      const posMatches = Array.from(senseXml.matchAll(/<pos>&(.*?);<\/pos>/g)).map((m) => m[1]);
+      for (const p of posMatches) {
+        if (!partOfSpeech.includes(p)) partOfSpeech.push(p);
+      }
+
+      // gloss
+      const glossMatches = Array.from(senseXml.matchAll(/<gloss>(.*?)<\/gloss>/g)).map((m) => m[1]);
+      for (const g of glossMatches) {
+        const cleanG = g.trim();
+        if (cleanG && !meaningsVi.includes(cleanG)) meaningsVi.push(cleanG);
+      }
+
+      // example
+      const exRegex = /<example>([\s\S]*?)<\/example>/g;
+      let exMatch: RegExpExecArray | null;
+      while ((exMatch = exRegex.exec(senseXml)) !== null) {
+        const exXml = exMatch[1];
+        const jpnMatch = exXml.match(/<ex_sent xml:lang="jpn">(.*?)<\/ex_sent>/);
+        const viMatch = exXml.match(/<ex_sent xml:lang="vi">(.*?)<\/ex_sent>/);
+        if (jpnMatch && viMatch) {
+          examples.push({
+            id: `ex-${sequence}-${examples.length + 1}`,
+            termSequence: sequence,
+            textJa: jpnMatch[1].trim(),
+            textVi: viMatch[1].trim(),
+          });
+        }
+      }
     }
+
+    const tags = Array.from(new Set([...kePriMatches, ...rePriMatches]));
+    const isCommon = tags.some((t) => ['ichi1', 'news1', 'nf01', 'spec1', 'gai1', 'P', 'ichi', 'news', 'spec', 'gai'].includes(t));
+    const kanaReading = reading || surface;
+    const romaji = toRomaji(kanaReading);
+    const kanjiChars = extractKanji(surface);
+    const { kanjiReadings, hanVietStr } = getKanjiReadings(surface);
+
+    if (meaningsVi.length > 0) termsWithVi++;
+    if (hanVietStr) termsWithHanViet++;
+    totalExampleCount += examples.length;
+
+    const termRecord: TermRecord = {
+      id: termId,
+      sequence,
+      surface,
+      reading: kanaReading,
+      romaji,
+      hanVietStr: hanVietStr || undefined,
+      kanjiReadings: kanjiReadings.length > 0 ? kanjiReadings : undefined,
+      meaningsVi,
+      glossesRaw: meaningsVi,
+      partOfSpeech,
+      tags,
+      score: isCommon ? 100 : 10,
+      isCommon,
+      kanji: kanjiChars,
+      examples,
+      related: [],
+      searchAliases: Array.from(new Set([surface, kanaReading, romaji])),
+      source: { omoha: true },
+    };
+
+    termRecordsMap.set(termId, termRecord);
   }
 
   const allTerms = Array.from(termRecordsMap.values()).sort((a, b) => (b.score || 0) - (a.score || 0));
-  console.log(`✅ Loaded ${rawTermCount} raw term entries -> ${allTerms.length} unique TermRecords.`);
+  console.log(`✅ Loaded ${rawTermCount} raw XML entries -> ${allTerms.length} unique TermRecords.`);
   console.log(`   📋 Terms with Vietnamese meanings: ${termsWithVi.toLocaleString()}`);
   console.log(`   📋 Terms with Hán Việt reading: ${termsWithHanViet.toLocaleString()}`);
+  console.log(`   💬 Total bilingual sentence examples: ${totalExampleCount.toLocaleString()}`);
 
   // ==========================================
   // 2. Process Kanji (KANJIDIC & KanjiDictVN)
@@ -625,14 +523,14 @@ async function main() {
     totals: {
       terms: allTerms.length,
       kanji: allKanji.length,
-      examples: 0,
+      examples: totalExampleCount,
       termShards: termShardCount,
       searchShards: searchShardCount,
       kanjiShards: kanjiShardCount,
     },
     shards: manifestShards,
     attribution: [
-      { name: 'JMdict (Vietnamese)', sourcePath: 'jmdict_vietnamese/' },
+      { name: 'OmohaDictionary', sourcePath: 'OmohaDictionary/' },
       { name: 'KANJIDIC (Vietnamese)', sourcePath: 'kanjidic_vietnamese/' },
       { name: 'KanjiDictVN', sourcePath: 'KanjiDictVN-master/' },
       { name: 'animCJK', sourcePath: 'animCJK-master/' },
