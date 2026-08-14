@@ -39,6 +39,9 @@ export function StrokeAnimator({
 }: StrokeAnimatorProps) {
   const [fetchedPaths, setFetchedPaths] = useState<StrokePath[]>([]);
   const [strokeNumbers, setStrokeNumbers] = useState<StrokeNumber[]>([]);
+  const [svgViewBox, setSvgViewBox] = useState<string>('0 0 109 109');
+  const [isFillFormat, setIsFillFormat] = useState<boolean>(false);
+
   const [isLoadingSvg, setIsLoadingSvg] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
@@ -55,24 +58,42 @@ export function StrokeAnimator({
 
   const totalStrokes = activeStrokePaths.length || initialStrokeCount || 0;
 
-  // Helper: Parse raw SVG XML string into StrokePath[] and StrokeNumber[]
+  // Universal Helper: Parse raw SVG XML string (KanjiVG or AnimCJK format)
   const parseSvgString = (svgText: string) => {
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(svgText, 'image/svg+xml');
+      const svgEl = xmlDoc.querySelector('svg');
+      const viewBox = svgEl?.getAttribute('viewBox') || '0 0 109 109';
+      const isAnimCJK = viewBox.includes('1024') || svgText.includes('acjk');
 
-      const pathElements = Array.from(xmlDoc.querySelectorAll('path'));
+      let pathElements: Element[] = [];
+      if (isAnimCJK) {
+        // AnimCJK format: stroke shapes have id matching /d\d+$/ e.g. z24859d1
+        const animPaths = Array.from(xmlDoc.querySelectorAll('path[id]')).filter((p) => {
+          const id = p.getAttribute('id') || '';
+          return /d\d+$/i.test(id);
+        });
+        pathElements = animPaths.length > 0 ? animPaths : Array.from(xmlDoc.querySelectorAll('svg > path'));
+      } else {
+        // KanjiVG format: stroke lines
+        const kvgPaths = Array.from(xmlDoc.querySelectorAll('g[id*="StrokePaths"] path, path[id*="kvg:"]'));
+        pathElements = kvgPaths.length > 0 ? kvgPaths : Array.from(xmlDoc.querySelectorAll('path'));
+      }
+
       const paths: StrokePath[] = pathElements
         .filter((p) => {
           const d = p.getAttribute('d');
-          const style = p.getAttribute('style');
-          return d && d.trim().length > 0 && !style?.includes('stroke:#ddd');
+          const style = p.getAttribute('style') || '';
+          const clipPath = p.getAttribute('clip-path') || '';
+          return d && d.trim().length > 0 && !clipPath && !style.includes('--d:') && !style.includes('stroke:#ddd');
         })
         .map((p, idx) => ({
           id: idx + 1,
           d: p.getAttribute('d') || '',
         }));
 
+      // Extract stroke order numbers
       const textElements = Array.from(xmlDoc.querySelectorAll('text'));
       const numbers: StrokeNumber[] = textElements.map((t, idx) => {
         const transform = t.getAttribute('transform') || '';
@@ -93,6 +114,8 @@ export function StrokeAnimator({
       if (paths.length > 0) {
         setFetchedPaths(paths);
         setStrokeNumbers(numbers);
+        setSvgViewBox(viewBox);
+        setIsFillFormat(isAnimCJK);
         setLoadError(false);
       } else {
         setLoadError(true);
@@ -138,17 +161,18 @@ export function StrokeAnimator({
     }
 
     const hex = codePoint.toString(16).padStart(5, '0').toLowerCase();
-    const localUrl = `/dict/strokes/${hex}.svg`;
     const cdnUrl = `https://cdn.jsdelivr.net/gh/kanjivg/kanjivg/kanji/${hex}.svg`;
-    const fallbackUrl = `https://raw.githubusercontent.com/kanjivg/kanjivg/master/kanji/${hex}.svg`;
+    const fallbackCdnUrl = `https://raw.githubusercontent.com/kanjivg/kanjivg/master/kanji/${hex}.svg`;
+    const localUrl = `/dict/strokes/${hex}.svg`;
 
-    fetch(localUrl)
+    // Try KanjiVG CDN first for line stroke format, then local AnimCJK fallback
+    fetch(cdnUrl)
       .then((res) => {
-        if (!res.ok) return fetch(cdnUrl);
+        if (!res.ok) return fetch(fallbackCdnUrl);
         return res;
       })
       .then((res) => {
-        if (!res.ok) return fetch(fallbackUrl);
+        if (!res.ok) return fetch(localUrl);
         return res;
       })
       .then((res) => {
@@ -292,12 +316,33 @@ export function StrokeAnimator({
             <span className="text-xs text-[var(--color-text-muted)]">Đang tải nét vẽ Kanji...</span>
           </div>
         ) : activeStrokePaths.length > 0 ? (
-          /* Kanji stroke path animation */
-          <svg viewBox="0 0 109 109" className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét chữ ${literal}`}>
+          /* Universal Kanji SVG Renderer (KanjiVG stroke lines or AnimCJK fill shapes) */
+          <svg viewBox={svgViewBox} className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét chữ ${literal}`}>
             {activeStrokePaths.map((stroke, index) => {
               const isDrawn = !hasInteracted && currentStroke === 0 ? true : index < currentStroke;
               const isCurrent = hasInteracted && currentStroke > 0 && index === currentStroke - 1;
-              
+
+              if (isFillFormat) {
+                // AnimCJK 1024x1024 Fill Shape Rendering
+                const fillColor = isCurrent
+                  ? 'var(--color-stroke-active, #0D9488)'
+                  : isDrawn
+                  ? 'var(--color-primary-800, #1b4d4f)'
+                  : 'color-mix(in srgb, var(--color-border) 40%, transparent)';
+
+                return (
+                  <motion.path
+                    key={stroke.id || index}
+                    d={stroke.d}
+                    fill={fillColor}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isDrawn ? 1 : 0.12 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                  />
+                );
+              }
+
+              // KanjiVG 109x109 Line Stroke Rendering
               const strokeColor = isCurrent
                 ? 'var(--color-stroke-active, #0D9488)'
                 : isDrawn
@@ -328,12 +373,14 @@ export function StrokeAnimator({
                 const isVisible = !hasInteracted && currentStroke === 0 ? true : sn.num <= currentStroke;
                 const isCurrentNum = hasInteracted && currentStroke > 0 && sn.num === currentStroke;
 
+                const fontSize = isFillFormat ? 44 : 7;
+
                 return (
                   <text
                     key={`num-${sn.num}`}
                     x={sn.x}
                     y={sn.y}
-                    fontSize="7"
+                    fontSize={fontSize}
                     fontWeight={isCurrentNum ? 'bold' : 'normal'}
                     fill={
                       isCurrentNum
