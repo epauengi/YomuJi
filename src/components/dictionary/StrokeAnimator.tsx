@@ -6,10 +6,6 @@ import {
   ArrowCounterClockwise,
   Eye,
   EyeSlash,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
   Spinner,
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
@@ -49,7 +45,6 @@ export function StrokeAnimator({
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showNumbers, setShowNumbers] = useState(true);
-  const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
 
   // Determine active stroke paths to render
   const activeStrokePaths = useMemo(() => {
@@ -198,7 +193,7 @@ export function StrokeAnimator({
   }, [literal, initialStrokePaths, strokeSvgRaw]);
 
   // Animation Timer Loop
-  const delayMs = Math.round(600 / speedMultiplier);
+  const delayMs = 600;
 
   useEffect(() => {
     if (!isPlaying || !totalStrokes) return;
@@ -221,47 +216,6 @@ export function StrokeAnimator({
     setHasInteracted(true);
     setCurrentStroke(0);
     setIsPlaying(true);
-  };
-
-  const handlePrev = () => {
-    setIsPlaying(false);
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      setCurrentStroke(Math.max(0, totalStrokes - 1));
-    } else {
-      setCurrentStroke((v) => Math.max(0, v - 1));
-    }
-  };
-
-  const handleNext = () => {
-    setIsPlaying(false);
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      setCurrentStroke(1);
-    } else {
-      setCurrentStroke((v) => Math.min(totalStrokes, v + 1));
-    }
-  };
-
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      if (currentStroke >= totalStrokes || !hasInteracted) {
-        setCurrentStroke(0);
-      }
-      setHasInteracted(true);
-      setIsPlaying(true);
-    }
-  };
-
-  const toggleSpeed = () => {
-    setSpeedMultiplier((prev) => {
-      if (prev === 1) return 1.5;
-      if (prev === 1.5) return 2;
-      if (prev === 2) return 0.5;
-      return 1;
-    });
   };
 
   const displayStrokeCount = !hasInteracted && currentStroke === 0 ? totalStrokes : currentStroke;
@@ -409,55 +363,6 @@ export function StrokeAnimator({
           </div>
         )}
       </div>
-
-      {/* Animation Playback Bar */}
-      {totalStrokes > 0 && (
-        <div className="mt-3 flex items-center justify-between gap-1">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="secondary"
-              size="sm"
-              aria-label="Nét trước"
-              onClick={handlePrev}
-              disabled={hasInteracted && currentStroke === 0}
-              title="Nét trước"
-            >
-              <SkipBack size={15} />
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              aria-label={isPlaying ? 'Tạm dừng' : 'Phát nét'}
-              onClick={handlePlayPause}
-              className="px-3"
-            >
-              {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-              <span className="ml-1 text-xs">{isPlaying ? 'Tạm dừng' : 'Phát nét'}</span>
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              aria-label="Nét tiếp"
-              onClick={handleNext}
-              disabled={hasInteracted && currentStroke >= totalStrokes}
-              title="Nét tiếp"
-            >
-              <SkipForward size={15} />
-            </Button>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Tốc độ phát"
-            onClick={toggleSpeed}
-            className="text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"
-            title="Đổi tốc độ phát (0.5x, 1x, 1.5x, 2x)"
-          >
-            {speedMultiplier}x
-          </Button>
-        </div>
-      )}
     </Card>
   );
 }
