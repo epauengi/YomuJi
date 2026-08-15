@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import { CaretRight, ChartBar, SpeakerHigh } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { playJapaneseAudio } from '@/lib/tts';
 import type { TermRecord } from '@/types/dictionary';
 
 const POS_LABELS: Record<string, string> = {
@@ -71,9 +72,18 @@ export function TermCard({ term }: { term: TermRecord }) {
             )}
           </div>
           <div className="flex shrink-0 flex-col items-center gap-2">
-            <span className="tactile flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-muted)] group-hover:bg-[var(--color-primary-50)] group-hover:text-[var(--color-primary-700)]">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                playJapaneseAudio(term.reading || term.surface);
+              }}
+              title="Nghe phát âm"
+              className="tactile flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)] transition-colors"
+            >
               <SpeakerHigh size={16} />
-            </span>
+            </button>
             <CaretRight className="text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-600)]" size={20} />
           </div>
         </div>

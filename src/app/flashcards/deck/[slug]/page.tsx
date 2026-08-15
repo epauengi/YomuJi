@@ -13,6 +13,7 @@ import {
   X,
 } from '@phosphor-icons/react';
 import { mockDecks, mockSavedWords } from '@/data/mockData';
+import { playJapaneseAudio } from '@/lib/tts';
 
 export default function DeckDetailPage() {
   const params = useParams();
@@ -234,7 +235,14 @@ export default function DeckDetailPage() {
                   <div className="text-sm text-[var(--color-text-muted)] mb-4">Nhấn để xem đáp án</div>
                   <div className="font-ja text-4xl font-bold mb-4">{currentCard?.word}</div>
                   <div className="text-lg text-[var(--color-text-muted)]">{currentCard?.reading}</div>
-                  <button className="mt-6 p-3 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-100)] transition-colors">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playJapaneseAudio(currentCard?.word || '');
+                    }}
+                    title="Nghe phát âm"
+                    className="mt-6 p-3 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-100)] transition-colors"
+                  >
                     <SpeakerHigh className="h-6 w-6 text-[var(--color-text-muted)]" />
                   </button>
                 </div>

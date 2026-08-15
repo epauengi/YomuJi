@@ -13,6 +13,7 @@ import {
   XCircle,
 } from '@phosphor-icons/react';
 import { mockSavedWords, mockDecks } from '@/data/mockData';
+import { playJapaneseAudio } from '@/lib/tts';
 
 export default function ReviewPage() {
   const [isReviewing, setIsReviewing] = useState(false);
@@ -251,7 +252,11 @@ export default function ReviewPage() {
                       <div className="text-sm text-[var(--color-text-muted)]">
                         {currentWord?.type}
                       </div>
-                      <button className="p-3 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-100)] transition-colors">
+                      <button
+                        onClick={() => playJapaneseAudio(currentWord?.word || '')}
+                        title="Nghe phát âm"
+                        className="p-3 rounded-full bg-[var(--color-surface-subtle)] hover:bg-[var(--color-primary-100)] transition-colors"
+                      >
                         <SpeakerHigh className="h-6 w-6 text-[var(--color-text-muted)]" />
                       </button>
                     </motion.div>

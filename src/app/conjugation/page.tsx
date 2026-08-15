@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react';
 import { mockConjugationData } from '@/data/mockData';
 import { Badge } from '@/components/ui/Badge';
+import { playJapaneseAudio } from '@/lib/tts';
 import { JLPTLevel } from '@/types';
 
 // Helper type for conjugation values
@@ -108,7 +109,11 @@ export default function ConjugationPage() {
             </div>
             <div className="text-sm text-[var(--color-text-muted)]">{romaji}</div>
           </div>
-          <button className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors">
+          <button
+            onClick={() => playJapaneseAudio(value)}
+            title="Nghe phát âm"
+            className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
+          >
             <SpeakerHigh className="h-5 w-5 text-[var(--color-text-muted)]" />
           </button>
         </div>
@@ -132,7 +137,11 @@ export default function ConjugationPage() {
                 </div>
                 <div className="text-sm text-[var(--color-text-muted)]">{politeRomaji}</div>
               </div>
-              <button className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors">
+              <button
+                onClick={() => playJapaneseAudio(politeValue)}
+                title="Nghe phát âm"
+                className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
+              >
                 <SpeakerHigh className="h-5 w-5 text-[var(--color-text-muted)]" />
               </button>
             </div>

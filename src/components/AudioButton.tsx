@@ -1,56 +1,39 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { SpeakerHigh, SpeakerX } from '@phosphor-icons/react';
+import { useMemo, useState } from 'react';
+import { SpeakerHigh } from '@phosphor-icons/react';
+import { playJapaneseAudio } from '@/lib/tts';
 
 interface AudioButtonProps {
   text: string;
   label?: string;
   className?: string;
+  voice?: string;
+  rate?: string;
 }
 
-export function AudioButton({ text, label = 'Nghe phát âm', className = '' }: AudioButtonProps) {
-  const [supported, setSupported] = useState(false);
+export function AudioButton({
+  text,
+  label = 'Nghe phát âm',
+  className = '',
+  voice = 'ja-JP-NanamiNeural',
+  rate = '0%',
+}: AudioButtonProps) {
   const [speaking, setSpeaking] = useState(false);
-
-  useEffect(() => {
-    setSupported(typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
-  }, []);
 
   const cleanText = useMemo(() => text.trim(), [text]);
 
   const speak = () => {
-    if (!supported || !cleanText) return;
+    if (!cleanText) return;
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 0.88;
-    utterance.pitch = 1;
-
-    const voices = window.speechSynthesis.getVoices();
-    const japaneseVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('ja'));
-    if (japaneseVoice) utterance.voice = japaneseVoice;
-
-    utterance.onstart = () => setSpeaking(true);
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-    window.speechSynthesis.speak(utterance);
+    playJapaneseAudio(cleanText, {
+      voice,
+      rate,
+      onStart: () => setSpeaking(true),
+      onEnd: () => setSpeaking(false),
+      onError: () => setSpeaking(false),
+    });
   };
-
-  if (!supported) {
-    return (
-      <button
-        type="button"
-        disabled
-        className={`inline-flex h-10 items-center gap-2 rounded-[--radius-md] border border-[var(--color-border)] px-3 text-sm font-medium text-[var(--color-text-disabled)] ${className}`}
-        title="Trình duyệt hiện không hỗ trợ phát âm"
-      >
-        <SpeakerX size={16} />
-        Không có âm thanh
-      </button>
-    );
-  }
 
   return (
     <button

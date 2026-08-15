@@ -18,6 +18,7 @@ import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import { playJapaneseAudio } from '@/lib/tts';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 const decorativeKanji = [
@@ -185,12 +186,7 @@ export default function HomePage() {
   };
 
   const playPronunciation = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      window.speechSynthesis.speak(utterance);
-    }
+    playJapaneseAudio(text);
   };
 
   useEffect(() => {
