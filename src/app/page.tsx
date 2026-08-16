@@ -393,8 +393,8 @@ export default function HomePage() {
                   <div className="flex h-full flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-bold text-[var(--color-primary-700)] dark:bg-[var(--color-primary-950)] dark:text-[var(--color-primary-300)]">
-                          <Sparkle size={14} weight="duotone" />
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)] dark:bg-[var(--color-primary-900)] dark:text-[var(--color-primary-200)]">
+                          <Sparkle size={15} weight="fill" className="text-[var(--color-primary-700)] dark:text-[var(--color-primary-300)]" />
                           Từ vựng hôm nay
                         </div>
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
@@ -407,7 +407,7 @@ export default function HomePage() {
                           <div className="flex items-baseline gap-3">
                             <motion.h3
                               layoutId={`term-surface-${wordOfTheDay.id}`}
-                              className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]"
+                              className="jp-text text-4xl font-extrabold text-[#0D9488] dark:text-[#2DD4BF]"
                               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                             >
                               {wordOfTheDay.surface}

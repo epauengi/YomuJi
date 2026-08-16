@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowsClockwise,
   ArrowSquareOut,
+  BookOpenText,
   Columns,
-  Globe,
   Rows,
   SpeakerHigh,
 } from '@phosphor-icons/react';
-import { AudioButton } from '@/components/AudioButton';
-import { playJapaneseAudio } from '@/lib/tts';
+import { AudioWaveformBars } from '@/components/AudioButton';
+import { playJapaneseAudio, stopCurrentAudio } from '@/lib/tts';
 
 interface InteractiveArticleProps {
   title: string;
@@ -20,12 +18,6 @@ interface InteractiveArticleProps {
   url: string;
   onRefresh: () => void;
   isLoading: boolean;
-}
-
-interface HoverWordInfo {
-  word: string;
-  x: number;
-  y: number;
 }
 
 export function InteractiveJapaneseReader({
@@ -36,28 +28,48 @@ export function InteractiveJapaneseReader({
   isLoading,
 }: InteractiveArticleProps) {
   const [isVertical, setIsVertical] = useState(false);
-  const [hoveredWord, setHoveredWord] = useState<HoverWordInfo | null>(null);
+  const [isPlayingFull, setIsPlayingFull] = useState(false);
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Split text into inspectable segments (words/kanji clusters vs punctuation)
-  const segments = React.useMemo(() => {
-    if (!extract) return [];
-    // Regex matching Japanese character clusters (Kanji, Hiragana, Katakana) or other characters
-    const parts = extract.split(/([\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff]{1,6}|[、。・「」\n\s])/g);
-    return parts.filter(Boolean);
-  }, [extract]);
+  // Stop audio if article changes or unmounts
+  useEffect(() => {
+    return () => {
+      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+      stopCurrentAudio();
+    };
+  }, [title]);
 
-  const handleWordHover = (e: React.MouseEvent<HTMLSpanElement>, text: string) => {
-    const isJapaneseWord = /[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff]/.test(text);
-    if (!isJapaneseWord || text.length === 0) {
-      setHoveredWord(null);
+  const handleTogglePlayFull = () => {
+    if (isPlayingFull) {
+      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+      stopCurrentAudio();
+      setIsPlayingFull(false);
       return;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    setHoveredWord({
-      word: text,
-      x: rect.left + rect.width / 2,
-      y: rect.top - 8,
+    if (!title && !extract) return;
+
+    setIsPlayingFull(true);
+
+    // Step 1: Play title first
+    playJapaneseAudio(title, {
+      onStart: () => setIsPlayingFull(true),
+      onEnd: () => {
+        // Step 2: Pause 1.2s then play extract
+        if (!extract.trim()) {
+          setIsPlayingFull(false);
+          return;
+        }
+
+        pauseTimerRef.current = setTimeout(() => {
+          playJapaneseAudio(extract, {
+            onStart: () => setIsPlayingFull(true),
+            onEnd: () => setIsPlayingFull(false),
+            onError: () => setIsPlayingFull(false),
+          });
+        }, 1200);
+      },
+      onError: () => setIsPlayingFull(false),
     });
   };
 
@@ -67,16 +79,13 @@ export function InteractiveJapaneseReader({
       <div>
         <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
-              <Globe size={14} weight="duotone" />
-              <span>Bài đọc Nhật ngữ</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)] dark:bg-[var(--color-primary-900)] dark:text-[var(--color-primary-200)]">
+              <BookOpenText size={15} weight="duotone" className="text-[var(--color-primary-700)] dark:text-[var(--color-primary-300)]" />
+              <span>Bài đọc hôm nay</span>
             </div>
-            <span className="hidden text-xs text-[var(--color-text-muted)] sm:inline">
-              (Rê chuột vào từ để tra nhanh)
-            </span>
           </div>
 
-          {/* Controls: Vertical Mode Toggle & Refresh */}
+          {/* Controls: Vertical Mode Toggle */}
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -89,7 +98,7 @@ export function InteractiveJapaneseReader({
               title={isVertical ? 'Chuyển sang chế độ đọc ngang' : 'Chuyển sang chế độ đọc dọc kiểu Nhật (縦書き)'}
             >
               {isVertical ? <Rows size={15} /> : <Columns size={15} />}
-              <span>{isVertical ? 'Đọc ngang' : 'Đọc dọc (縦書き)'}</span>
+              <span>{isVertical ? 'Đọc ngang' : 'Đọc dọc'}</span>
             </button>
           </div>
         </div>
@@ -109,86 +118,50 @@ export function InteractiveJapaneseReader({
                 <h3 className="jp-text text-2xl font-extrabold text-[var(--color-text-primary)]">
                   {title}
                 </h3>
-                <AudioButton text={title} label="Phát âm tiêu đề" variant="icon-only" />
+                <button
+                  type="button"
+                  onClick={handleTogglePlayFull}
+                  className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius-md] border transition-all duration-200 ${
+                    isPlayingFull
+                      ? 'border-teal-400 bg-teal-50/80 text-teal-700 shadow-sm ring-2 ring-teal-400/30'
+                      : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:border-teal-400/60 hover:bg-[var(--color-primary-50)]'
+                  }`}
+                  title={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
+                  aria-label={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
+                >
+                  {isPlayingFull ? (
+                    <AudioWaveformBars />
+                  ) : (
+                    <SpeakerHigh size={18} weight="duotone" />
+                  )}
+                </button>
               </div>
 
-              {/* Japanese Text Rendering with Vertical or Horizontal Mode */}
+              {/* Japanese Text Rendering with Vertical (Upright Digits) or Horizontal Mode */}
               <div
                 className={`mt-3 font-ja text-base leading-relaxed text-[var(--color-text-secondary)] transition-all duration-300 ${
                   isVertical
-                    ? 'h-52 overflow-x-auto whitespace-pre-wrap py-2 [writing-mode:vertical-rl] leading-loose text-lg tracking-wider border-l border-[var(--color-border-subtle)] pl-4'
+                    ? 'h-52 overflow-x-auto whitespace-pre-wrap py-2 [writing-mode:vertical-rl] [text-orientation:upright] leading-loose text-lg tracking-wider border-l border-[var(--color-border-subtle)] pl-4'
                     : 'line-clamp-6 text-sm sm:text-base leading-7'
                 }`}
-                onMouseLeave={() => setHoveredWord(null)}
               >
-                {segments.map((seg, idx) => {
-                  const isJp = /[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff]/.test(seg);
-                  if (!isJp) return <span key={idx}>{seg}</span>;
-
-                  return (
-                    <span
-                      key={idx}
-                      onMouseEnter={(e) => handleWordHover(e, seg)}
-                      className="cursor-pointer rounded-[3px] transition-colors duration-150 hover:bg-teal-100 dark:hover:bg-teal-900/60 hover:text-teal-900 dark:hover:text-teal-200 hover:underline decoration-teal-500 underline-offset-4"
-                    >
-                      {seg}
-                    </span>
-                  );
-                })}
+                {extract}
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Floating Hover Inspector Popover */}
-      <AnimatePresence>
-        {hoveredWord && (
-          <motion.div
-            initial={{ opacity: 0, y: 4, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.96 }}
-            transition={{ duration: 0.15 }}
-            style={{
-              position: 'fixed',
-              left: hoveredWord.x,
-              top: hoveredWord.y,
-              transform: 'translate(-50%, -100%)',
-              zIndex: 100,
-            }}
-            className="pointer-events-auto rounded-[--radius-lg] border border-teal-500/40 bg-[var(--color-surface)] p-2.5 shadow-xl backdrop-blur-md min-w-[150px] max-w-[240px]"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="jp-text text-lg font-bold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]">
-                {hoveredWord.word}
-              </span>
-              <button
-                type="button"
-                onClick={() => playJapaneseAudio(hoveredWord.word)}
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
-                title="Nghe phát âm"
-              >
-                <SpeakerHigh size={13} weight="bold" />
-              </button>
-            </div>
-
-            <div className="mt-1 flex items-center gap-2 pt-1 border-t border-[var(--color-border-subtle)] text-[11px]">
-              <Link
-                href={`/?q=${encodeURIComponent(hoveredWord.word)}`}
-                className="font-bold text-teal-700 dark:text-teal-400 hover:underline"
-              >
-                Tra từ này →
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Bottom Footer Actions */}
       <div className="mt-5 flex items-center justify-between border-t border-[var(--color-border-subtle)] pt-3 text-xs font-bold">
         <button
           type="button"
-          onClick={onRefresh}
+          onClick={() => {
+            if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+            stopCurrentAudio();
+            setIsPlayingFull(false);
+            onRefresh();
+          }}
           disabled={isLoading}
           className="tactile inline-flex items-center gap-1.5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)] disabled:opacity-50"
         >
@@ -211,3 +184,4 @@ export function InteractiveJapaneseReader({
     </div>
   );
 }
+
