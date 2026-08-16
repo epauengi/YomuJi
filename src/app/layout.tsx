@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Toaster } from 'sonner';
 import { Navbar } from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import '@/app/globals.css';
@@ -13,6 +14,7 @@ export default function RootLayout({
   return (
     <html lang="vi" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <Toaster position="top-right" richColors closeButton />
         <div className="scroll-progress no-print" aria-hidden="true" />
         <a href="#main-content" className="skip-link">
           Nhảy đến nội dung chính

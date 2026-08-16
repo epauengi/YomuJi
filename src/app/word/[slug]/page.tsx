@@ -2,9 +2,10 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, BookOpenText, LinkSimple, Repeat, Star } from '@phosphor-icons/react';
+import { ArrowLeft, BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { AudioButton } from '@/components/AudioButton';
+import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -106,10 +107,9 @@ export default function WordDetailPage() {
             </div>
           </div>
 
-          <Button variant="secondary" size="sm" className="gap-2">
-            <Star size={16} />
-            Lưu từ
-          </Button>
+          <div className="flex items-center gap-2">
+            <BookmarkButton word={term.surface} size="lg" />
+          </div>
         </div>
       </Card>
 

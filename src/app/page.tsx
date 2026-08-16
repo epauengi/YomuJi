@@ -9,17 +9,33 @@ import {
   BookmarkSimple,
   CaretRight,
   ClockCounterClockwise,
+  Fire,
   Globe,
+  GraduationCap,
   Sparkle,
   SpeakerHigh,
   Trash,
+  Translate,
 } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
+import { TiltCard } from '@/components/ui/TiltCard';
+import { NumberTicker } from '@/components/ui/NumberTicker';
+import { BookmarkButton } from '@/components/ui/BookmarkButton';
+import { AudioButton } from '@/components/AudioButton';
+import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
 import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
 import { playJapaneseAudio } from '@/lib/tts';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
+
+const jlptLevels = [
+  { level: 'N5', label: 'Cơ bản', color: 'from-emerald-500/10 to-emerald-500/5', border: 'hover:border-emerald-400', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300', count: 800 },
+  { level: 'N4', label: 'Sơ cấp', color: 'from-teal-500/10 to-teal-500/5', border: 'hover:border-teal-400', badge: 'bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300', count: 1500 },
+  { level: 'N3', label: 'Trung cấp', color: 'from-blue-500/10 to-blue-500/5', border: 'hover:border-blue-400', badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300', count: 3750 },
+  { level: 'N2', label: 'Thượng cấp', color: 'from-amber-500/10 to-amber-500/5', border: 'hover:border-amber-400', badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300', count: 6000 },
+  { level: 'N1', label: 'Cao cấp', color: 'from-rose-500/10 to-rose-500/5', border: 'hover:border-rose-400', badge: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300', count: 10000 },
+];
 
 const decorativeKanji = [
   { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
@@ -338,7 +354,7 @@ export default function HomePage() {
             </div>
           </section>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {recentSearches.length > 0 && (
               <section aria-label="Tìm kiếm gần đây">
                 <div className="mb-3 flex items-center justify-between">
@@ -370,151 +386,133 @@ export default function HomePage() {
               </section>
             )}
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)] items-stretch">
+            {/* Bento Grid Dashboard: Row 1 (Word of the day + Wikipedia Interactive Reader) */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2.2fr)] items-stretch">
               {wordOfTheDay && (
-                <article className="surface-lift relative flex flex-col justify-between overflow-hidden rounded-[--radius-xl] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-6 sm:p-7 shadow-sm">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-bold text-[var(--color-primary-700)]">
-                        <Sparkle size={14} weight="duotone" />
-                        Từ vựng hôm nay
+                <TiltCard className="p-6 sm:p-7 shadow-sm">
+                  <div className="flex h-full flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-bold text-[var(--color-primary-700)] dark:bg-[var(--color-primary-950)] dark:text-[var(--color-primary-300)]">
+                          <Sparkle size={14} weight="duotone" />
+                          Từ vựng hôm nay
+                        </div>
+                        <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
+                          {wordOfTheDay.isCommon ? 'Phổ biến • N5' : 'JLPT'}
+                        </div>
                       </div>
-                      <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
-                        {wordOfTheDay.isCommon ? 'Phổ biến • N5' : 'JLPT'}
-                      </div>
-                    </div>
 
-                    <div className="mt-5 flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-baseline gap-3">
-                          <motion.h3
-                            layoutId={`term-surface-${wordOfTheDay.id}`}
-                            className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)]"
-                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                          >
-                            {wordOfTheDay.surface}
-                          </motion.h3>
-                          <span className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
-                            {wordOfTheDay.reading}
-                          </span>
+                      <div className="mt-5 flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-baseline gap-3">
+                            <motion.h3
+                              layoutId={`term-surface-${wordOfTheDay.id}`}
+                              className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]"
+                              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                            >
+                              {wordOfTheDay.surface}
+                            </motion.h3>
+                            <span className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                              {wordOfTheDay.reading}
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.meaningsVi.join(', ')}
+                          </p>
                         </div>
 
-                        <p className="mt-1.5 text-lg font-bold text-[var(--color-text-primary)]">
-                          {wordOfTheDay.meaningsVi.join(', ')}
-                        </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
+                          <BookmarkButton word={wordOfTheDay.surface} />
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => playPronunciation(wordOfTheDay.surface)}
-                          className="surface-lift flex h-9 w-9 items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:bg-[var(--color-primary-50)]"
-                          title="Nghe phát âm"
-                          aria-label="Nghe phát âm"
-                        >
-                          <SpeakerHigh size={18} weight="duotone" />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setIsSavedWotd(!isSavedWotd)}
-                          className={`surface-lift flex h-9 w-9 items-center justify-center rounded-[--radius-md] border transition-colors ${
-                            isSavedWotd
-                              ? 'border-amber-300 bg-amber-50 text-amber-600'
-                              : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-primary-700)]'
-                          }`}
-                          title={isSavedWotd ? 'Đã lưu' : 'Lưu từ'}
-                          aria-label={isSavedWotd ? 'Đã lưu' : 'Lưu từ'}
-                        >
-                          {isSavedWotd ? <BookmarkSimple size={18} weight="fill" /> : <BookmarkSimple size={18} weight="duotone" />}
-                        </button>
-                      </div>
+                      {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
+                        <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
+                          <p className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.examples[0].textJa}
+                          </p>
+                          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                            {wordOfTheDay.examples[0].textVi}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
-                    {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
-                      <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
-                        <p className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
-                          {wordOfTheDay.examples[0].textJa}
-                        </p>
-                        <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-                          {wordOfTheDay.examples[0].textVi}
-                        </p>
-                      </div>
-                    )}
+                    <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
+                      <Link
+                        href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] dark:text-[var(--color-primary-400)] transition-colors hover:text-[var(--color-primary-800)]"
+                      >
+                        Xem chi tiết từ vựng
+                        <CaretRight size={14} weight="bold" />
+                      </Link>
+                    </div>
                   </div>
-
-                  <div className="mt-5 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
-                    <Link
-                      href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
-                    >
-                      Xem chi tiết từ vựng
-                      <CaretRight size={14} weight="bold" />
-                    </Link>
-                  </div>
-                </article>
+                </TiltCard>
               )}
 
-              <article className="surface-lift relative flex flex-col justify-between overflow-hidden rounded-[--radius-xl] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-6 sm:p-7 shadow-sm">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700">
-                      <BookOpenText size={14} weight="duotone" />
-                      Bài đọc hôm nay
-                    </div>
-                    <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-surface-subtle)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-secondary)]">
-                      <Globe size={13} className="text-blue-600" />
-                      Wikipedia
-                    </div>
-                  </div>
-
-                  <div className="mt-5">
-                    {readingLoading ? (
-                      <div className="space-y-3 py-3">
-                        <div className="h-6 w-1/3 rounded bg-[var(--color-surface-subtle)] skeleton-quiet" />
-                        <div className="h-20 w-full rounded bg-[var(--color-surface-subtle)] skeleton-quiet" />
-                      </div>
-                    ) : readingArticle ? (
-                      <>
-                        <h3 className="jp-text text-2xl font-bold text-[var(--color-text-primary)]">
-                          {readingArticle.title}
-                        </h3>
-
-                        <p className="jp-text mt-2.5 text-sm leading-6 text-[var(--color-text-secondary)] line-clamp-6">
-                          {readingArticle.extract}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-[var(--color-text-muted)]">Đang tải bài đọc...</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between pt-3 border-t border-[var(--color-border-subtle)] text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={handleNextArticle}
-                    disabled={readingLoading}
-                    className="inline-flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)] transition-colors disabled:opacity-50"
-                  >
-                    <ArrowClockwise size={14} className={readingLoading ? 'animate-spin' : ''} />
-                    Đọc bài khác
-                  </button>
-
-                  {readingArticle && (
-                    <a
-                      href={readingArticle.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Đọc thêm trên Wikipedia
-                      <ArrowSquareOut size={14} />
-                    </a>
-                  )}
-                </div>
-              </article>
+              {/* Interactive Japanese Reader Box */}
+              <TiltCard className="p-6 sm:p-7 shadow-sm">
+                <InteractiveJapaneseReader
+                  title={readingArticle?.title || 'Đang tải...'}
+                  extract={readingArticle?.extract || ''}
+                  url={readingArticle?.url || ''}
+                  onRefresh={handleNextArticle}
+                  isLoading={readingLoading}
+                />
+              </TiltCard>
             </div>
+
+            {/* Bento Grid Row 2: JLPT Quick Level Cards with Animated Number Counters */}
+            <section aria-label="Tra cứu theo cấp độ JLPT">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <GraduationCap size={20} weight="duotone" className="text-[var(--color-primary-700)]" />
+                  <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
+                    Lộ trình & Cấp độ JLPT
+                  </h3>
+                </div>
+                <Link
+                  href="/jlpt"
+                  className="text-xs font-bold text-[var(--color-primary-700)] dark:text-[var(--color-primary-400)] hover:underline"
+                >
+                  Xem tổng quan →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+                {jlptLevels.map((jlpt, index) => (
+                  <Link
+                    key={jlpt.level}
+                    href={`/jlpt`}
+                    className={`group relative overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${jlpt.border}`}
+                  >
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xl font-black text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)] transition-colors">
+                        {jlpt.level}
+                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${jlpt.badge}`}>
+                        {jlpt.label}
+                      </span>
+                    </div>
+
+                    <div className="mt-3">
+                      <div className="text-lg font-extrabold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]">
+                        ~<NumberTicker value={jlpt.count} delay={0.2 + index * 0.1} />
+                      </div>
+                      <span className="text-[11px] font-medium text-[var(--color-text-muted)]">
+                        từ vựng cốt lõi
+                      </span>
+                    </div>
+
+                    {/* Subtle bottom gradient indicator */}
+                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${jlpt.color}`} />
+                  </Link>
+                ))}
+              </div>
+            </section>
           </div>
         )}
       </main>

@@ -12,6 +12,8 @@ import { useDictionary, findKanji, getCompoundsForKanji } from '@/lib/mockDictio
 import { useKanjiDetail } from '@/hooks/useDictionary';
 import { StrokeAnimator } from '@/components/dictionary/StrokeAnimator';
 import { KanjiAiExplanationBox } from '@/components/dictionary/KanjiAiExplanationBox';
+import { BookmarkButton } from '@/components/ui/BookmarkButton';
+import { toast } from 'sonner';
 import type { KanjiRecord, TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
@@ -177,9 +179,7 @@ export default function KanjiDetailPage() {
                 {kanji.hanViet.join(', ') || 'Không rõ'}
               </div>
             </div>
-            <Button variant="ghost" size="sm" aria-label="Lưu kanji">
-              <Star size={21} />
-            </Button>
+            <BookmarkButton word={kanji.literal} variant="star" size="lg" title="Lưu Hán tự" />
           </div>
 
           <div className="mt-6 flex flex-col gap-5">
@@ -276,7 +276,7 @@ export default function KanjiDetailPage() {
                     }).catch(() => {});
                   } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
                     navigator.clipboard.writeText(window.location.href);
-                    alert('Đã sao chép liên kết Hán tự vào bộ nhớ tạm!');
+                    toast.success('Đã sao chép liên kết Hán tự vào bộ nhớ tạm!');
                   }
                 }}
               >
