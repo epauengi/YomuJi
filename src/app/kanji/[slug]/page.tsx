@@ -3,15 +3,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'motion/react';
-import { ArrowCounterClockwise, ArrowLeft, MagnifyingGlass, Pause, Play, SkipBack, SkipForward, Star } from '@phosphor-icons/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowCounterClockwise, ArrowLeft, MagnifyingGlass, Pause, Play, ShareNetwork, SkipBack, SkipForward, Sparkle, Star } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useDictionary, findKanji, getCompoundsForKanji } from '@/lib/mockDictionary';
 import { useKanjiDetail } from '@/hooks/useDictionary';
 import { StrokeAnimator } from '@/components/dictionary/StrokeAnimator';
+import { KanjiAiExplanationBox } from '@/components/dictionary/KanjiAiExplanationBox';
 import type { KanjiRecord, TermRecord } from '@/types/dictionary';
+import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
 function looksVietnamese(text: string) {
   const value = String(text || '').trim();
@@ -32,9 +34,76 @@ export default function KanjiDetailPage() {
   const [currentStroke, setCurrentStroke] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // AI Explanation State
+  const [showAiBox, setShowAiBox] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<KanjiAiExplanation | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   useEffect(() => {
     setQuery(literal);
+    setShowAiBox(false);
+    setAiExplanation(null);
+    setAiError(null);
+    setAiLoading(false);
   }, [literal]);
+
+  const fetchAiExplanation = async () => {
+    if (!kanji) return;
+    setShowAiBox(true);
+
+    // Check localStorage cache first
+    const cacheKey = `yomuji_ai_kanji_${kanji.literal}`;
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          setAiExplanation(JSON.parse(cached));
+          setAiLoading(false);
+          setAiError(null);
+          return;
+        }
+      } catch (e) {
+        console.error('Error reading AI cache:', e);
+      }
+    }
+
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const res = await fetch('/api/ai/explain-kanji', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          literal: kanji.literal,
+          hanViet: kanji.hanViet,
+          meanings: kanji.meanings,
+          components: kanji.components,
+          onReadings: kanji.onReadings,
+          kunReadings: kanji.kunReadings,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to fetch explanation');
+      }
+
+      setAiExplanation(data.explanation);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(data.explanation));
+        } catch (e) {
+          console.error('Error saving AI cache:', e);
+        }
+      }
+    } catch (err: any) {
+      setAiError(err.message || 'Có lỗi xảy ra khi yêu cầu giải thích.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const totalStrokes = kanji?.strokePaths.length || 0;
 
@@ -184,10 +253,53 @@ export default function KanjiDetailPage() {
               {kanji.tags.slice(0, 4).map((tag: string) => <Badge key={tag}>{tag}</Badge>)}
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-3">
-              <Button variant="secondary" size="sm">Giải thích Hán tự {kanji.literal}</Button>
-              <Button variant="secondary" size="sm">Chia sẻ</Button>
+            <div className="flex flex-wrap items-center gap-2 pt-3">
+              <Button
+                variant={showAiBox ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={fetchAiExplanation}
+                disabled={aiLoading}
+                className="gap-1.5 shadow-sm"
+              >
+                <Sparkle size={16} weight="duotone" className="text-amber-500" />
+                {aiLoading ? 'Đang giải thích...' : `Giải thích Hán tự ${kanji.literal}`}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.share) {
+                    navigator.share({
+                      title: `Chữ Hán: ${kanji.literal} (${kanji.hanViet.join(', ')})`,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Đã sao chép liên kết Hán tự vào bộ nhớ tạm!');
+                  }
+                }}
+              >
+                <ShareNetwork size={16} />
+                Chia sẻ
+              </Button>
             </div>
+
+            {/* AI Explanation Accordion / Box */}
+            <AnimatePresence>
+              {showAiBox && (
+                <div className="pt-2">
+                  <KanjiAiExplanationBox
+                    literal={kanji.literal}
+                    explanation={aiExplanation}
+                    isLoading={aiLoading}
+                    error={aiError}
+                    onClose={() => setShowAiBox(false)}
+                    onRetry={fetchAiExplanation}
+                  />
+                </div>
+              )}
+            </AnimatePresence>
           </div>
         </main>
 
