@@ -48,37 +48,48 @@ Hãy phân tích và trả về DUY NHẤT một JSON object hợp lệ (không 
   ]
 }`;
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+    const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    let lastError: any = null;
+    let candidateText: string | null = null;
 
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }],
+    for (const model of modelsToTry) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        ],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          temperature: 0.3,
-        },
-      }),
-    });
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }],
+              },
+            ],
+            generationConfig: {
+              responseMimeType: 'application/json',
+              temperature: 0.3,
+            },
+          }),
+        });
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Gemini API Error:', res.status, errorText);
-      return NextResponse.json({ error: `Gemini API Error: ${res.status}` }, { status: res.status });
+        if (res.ok) {
+          const data = await res.json();
+          candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) break;
+        } else {
+          const errText = await res.text();
+          console.warn(`Model ${model} failed (${res.status}):`, errText);
+          lastError = `Gemini API (${model}): ${res.status}`;
+        }
+      } catch (err: any) {
+        console.warn(`Error calling model ${model}:`, err);
+        lastError = err.message;
+      }
     }
 
-    const data = await res.json();
-    const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
     if (!candidateText) {
-      return NextResponse.json({ error: 'No response generated from Gemini' }, { status: 500 });
+      return NextResponse.json({ error: lastError || 'No response generated from Gemini' }, { status: 500 });
     }
 
     const parsed: KanjiAiExplanation = JSON.parse(candidateText);

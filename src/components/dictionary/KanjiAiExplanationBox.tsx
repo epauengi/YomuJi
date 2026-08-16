@@ -52,9 +52,6 @@ export function KanjiAiExplanationBox({
             <h3 className="text-base font-bold text-[var(--color-text-primary)]">
               AI Giải thích Hán tự <span className="jp-text font-black text-[var(--color-primary-700)]">{literal}</span>
             </h3>
-            <span className="text-[11px] font-medium text-[var(--color-text-muted)]">
-              Phân tích bởi Gemini 2.5 Flash Lite
-            </span>
           </div>
         </div>
 
