@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { motion } from 'motion/react';
 import { searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
 import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 
@@ -42,8 +43,8 @@ export function Navbar() {
             </div>
           )}
 
-          {/* Navigation Links */}
-          <div className="hidden items-center gap-2 md:flex shrink-0">
+          {/* Navigation Links with Framer Motion Sliding Active Indicator */}
+          <div className="hidden items-center gap-1 md:flex shrink-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -51,15 +52,30 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex h-10 items-center gap-2 rounded-[--radius-md] px-3 text-sm font-medium transition-colors ${
+                  className={`relative flex h-10 items-center gap-2 rounded-[--radius-md] px-3.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
+                      ? 'text-[var(--color-primary-700)]'
                       : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]'
                   }`}
                 >
-                  <Icon size={18} weight={isActive ? 'fill' : 'regular'} />
-                  {item.label}
-                  {isActive && <span className="absolute inset-x-3 -bottom-3 h-0.5 rounded-full bg-[var(--color-primary-600)]" />}
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-active-pill"
+                      className="absolute inset-0 rounded-[--radius-md] bg-[var(--color-primary-50)]"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Icon size={18} weight={isActive ? 'fill' : 'regular'} />
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="navbar-active-indicator"
+                      className="absolute inset-x-3 -bottom-3 h-0.5 rounded-full bg-[var(--color-primary-600)]"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -97,7 +113,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`flex min-h-12 items-center gap-3 rounded-[--radius-md] px-3 text-base font-medium transition-colors ${
+                  className={`relative flex min-h-12 items-center gap-3 rounded-[--radius-md] px-3 text-base font-medium transition-colors ${
                     isActive
                       ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
                       : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]'

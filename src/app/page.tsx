@@ -387,9 +387,13 @@ export default function HomePage() {
                     <div className="mt-5 flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-baseline gap-3">
-                          <h3 className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)]">
+                          <motion.h3
+                            layoutId={`term-surface-${wordOfTheDay.id}`}
+                            className="jp-text text-4xl font-extrabold text-[var(--color-primary-800)]"
+                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                          >
                             {wordOfTheDay.surface}
-                          </h3>
+                          </motion.h3>
                           <span className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
                             {wordOfTheDay.reading}
                           </span>

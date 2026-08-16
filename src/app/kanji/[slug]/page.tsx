@@ -97,7 +97,13 @@ export default function KanjiDetailPage() {
         <main className="min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="jp-text text-5xl font-medium leading-none text-[var(--color-primary-800)] md:text-6xl">{kanji.literal}</h1>
+              <motion.h1
+                layoutId={`kanji-literal-${kanji.literal}`}
+                className="jp-text text-5xl font-medium leading-none text-[var(--color-primary-800)] md:text-6xl"
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              >
+                {kanji.literal}
+              </motion.h1>
               <div className="mt-4 text-3xl font-medium leading-tight text-[var(--color-text-primary)]">
                 {kanji.hanViet.join(', ') || 'Không rõ'}
               </div>

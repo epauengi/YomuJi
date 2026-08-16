@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import type { KanjiRecord } from '@/types/dictionary';
@@ -17,14 +18,21 @@ export function KanjiCard({ kanji, showStrokes = true }: KanjiCardProps) {
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         {/* Left main block */}
         <div className="flex items-start gap-4">
-          <div className="flex flex-col items-center justify-center rounded-[--radius-lg] bg-[var(--color-surface-subtle)] px-5 py-4 border border-[var(--color-border)]">
-            <span className="jp-text text-5xl font-bold leading-none text-[var(--color-primary-800)] dark:text-[var(--color-primary-400)]">
+          <Link
+            href={`/kanji/${encodeURIComponent(kanji.literal)}`}
+            className="flex flex-col items-center justify-center rounded-[--radius-lg] bg-[var(--color-surface-subtle)] px-5 py-4 border border-[var(--color-border)] hover:border-[var(--color-primary-500)] transition-colors"
+          >
+            <motion.span
+              layoutId={`kanji-literal-${kanji.literal}`}
+              className="jp-text text-5xl font-bold leading-none text-[var(--color-primary-800)] dark:text-[var(--color-primary-400)]"
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+            >
               {kanji.literal}
-            </span>
+            </motion.span>
             <span className="mt-2 text-sm font-semibold text-[var(--color-hanviet-text)]">
               {kanji.hanViet.join(', ') || 'Không rõ'}
             </span>
-          </div>
+          </Link>
 
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">

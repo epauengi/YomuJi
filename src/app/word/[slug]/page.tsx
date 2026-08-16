@@ -1,9 +1,9 @@
 'use client';
 
-
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenText, LinkSimple, Repeat, Star } from '@phosphor-icons/react';
+import { motion } from 'motion/react';
 import { AudioButton } from '@/components/AudioButton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -51,9 +51,13 @@ export default function WordDetailPage() {
           <div className="min-w-0 flex flex-col gap-2">
             {/* Line 1: Surface + Badge */}
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="jp-text text-4xl font-bold text-[var(--color-text-primary)] md:text-5xl">
+              <motion.h1
+                layoutId={`term-surface-${term.id}`}
+                className="jp-text text-4xl font-bold text-[var(--color-text-primary)] md:text-5xl"
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              >
                 {term.surface}
-              </h1>
+              </motion.h1>
               {term.isCommon && <Badge variant="success">Phổ biến</Badge>}
             </div>
 

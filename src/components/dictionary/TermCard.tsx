@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { CaretRight, ChartBar, SpeakerHigh } from '@phosphor-icons/react';
+import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { playJapaneseAudio } from '@/lib/tts';
@@ -42,9 +43,13 @@ export function TermCard({ term }: { term: TermRecord }) {
         <div className="flex h-full items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="jp-text text-xl font-semibold leading-7 text-[var(--color-text-primary)]">
+              <motion.span
+                layoutId={`term-surface-${term.id}`}
+                className="jp-text text-xl font-semibold leading-7 text-[var(--color-text-primary)]"
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              >
                 {term.surface}
-              </span>
+              </motion.span>
               {term.reading && term.reading !== term.surface && (
                 <span className="jp-text text-sm leading-5 text-[var(--color-text-secondary)]">{term.reading}</span>
               )}
