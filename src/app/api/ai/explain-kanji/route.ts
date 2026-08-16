@@ -48,7 +48,11 @@ Hãy phân tích và trả về DUY NHẤT một JSON object hợp lệ (không 
   ]
 }`;
 
-    const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    const modelsToTry = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-3-flash-preview',
+    ];
     let lastError: any = null;
     let candidateText: string | null = null;
 
