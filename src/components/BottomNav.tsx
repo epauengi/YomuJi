@@ -2,14 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowsClockwise, BookmarkSimple, ClockCounterClockwise, Gear, MagnifyingGlass } from '@phosphor-icons/react';
+import { BookOpenText, Gear, GraduationCap } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 
 const navItems = [
-  { name: 'Tra từ', href: '/', icon: MagnifyingGlass },
-  { name: 'Đã lưu', href: '/flashcards', icon: BookmarkSimple },
-  { name: 'Ôn tập', href: '/review', icon: ArrowsClockwise },
-  { name: 'Lịch sử', href: '/history', icon: ClockCounterClockwise },
+  { name: 'Từ điển', href: '/', icon: BookOpenText },
+  { name: 'JLPT', href: '/jlpt', icon: GraduationCap },
   { name: 'Thiết lập', href: '/settings', icon: Gear },
 ];
 
@@ -18,10 +16,10 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] border-t border-[var(--color-border)] bg-[var(--color-surface)]"
-      style={{ height: 'calc(64px + env(safe-area-inset-bottom))', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] border-t border-[var(--color-border)] bg-[var(--color-surface)] backdrop-blur"
+      style={{ height: 'calc(60px + env(safe-area-inset-bottom))', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="mx-auto flex h-full max-w-screen-md items-center justify-around px-2">
+      <div className="mx-auto flex h-full max-w-md items-center justify-around px-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -30,18 +28,19 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="tactile group relative flex h-full w-full flex-col items-center justify-center gap-1 rounded-[--radius-md]"
+              className="tactile group relative flex h-full flex-1 flex-col items-center justify-center gap-1"
             >
               <div className={`relative z-10 transition-colors duration-200 ${isActive ? 'text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]'}`}>
                 <Icon size={22} weight={isActive ? 'fill' : 'regular'} />
                 {isActive && (
                   <motion.div
-                    layoutId="nav-indicator"
+                    layoutId="bottom-nav-indicator"
                     className="absolute -top-2 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-[var(--color-primary-700)]"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
               </div>
-              <span className={`text-[11px] font-medium transition-colors duration-200 ${isActive ? 'text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]'}`}>
+              <span className={`text-xs font-medium transition-colors duration-200 ${isActive ? 'font-bold text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]'}`}>
                 {item.name}
               </span>
             </Link>
@@ -51,3 +50,4 @@ export default function BottomNav() {
     </nav>
   );
 }
+
