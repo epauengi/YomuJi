@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Eye, EyeSlash, Spinner } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, Eye, EyeSlash, Spinner } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import type { StrokePath } from '@/types/dictionary';
@@ -34,7 +34,7 @@ export function StrokeAnimator({
 
   const [isLoadingSvg, setIsLoadingSvg] = useState(false);
   const [loadError, setLoadError] = useState(false);
-
+  const [reloadKey, setReloadKey] = useState(0);
   const [showNumbers, setShowNumbers] = useState(true);
 
   // Determine active stroke paths to render
@@ -143,18 +143,21 @@ export function StrokeAnimator({
     }
 
     const hex = codePoint.toString(16).padStart(5, '0').toLowerCase();
+    const localUrl = `/dict/strokes/${hex}.svg`;
     const cdnUrl = `https://cdn.jsdelivr.net/gh/kanjivg/kanjivg/kanji/${hex}.svg`;
     const fallbackCdnUrl = `https://raw.githubusercontent.com/kanjivg/kanjivg/master/kanji/${hex}.svg`;
-    const localUrl = `/dict/strokes/${hex}.svg`;
 
-    // Try KanjiVG CDN first for line stroke format, then local AnimCJK fallback
-    fetch(cdnUrl)
+    setFetchedPaths([]);
+    setStrokeNumbers([]);
+
+    // Bundled SVGs avoid remote CDN latency; use CDNs only when absent locally.
+    fetch(localUrl, { cache: 'force-cache' })
       .then((res) => {
-        if (!res.ok) return fetch(fallbackCdnUrl);
+        if (!res.ok) return fetch(cdnUrl);
         return res;
       })
       .then((res) => {
-        if (!res.ok) return fetch(localUrl);
+        if (!res.ok) return fetch(fallbackCdnUrl);
         return res;
       })
       .then((res) => {
@@ -177,7 +180,7 @@ export function StrokeAnimator({
     return () => {
       isMounted = false;
     };
-  }, [literal, initialStrokePaths, strokeSvgRaw]);
+  }, [literal, initialStrokePaths, reloadKey, strokeSvgRaw]);
 
 
   return (
@@ -198,6 +201,15 @@ export function StrokeAnimator({
             title={showNumbers ? 'Ẩn số nét' : 'Hiện số nét'}
           >
             {showNumbers ? <Eye size={17} /> : <EyeSlash size={17} />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Tải lại nét vẽ"
+            onClick={() => setReloadKey((key) => key + 1)}
+            title="Tải lại nét vẽ"
+          >
+            <ArrowCounterClockwise size={18} />
           </Button>
         </div>
       </div>
