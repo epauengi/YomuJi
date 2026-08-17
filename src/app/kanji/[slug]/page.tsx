@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowCounterClockwise, ArrowLeft, MagnifyingGlass, Pause, Play, ShareNetwork, SkipBack, SkipForward, Sparkle, Star } from '@phosphor-icons/react';
+import { ArrowLeft, ShareNetwork, Sparkle } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -33,8 +33,6 @@ export default function KanjiDetailPage() {
   const literal = decodeURIComponent(params.slug as string);
   const { kanji, compounds, isLoading, isReady, progress } = useKanjiDetail(literal);
   const [query, setQuery] = useState(literal);
-  const [currentStroke, setCurrentStroke] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   // AI Explanation State
   const [showAiBox, setShowAiBox] = useState(false);
@@ -106,27 +104,6 @@ export default function KanjiDetailPage() {
       setAiLoading(false);
     }
   };
-
-  const totalStrokes = kanji?.strokePaths.length || 0;
-
-  useEffect(() => {
-    if (!isPlaying || !totalStrokes) return;
-    const timer = window.setInterval(() => {
-      setCurrentStroke((value) => {
-        if (value >= totalStrokes) {
-          setIsPlaying(false);
-          return value;
-        }
-        return value + 1;
-      });
-    }, 650);
-    return () => window.clearInterval(timer);
-  }, [isPlaying, totalStrokes]);
-
-  useEffect(() => {
-    setCurrentStroke(0);
-    setIsPlaying(false);
-  }, [literal]);
 
   const meanings = useMemo(() => (kanji?.meanings || []).filter(looksVietnamese), [kanji]);
   const primaryMeaning = meanings.slice(0, 3).join(', ');
@@ -219,7 +196,7 @@ export default function KanjiDetailPage() {
                 <span className="text-2xl font-medium text-[var(--color-primary-700)]">{kanji.frequency ? kanji.frequency : 'Không rõ'}</span>
               </InfoBlock>
               <InfoBlock label="Số nét">
-                <span className="text-2xl font-medium text-[var(--color-primary-700)]">{kanji.strokeCount || totalStrokes || 'Không rõ'}</span>
+                <span className="text-2xl font-medium text-[var(--color-primary-700)]">{kanji.strokeCount || kanji.strokePaths.length || 'Không rõ'}</span>
               </InfoBlock>
             </div>
 

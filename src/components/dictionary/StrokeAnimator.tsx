@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion } from 'motion/react';
 import { ArrowCounterClockwise, Eye, EyeSlash, Spinner } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -35,14 +36,17 @@ export function StrokeAnimator({
   const [isLoadingSvg, setIsLoadingSvg] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [showNumbers, setShowNumbers] = useState(true);
+  const [currentStroke, setCurrentStroke] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showGuides, setShowGuides] = useState(true);
 
   // Determine active stroke paths to render
   const activeStrokePaths = useMemo(() => {
     return initialStrokePaths.length > 0 ? initialStrokePaths : fetchedPaths;
   }, [initialStrokePaths, fetchedPaths]);
 
-  const totalStrokes = activeStrokePaths.length || initialStrokeCount || 0;
+  const pathCount = activeStrokePaths.length;
+  const totalStrokes = pathCount || initialStrokeCount || 0;
 
   // Universal Helper: Parse raw SVG XML string (KanjiVG or AnimCJK format)
   const parseSvgString = (svgText: string) => {
@@ -113,8 +117,33 @@ export function StrokeAnimator({
   };
 
   useEffect(() => {
+    setCurrentStroke(0);
+    setIsPlaying(false);
     setLoadError(false);
   }, [literal]);
+
+  useEffect(() => {
+    if (!pathCount) return;
+    setCurrentStroke(0);
+    setIsPlaying(true);
+  }, [literal, pathCount]);
+
+  useEffect(() => {
+    if (!isPlaying || !pathCount) return;
+    if (currentStroke >= pathCount) {
+      setIsPlaying(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setCurrentStroke((value) => value + 1), 650);
+    return () => window.clearTimeout(timer);
+  }, [currentStroke, isPlaying, pathCount]);
+
+  const replay = () => {
+    setCurrentStroke(0);
+    setIsPlaying(pathCount > 0);
+    if (!pathCount && loadError) setReloadKey((key) => key + 1);
+  };
 
   // Fetch or parse stroke SVG when literal or props change
   useEffect(() => {
@@ -188,26 +217,26 @@ export function StrokeAnimator({
       {/* Controls Header */}
       <div className="mb-3 flex items-center justify-between gap-2 px-1">
         <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
-          {totalStrokes} nét
+          {currentStroke} / {totalStrokes} nét
         </span>
 
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
-            aria-label={showNumbers ? 'Ẩn số nét' : 'Hiện số nét'}
-            onClick={() => setShowNumbers(!showNumbers)}
-            className={showNumbers ? 'text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)]'}
-            title={showNumbers ? 'Ẩn số nét' : 'Hiện số nét'}
+            aria-label={showGuides ? 'Ẩn hướng dẫn nét' : 'Hiện hướng dẫn nét'}
+            onClick={() => setShowGuides(!showGuides)}
+            className={showGuides ? 'text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)]'}
+            title={showGuides ? 'Ẩn hướng dẫn nét' : 'Hiện hướng dẫn nét'}
           >
-            {showNumbers ? <Eye size={17} /> : <EyeSlash size={17} />}
+            {showGuides ? <Eye size={17} /> : <EyeSlash size={17} />}
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            aria-label="Tải lại nét vẽ"
-            onClick={() => setReloadKey((key) => key + 1)}
-            title="Tải lại nét vẽ"
+            aria-label={loadError ? 'Tải lại nét vẽ' : 'Vẽ lại từ đầu'}
+            onClick={replay}
+            title={loadError ? 'Tải lại nét vẽ' : 'Vẽ lại từ đầu'}
           >
             <ArrowCounterClockwise size={18} />
           </Button>
@@ -235,41 +264,70 @@ export function StrokeAnimator({
         ) : activeStrokePaths.length > 0 ? (
           /* Universal Kanji SVG Renderer (KanjiVG stroke lines or AnimCJK fill shapes) */
           <svg viewBox={svgViewBox} className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét chữ ${literal}`}>
-            {activeStrokePaths.map((stroke, index) =>
-              isFillFormat ? (
-                <path
-                  key={stroke.id || index}
-                  d={stroke.d}
-                  fill="var(--color-primary-800, #1b4d4f)"
-                />
-              ) : (
-                <path
-                  key={stroke.id || index}
-                  d={stroke.d}
-                  fill="none"
-                  stroke="var(--color-primary-800, #1b4d4f)"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3.8}
-                />
-              )
-            )}
+            {activeStrokePaths.map((stroke, index) => {
+              const isDrawn = index < currentStroke;
+              const isCurrent = index === currentStroke - 1;
+
+              if (isFillFormat) {
+                return (
+                  <motion.path
+                    key={stroke.id || index}
+                    d={stroke.d}
+                    fill={isCurrent ? 'var(--color-stroke-active, #0D9488)' : 'var(--color-primary-800, #1b4d4f)'}
+                    animate={{ opacity: isDrawn ? 1 : showGuides ? 0.12 : 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                  />
+                );
+              }
+
+              return (
+                <React.Fragment key={stroke.id || index}>
+                  {showGuides && (
+                    <path
+                      d={stroke.d}
+                      fill="none"
+                      stroke="var(--color-stroke-guide, rgba(0,0,0,0.1))"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                    />
+                  )}
+                  <motion.path
+                    d={stroke.d}
+                    fill="none"
+                    stroke={isCurrent ? 'var(--color-stroke-active, #0D9488)' : 'var(--color-primary-800, #1b4d4f)'}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={isCurrent ? 4.2 : 3.8}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: isDrawn ? 1 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  />
+                </React.Fragment>
+              );
+            })}
 
             {/* Stroke Numbers Overlay */}
-            {showNumbers &&
-              strokeNumbers.map((sn) => (
-                <text
-                  key={`num-${sn.num}`}
-                  x={sn.x}
-                  y={sn.y}
-                  fontSize={isFillFormat ? 44 : 7}
-                  fill="var(--color-primary-700, #047857)"
-                  opacity={0.8}
-                  style={{ userSelect: 'none' }}
-                >
-                  {sn.num}
-                </text>
-              ))}
+            {showGuides &&
+              strokeNumbers.map((sn) => {
+                const isVisible = sn.num <= currentStroke;
+                const isCurrent = sn.num === currentStroke;
+
+                return (
+                  <text
+                    key={`num-${sn.num}`}
+                    x={sn.x}
+                    y={sn.y}
+                    fontSize={isFillFormat ? 44 : 7}
+                    fontWeight={isCurrent ? 'bold' : 'normal'}
+                    fill={isCurrent ? 'var(--color-stroke-active, #0D9488)' : 'var(--color-primary-700, #047857)'}
+                    opacity={isVisible ? 0.8 : 0.2}
+                    style={{ userSelect: 'none' }}
+                  >
+                    {sn.num}
+                  </text>
+                );
+              })}
           </svg>
         ) : (
           /* Fallback static kanji display */
