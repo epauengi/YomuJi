@@ -1,13 +1,7 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { motion } from 'motion/react';
-import {
-  ArrowCounterClockwise,
-  Eye,
-  EyeSlash,
-  Spinner,
-} from '@phosphor-icons/react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Eye, EyeSlash, Spinner } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import type { StrokePath } from '@/types/dictionary';
@@ -41,9 +35,6 @@ export function StrokeAnimator({
   const [isLoadingSvg, setIsLoadingSvg] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  const [currentStroke, setCurrentStroke] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [showNumbers, setShowNumbers] = useState(true);
 
   // Determine active stroke paths to render
@@ -121,11 +112,7 @@ export function StrokeAnimator({
     }
   };
 
-  // Reset state when literal changes
   useEffect(() => {
-    setCurrentStroke(0);
-    setIsPlaying(false);
-    setHasInteracted(false);
     setLoadError(false);
   }, [literal]);
 
@@ -192,40 +179,13 @@ export function StrokeAnimator({
     };
   }, [literal, initialStrokePaths, strokeSvgRaw]);
 
-  // Animation Timer Loop
-  const delayMs = 600;
-
-  useEffect(() => {
-    if (!isPlaying || !totalStrokes) return;
-
-    const timer = window.setInterval(() => {
-      setCurrentStroke((val) => {
-        if (val >= totalStrokes) {
-          setIsPlaying(false);
-          return totalStrokes;
-        }
-        return val + 1;
-      });
-    }, delayMs);
-
-    return () => window.clearInterval(timer);
-  }, [isPlaying, totalStrokes, delayMs]);
-
-  // Controls Handlers
-  const handleReset = () => {
-    setHasInteracted(true);
-    setCurrentStroke(0);
-    setIsPlaying(true);
-  };
-
-  const displayStrokeCount = !hasInteracted && currentStroke === 0 ? totalStrokes : currentStroke;
 
   return (
     <Card padding="sm" className={`study-card border-[var(--color-border)] bg-[var(--color-surface)] ${className}`}>
       {/* Controls Header */}
       <div className="mb-3 flex items-center justify-between gap-2 px-1">
         <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
-          {displayStrokeCount} / {totalStrokes} nét
+          {totalStrokes} nét
         </span>
 
         <div className="flex items-center gap-1">
@@ -238,15 +198,6 @@ export function StrokeAnimator({
             title={showNumbers ? 'Ẩn số nét' : 'Hiện số nét'}
           >
             {showNumbers ? <Eye size={17} /> : <EyeSlash size={17} />}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Vẽ lại từ đầu"
-            onClick={handleReset}
-            title="Vẽ lại từ đầu"
-          >
-            <ArrowCounterClockwise size={18} />
           </Button>
         </div>
       </div>
@@ -272,84 +223,41 @@ export function StrokeAnimator({
         ) : activeStrokePaths.length > 0 ? (
           /* Universal Kanji SVG Renderer (KanjiVG stroke lines or AnimCJK fill shapes) */
           <svg viewBox={svgViewBox} className="absolute inset-0 h-full w-full p-4" aria-label={`Thứ tự nét chữ ${literal}`}>
-            {activeStrokePaths.map((stroke, index) => {
-              const isDrawn = !hasInteracted && currentStroke === 0 ? true : index < currentStroke;
-              const isCurrent = hasInteracted && currentStroke > 0 && index === currentStroke - 1;
-
-              if (isFillFormat) {
-                // AnimCJK 1024x1024 Fill Shape Rendering
-                const fillColor = isCurrent
-                  ? 'var(--color-stroke-active, #0D9488)'
-                  : isDrawn
-                  ? 'var(--color-primary-800, #1b4d4f)'
-                  : 'color-mix(in srgb, var(--color-border) 40%, transparent)';
-
-                return (
-                  <motion.path
-                    key={stroke.id || index}
-                    d={stroke.d}
-                    fill={fillColor}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: isDrawn ? 1 : 0.12 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                  />
-                );
-              }
-
-              // KanjiVG 109x109 Line Stroke Rendering
-              const strokeColor = isCurrent
-                ? 'var(--color-stroke-active, #0D9488)'
-                : isDrawn
-                ? 'var(--color-primary-800, #1b4d4f)'
-                : 'var(--color-stroke-guide, rgba(0,0,0,0.1))';
-
-              const strokeWidth = isCurrent ? 4.2 : isDrawn ? 3.8 : 2.5;
-
-              return (
-                <motion.path
+            {activeStrokePaths.map((stroke, index) =>
+              isFillFormat ? (
+                <path
+                  key={stroke.id || index}
+                  d={stroke.d}
+                  fill="var(--color-primary-800, #1b4d4f)"
+                />
+              ) : (
+                <path
                   key={stroke.id || index}
                   d={stroke.d}
                   fill="none"
-                  stroke={strokeColor}
+                  stroke="var(--color-primary-800, #1b4d4f)"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={strokeWidth}
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: isDrawn ? 1 : 0 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  strokeWidth={3.8}
                 />
-              );
-            })}
+              )
+            )}
 
             {/* Stroke Numbers Overlay */}
             {showNumbers &&
-              strokeNumbers.map((sn) => {
-                const isVisible = !hasInteracted && currentStroke === 0 ? true : sn.num <= currentStroke;
-                const isCurrentNum = hasInteracted && currentStroke > 0 && sn.num === currentStroke;
-
-                const fontSize = isFillFormat ? 44 : 7;
-
-                return (
-                  <text
-                    key={`num-${sn.num}`}
-                    x={sn.x}
-                    y={sn.y}
-                    fontSize={fontSize}
-                    fontWeight={isCurrentNum ? 'bold' : 'normal'}
-                    fill={
-                      isCurrentNum
-                        ? 'var(--color-stroke-active, #0D9488)'
-                        : isVisible
-                        ? 'var(--color-primary-700, #047857)'
-                        : 'var(--color-text-muted)'
-                    }
-                    opacity={isVisible ? (isCurrentNum ? 1 : 0.8) : 0.2}
-                    style={{ userSelect: 'none', transition: 'all 0.2s ease' }}
-                  >
-                    {sn.num}
-                  </text>
-                );
-              })}
+              strokeNumbers.map((sn) => (
+                <text
+                  key={`num-${sn.num}`}
+                  x={sn.x}
+                  y={sn.y}
+                  fontSize={isFillFormat ? 44 : 7}
+                  fill="var(--color-primary-700, #047857)"
+                  opacity={0.8}
+                  style={{ userSelect: 'none' }}
+                >
+                  {sn.num}
+                </text>
+              ))}
           </svg>
         ) : (
           /* Fallback static kanji display */

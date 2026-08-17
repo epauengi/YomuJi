@@ -4,3 +4,12 @@ out/
 .env*.local
 *.tsbuildinfo
 .turso-checkpoint.json
+
+# Local AI coding-assistant state
+CLAUDE.md
+.claude/
+.cursor/
+.windsurf/
+.continue/
+.aider*
+.roo/
