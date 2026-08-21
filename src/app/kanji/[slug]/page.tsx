@@ -78,7 +78,7 @@ export default function KanjiDetailPage() {
         body: JSON.stringify({
           literal: kanji.literal,
           hanViet: kanji.hanViet,
-          meanings: kanji.meanings,
+          meanings: kanji.meanings.filter((meaning) => typeof meaning === 'string' && meaning.length <= 120),
           components: kanji.components,
           onReadings: kanji.onReadings,
           kunReadings: kanji.kunReadings,
