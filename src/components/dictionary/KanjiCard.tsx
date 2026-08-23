@@ -12,7 +12,7 @@ interface KanjiCardProps {
   showStrokes?: boolean;
 }
 
-export function KanjiCard({ kanji, showStrokes = true }: KanjiCardProps) {
+export function KanjiCard({ kanji }: KanjiCardProps) {
   return (
     <Card className="content-rise border-[var(--color-border)] bg-[var(--color-surface)] shadow-none transition-all hover:border-[var(--color-primary-400)]">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -24,7 +24,7 @@ export function KanjiCard({ kanji, showStrokes = true }: KanjiCardProps) {
           >
             <motion.span
               layoutId={`kanji-literal-${kanji.literal}`}
-              className="jp-text text-5xl font-bold leading-none text-[var(--color-primary-800)] dark:text-[var(--color-primary-400)]"
+              className="jp-text text-5xl font-bold leading-none text-[var(--color-primary-800)]"
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             >
               {kanji.literal}

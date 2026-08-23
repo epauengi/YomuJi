@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Bell, CaretRight, Database, Gear, Globe, Monitor, Moon, SpeakerHigh, Sun } from '@phosphor-icons/react';
-import { motion, type Variants } from 'motion/react';
+import { motion } from 'motion/react';
 import { useDictionary, formatBytes } from '@/lib/mockDictionary';
 
 // Custom Toggle Component using Framer Motion
@@ -13,17 +13,18 @@ const toggleVariants = {
   off: { x: 0 },
 };
 
-const Toggle = React.memo(({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
+const Toggle = React.memo(({ enabled, onToggle, label }: { enabled: boolean; onToggle: () => void; label: string }) => (
   <button
     onClick={onToggle}
-    className={`relative flex h-6 w-11 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2 ${
+    className={`relative flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-[--duration-fast] ${
       enabled ? 'bg-[var(--color-primary-600)]' : 'bg-[var(--color-border-strong)]'
     }`}
     role="switch"
     aria-checked={enabled}
+    aria-label={label}
   >
     <motion.div
-      className="h-4 w-4 rounded-full bg-white shadow-sm"
+      className="h-5 w-5 rounded-full bg-white shadow-sm"
       layout
       variants={toggleVariants}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -34,35 +35,11 @@ const Toggle = React.memo(({ enabled, onToggle }: { enabled: boolean; onToggle: 
 ));
 Toggle.displayName = 'Toggle';
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 24
-    }
-  }
-};
-
 export default function SettingsPage() {
   const { progress, manifest, retry, isReady } = useDictionary();
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [language, setLanguage] = useState('vi');
 
   const handleThemeChange = React.useCallback((t: 'light' | 'dark' | 'system') => {
     setTheme(t);
@@ -87,51 +64,28 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] pb-20">
-      {/* Header Section */}
-      <div className="content-rise relative overflow-hidden border-b border-[var(--color-border)] bg-[var(--color-surface)] py-10">
-        <div className="max-w-3xl mx-auto px-4 flex flex-col items-center text-center gap-4">
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="inline-flex items-center justify-center rounded-[--radius-lg] border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] p-4 text-[var(--color-primary-600)]"
-          >
-            <Gear size={32} weight="duotone" />
-          </motion.div>
+      <header className="border-b border-[var(--color-border-subtle)] bg-[var(--color-surface)] py-10">
+        <div className="mx-auto flex max-w-3xl items-center gap-4 px-4">
+          <div className="inline-flex items-center justify-center rounded-[--radius-lg] bg-[var(--color-primary-50)] p-3 text-[var(--color-primary-700)]">
+            <Gear size={30} weight="duotone" />
+          </div>
           <div>
-            <motion.h1 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] tracking-tight mb-2"
-            >
+            <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">
               Cài đặt hệ thống
-            </motion.h1>
-            <motion.p 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-[var(--color-text-secondary)] text-lg"
-            >
+            </h1>
+            <p className="mt-1 text-base text-[var(--color-text-secondary)]">
               Cá nhân hóa trải nghiệm học tập của bạn
-            </motion.p>
+            </p>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Settings Content */}
-      <motion.div 
-        className="max-w-3xl mx-auto px-4 py-12 flex flex-col gap-8"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-10">
         
         {/* Appearance Section */}
-        <motion.section variants={itemVariants} className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 ml-1">
-            <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary-600)]" />
-            <h2 className="text-base font-bold text-[var(--color-text-primary)] tracking-tight">
+        <section className="flex flex-col gap-4">
+          <div className="ml-1">
+            <h2 className="text-base font-bold tracking-tight text-[var(--color-text-primary)]">
               Giao diện & Hiển thị
             </h2>
           </div>
@@ -152,7 +106,8 @@ export default function SettingsPage() {
                   <button
                     key={t}
                     onClick={() => handleThemeChange(t)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    aria-pressed={theme === t}
+                    className={`min-h-11 rounded-md px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-[--duration-fast] ${
                       theme === t 
                         ? 'bg-[var(--color-surface)] text-[var(--color-primary-600)] shadow-sm' 
                         : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
@@ -179,13 +134,12 @@ export default function SettingsPage() {
               <CaretRight className="text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-500)]" />
             </div>
           </Card>
-        </motion.section>
+        </section>
 
         {/* Preferences Section */}
-        <motion.section variants={itemVariants} className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 ml-1">
-            <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary-600)]" />
-            <h2 className="text-base font-bold text-[var(--color-text-primary)] tracking-tight">
+        <section className="flex flex-col gap-4">
+          <div className="ml-1">
+            <h2 className="text-base font-bold tracking-tight text-[var(--color-text-primary)]">
               Tùy chọn học tập
             </h2>
           </div>
@@ -200,7 +154,7 @@ export default function SettingsPage() {
                   <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">Phát âm thanh khi mở chi tiết từ vựng</p>
                 </div>
               </div>
-              <Toggle enabled={soundEnabled} onToggle={toggleSound} />
+              <Toggle enabled={soundEnabled} onToggle={toggleSound} label="Tự động phát âm" />
             </div>
             
             <div className="h-px bg-[var(--color-border)] w-full ml-20" />
@@ -215,16 +169,15 @@ export default function SettingsPage() {
                   <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">Nhận thông báo ôn tập hàng ngày</p>
                 </div>
               </div>
-              <Toggle enabled={notificationsEnabled} onToggle={toggleNotifications} />
+              <Toggle enabled={notificationsEnabled} onToggle={toggleNotifications} label="Thông báo nhắc nhở" />
             </div>
           </Card>
-        </motion.section>
+        </section>
 
         {/* Data & Storage Section */}
-        <motion.section variants={itemVariants} className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 ml-1">
-            <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary-600)]" />
-            <h2 className="text-base font-bold text-[var(--color-text-primary)] tracking-tight">
+        <section className="flex flex-col gap-4">
+          <div className="ml-1">
+            <h2 className="text-base font-bold tracking-tight text-[var(--color-text-primary)]">
               Dữ liệu & Lưu trữ
             </h2>
           </div>
@@ -251,16 +204,16 @@ export default function SettingsPage() {
             <div className="bg-[var(--color-surface-subtle)] px-5 py-3 flex items-center justify-between border-t border-[var(--color-border)]">
               <p className="text-sm text-[var(--color-text-secondary)]">Phiên bản cơ sở dữ liệu</p>
               <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${isReady ? 'bg-[var(--color-success)]' : 'bg-[var(--color-warning)]'} animate-pulse`} />
+                <span className={`status-dot h-2 w-2 rounded-full ${isReady ? 'bg-[var(--color-success)]' : 'bg-[var(--color-warning)]'}`} />
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">
                   {manifest?.dataVersion || 'Chưa cài'} · {formatBytes(progress.totalBytes || 0)}
                 </span>
               </div>
             </div>
           </Card>
-        </motion.section>
+        </section>
 
-      </motion.div>
+      </div>
     </div>
   );
 }

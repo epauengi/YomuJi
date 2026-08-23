@@ -8,13 +8,11 @@ import {
   CircleNotch,
   ClockCounterClockwise,
   Copy,
-  Gear,
   Info,
   Layout,
   Lightning,
   MagnifyingGlass,
   Palette,
-  Trash,
   WarningCircle,
   XCircle,
 } from '@phosphor-icons/react';
@@ -22,7 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
-import { mockUIStates } from '@/data/mockData';
+import { NumberTicker } from '@/components/ui/NumberTicker';
 
 export default function ShowcasePage() {
   const [activeSection, setActiveSection] = useState('colors');
@@ -168,6 +166,7 @@ export default function ShowcasePage() {
                       <Button variant="primary" size="medium">Medium Button</Button>
                       <Button variant="primary" size="small">Small Button</Button>
                       <Button variant="primary" size="large">Large Button</Button>
+                      <Button variant="primary" size="medium" loading>Đang xử lý</Button>
                     </div>
                   </div>
                   <div className="space-y-3">
@@ -194,6 +193,21 @@ export default function ShowcasePage() {
                 </div>
               </section>
 
+              <section>
+                <h3 className="mb-6 text-lg font-semibold">Magic UI · Number Ticker</h3>
+                <Card className="flex items-end justify-between gap-6 p-6">
+                  <div>
+                    <p className="text-sm text-[var(--color-text-secondary)]">Mục từ trong bộ dữ liệu</p>
+                    <div className="mt-1 text-3xl font-bold text-[var(--color-primary-700)]">
+                      <NumberTicker value={196583} />
+                    </div>
+                  </div>
+                  <p className="max-w-sm text-right text-xs leading-5 text-[var(--color-text-muted)]">
+                    Chỉ dùng cho thống kê ổn định; giá trị cuối luôn truy cập được, reduced motion bỏ hoạt ảnh.
+                  </p>
+                </Card>
+              </section>
+
               {/* Inputs */}
               <section>
                 <h3 className="text-lg font-semibold mb-6">Form Controls</h3>
@@ -209,8 +223,8 @@ export default function ShowcasePage() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-semibold">Error State</label>
-                      <Input placeholder="Sai định dạng..." className="border-red-500 focus:ring-red-500" />
-                      <p className="text-xs text-red-500 flex items-center gap-1">
+                      <Input placeholder="Sai định dạng..." className="border-[var(--color-error)] focus:ring-[var(--color-error)]" />
+                      <p className="flex items-center gap-1 text-xs text-[var(--color-error)]">
                         <WarningCircle className="h-3 w-3" /> Vui lòng nhập đúng định dạng.
                       </p>
                     </div>
@@ -344,11 +358,11 @@ export default function ShowcasePage() {
                   <div className="space-y-4">
                     <span className="text-xs font-medium text-[var(--color-text-muted)] uppercase">Success Toasts</span>
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-white border-l-4 border-[var(--color-success)] shadow-sm rounded-r-lg animate-in slide-in-from-right">
+                      <div className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border-l border-[var(--color-success)] shadow-sm rounded-r-[--radius-md]">
                         <CheckCircle className="h-4 w-4 text-[var(--color-success)]" />
                         <span className="text-sm">Đã lưu từ vựng thành công!</span>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-white border-l-4 border-[var(--color-success)] shadow-sm rounded-r-lg animate-in slide-in-from-right">
+                      <div className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border-l border-[var(--color-success)] shadow-sm rounded-r-[--radius-md]">
                         <Copy className="h-4 w-4 text-[var(--color-success)]" />
                         <span className="text-sm">Đã sao chép vào bộ nhớ tạm.</span>
                       </div>
@@ -357,11 +371,11 @@ export default function ShowcasePage() {
                   <div className="space-y-4">
                     <span className="text-xs font-medium text-[var(--color-text-muted)] uppercase">Error Toasts</span>
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-white border-l-4 border-[var(--color-error)] shadow-sm rounded-r-lg animate-in slide-in-from-right">
+                      <div className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border-l border-[var(--color-error)] shadow-sm rounded-r-[--radius-md]">
                         <XCircle className="h-4 w-4 text-[var(--color-error)]" />
                         <span className="text-sm">Lỗi kết nối mạng. Vui lòng thử lại.</span>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-white border-l-4 border-[var(--color-error)] shadow-sm rounded-r-lg animate-in slide-in-from-right">
+                      <div className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border-l border-[var(--color-error)] shadow-sm rounded-r-[--radius-md]">
                         <WarningCircle className="h-4 w-4 text-[var(--color-error)]" />
                         <span className="text-sm">Không thể xóa mục này.</span>
                       </div>

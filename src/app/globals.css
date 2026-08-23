@@ -124,6 +124,7 @@
   --color-text-secondary: #475569;
   --color-text-muted: #64748B;
   --color-text-disabled: #94A3B8;
+  --color-border-subtle: #E5EBF0;
   --color-border: #D7E0E8;
   --color-border-strong: #B8C4CE;
 
@@ -209,6 +210,7 @@
   --color-text-secondary: #C5D0DA;
   --color-text-muted: #9EABB7;
   --color-text-disabled: #6F7C88;
+  --color-border-subtle: #22303C;
   --color-border: #2C3A47;
   --color-border-strong: #405160;
 
@@ -251,13 +253,6 @@
   --color-focus: #5EEAD4;
   --color-info: #93C5FD;
   --color-info-bg: #172F50;
-
-  /* Interactive */
-  --color-link: #5EEAD4;
-  --color-link-hover: #99F6E4;
-  --color-selection: #164E47;
-  --color-highlight: #4A3B0C;
-  --color-focus: #5EEAD4;
 
   /* Shadows - Dark Mode (higher opacity) */
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.24);
@@ -322,22 +317,27 @@
   /* N5 - Green */
   --color-jlpt-n5-text: #86EFAC;
   --color-jlpt-n5-bg: #16351F;
+  --color-jlpt-n5-border: #22733A;
 
   /* N4 - Teal */
   --color-jlpt-n4-text: #5EEAD4;
   --color-jlpt-n4-bg: #123A35;
+  --color-jlpt-n4-border: #1B6B61;
 
   /* N3 - Blue */
   --color-jlpt-n3-text: #93C5FD;
   --color-jlpt-n3-bg: #172F50;
+  --color-jlpt-n3-border: #28558B;
 
   /* N2 - Amber */
   --color-jlpt-n2-text: #FDE68A;
   --color-jlpt-n2-bg: #3B2D0A;
+  --color-jlpt-n2-border: #7A5B16;
 
   /* N1 - Rose */
   --color-jlpt-n1-text: #FDA4AF;
   --color-jlpt-n1-bg: #481B29;
+  --color-jlpt-n1-border: #843B52;
 
   /* Linguistic / Kanji Semantic Tokens */
   --color-onyomi-text: #C4B5FD;
@@ -367,9 +367,12 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-primary-50) 38%, transparent) 0, transparent 15rem),
+    var(--color-bg);
   color: var(--color-text-primary);
   line-height: 1.6;
+  caret-color: var(--color-primary-700);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -421,8 +424,10 @@ main {
     transform var(--duration-fast) var(--ease-out);
 }
 
-.surface-lift:hover {
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .surface-lift:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .tactile {
@@ -601,6 +606,10 @@ ruby.jp-ruby rt {
   .study-card:hover {
     transform: none;
   }
+
+  .status-dot {
+    animation: none;
+  }
 }
 
 /* ── Furigana hover reveal ───────────────────────────── */
@@ -734,12 +743,3 @@ ruby.jp-ruby rt {
   }
 }
 
-/* Eradicate any inner border, ring, or outline box inside search inputs */
-form input,
-form input:focus,
-form input:focus-visible,
-form input:active {
-  outline: none !important;
-  box-shadow: none !important;
-  border-color: transparent !important;
-}

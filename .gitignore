@@ -7,6 +7,7 @@ out/
 
 # Local AI coding-assistant state
 CLAUDE.md
+PRODUCT.md
 .claude/
 .cursor/
 .windsurf/

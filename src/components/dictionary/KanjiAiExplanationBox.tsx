@@ -40,7 +40,7 @@ export function KanjiAiExplanationBox({
       animate={{ opacity: 1, y: 0, height: 'auto' }}
       exit={{ opacity: 0, y: -12, height: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="overflow-hidden rounded-[--radius-xl] border-2 border-teal-500/30 bg-gradient-to-br from-[var(--color-surface)] via-[var(--color-surface)] to-[var(--color-primary-50)]/40 p-5 md:p-6 shadow-lg shadow-teal-950/5"
+      className="overflow-hidden rounded-[--radius-lg] border border-[var(--color-primary-300)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)] md:p-6"
     >
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
@@ -58,7 +58,7 @@ export function KanjiAiExplanationBox({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] transition-colors"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
           aria-label="Đóng bảng giải thích"
         >
           <X size={18} />
@@ -85,7 +85,7 @@ export function KanjiAiExplanationBox({
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <WarningCircle size={36} className="text-red-500 mb-2" />
+            <WarningCircle size={36} className="mb-2 text-[var(--color-error)]" />
             <p className="text-sm font-medium text-[var(--color-text-primary)]">Không thể tải giải thích từ AI</p>
             <p className="mt-1 text-xs text-[var(--color-text-muted)] max-w-sm">{error}</p>
             <Button variant="secondary" size="sm" onClick={onRetry} className="mt-4">
@@ -96,7 +96,7 @@ export function KanjiAiExplanationBox({
           <div className="space-y-5 text-sm">
             {/* 1. Ý nghĩa tiếng Việt */}
             <div className="rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border)]">
-              <div className="flex items-center gap-2 font-bold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)] mb-1">
+              <div className="flex items-center gap-2 font-bold text-[var(--color-primary-800)]  mb-1">
                 <BookOpenText size={17} weight="duotone" />
                 <span>Ý nghĩa tiếng Việt:</span>
               </div>
@@ -109,7 +109,7 @@ export function KanjiAiExplanationBox({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Nguồn gốc / Chiết tự */}
               <div className="flex flex-col rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-xs">
-                <div className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-400 mb-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-[var(--color-hanviet-text)] mb-1.5">
                   <Compass size={17} weight="duotone" />
                   <span>Nguồn gốc & Chiết tự:</span>
                 </div>
@@ -120,7 +120,7 @@ export function KanjiAiExplanationBox({
 
               {/* Mẹo nhớ */}
               <div className="flex flex-col rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-xs">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400 mb-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-[var(--color-kunyomi-text)] mb-1.5">
                   <Lightbulb size={17} weight="duotone" />
                   <span>Mẹo nhớ nhanh:</span>
                 </div>
@@ -158,7 +158,7 @@ export function KanjiAiExplanationBox({
                       className="group flex flex-col justify-between rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5 transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)]/30"
                     >
                       <div className="flex items-baseline justify-between gap-1">
-                        <span className="jp-text text-base font-bold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)] group-hover:underline">
+                        <span className="jp-text text-base font-bold text-[var(--color-primary-800)]  group-hover:underline">
                           {c.word}
                         </span>
                         {c.jlpt && (

@@ -168,7 +168,7 @@ export default function DeckDetailPage() {
                     transition={{ delay: index * 0.05 }}
                   >
                     <Link href={`/word/${word.id}`}>
-                      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 hover:border-[var(--color-primary-300)] dark:hover:border-[var(--color-primary-700)] transition-all cursor-pointer">
+                      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 hover:border-[var(--color-primary-300)] transition-all cursor-pointer">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ export default function DeckDetailPage() {
                           </div>
                           <div className="flex items-center gap-2">
                             {word.dueCount > 0 && (
-                              <span className="px-2 py-1 bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)] text-[var(--color-warning-700)] dark:text-[var(--color-warning-300)] text-xs rounded-full">
+                              <span className="px-2 py-1 bg-[var(--color-warning-100)] text-[var(--color-warning-700)] text-xs rounded-full">
                                 {word.dueCount} cần ôn
                               </span>
                             )}
@@ -272,14 +272,14 @@ export default function DeckDetailPage() {
               >
                 <button
                   onClick={() => handleAnswer(false)}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-error-100)] dark:bg-[var(--color-error-900)] text-[var(--color-error-700)] dark:text-[var(--color-error-300)] rounded-xl hover:bg-[var(--color-error-200)] dark:hover:bg-[var(--color-error-800)] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-error-100)] text-[var(--color-error-700)] rounded-xl hover:bg-[var(--color-error-200)] transition-colors"
                 >
                   <X className="h-5 w-5" />
                   <span className="font-semibold">Chưa nhớ</span>
                 </button>
                 <button
                   onClick={() => handleAnswer(true)}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-success-100)] dark:bg-[var(--color-success-900)] text-[var(--color-success-700)] dark:text-[var(--color-success-300)] rounded-xl hover:bg-[var(--color-success-200)] dark:hover:bg-[var(--color-success-800)] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-success-100)] text-[var(--color-success-700)] rounded-xl hover:bg-[var(--color-success-200)] transition-colors"
                 >
                   <Check className="h-5 w-5" />
                   <span className="font-semibold">Nhớ rồi</span>

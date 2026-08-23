@@ -85,7 +85,8 @@ export function TermCard({ term }: { term: TermRecord }) {
                 playJapaneseAudio(term.reading || term.surface);
               }}
               title="Nghe phát âm"
-              className="tactile flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)] transition-colors"
+              aria-label={`Nghe phát âm ${term.surface}`}
+              className="tactile flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
             >
               <SpeakerHigh size={16} />
             </button>

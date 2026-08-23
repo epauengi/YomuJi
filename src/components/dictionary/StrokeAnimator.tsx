@@ -332,7 +332,7 @@ export function StrokeAnimator({
         ) : (
           /* Fallback static kanji display */
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-            <span className="jp-text text-6xl font-bold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]">
+            <span className="jp-text text-6xl font-bold text-[var(--color-primary-800)]">
               {literal}
             </span>
             <span className="mt-2 text-xs text-[var(--color-text-muted)]">

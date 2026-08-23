@@ -9,7 +9,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className = '', variant = 'default', padding = 'md', children, ...props }, ref) => {
-    const baseStyles = 'rounded-[--radius-lg] transition-[background-color,border-color,transform] duration-[--duration-fast]';
+    const baseStyles = 'rounded-[--radius-lg] transition-[background-color,border-color,box-shadow,transform] duration-[--duration-fast]';
     
     const variants = {
       default: 'border border-[var(--color-border)] bg-[var(--color-surface)]',

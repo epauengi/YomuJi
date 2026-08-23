@@ -8,12 +8,13 @@ import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@ph
 import { motion } from 'motion/react';
 import { searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
 import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import { isRouteActive, navItems as navigationItems } from '@/lib/navigation';
 
-const navItems = [
-  { label: 'Từ điển', href: '/', icon: BookOpenText },
-  { label: 'JLPT', href: '/jlpt', icon: GraduationCap },
-  { label: 'Thiết lập', href: '/settings', icon: Gear },
-];
+const navItems = navigationItems.map((item) => ({
+  ...item,
+  label: item.name,
+  icon: item.href === '/' ? BookOpenText : item.href === '/jlpt' ? GraduationCap : Gear,
+}));
 
 export function Navbar() {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export function Navbar() {
   const isHomepage = pathname === '/';
 
   return (
-    <nav className="sticky top-0 z-[var(--z-sticky)] w-full border-b border-[var(--color-border)] bg-[var(--color-surface)] backdrop-blur">
+    <nav aria-label="Điều hướng chính" className="sticky top-0 z-[var(--z-sticky)] w-full border-b border-[var(--color-border-subtle)] bg-[var(--color-surface)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           {/* Logo & Brand */}
@@ -47,11 +48,12 @@ export function Navbar() {
           <div className="hidden items-center gap-1 md:flex shrink-0">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const isActive = isRouteActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`relative flex h-10 items-center gap-2 rounded-[--radius-md] px-3.5 text-sm font-medium transition-colors ${
                     isActive
                       ? 'text-[var(--color-primary-700)]'
@@ -107,12 +109,13 @@ export function Navbar() {
             )}
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const isActive = isRouteActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`relative flex min-h-12 items-center gap-3 rounded-[--radius-md] px-3 text-base font-medium transition-colors ${
                     isActive
                       ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
@@ -238,7 +241,7 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-2 flex h-5 w-5 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
+            className="absolute right-0 flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
             aria-label="Xóa nội dung tìm kiếm"
           >
             <X size={13} />
@@ -248,7 +251,7 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
 
       {/* Autocomplete Dropdown */}
       {hasSuggestions && (
-        <div className="content-rise absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl">
+        <div className="content-rise absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]">
           <div className="max-h-80 overflow-y-auto py-1 text-sm">
             {termResults.length > 0 && (
               <div>

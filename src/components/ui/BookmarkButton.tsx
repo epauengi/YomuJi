@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { BookmarkSimple, Star } from '@phosphor-icons/react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { toast } from 'sonner';
 
 interface BookmarkButtonProps {
@@ -26,6 +26,7 @@ export function BookmarkButton({
 }: BookmarkButtonProps) {
   const [saved, setSaved] = useState(isSaved);
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
+  const reduceMotion = useReducedMotion();
 
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,15 +37,16 @@ export function BookmarkButton({
     onToggle?.(nextState);
 
     if (nextState) {
-      // Trigger sparkle particles
-      const newSparkles = Array.from({ length: 6 }).map((_, i) => ({
-        id: Date.now() + i,
-        x: (Math.random() - 0.5) * 36,
-        y: (Math.random() - 0.5) * 36,
-        scale: Math.random() * 0.6 + 0.4,
-      }));
-      setSparkles(newSparkles);
-      setTimeout(() => setSparkles([]), 600);
+      if (!reduceMotion) {
+        const newSparkles = Array.from({ length: 6 }).map((_, i) => ({
+          id: Date.now() + i,
+          x: (Math.random() - 0.5) * 36,
+          y: (Math.random() - 0.5) * 36,
+          scale: Math.random() * 0.6 + 0.4,
+        }));
+        setSparkles(newSparkles);
+        setTimeout(() => setSparkles([]), 600);
+      }
 
       toast.success(word ? `Đã lưu "${word}" vào Sổ tay` : 'Đã lưu vào danh sách học', {
         action: {
@@ -61,9 +63,9 @@ export function BookmarkButton({
   };
 
   const dimClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-9 w-9',
-    lg: 'h-10 w-10',
+    sm: 'h-11 w-11',
+    md: 'h-11 w-11',
+    lg: 'h-12 w-12',
   }[size];
 
   const iconSize = size === 'sm' ? 16 : size === 'lg' ? 20 : 18;
@@ -73,13 +75,13 @@ export function BookmarkButton({
       <motion.button
         type="button"
         onClick={handleToggle}
-        whileTap={{ scale: 0.8 }}
-        animate={{ scale: saved ? [1, 1.25, 0.95, 1] : 1 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.9 }}
+        animate={{ scale: saved && !reduceMotion ? [1, 1.15, 0.98, 1] : 1 }}
         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
         className={`surface-lift relative flex items-center justify-center rounded-[--radius-md] border transition-colors ${dimClasses} ${
           saved
-            ? 'border-amber-300 bg-amber-50 text-amber-600 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-400'
-            : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:border-amber-300/80 hover:text-amber-600'
+            ? 'border-[var(--color-warning-300)] bg-[var(--color-warning-100)] text-[var(--color-warning-700)]'
+            : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-warning-300)] hover:text-[var(--color-warning-700)]'
         } ${className}`}
         title={saved ? 'Đã lưu' : title}
         aria-label={saved ? 'Đã lưu' : title}
@@ -100,7 +102,7 @@ export function BookmarkButton({
             animate={{ opacity: 0, scale: s.scale, x: s.x, y: s.y }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="pointer-events-none absolute h-2 w-2 rounded-full bg-amber-400"
+            className="pointer-events-none absolute h-2 w-2 rounded-full bg-[var(--color-warning-300)]"
           />
         ))}
       </AnimatePresence>

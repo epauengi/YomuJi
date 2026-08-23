@@ -46,15 +46,13 @@ export default function WordDetailPage() {
         Quay lại trang chủ
       </Link>
 
-      {/* === HEADER CARD === */}
-      <Card className="content-rise border-[var(--color-primary-200)] shadow-none">
+      <header className="content-rise border-b border-[var(--color-border)] pb-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
           <div className="min-w-0 flex flex-col gap-2">
-            {/* Line 1: Surface + Badge */}
             <div className="flex flex-wrap items-center gap-3">
               <motion.h1
                 layoutId={`term-surface-${term.id}`}
-                className="jp-text text-4xl font-bold text-[var(--color-text-primary)] md:text-5xl"
+                className="jp-text text-4xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] md:text-5xl"
                 transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               >
                 {term.surface}
@@ -62,33 +60,29 @@ export default function WordDetailPage() {
               {term.isCommon && <Badge variant="success">Phổ biến</Badge>}
             </div>
 
-            {/* Line 2: Hán Việt string (uppercase, teal) */}
             {term.hanVietStr && (
               <p className="text-lg font-semibold tracking-wide text-[var(--color-primary-600)]">
                 {term.hanVietStr}
               </p>
             )}
 
-            {/* Line 3: Reading hiragana + [romaji] */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="jp-text text-lg font-medium text-[var(--color-text-secondary)]">{term.reading}</span>
               {term.romaji && <span className="text-sm text-[var(--color-text-muted)]">[{term.romaji}]</span>}
             </div>
 
-            {/* Line 4: Audio button + Per-kanji clickable characters */}
-            <div className="mt-2 flex flex-wrap items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <AudioButton text={audioText} />
               {surfaceKanjiChars.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5" aria-label="Hán tự trong từ">
                   {surfaceKanjiChars.map((ch, idx) => {
-                    // Find per-kanji Hán Việt from kanjiReadings
                     const reading = kanjiReadings.find((r) => r.literal === ch);
                     const hvLabel = reading?.hanViet?.[0] || '';
                     return (
                       <Link
                         key={`${ch}-${idx}`}
                         href={`/kanji/${encodeURIComponent(ch)}`}
-                        className="tactile group inline-flex flex-col items-center rounded-[--radius-md] border border-[var(--color-border)] px-2.5 py-1.5 transition-all hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
+                        className="tactile group inline-flex min-h-11 min-w-11 flex-col items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] px-2.5 py-1.5 hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
                         title={hvLabel ? `${ch} — ${hvLabel}` : ch}
                       >
                         <span className="jp-text text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)]">
@@ -107,15 +101,13 @@ export default function WordDetailPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <BookmarkButton word={term.surface} size="lg" />
-          </div>
+          <BookmarkButton word={term.surface} size="lg" />
         </div>
-      </Card>
+      </header>
 
       {/* === CONTENT === */}
       <div className={term.related.length ? 'grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_280px]' : 'grid grid-cols-1 gap-8'}>
-        <main className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8">
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <BookOpenText size={20} className="text-[var(--color-primary-600)]" />
@@ -157,7 +149,7 @@ export default function WordDetailPage() {
               <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có ví dụ cho từ này.</p>
             )}
           </section>
-        </main>
+        </div>
 
         {!!term.related.length && (
           <aside className="flex flex-col gap-6">

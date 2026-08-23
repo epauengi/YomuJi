@@ -83,7 +83,7 @@ export default function ReviewPage() {
                   className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-5"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)] rounded-lg">
+                    <div className="p-2 bg-[var(--color-warning-100)] rounded-lg">
                       <Clock className="h-5 w-5 text-[var(--color-warning-600)]" />
                     </div>
                     <div>
@@ -98,7 +98,7 @@ export default function ReviewPage() {
                   className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-5"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-[var(--color-error-100)] dark:bg-[var(--color-error-900)] rounded-lg">
+                    <div className="p-2 bg-[var(--color-error-100)] rounded-lg">
                       <Flame className="h-5 w-5 text-[var(--color-error-600)]" />
                     </div>
                     <div>
@@ -161,7 +161,7 @@ export default function ReviewPage() {
               exit={{ opacity: 0 }}
               className="text-center py-12"
             >
-              <div className="w-20 h-20 mx-auto mb-6 bg-[var(--color-success-100)] dark:bg-[var(--color-success-900)] rounded-full flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-[var(--color-success-100)] rounded-full flex items-center justify-center">
                 <CheckCircle className="h-10 w-10 text-[var(--color-success-600)]" weight="duotone" />
               </div>
               <h2 className="text-2xl font-bold mb-2">Hoàn thành!</h2>
@@ -171,14 +171,14 @@ export default function ReviewPage() {
 
               {/* Session Stats */}
               <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-8">
-                <div className="bg-[var(--color-success-100)] dark:bg-[var(--color-success-900)] rounded-xl p-4">
+                <div className="bg-[var(--color-success-100)] rounded-xl p-4">
                   <CheckCircle className="mx-auto mb-2 h-6 w-6 text-[var(--color-success-600)]" weight="duotone" />
                   <div className="text-2xl font-bold text-[var(--color-success-700)]">
                     {sessionStats.correct}
                   </div>
                   <div className="text-sm text-[var(--color-success-600)]">Đúng</div>
                 </div>
-                <div className="bg-[var(--color-error-100)] dark:bg-[var(--color-error-900)] rounded-xl p-4">
+                <div className="bg-[var(--color-error-100)] rounded-xl p-4">
                   <XCircle className="mx-auto mb-2 h-6 w-6 text-[var(--color-error-600)]" weight="duotone" />
                   <div className="text-2xl font-bold text-[var(--color-error-700)]">
                     {sessionStats.incorrect}
@@ -273,14 +273,14 @@ export default function ReviewPage() {
                 >
                   <button
                     onClick={() => handleAnswer(false)}
-                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-error-100)] dark:bg-[var(--color-error-900)] text-[var(--color-error-700)] dark:text-[var(--color-error-300)] rounded-xl hover:bg-[var(--color-error-200)] dark:hover:bg-[var(--color-error-800)] transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-error-100)] text-[var(--color-error-700)] rounded-xl hover:bg-[var(--color-error-200)] transition-colors"
                   >
                     <XCircle className="h-5 w-5" />
                     <span className="font-semibold">Chưa nhớ</span>
                   </button>
                   <button
                     onClick={() => handleAnswer(true)}
-                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-success-100)] dark:bg-[var(--color-success-900)] text-[var(--color-success-700)] dark:text-[var(--color-success-300)] rounded-xl hover:bg-[var(--color-success-200)] dark:hover:bg-[var(--color-success-800)] transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 py-4 bg-[var(--color-success-100)] text-[var(--color-success-700)] rounded-xl hover:bg-[var(--color-success-200)] transition-colors"
                   >
                     <CheckCircle className="h-5 w-5" />
                     <span className="font-semibold">Nhớ rồi</span>

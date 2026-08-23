@@ -145,7 +145,7 @@ export default function HistoryPage() {
             placeholder="Tìm kiếm trong lịch sử..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]"
+            className="w-full rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] py-3 pl-10 pr-4 text-sm focus-visible:border-[var(--color-primary-500)]"
           />
         </div>
 

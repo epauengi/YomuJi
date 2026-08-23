@@ -49,7 +49,7 @@ export default function FlashcardsPage() {
             className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-4"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-[var(--color-primary-100)] dark:bg-[var(--color-primary-900)] rounded-lg">
+              <div className="p-2 bg-[var(--color-primary-100)]  rounded-lg">
                 <BookBookmark className="h-5 w-5 text-[var(--color-primary-600)]" />
               </div>
               <div>
@@ -64,7 +64,7 @@ export default function FlashcardsPage() {
             className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-4"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)] rounded-lg">
+              <div className="p-2 bg-[var(--color-warning-100)]  rounded-lg">
                 <Clock className="h-5 w-5 text-[var(--color-warning-600)]" />
               </div>
               <div>
@@ -79,7 +79,7 @@ export default function FlashcardsPage() {
             className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-4"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-[var(--color-success-100)] dark:bg-[var(--color-success-900)] rounded-lg">
+              <div className="p-2 bg-[var(--color-success-100)] rounded-lg">
                 <Target className="h-5 w-5 text-[var(--color-success-600)]" />
               </div>
               <div>
@@ -102,7 +102,7 @@ export default function FlashcardsPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/flashcards/deck/${deck.id}`}>
-                  <div className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-5 hover:border-[var(--color-primary-300)] dark:hover:border-[var(--color-primary-700)] cursor-pointer h-full">
+                  <div className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-5 hover:border-[var(--color-primary-300)] cursor-pointer h-full">
                     {/* Deck Color Bar */}
                     <div 
                       className="h-2 rounded-full mb-4"
@@ -157,11 +157,8 @@ export default function FlashcardsPage() {
 
         {/* Recent Words */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h2 className="text-lg font-semibold">Từ đã lưu gần đây</h2>
-            <Link href="/saved" className="text-sm text-[var(--color-primary-600)] hover:underline">
-              Xem tất cả
-            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {mockSavedWords.slice(0, 4).map((word, index) => (
@@ -172,7 +169,7 @@ export default function FlashcardsPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/word/${word.id}`}>
-                  <div className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-4 hover:border-[var(--color-primary-300)] dark:hover:border-[var(--color-primary-700)] cursor-pointer">
+                  <div className="surface-lift bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[--radius-lg] p-4 hover:border-[var(--color-primary-300)] cursor-pointer">
                     <div className="font-ja text-xl font-medium mb-1">{word.word}</div>
                     <div className="text-sm text-[var(--color-text-muted)] mb-2">{word.reading}</div>
                     <div className="text-sm text-[var(--color-text-secondary)] line-clamp-1">{word.meaning}</div>

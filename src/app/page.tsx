@@ -3,19 +3,11 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import {
-  ArrowClockwise,
-  ArrowSquareOut,
-  BookOpenText,
-  BookmarkSimple,
   CaretRight,
   ClockCounterClockwise,
-  Fire,
-  Globe,
   GraduationCap,
   Sparkle,
-  SpeakerHigh,
   Trash,
-  Translate,
 } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
@@ -30,11 +22,11 @@ import { playJapaneseAudio } from '@/lib/tts';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 const jlptLevels = [
-  { level: 'N5', label: 'Cơ bản', color: 'from-emerald-500/10 to-emerald-500/5', border: 'hover:border-emerald-400', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300', count: 800 },
-  { level: 'N4', label: 'Sơ cấp', color: 'from-teal-500/10 to-teal-500/5', border: 'hover:border-teal-400', badge: 'bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300', count: 1500 },
-  { level: 'N3', label: 'Trung cấp', color: 'from-blue-500/10 to-blue-500/5', border: 'hover:border-blue-400', badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300', count: 3750 },
-  { level: 'N2', label: 'Thượng cấp', color: 'from-amber-500/10 to-amber-500/5', border: 'hover:border-amber-400', badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300', count: 6000 },
-  { level: 'N1', label: 'Cao cấp', color: 'from-rose-500/10 to-rose-500/5', border: 'hover:border-rose-400', badge: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300', count: 10000 },
+  { level: 'N5', label: 'Cơ bản', text: 'var(--color-jlpt-n5-text)', background: 'var(--color-jlpt-n5-bg)', border: 'var(--color-jlpt-n5-border)', count: 800 },
+  { level: 'N4', label: 'Sơ cấp', text: 'var(--color-jlpt-n4-text)', background: 'var(--color-jlpt-n4-bg)', border: 'var(--color-jlpt-n4-border)', count: 1500 },
+  { level: 'N3', label: 'Trung cấp', text: 'var(--color-jlpt-n3-text)', background: 'var(--color-jlpt-n3-bg)', border: 'var(--color-jlpt-n3-border)', count: 3750 },
+  { level: 'N2', label: 'Thượng cấp', text: 'var(--color-jlpt-n2-text)', background: 'var(--color-jlpt-n2-bg)', border: 'var(--color-jlpt-n2-border)', count: 6000 },
+  { level: 'N1', label: 'Cao cấp', text: 'var(--color-jlpt-n1-text)', background: 'var(--color-jlpt-n1-bg)', border: 'var(--color-jlpt-n1-border)', count: 10000 },
 ];
 
 const decorativeKanji = [
@@ -107,27 +99,6 @@ async function fetchRandomWikiArticle(): Promise<ArticleItem> {
   return fallbackArticles[randomKey];
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.07,
-      delayChildren: 0.03,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 16, filter: 'blur(3px)' },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
-
 export default function HomePage() {
   const { isReady, progress } = useDictionary();
   const [query, setQuery] = useState('');
@@ -165,6 +136,9 @@ export default function HomePage() {
       } catch (err) {
         console.error(err);
       }
+
+      const initialQuery = new URLSearchParams(window.location.search).get('q')?.trim();
+      if (initialQuery) setQuery(initialQuery);
     }
     getWordOfTheDay().then(setWordOfTheDay);
     loadNewRandomArticle();
@@ -234,7 +208,7 @@ export default function HomePage() {
     <div className="pb-16">
       <section
         onMouseMove={handleMouseMove}
-        className="relative z-20 bg-[#123b36] py-10 sm:py-12 md:py-14 text-white shadow-md select-none"
+        className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
       >
         <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
           <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.22)_0%,transparent_65%)] blur-3xl" />
@@ -262,58 +236,40 @@ export default function HomePage() {
           </div>
         </div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center"
-        >
-          <motion.div variants={itemVariants}>
-            <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
-              Tra nhanh, hiểu sâu{' '}
-              <span className="relative inline-block bg-gradient-to-r from-teal-200 via-teal-100 to-emerald-300 bg-clip-text text-transparent pb-1">
-                tiếng Nhật
-                <motion.span
-                  className="absolute bottom-0 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 opacity-80"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.5, duration: 0.6, ease: 'easeOut' }}
-                />
-              </span>
-            </h1>
-          </motion.div>
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center">
+          <h1 className="max-w-3xl text-balance text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
+            Tra nhanh, hiểu sâu <span className="text-teal-200">tiếng Nhật</span>
+          </h1>
 
-          <motion.div variants={itemVariants}>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-teal-100/90 sm:text-base">
-              Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
-            </p>
-          </motion.div>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
+            Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
+          </p>
 
-          <motion.div variants={itemVariants} className="mt-6 w-full max-w-[800px] text-left">
+          <div className="mt-6 w-full max-w-[800px] text-left">
             <SearchInput
               onSearch={setQuery}
               initialValue={query}
               placeholder="Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt..."
             />
 
-            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-100/80">
-              <span className="text-teal-200/90">Thử tìm:</span>
+            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
+              <span className="text-teal-100">Thử tìm:</span>
               {suggestionChips.map((word) => (
                 <button
                   key={word}
                   type="button"
                   onClick={() => setQuery(word)}
-                  className="tactile rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 transition-all duration-200 hover:border-teal-300/50 hover:bg-white/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                  className="tactile rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
                 >
                   {word}
                 </button>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
-      <main className="mx-auto max-w-[1120px] px-4 py-8">
+      <div className="mx-auto max-w-[1120px] px-4 py-8">
         {query.trim() ? (
           <section aria-label="Kết quả tìm kiếm">
             <div className="mb-6 flex items-center justify-between">
@@ -365,7 +321,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={clearRecentSearches}
-                    className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-red-500"
+                    className="flex min-h-11 items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-error)]"
                   >
                     <Trash size={14} />
                     <span>Xóa lịch sử</span>
@@ -393,8 +349,8 @@ export default function HomePage() {
                   <div className="flex h-full flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)] dark:bg-[var(--color-primary-900)] dark:text-[var(--color-primary-200)]">
-                          <Sparkle size={15} weight="fill" className="text-[var(--color-primary-700)] dark:text-[var(--color-primary-300)]" />
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)]">
+                          <Sparkle size={15} weight="fill" className="text-[var(--color-primary-700)]" />
                           Từ vựng hôm nay
                         </div>
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
@@ -407,7 +363,7 @@ export default function HomePage() {
                           <div className="flex items-baseline gap-3">
                             <motion.h3
                               layoutId={`term-surface-${wordOfTheDay.id}`}
-                              className="jp-text text-4xl font-extrabold text-[#0D9488] dark:text-[#2DD4BF]"
+                              className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
                               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                             >
                               {wordOfTheDay.surface}
@@ -443,7 +399,7 @@ export default function HomePage() {
                     <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
                       <Link
                         href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] dark:text-[var(--color-primary-400)] transition-colors hover:text-[var(--color-primary-800)]"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
                       >
                         Xem chi tiết từ vựng
                         <CaretRight size={14} weight="bold" />
@@ -476,7 +432,7 @@ export default function HomePage() {
                 </div>
                 <Link
                   href="/jlpt"
-                  className="text-xs font-bold text-[var(--color-primary-700)] dark:text-[var(--color-primary-400)] hover:underline"
+                  className="text-xs font-bold text-[var(--color-primary-700)] hover:underline"
                 >
                   Xem tổng quan →
                 </Link>
@@ -486,20 +442,21 @@ export default function HomePage() {
                 {jlptLevels.map((jlpt, index) => (
                   <Link
                     key={jlpt.level}
-                    href={`/jlpt`}
-                    className={`group relative overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${jlpt.border}`}
+                    href="/jlpt"
+                    style={{ '--jlpt-color': jlpt.text, '--jlpt-bg': jlpt.background, '--jlpt-border': jlpt.border } as CSSProperties}
+                    className="surface-lift group relative overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--jlpt-border)]"
                   >
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xl font-black text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)] transition-colors">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-xl font-black text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--jlpt-color)]">
                         {jlpt.level}
                       </span>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${jlpt.badge}`}>
+                      <span className="rounded-full bg-[var(--jlpt-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--jlpt-color)]">
                         {jlpt.label}
                       </span>
                     </div>
 
                     <div className="mt-3">
-                      <div className="text-lg font-extrabold text-[var(--color-primary-800)] dark:text-[var(--color-primary-300)]">
+                      <div className="text-lg font-extrabold text-[var(--jlpt-color)]">
                         ~<NumberTicker value={jlpt.count} delay={0.2 + index * 0.1} />
                       </div>
                       <span className="text-[11px] font-medium text-[var(--color-text-muted)]">
@@ -507,15 +464,14 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    {/* Subtle bottom gradient indicator */}
-                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${jlpt.color}`} />
+                    <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5 bg-[var(--jlpt-color)] opacity-60" />
                   </Link>
                 ))}
               </div>
             </section>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

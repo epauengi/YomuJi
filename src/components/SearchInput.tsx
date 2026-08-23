@@ -123,10 +123,10 @@ export function SearchInput({
   return (
     <form
       onSubmit={handleSearch}
-      className={`group relative z-50 mx-auto flex w-full max-w-[800px] items-center rounded-[--radius-lg] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-0 shadow-md transition-all duration-200 ${
+      className={`search-shell group relative z-50 mx-auto flex w-full max-w-[800px] items-center rounded-[--radius-lg] border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[--duration-fast] ${
         isFocused
-          ? 'border-teal-400 shadow-lg shadow-teal-950/20 ring-4 ring-teal-400/20'
-          : 'hover:border-teal-400/60'
+          ? 'border-[var(--color-primary-400)]'
+          : 'border-[var(--color-border-strong)] hover:border-[var(--color-primary-400)]'
       } ${className}`}
     >
       {/* Left Search Icon */}
@@ -142,7 +142,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className="h-13 w-full min-w-0 border-0 bg-transparent px-3 text-base text-[var(--color-text-primary)] outline-none ring-0 placeholder:text-[var(--color-text-muted)] focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 shadow-none"
+          className="h-13 w-full min-w-0 border-0 bg-transparent px-3 text-base text-[var(--color-text-primary)] shadow-none outline-none placeholder:text-[var(--color-text-muted)]"
           role="combobox"
           aria-expanded={showSuggestions}
           aria-controls={listboxId}
@@ -180,7 +180,7 @@ export function SearchInput({
             <button
               type="button"
               onClick={handleClear}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] focus:outline-none focus-visible:outline-none"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] focus-visible:outline-offset-0"
               aria-label="Xóa nội dung tìm kiếm"
             >
               <X size={15} />
@@ -192,7 +192,7 @@ export function SearchInput({
       {/* Embedded Flush Right Search Button */}
       <button
         type="submit"
-        className="h-13 shrink-0 rounded-r-[--radius-lg] border-0 bg-[var(--color-primary-700)] px-5 font-semibold text-white transition-all duration-200 hover:bg-[var(--color-primary-800)] active:bg-[var(--color-primary-900)] sm:px-7 focus:outline-none focus:ring-0 focus-visible:outline-none"
+        className="h-13 shrink-0 rounded-r-[--radius-lg] border-0 bg-[var(--color-primary-700)] px-5 font-semibold text-white transition-colors duration-[--duration-fast] hover:bg-[var(--color-primary-800)] active:bg-[var(--color-primary-900)] focus-visible:outline-offset-[-4px] focus-visible:outline-white sm:px-7"
       >
         <span className="hidden sm:inline">Tìm kiếm</span>
         <MagnifyingGlass size={18} className="sm:hidden" />
@@ -203,7 +203,7 @@ export function SearchInput({
         <div
           id={listboxId}
           role="listbox"
-          className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl"
+          className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]"
         >
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">

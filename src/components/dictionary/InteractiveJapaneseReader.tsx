@@ -79,8 +79,8 @@ export function InteractiveJapaneseReader({
       <div>
         <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)] dark:bg-[var(--color-primary-900)] dark:text-[var(--color-primary-200)]">
-              <BookOpenText size={15} weight="duotone" className="text-[var(--color-primary-700)] dark:text-[var(--color-primary-300)]" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)]">
+              <BookOpenText size={15} weight="duotone" className="text-[var(--color-primary-700)]" />
               <span>Bài đọc hôm nay</span>
             </div>
           </div>
@@ -92,7 +92,7 @@ export function InteractiveJapaneseReader({
               onClick={() => setIsVertical(!isVertical)}
               className={`tactile flex h-8 items-center gap-1 rounded-[--radius-md] border px-2.5 text-xs font-semibold transition-colors ${
                 isVertical
-                  ? 'border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-600 dark:bg-teal-950/50 dark:text-teal-300'
+                  ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
                   : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
               }`}
               title={isVertical ? 'Chuyển sang chế độ đọc ngang' : 'Chuyển sang chế độ đọc dọc kiểu Nhật (縦書き)'}
@@ -121,10 +121,10 @@ export function InteractiveJapaneseReader({
                 <button
                   type="button"
                   onClick={handleTogglePlayFull}
-                  className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius-md] border transition-all duration-200 ${
+                  className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius-md] border transition-[background-color,border-color,color] duration-[--duration-fast] ${
                     isPlayingFull
-                      ? 'border-teal-400 bg-teal-50/80 text-teal-700 shadow-sm ring-2 ring-teal-400/30'
-                      : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:border-teal-400/60 hover:bg-[var(--color-primary-50)]'
+                      ? 'border-[var(--color-primary-400)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
+                      : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)]'
                   }`}
                   title={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
                   aria-label={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
@@ -174,7 +174,7 @@ export function InteractiveJapaneseReader({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex items-center gap-1 text-[var(--color-link)] transition-colors hover:text-[var(--color-link-hover)]"
           >
             Đọc trên Wikipedia
             <ArrowSquareOut size={14} />

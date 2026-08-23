@@ -180,7 +180,7 @@ export default function ConjugationPage() {
                     placeholder="Tìm từ..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-[var(--color-surface-subtle)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]"
+                    className="w-full rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] py-2 pl-10 pr-4 text-sm focus-visible:border-[var(--color-primary-500)]"
                   />
                 </div>
               </div>
@@ -193,7 +193,7 @@ export default function ConjugationPage() {
                     onClick={() => setSelectedWord(key)}
                     className={`w-full p-4 text-left border-b border-[var(--color-border)] last:border-b-0 transition-colors ${
                       selectedWord === key 
-                        ? 'bg-[var(--color-primary-50)] dark:bg-[var(--color-primary-900)] border-l-4 border-l-[var(--color-primary-600)]' 
+                        ? 'bg-[var(--color-primary-50)] border-l-4 border-l-[var(--color-primary-600)]' 
                         : 'hover:bg-[var(--color-surface-subtle)]'
                     }`}
                   >

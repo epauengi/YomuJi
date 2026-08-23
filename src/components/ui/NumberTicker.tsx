@@ -1,59 +1,72 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useInView, useMotionValue, useSpring } from 'motion/react';
+import { useEffect, useRef, type ComponentPropsWithoutRef } from 'react';
+import { useInView, useMotionValue, useReducedMotion, useSpring } from 'motion/react';
 
-interface NumberTickerProps {
+interface NumberTickerProps extends ComponentPropsWithoutRef<'span'> {
   value: number;
+  startValue?: number;
   direction?: 'up' | 'down';
-  className?: string;
   delay?: number;
   decimalPlaces?: number;
   suffix?: string;
 }
 
+function formatValue(value: number, decimalPlaces: number) {
+  return new Intl.NumberFormat('vi-VN', {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  }).format(Number(value.toFixed(decimalPlaces)));
+}
+
 export function NumberTicker({
   value,
+  startValue = 0,
   direction = 'up',
   delay = 0,
   className = '',
   decimalPlaces = 0,
   suffix = '',
+  ...props
 }: NumberTickerProps) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === 'down' ? value : 0);
-  const springValue = useSpring(motionValue, {
-    damping: 35,
-    stiffness: 160,
-  });
-  const isInView = useInView(ref, { once: true, margin: '0px' });
-  const [displayValue, setDisplayValue] = useState<string>(
-    (direction === 'down' ? value : 0).toLocaleString('vi-VN')
-  );
+  const visualRef = useRef<HTMLSpanElement>(null);
+  const reduceMotion = useReducedMotion();
+  const initialValue = direction === 'down' ? value : startValue;
+  const targetValue = direction === 'down' ? startValue : value;
+  const displayedInitialValue = reduceMotion ? targetValue : initialValue;
+  const motionValue = useMotionValue(displayedInitialValue);
+  const springValue = useSpring(motionValue, { damping: 60, stiffness: 100 });
+  const isInView = useInView(visualRef, { once: true, margin: '0px' });
+  const finalText = `${formatValue(targetValue, decimalPlaces)}${suffix}`;
 
   useEffect(() => {
-    if (isInView) {
-      const timer = setTimeout(() => {
-        motionValue.set(direction === 'down' ? 0 : value);
-      }, delay * 1000);
-      return () => clearTimeout(timer);
+    if (!isInView) return;
+
+    if (reduceMotion) {
+      motionValue.jump(targetValue);
+      if (visualRef.current) visualRef.current.textContent = finalText;
+      return;
     }
-  }, [motionValue, isInView, delay, value, direction]);
 
-  useEffect(() => {
-    return springValue.on('change', (latest) => {
-      if (ref.current) {
-        setDisplayValue(
-          Number(latest.toFixed(decimalPlaces)).toLocaleString('vi-VN')
-        );
-      }
-    });
-  }, [springValue, decimalPlaces]);
+    const timer = window.setTimeout(() => motionValue.set(targetValue), delay * 1000);
+    return () => window.clearTimeout(timer);
+  }, [delay, finalText, isInView, motionValue, reduceMotion, targetValue]);
+
+  useEffect(() => springValue.on('change', (latest) => {
+    if (visualRef.current) {
+      visualRef.current.textContent = `${formatValue(latest, decimalPlaces)}${suffix}`;
+    }
+  }), [decimalPlaces, springValue, suffix]);
 
   return (
-    <span ref={ref} className={`tabular-nums font-bold ${className}`}>
-      {displayValue}
-      {suffix}
+    <span
+      className={`inline-block tabular-nums ${className}`}
+      aria-label={finalText}
+      {...props}
+    >
+      <span ref={visualRef} aria-hidden="true">
+        {formatValue(displayedInitialValue, decimalPlaces)}{suffix}
+      </span>
     </span>
   );
 }
