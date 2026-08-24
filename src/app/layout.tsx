@@ -5,6 +5,7 @@ import { MotionConfig } from 'motion/react';
 import { Toaster } from 'sonner';
 import { Navbar } from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
+import { ThemeManager } from '@/components/ThemeManager';
 import '@/app/globals.css';
 
 export default function RootLayout({
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="vi" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <ThemeManager />
         <MotionConfig reducedMotion="user">
           <Toaster position="top-right" richColors closeButton />
           <div className="scroll-progress no-print" aria-hidden="true" />

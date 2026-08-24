@@ -7,25 +7,31 @@ import { motion } from 'motion/react';
 import { AudioButton } from '@/components/AudioButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useWordDetail } from '@/hooks/useDictionary';
 
 export default function WordDetailPage() {
   const params = useParams();
   const id = decodeURIComponent(params.slug as string);
-  const { term, isLoading, isReady, progress } = useWordDetail(id);
+  const { term, status, error, retry } = useWordDetail(id);
 
-  if (!isReady) {
-    return <CenteredMessage title="Đang chuẩn bị từ điển" message={progress.message} />;
+  if (status === 'loading') {
+    return <CenteredMessage title="Đang tải mục từ" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
   }
 
-  if (isLoading) {
-    return <CenteredMessage title="Đang tải mục từ" message="Đang đọc dữ liệu từ điển..." />;
+  if (status === 'error') {
+    return (
+      <CenteredMessage
+        title="Chưa thể tải mục từ"
+        message={error || 'Không thể đọc dữ liệu từ điển.'}
+        actionLabel="Thử lại"
+        onAction={retry}
+      />
+    );
   }
 
   if (!term) {
-    return <CenteredMessage title="Không tìm thấy từ vựng" message="Mục từ này không tồn tại trong phiên bản từ điển hiện tại." />;
+    return <CenteredMessage title="Không tìm thấy từ vựng" message="Mục từ này không tồn tại trong dữ liệu hiện tại." />;
   }
 
   const kanjiReadings = term.kanjiReadings || [];
@@ -52,6 +58,7 @@ export default function WordDetailPage() {
             <div className="flex flex-wrap items-center gap-3">
               <motion.h1
                 layoutId={`term-surface-${term.id}`}
+                lang="ja"
                 className="jp-text text-4xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] md:text-5xl"
                 transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               >
@@ -67,7 +74,7 @@ export default function WordDetailPage() {
             )}
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="jp-text text-lg font-medium text-[var(--color-text-secondary)]">{term.reading}</span>
+              <span lang="ja" className="jp-text text-lg font-medium text-[var(--color-text-secondary)]">{term.reading}</span>
               {term.romaji && <span className="text-sm text-[var(--color-text-muted)]">[{term.romaji}]</span>}
             </div>
 
@@ -85,7 +92,7 @@ export default function WordDetailPage() {
                         className="tactile group inline-flex min-h-11 min-w-11 flex-col items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] px-2.5 py-1.5 hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
                         title={hvLabel ? `${ch} — ${hvLabel}` : ch}
                       >
-                        <span className="jp-text text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)]">
+                        <span lang="ja" className="jp-text text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)]">
                           {ch}
                         </span>
                         {hvLabel && (
@@ -138,10 +145,10 @@ export default function WordDetailPage() {
               term.examples.map((example) => (
                 <Card key={example.id} className="surface-lift flex flex-col gap-3 shadow-none">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <p className="jp-text text-lg font-medium leading-8 text-[var(--color-text-primary)]">{example.textJa}</p>
+                    <p lang="ja" className="jp-text text-lg font-medium leading-8 text-[var(--color-text-primary)]">{example.textJa}</p>
                     <AudioButton text={example.textJa} label="Nghe câu" className="shrink-0" />
                   </div>
-                  {example.highlight && <p className="jp-text text-sm text-[var(--color-text-muted)]">Từ trong câu: {example.highlight}</p>}
+                  {example.highlight && <p className="text-sm text-[var(--color-text-muted)]">Từ trong câu: <span lang="ja" className="jp-text">{example.highlight}</span></p>}
                   <p className="text-[var(--color-text-secondary)]">{example.textVi}</p>
                 </Card>
               ))
@@ -171,14 +178,37 @@ export default function WordDetailPage() {
 
 
 
-function CenteredMessage({ title, message }: { title: string; message: string }) {
+function CenteredMessage({
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center" role="status" aria-live="polite">
       <h1 className="mb-3 text-2xl font-bold text-[var(--color-text-primary)]">{title}</h1>
       <p className="mb-8 text-[var(--color-text-secondary)]">{message}</p>
-      <Link href="/search">
-        <Button variant="primary">Về trang tìm kiếm</Button>
-      </Link>
+      {onAction ? (
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex min-h-11 items-center justify-center rounded-[--radius-md] bg-[var(--color-action-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-action-primary-hover)]"
+        >
+          {actionLabel || 'Thử lại'}
+        </button>
+      ) : (
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center justify-center rounded-[--radius-md] bg-[var(--color-action-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-action-primary-hover)]"
+        >
+          Về trang tìm kiếm
+        </Link>
+      )}
     </div>
   );
 }

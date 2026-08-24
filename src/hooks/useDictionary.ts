@@ -9,7 +9,12 @@ import {
   findKanji,
   getCompoundsForKanji,
 } from '@/lib/mockDictionary';
-import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import type {
+  TermRecord,
+  KanjiRecord,
+  DictionarySearchResult,
+  KanjiDictionarySearchResult,
+} from '@/types/dictionary';
 
 /**
  * Custom hook to handle searching terms and kanji with debounce
@@ -42,8 +47,8 @@ export function useSearch(query: string, limit = 10) {
           setTermResults(terms);
           setKanjiResults(kanji);
         }
-      } catch (err) {
-        console.error('Error executing search:', err);
+      } catch (error) {
+        console.error('Error executing search:', error);
       } finally {
         if (!isCancelled) setIsSearching(false);
       }
@@ -58,75 +63,119 @@ export function useSearch(query: string, limit = 10) {
   return { termResults, kanjiResults, isSearching, isReady };
 }
 
+type DetailState<T> =
+  | { key: string; status: 'loading'; value?: undefined; error: null }
+  | { key: string; status: 'found'; value: T; error: null }
+  | { key: string; status: 'not-found'; value?: undefined; error: null }
+  | { key: string; status: 'error'; value?: undefined; error: string };
+
+function loadingState<T>(key: string): DetailState<T> {
+  return { key, status: 'loading', error: null };
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error
+    ? error.message
+    : 'Không thể tải dữ liệu từ điển. Vui lòng thử lại.';
+}
+
 /**
- * Custom hook to fetch a word detail record by ID/slug
+ * Fetch a word detail record without depending on global search readiness.
  */
 export function useWordDetail(id: string) {
-  const { isReady, progress } = useDictionary();
-  const [term, setTerm] = useState<TermRecord | null | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<DetailState<TermRecord>>(() => loadingState(id));
+  const currentState = state.key === id ? state : loadingState<TermRecord>(id);
 
   useEffect(() => {
-    if (!isReady) return;
+    const controller = new AbortController();
+    setState(loadingState(id));
 
-    let isCancelled = false;
-    setIsLoading(true);
-
-    findTerm(id)
-      .then((res) => {
-        if (!isCancelled) {
-          setTerm(res || null);
-        }
+    findTerm(id, controller.signal)
+      .then((term) => {
+        if (controller.signal.aborted) return;
+        setState(term
+          ? { key: id, status: 'found', value: term, error: null }
+          : { key: id, status: 'not-found', error: null });
       })
-      .finally(() => {
-        if (!isCancelled) setIsLoading(false);
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setState({ key: id, status: 'error', error: errorMessage(error) });
       });
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [id, isReady]);
+    return () => controller.abort();
+  }, [id, attempt]);
 
-  return { term, isLoading: !isReady || isLoading, isReady, progress };
+  return {
+    term: currentState.status === 'found'
+      ? currentState.value
+      : currentState.status === 'not-found'
+        ? null
+        : undefined,
+    status: currentState.status,
+    error: currentState.error,
+    isLoading: currentState.status === 'loading',
+    retry: () => setAttempt((value) => value + 1),
+  };
 }
 
 /**
- * Custom hook to fetch a Kanji detail record & its compounds
+ * Fetch Kanji first; compounds are ancillary and never classify the Kanji.
  */
 export function useKanjiDetail(literal: string) {
-  const { isReady, progress } = useDictionary();
-  const [kanji, setKanji] = useState<KanjiRecord | null | undefined>(undefined);
-  const [compounds, setCompounds] = useState<TermRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<DetailState<KanjiRecord>>(() => loadingState(literal));
+  const [compoundState, setCompoundState] = useState<{ key: string; terms: TermRecord[] }>({
+    key: literal,
+    terms: [],
+  });
+  const currentState = state.key === literal ? state : loadingState<KanjiRecord>(literal);
+  const compounds = compoundState.key === literal ? compoundState.terms : [];
 
   useEffect(() => {
-    if (!isReady) return;
+    const controller = new AbortController();
+    setState(loadingState(literal));
+    setCompoundState({ key: literal, terms: [] });
 
-    let isCancelled = false;
-    setIsLoading(true);
+    findKanji(literal, controller.signal)
+      .then(async (kanji) => {
+        if (controller.signal.aborted) return;
+        if (!kanji) {
+          setState({ key: literal, status: 'not-found', error: null });
+          return;
+        }
 
-    Promise.all([findKanji(literal), getCompoundsForKanji(literal, 12)])
-      .then(([nextKanji, nextCompounds]) => {
-        if (!isCancelled) {
-          setKanji(nextKanji || null);
-          setCompounds(nextCompounds);
+        setState({ key: literal, status: 'found', value: kanji, error: null });
+
+        try {
+          const terms = await getCompoundsForKanji(literal, 12);
+          if (!controller.signal.aborted) setCompoundState({ key: literal, terms });
+        } catch (error) {
+          console.error('Failed to load Kanji compounds:', error);
         }
       })
-      .finally(() => {
-        if (!isCancelled) setIsLoading(false);
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setState({ key: literal, status: 'error', error: errorMessage(error) });
       });
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [literal, isReady]);
+    return () => controller.abort();
+  }, [literal, attempt]);
 
-  return { kanji, compounds, isLoading: !isReady || isLoading, isReady, progress };
+  return {
+    kanji: currentState.status === 'found'
+      ? currentState.value
+      : currentState.status === 'not-found'
+        ? null
+        : undefined,
+    compounds,
+    status: currentState.status,
+    error: currentState.error,
+    isLoading: currentState.status === 'loading',
+    retry: () => setAttempt((value) => value + 1),
+  };
 }
 
-/**
- * Custom hook for dictionary initialization status
- */
 export function useDictionaryLoad() {
   return useDictionary();
 }

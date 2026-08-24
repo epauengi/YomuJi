@@ -21,7 +21,7 @@ export default function JLPTPage() {
       <div className="mt-8 flex items-center justify-center">
         <Link
           href="/"
-          className="inline-flex min-h-12 items-center gap-2 rounded-[--radius-md] bg-[var(--color-primary-700)] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-primary-800)] focus-visible:outline-offset-2"
+          className="inline-flex min-h-12 items-center gap-2 rounded-[--radius-md] bg-[var(--color-action-primary)] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-action-primary-hover)] focus-visible:outline-offset-2"
         >
           <ArrowLeft size={18} weight="bold" />
           Quay lại trang chủ

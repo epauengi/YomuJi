@@ -95,10 +95,12 @@ export default function ConjugationPage() {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-ja text-lg">{value}</span>
+              <span lang="ja" className="font-ja text-lg">{value}</span>
               <button
+                type="button"
                 onClick={() => copyToClipboard(value, `${type}-plain`)}
-                className="p-1 rounded hover:bg-[var(--color-surface)] transition-colors"
+                aria-label={`Sao chép ${value}`}
+                className="flex h-11 w-11 items-center justify-center rounded hover:bg-[var(--color-surface)] transition-colors"
               >
                 {copiedText === `${type}-plain` ? (
                   <Check className="h-4 w-4 text-[var(--color-success)]" />
@@ -110,9 +112,11 @@ export default function ConjugationPage() {
             <div className="text-sm text-[var(--color-text-muted)]">{romaji}</div>
           </div>
           <button
+            type="button"
             onClick={() => playJapaneseAudio(value)}
             title="Nghe phát âm"
-            className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
+            aria-label={`Nghe phát âm ${value}`}
+            className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-[var(--color-surface)] transition-colors"
           >
             <SpeakerHigh className="h-5 w-5 text-[var(--color-text-muted)]" />
           </button>
@@ -123,10 +127,12 @@ export default function ConjugationPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-ja text-lg">{politeValue}</span>
+                  <span lang="ja" className="font-ja text-lg">{politeValue}</span>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(politeValue, `${type}-polite`)}
-                    className="p-1 rounded hover:bg-[var(--color-surface)] transition-colors"
+                    aria-label={`Sao chép ${politeValue}`}
+                    className="flex h-11 w-11 items-center justify-center rounded hover:bg-[var(--color-surface)] transition-colors"
                   >
                     {copiedText === `${type}-polite` ? (
                       <Check className="h-4 w-4 text-[var(--color-success)]" />
@@ -138,9 +144,11 @@ export default function ConjugationPage() {
                 <div className="text-sm text-[var(--color-text-muted)]">{politeRomaji}</div>
               </div>
               <button
+                type="button"
                 onClick={() => playJapaneseAudio(politeValue)}
                 title="Nghe phát âm"
-                className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
+                aria-label={`Nghe phát âm ${politeValue}`}
+                className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-[var(--color-surface)] transition-colors"
               >
                 <SpeakerHigh className="h-5 w-5 text-[var(--color-text-muted)]" />
               </button>
@@ -174,13 +182,14 @@ export default function ConjugationPage() {
               {/* Search */}
               <div className="p-4 border-b border-[var(--color-border)]">
                 <div className="relative">
-                  <MagnifyingGlass className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
+                  <MagnifyingGlass aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                   <input
                     type="text"
                     placeholder="Tìm từ..."
+                    aria-label="Tìm từ để xem biến thể"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] py-2 pl-10 pr-4 text-sm focus-visible:border-[var(--color-primary-500)]"
+                    className="min-h-11 w-full rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] py-2 pl-10 pr-4 text-sm focus-visible:border-[var(--color-primary-500)]"
                   />
                 </div>
               </div>
@@ -191,6 +200,7 @@ export default function ConjugationPage() {
                   <button
                     key={key}
                     onClick={() => setSelectedWord(key)}
+                    aria-pressed={selectedWord === key}
                     className={`w-full p-4 text-left border-b border-[var(--color-border)] last:border-b-0 transition-colors ${
                       selectedWord === key 
                         ? 'bg-[var(--color-primary-50)] border-l-4 border-l-[var(--color-primary-600)]' 
@@ -199,8 +209,8 @@ export default function ConjugationPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-ja text-lg font-medium">{data.word}</div>
-                        <div className="text-sm text-[var(--color-text-muted)]">{data.reading}</div>
+                        <div lang="ja" className="font-ja text-lg font-medium">{data.word}</div>
+                        <div lang="ja" className="text-sm text-[var(--color-text-muted)]">{data.reading}</div>
                       </div>
                       <Badge variant="jlpt" jlptLevel={data.jlpt as JLPTLevel} size="sm">
                         {data.jlpt}
@@ -221,7 +231,7 @@ export default function ConjugationPage() {
             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 mb-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-ja text-3xl font-bold">{currentData.word}</h2>
+                  <h2 lang="ja" className="font-ja text-3xl font-bold">{currentData.word}</h2>
                   <div className="flex items-center gap-3 mt-2">
                     <span className="text-lg text-[var(--color-text-muted)]">{currentData.reading}</span>
                     <span className="text-lg text-[var(--color-text-muted)]">•</span>
@@ -247,10 +257,12 @@ export default function ConjugationPage() {
             {/* Toggle for Polite forms */}
             <div className="flex items-center gap-4 mb-4">
               <button
+                type="button"
                 onClick={() => setShowPolite(!showPolite)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                aria-pressed={showPolite}
+                className={`flex min-h-11 items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                   showPolite 
-                    ? 'bg-[var(--color-primary-600)] text-white' 
+                    ? 'bg-[var(--color-action-primary)] text-white' 
                     : 'bg-[var(--color-surface)] border border-[var(--color-border)]'
                 }`}
               >
@@ -265,8 +277,10 @@ export default function ConjugationPage() {
                 {(Object.keys(conjugationLabels) as ConjugationKey[]).map((key) => (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => setActiveTab(key)}
-                    className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    aria-pressed={activeTab === key}
+                    className={`flex-shrink-0 min-h-11 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                       activeTab === key
                         ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
                         : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'

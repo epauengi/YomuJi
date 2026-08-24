@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookmarkSimple, Star } from '@phosphor-icons/react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { toast } from 'sonner';
+import {
+  readBookmarks,
+  setBookmark,
+  subscribeToBookmarks,
+} from '@/lib/browserState';
 
 interface BookmarkButtonProps {
   isSaved?: boolean;
@@ -28,78 +33,88 @@ export function BookmarkButton({
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
   const reduceMotion = useReducedMotion();
 
-  const handleToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  useEffect(() => {
+    if (!word) {
+      setSaved(isSaved);
+      return;
+    }
+    const update = () => setSaved(readBookmarks().has(word));
+    update();
+    return subscribeToBookmarks(update);
+  }, [isSaved, word]);
 
-    const nextState = !saved;
+  const updateSaved = (nextState: boolean) => {
     setSaved(nextState);
+    if (word) setBookmark(word, nextState);
     onToggle?.(nextState);
+  };
+
+  const handleToggle = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const nextState = !saved;
+    updateSaved(nextState);
 
     if (nextState) {
       if (!reduceMotion) {
-        const newSparkles = Array.from({ length: 6 }).map((_, i) => ({
-          id: Date.now() + i,
+        const nextSparkles = Array.from({ length: 6 }).map((_, index) => ({
+          id: Date.now() + index,
           x: (Math.random() - 0.5) * 36,
           y: (Math.random() - 0.5) * 36,
           scale: Math.random() * 0.6 + 0.4,
         }));
-        setSparkles(newSparkles);
-        setTimeout(() => setSparkles([]), 600);
+        setSparkles(nextSparkles);
+        window.setTimeout(() => setSparkles([]), 600);
       }
 
-      toast.success(word ? `Đã lưu "${word}" vào Sổ tay` : 'Đã lưu vào danh sách học', {
-        action: {
-          label: 'Hoàn tác',
-          onClick: () => {
-            setSaved(false);
-            onToggle?.(false);
+      toast.success(
+        word ? `Đã lưu "${word}" trên thiết bị này` : 'Đã lưu trên thiết bị này',
+        {
+          action: {
+            label: 'Hoàn tác',
+            onClick: () => updateSaved(false),
           },
         },
-      });
+      );
     } else {
-      toast.info(word ? `Đã bỏ lưu "${word}"` : 'Đã bỏ lưu');
+      toast.info(word ? `Đã bỏ lưu "${word}" trên thiết bị này` : 'Đã bỏ lưu');
     }
   };
 
-  const dimClasses = {
+  const dimensions = {
     sm: 'h-11 w-11',
     md: 'h-11 w-11',
     lg: 'h-12 w-12',
   }[size];
-
   const iconSize = size === 'sm' ? 16 : size === 'lg' ? 20 : 18;
 
   return (
     <div className="relative inline-flex items-center justify-center">
-      <motion.button
+      <button
         type="button"
         onClick={handleToggle}
-        whileTap={reduceMotion ? undefined : { scale: 0.9 }}
-        animate={{ scale: saved && !reduceMotion ? [1, 1.15, 0.98, 1] : 1 }}
-        transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-        className={`surface-lift relative flex items-center justify-center rounded-[--radius-md] border transition-colors ${dimClasses} ${
+        className={`surface-lift relative flex items-center justify-center rounded-[--radius-md] border transition-colors ${dimensions} ${
           saved
             ? 'border-[var(--color-warning-300)] bg-[var(--color-warning-100)] text-[var(--color-warning-700)]'
             : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-warning-300)] hover:text-[var(--color-warning-700)]'
         } ${className}`}
-        title={saved ? 'Đã lưu' : title}
-        aria-label={saved ? 'Đã lưu' : title}
+        title={saved ? 'Đã lưu trên thiết bị này' : title}
+        aria-label={saved ? 'Đã lưu trên thiết bị này' : title}
+        aria-pressed={saved}
       >
         {variant === 'star' ? (
-          <Star size={iconSize} weight={saved ? 'fill' : 'duotone'} />
+          <Star aria-hidden="true" size={iconSize} weight={saved ? 'fill' : 'duotone'} />
         ) : (
-          <BookmarkSimple size={iconSize} weight={saved ? 'fill' : 'duotone'} />
+          <BookmarkSimple aria-hidden="true" size={iconSize} weight={saved ? 'fill' : 'duotone'} />
         )}
-      </motion.button>
+      </button>
 
-      {/* Sparkle Burst Animation */}
       <AnimatePresence>
-        {sparkles.map((s) => (
+        {sparkles.map((sparkle) => (
           <motion.span
-            key={s.id}
+            key={sparkle.id}
             initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-            animate={{ opacity: 0, scale: s.scale, x: s.x, y: s.y }}
+            animate={{ opacity: 0, scale: sparkle.scale, x: sparkle.x, y: sparkle.y }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="pointer-events-none absolute h-2 w-2 rounded-full bg-[var(--color-warning-300)]"

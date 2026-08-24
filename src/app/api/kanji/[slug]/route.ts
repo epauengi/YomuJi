@@ -21,8 +21,11 @@ export async function GET(
     }
 
     return NextResponse.json({ kanji });
-  } catch (err: any) {
-    console.error('API /api/kanji error:', err);
-    return NextResponse.json({ error: err.message || 'Kanji lookup failed' }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('API /api/kanji error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Kanji lookup failed' },
+      { status: 500 },
+    );
   }
 }

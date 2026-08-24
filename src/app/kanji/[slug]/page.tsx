@@ -29,7 +29,7 @@ export default function KanjiDetailPage() {
   const params = useParams();
   const router = useRouter();
   const literal = decodeURIComponent(params.slug as string);
-  const { kanji, compounds, isLoading, isReady, progress } = useKanjiDetail(literal);
+  const { kanji, compounds, status, error, retry } = useKanjiDetail(literal);
   const [query, setQuery] = useState(literal);
 
   // AI Explanation State
@@ -96,8 +96,8 @@ export default function KanjiDetailPage() {
           console.error('Error saving AI cache:', e);
         }
       }
-    } catch (err: any) {
-      setAiError(err.message || 'Có lỗi xảy ra khi yêu cầu giải thích.');
+    } catch (error: unknown) {
+      setAiError(error instanceof Error ? error.message : 'Có lỗi xảy ra khi yêu cầu giải thích.');
     } finally {
       setAiLoading(false);
     }
@@ -112,8 +112,19 @@ export default function KanjiDetailPage() {
     if (nextQuery) router.push(`/?q=${encodeURIComponent(nextQuery)}`);
   }
 
-  if (!isReady) return <Centered title="Đang chuẩn bị từ điển" message={progress.message} />;
-  if (kanji === undefined) return <Centered title="Đang tải Kanji" message="Đang đọc dữ liệu từ IndexedDB..." />;
+  if (status === 'loading') {
+    return <Centered title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
+  }
+  if (status === 'error') {
+    return (
+      <Centered
+        title="Chưa thể tải Kanji"
+        message={error || 'Không thể đọc dữ liệu từ điển.'}
+        actionLabel="Thử lại"
+        onAction={retry}
+      />
+    );
+  }
   if (!kanji) return <Centered title="Không tìm thấy Kanji" message="Kanji này chưa có trong dữ liệu hiện tại." />;
 
   return (
@@ -124,7 +135,7 @@ export default function KanjiDetailPage() {
       </Link>
 
       <div className="mb-6 text-lg text-[var(--color-text-secondary)]">
-        1 kết quả của Hán tự <span className="jp-text font-semibold text-[var(--color-primary-700)]">{kanji.literal}</span>
+        1 kết quả của Hán tự <span lang="ja" className="jp-text font-semibold text-[var(--color-primary-700)]">{kanji.literal}</span>
       </div>
 
       <div className="content-rise grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
@@ -133,6 +144,7 @@ export default function KanjiDetailPage() {
             <div className="flex min-w-0 items-start gap-5 sm:gap-7">
               <motion.h1
                 layoutId={`kanji-literal-${kanji.literal}`}
+                lang="ja"
                 className="jp-text text-7xl font-medium leading-none text-[var(--color-primary-800)] sm:text-8xl"
                 transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               >
@@ -196,8 +208,8 @@ export default function KanjiDetailPage() {
                 <div className="flex flex-wrap gap-x-2 gap-y-2">
                   {compounds.slice(0, 6).map((term: TermRecord, index: number) => (
                     <Link key={term.id} href={`/word/${encodeURIComponent(term.id)}`} className="group inline-flex flex-col leading-tight">
-                      <span className="jp-text text-[11px] text-[var(--color-primary-700)]">{term.reading}</span>
-                      <span className="jp-text text-xl font-medium text-[var(--color-primary-700)] group-hover:underline">
+                      <span lang="ja" className="jp-text text-[11px] text-[var(--color-primary-700)]">{term.reading}</span>
+                      <span lang="ja" className="jp-text text-xl font-medium text-[var(--color-primary-700)] group-hover:underline">
                         {term.surface}{index < Math.min(compounds.length, 6) - 1 ? '、' : ''}
                       </span>
                     </Link>
@@ -210,7 +222,7 @@ export default function KanjiDetailPage() {
 
             <InfoBlock label="Phân tích">
               <span className="text-lg text-[var(--color-text-secondary)]">- </span>
-              <span className="jp-text text-xl font-semibold text-[var(--color-text-primary)]">{kanji.literal}</span>
+              <span lang="ja" className="jp-text text-xl font-semibold text-[var(--color-text-primary)]">{kanji.literal}</span>
               <span className="ml-1 text-xl font-semibold text-[var(--color-primary-700)]">({analysisLabel})</span>
             </InfoBlock>
 
@@ -317,11 +329,26 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-function Centered({ title, message }: { title: string; message: string }) {
+function Centered({
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center" role="status" aria-live="polite">
       <h1 className="mb-3 text-2xl font-semibold text-[var(--color-text-primary)]">{title}</h1>
-      <p className="text-[var(--color-text-secondary)]">{message}</p>
+      <p className={onAction ? 'mb-8 text-[var(--color-text-secondary)]' : 'text-[var(--color-text-secondary)]'}>{message}</p>
+      {onAction && (
+        <Button variant="primary" onClick={onAction}>
+          {actionLabel || 'Thử lại'}
+        </Button>
+      )}
     </div>
   );
 }

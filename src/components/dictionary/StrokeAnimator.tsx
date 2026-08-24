@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowCounterClockwise, Eye, EyeSlash, Spinner } from '@phosphor-icons/react';
+import { motion, useReducedMotion } from 'motion/react';
+import { ArrowCounterClockwise, Eye, EyeSlash, Pause, Play, Spinner } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import type { StrokePath } from '@/types/dictionary';
@@ -39,6 +39,7 @@ export function StrokeAnimator({
   const [currentStroke, setCurrentStroke] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGuides, setShowGuides] = useState(true);
+  const reduceMotion = useReducedMotion();
 
   // Determine active stroke paths to render
   const activeStrokePaths = useMemo(() => {
@@ -125,8 +126,8 @@ export function StrokeAnimator({
   useEffect(() => {
     if (!pathCount) return;
     setCurrentStroke(0);
-    setIsPlaying(true);
-  }, [literal, pathCount]);
+    setIsPlaying(!reduceMotion);
+  }, [literal, pathCount, reduceMotion]);
 
   useEffect(() => {
     if (!isPlaying || !pathCount) return;
@@ -143,6 +144,16 @@ export function StrokeAnimator({
     setCurrentStroke(0);
     setIsPlaying(pathCount > 0);
     if (!pathCount && loadError) setReloadKey((key) => key + 1);
+  };
+
+  const togglePlayback = () => {
+    if (!pathCount) return;
+    if (currentStroke >= pathCount) {
+      setCurrentStroke(0);
+      setIsPlaying(true);
+      return;
+    }
+    setIsPlaying((playing) => !playing);
   };
 
   // Fetch or parse stroke SVG when literal or props change
@@ -217,19 +228,31 @@ export function StrokeAnimator({
       {/* Controls Header */}
       <div className="mb-3 flex items-center justify-between gap-2 px-1">
         <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
-          {currentStroke} / {totalStrokes} nét
+          {currentStroke} / {totalStrokes} nét · {isPlaying ? 'đang phát' : 'đã dừng'}
         </span>
 
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
+            aria-label={isPlaying ? 'Tạm dừng vẽ nét' : 'Phát vẽ nét'}
+            aria-pressed={isPlaying}
+            onClick={togglePlayback}
+            disabled={!pathCount}
+            title={isPlaying ? 'Tạm dừng' : 'Phát'}
+          >
+            {isPlaying ? <Pause aria-hidden="true" size={17} /> : <Play aria-hidden="true" size={17} />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             aria-label={showGuides ? 'Ẩn hướng dẫn nét' : 'Hiện hướng dẫn nét'}
+            aria-pressed={showGuides}
             onClick={() => setShowGuides(!showGuides)}
             className={showGuides ? 'text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)]'}
             title={showGuides ? 'Ẩn hướng dẫn nét' : 'Hiện hướng dẫn nét'}
           >
-            {showGuides ? <Eye size={17} /> : <EyeSlash size={17} />}
+            {showGuides ? <Eye aria-hidden="true" size={17} /> : <EyeSlash aria-hidden="true" size={17} />}
           </Button>
           <Button
             variant="ghost"
@@ -238,10 +261,11 @@ export function StrokeAnimator({
             onClick={replay}
             title={loadError ? 'Tải lại nét vẽ' : 'Vẽ lại từ đầu'}
           >
-            <ArrowCounterClockwise size={18} />
+            <ArrowCounterClockwise aria-hidden="true" size={18} />
           </Button>
         </div>
       </div>
+
 
       {/* SVG Canvas Box */}
       <div className="relative aspect-square w-full overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)]">
@@ -258,7 +282,7 @@ export function StrokeAnimator({
 
         {isLoadingSvg ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center">
-            <Spinner size={28} className="animate-spin text-[var(--color-primary-600)]" />
+            <Spinner aria-hidden="true" size={28} className="animate-spin text-[var(--color-primary-600)]" />
             <span className="text-xs text-[var(--color-text-muted)]">Đang tải nét vẽ Kanji...</span>
           </div>
         ) : activeStrokePaths.length > 0 ? (
@@ -274,6 +298,7 @@ export function StrokeAnimator({
                     key={stroke.id || index}
                     d={stroke.d}
                     fill={isCurrent ? 'var(--color-stroke-active, #0D9488)' : 'var(--color-primary-800, #1b4d4f)'}
+                    initial={false}
                     animate={{ opacity: isDrawn ? 1 : showGuides ? 0.12 : 0 }}
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                   />
@@ -332,7 +357,7 @@ export function StrokeAnimator({
         ) : (
           /* Fallback static kanji display */
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-            <span className="jp-text text-6xl font-bold text-[var(--color-primary-800)]">
+            <span lang="ja" className="jp-text text-6xl font-bold text-[var(--color-primary-800)]">
               {literal}
             </span>
             <span className="mt-2 text-xs text-[var(--color-text-muted)]">

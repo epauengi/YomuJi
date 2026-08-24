@@ -28,7 +28,7 @@ export function Navbar() {
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-3 shrink-0 group" onClick={() => setIsOpen(false)}>
             <div className="relative h-9 w-9 overflow-hidden rounded-[--radius-md]">
-              <Image src="/Logo.png" alt="YomuJi Logo" fill className="object-cover" />
+              <Image src="/Logo.png" alt="YomuJi Logo" fill sizes="36px" className="object-cover" />
             </div>
             <div className="leading-tight">
               <span className="block text-xl font-black tracking-tight text-[var(--color-text-primary)]">読む字</span>
@@ -144,7 +144,8 @@ function NavbarSearchInputFallback() {
         type="text"
         disabled
         placeholder="Tra từ vựng, Kanji, Hán Việt..."
-        className="h-9 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-8 text-sm text-[var(--color-text-primary)] outline-none"
+        aria-label="Tra từ vựng hoặc Kanji"
+        className="h-11 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-8 text-sm text-[var(--color-text-primary)] outline-none"
       />
     </div>
   );
@@ -153,11 +154,14 @@ function NavbarSearchInputFallback() {
 function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const statusId = React.useId();
   const initialQ = searchParams?.get('q') || '';
   const [query, setQuery] = React.useState(initialQ);
   const [isFocused, setIsFocused] = React.useState(false);
   const [termResults, setTermResults] = React.useState<DictionarySearchResult[]>([]);
   const [kanjiResults, setKanjiResults] = React.useState<KanjiDictionarySearchResult[]>([]);
+  const [isResolving, setIsResolving] = React.useState(false);
+  const [searchFailed, setSearchFailed] = React.useState(false);
   const blurTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
@@ -170,10 +174,14 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
     if (!trimmed) {
       setTermResults([]);
       setKanjiResults([]);
+      setIsResolving(false);
+      setSearchFailed(false);
       return;
     }
 
     let isCancelled = false;
+    setIsResolving(true);
+    setSearchFailed(false);
     const timer = setTimeout(async () => {
       try {
         const [terms, kanji] = await Promise.all([
@@ -186,6 +194,13 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
         }
       } catch (err) {
         console.error('Navbar search error:', err);
+        if (!isCancelled) {
+          setTermResults([]);
+          setKanjiResults([]);
+          setSearchFailed(true);
+        }
+      } finally {
+        if (!isCancelled) setIsResolving(false);
       }
     }, 100);
 
@@ -220,13 +235,24 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
     blurTimer.current = setTimeout(() => setIsFocused(false), 200);
   };
 
-  const hasSuggestions = isFocused && query.trim().length >= 1 && (termResults.length > 0 || kanjiResults.length > 0);
+  const resultCount = termResults.length + kanjiResults.length;
+  const hasQuery = query.trim().length >= 1;
+  const hasSuggestions = isFocused && hasQuery && !isResolving && resultCount > 0;
+  const resultStatus = !hasQuery
+    ? ''
+    : isResolving
+      ? 'Đang tìm trong từ điển'
+      : searchFailed
+        ? 'Chưa thể tải gợi ý tìm kiếm'
+        : resultCount
+          ? `${resultCount} kết quả từ điển`
+          : 'Không có kết quả phù hợp';
 
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative flex items-center w-full">
         <div className="absolute left-3 flex items-center pointer-events-none text-[var(--color-primary-700)]">
-          <MagnifyingGlass size={17} weight="bold" />
+          <MagnifyingGlass aria-hidden="true" size={17} weight="bold" />
         </div>
         <input
           type="text"
@@ -235,19 +261,25 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder="Tra từ vựng, Kanji, Hán Việt..."
-          className="h-9 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-8 text-sm text-[var(--color-text-primary)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-500)] focus:bg-[var(--color-surface)] focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
+          aria-label="Tra từ vựng hoặc Kanji"
+          aria-describedby={statusId}
+          autoComplete="off"
+          className="h-11 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-11 text-sm text-[var(--color-text-primary)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-500)] focus:bg-[var(--color-surface)] focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
         />
         {query && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-0 flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
+            className="absolute right-0 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
             aria-label="Xóa nội dung tìm kiếm"
           >
-            <X size={13} />
+            <X aria-hidden="true" size={13} />
           </button>
         )}
       </form>
+      <span id={statusId} role="status" aria-live="polite" className="sr-only">
+        {resultStatus}
+      </span>
 
       {/* Autocomplete Dropdown */}
       {hasSuggestions && (
@@ -266,11 +298,11 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
                       setIsFocused(false);
                       onSearchComplete?.();
                     }}
-                    className="flex items-baseline justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
+                    className="flex min-h-11 items-baseline justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
                   >
                     <div className="flex items-baseline gap-2 min-w-0">
-                      <span className="jp-text font-semibold text-[var(--color-text-primary)]">{res.term.surface}</span>
-                      <span className="jp-text text-xs text-[var(--color-text-muted)]">{res.term.reading}</span>
+                      <span lang="ja" className="jp-text font-semibold text-[var(--color-text-primary)]">{res.term.surface}</span>
+                      <span lang="ja" className="jp-text text-xs text-[var(--color-text-muted)]">{res.term.reading}</span>
                     </div>
                     <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[140px]">
                       {res.term.meaningsVi[0]}
@@ -293,10 +325,10 @@ function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void
                       setIsFocused(false);
                       onSearchComplete?.();
                     }}
-                    className="flex items-center justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
+                    className="flex min-h-11 items-center justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="jp-text text-base font-bold text-[var(--color-primary-800)]">{res.kanji.literal}</span>
+                      <span lang="ja" className="jp-text text-base font-bold text-[var(--color-primary-800)]">{res.kanji.literal}</span>
                       <span className="text-xs font-medium text-[var(--color-text-primary)]">
                         {res.kanji.hanViet.join(', ')}
                       </span>

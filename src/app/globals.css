@@ -103,6 +103,9 @@
   --color-primary-700: #0F766E;
   --color-primary-800: #115E59;
   --color-primary-900: #134E4A;
+  --color-action-primary: var(--color-primary-700);
+  --color-action-primary-hover: var(--color-primary-800);
+  --color-action-primary-active: var(--color-primary-900);
   --primary-50: var(--color-primary-50);
   --primary-100: var(--color-primary-100);
   --primary-200: var(--color-primary-200);
@@ -148,6 +151,7 @@
   --color-warning-800: #713F12;
   --color-warning-900: #713F12;
   --color-error: #B42318;
+  --color-action-error: var(--color-error);
   --color-error-bg: #FEE4E2;
   --color-error-100: var(--color-error-bg);
   --color-error-200: #FECDCA;
@@ -178,7 +182,7 @@
    ======================================== */
 
 [data-theme="dark"] {
-  /* Primary (Teal) - Inverted for dark mode */
+  /* Primary (Teal): light readouts, dark filled actions. */
   --color-primary-50: #102522;
   --color-primary-100: #12332F;
   --color-primary-200: #15463F;
@@ -189,6 +193,9 @@
   --color-primary-700: #99F6E4;
   --color-primary-800: #B9FAEF;
   --color-primary-900: #D8FCF5;
+  --color-action-primary: #0F766E;
+  --color-action-primary-hover: #115E59;
+  --color-action-primary-active: #134E4A;
   --primary-50: var(--color-primary-50);
   --primary-100: var(--color-primary-100);
   --primary-200: var(--color-primary-200);
@@ -234,6 +241,7 @@
   --color-warning-800: #5F470B;
   --color-warning-900: var(--color-warning-bg);
   --color-error: #FDA29B;
+  --color-action-error: #B42318;
   --color-error-bg: #441F1C;
   --color-error-100: var(--color-error-bg);
   --color-error-200: #652B27;
@@ -612,23 +620,6 @@ ruby.jp-ruby rt {
   }
 }
 
-/* ── Furigana hover reveal ───────────────────────────── */
-.jp-ruby rt {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  transform-origin: bottom center;
-}
-
-.furigana-reveal rt {
-  opacity: 0;
-  transform: translateY(4px);
-}
-
-.furigana-reveal:hover rt,
-.furigana-reveal:focus rt {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ── Scroll-driven progress indicator ───────────────── */
 @supports (animation-timeline: scroll()) {
   .scroll-progress {
@@ -660,12 +651,6 @@ ruby.jp-ruby rt {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .furigana-reveal rt,
-  .furigana-reveal:hover rt {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
   .kanji-glow {
     transition: none;
   }

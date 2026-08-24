@@ -90,11 +90,12 @@ export function InteractiveJapaneseReader({
             <button
               type="button"
               onClick={() => setIsVertical(!isVertical)}
-              className={`tactile flex h-8 items-center gap-1 rounded-[--radius-md] border px-2.5 text-xs font-semibold transition-colors ${
+              className={`tactile flex min-h-11 items-center gap-1 rounded-[--radius-md] border px-2.5 text-xs font-semibold transition-colors ${
                 isVertical
                   ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
                   : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
               }`}
+              aria-pressed={isVertical}
               title={isVertical ? 'Chuyển sang chế độ đọc ngang' : 'Chuyển sang chế độ đọc dọc kiểu Nhật (縦書き)'}
             >
               {isVertical ? <Rows size={15} /> : <Columns size={15} />}
@@ -115,7 +116,7 @@ export function InteractiveJapaneseReader({
           ) : (
             <div>
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="jp-text text-2xl font-extrabold text-[var(--color-text-primary)]">
+                <h3 lang="ja" className="jp-text text-2xl font-extrabold text-[var(--color-text-primary)]">
                   {title}
                 </h3>
                 <button
@@ -128,6 +129,7 @@ export function InteractiveJapaneseReader({
                   }`}
                   title={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
                   aria-label={isPlayingFull ? 'Dừng phát âm' : 'Phát toàn bộ bài đọc'}
+                  aria-pressed={isPlayingFull}
                 >
                   {isPlayingFull ? (
                     <AudioWaveformBars />
@@ -139,6 +141,7 @@ export function InteractiveJapaneseReader({
 
               {/* Japanese Text Rendering with Vertical (Upright Digits) or Horizontal Mode */}
               <div
+                lang="ja"
                 className={`mt-3 font-ja text-base leading-relaxed text-[var(--color-text-secondary)] transition-all duration-300 ${
                   isVertical
                     ? 'h-52 overflow-x-auto whitespace-pre-wrap py-2 [writing-mode:vertical-rl] [text-orientation:upright] leading-loose text-lg tracking-wider border-l border-[var(--color-border-subtle)] pl-4'
@@ -163,7 +166,7 @@ export function InteractiveJapaneseReader({
             onRefresh();
           }}
           disabled={isLoading}
-          className="tactile inline-flex items-center gap-1.5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)] disabled:opacity-50"
+          className="tactile inline-flex min-h-11 items-center gap-1.5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)] disabled:opacity-50"
         >
           <ArrowsClockwise size={14} className={isLoading ? 'animate-spin' : ''} />
           Đọc bài khác

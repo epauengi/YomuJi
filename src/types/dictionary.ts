@@ -73,6 +73,14 @@ export interface KanjiRecord {
   };
 }
 
+export interface TermLookupResponse {
+  term: TermRecord | null;
+}
+
+export interface KanjiLookupResponse {
+  kanji: KanjiRecord | null;
+}
+
 export interface SearchIndexEntry {
   termId: string;
   sequence: number;

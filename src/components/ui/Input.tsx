@@ -30,7 +30,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={`
-            h-10 w-full rounded-[--radius-md] border bg-[var(--color-surface)] px-3
+            h-11 w-full rounded-[--radius-md] border bg-[var(--color-surface)] px-3
             text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]
             transition-colors duration-[--duration-fast]
             focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg)]

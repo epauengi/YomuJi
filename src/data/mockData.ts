@@ -217,8 +217,8 @@ export const mockConjugationData = {
   },
 };
 
-// ==================== FLASHCARD / SAVED WORDS DATA ====================
-export const mockSavedWords = [
+// ==================== FLASHCARD PREVIEW DATA ====================
+export const demoWords = [
   {
     id: '1',
     word: '日本',
@@ -227,9 +227,8 @@ export const mockSavedWords = [
     meaning: 'Nhật Bản',
     type: 'danh từ',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-15'),
     deck: 'n3-july',
-    dueCount: 3,
+    isDue: true,
   },
   {
     id: '2',
@@ -239,9 +238,8 @@ export const mockSavedWords = [
     meaning: 'ăn',
     type: 'động từ nhóm 2',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-14'),
     deck: 'n3-july',
-    dueCount: 5,
+    isDue: true,
   },
   {
     id: '3',
@@ -251,9 +249,8 @@ export const mockSavedWords = [
     meaning: 'thú vị, hay',
     type: 'tính từ -i',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-13'),
     deck: 'jlpt-n5',
-    dueCount: 2,
+    isDue: true,
   },
   {
     id: '4',
@@ -263,9 +260,8 @@ export const mockSavedWords = [
     meaning: 'học tập, nghiên cứu',
     type: 'danh từ, động từ',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-12'),
     deck: 'jlpt-n5',
-    dueCount: 0,
+    isDue: false,
   },
   {
     id: '5',
@@ -275,9 +271,8 @@ export const mockSavedWords = [
     meaning: 'chữ Hán, chữ Kanji',
     type: 'danh từ',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-11'),
     deck: 'jlpt-n5',
-    dueCount: 1,
+    isDue: true,
   },
   {
     id: '6',
@@ -287,9 +282,8 @@ export const mockSavedWords = [
     meaning: 'uống',
     type: 'động từ nhóm 1',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-10'),
     deck: 'jlpt-n5',
-    dueCount: 4,
+    isDue: true,
   },
   {
     id: '7',
@@ -299,9 +293,8 @@ export const mockSavedWords = [
     meaning: 'trường học',
     type: 'danh từ',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-09'),
     deck: 'jlpt-n5',
-    dueCount: 0,
+    isDue: false,
   },
   {
     id: '8',
@@ -311,260 +304,34 @@ export const mockSavedWords = [
     meaning: 'bạn bè',
     type: 'danh từ',
     jlpt: 'N5',
-    savedAt: new Date('2024-01-08'),
     deck: 'jlpt-n5',
-    dueCount: 2,
+    isDue: true,
   },
 ];
 
-export const mockDecks = [
+export const demoDecks = [
   {
     id: 'n3-july',
     name: 'N3 Tháng 7',
-    description: 'Từ vựng N3 cho kỳ thi tháng 7',
-    cardCount: 45,
-    dueCount: 12,
-    masteredCount: 18,
+    description: 'Bộ từ mẫu cho kỳ thi tháng 7',
     color: '#0F766E',
-    createdAt: new Date('2024-06-01'),
   },
   {
     id: 'jlpt-n5',
     name: 'JLPT N5 Core',
-    description: '300 từ vựng N5 phổ biến nhất',
-    cardCount: 300,
-    dueCount: 25,
-    masteredCount: 120,
+    description: 'Bộ từ N5 mẫu',
     color: '#15803D',
-    createdAt: new Date('2024-01-01'),
   },
   {
     id: 'business-jp',
     name: 'Business Japanese',
-    description: 'Từ vựng tiếng Nhật thương mại',
-    cardCount: 80,
-    dueCount: 8,
-    masteredCount: 35,
+    description: 'Bản xem trước chưa có thẻ mẫu',
     color: '#1D4ED8',
-    createdAt: new Date('2024-03-15'),
   },
   {
     id: 'travel-jp',
     name: 'Du lịch Nhật Bản',
-    description: 'Cụm từ và từ vựng du lịch',
-    cardCount: 60,
-    dueCount: 15,
-    masteredCount: 20,
+    description: 'Bản xem trước chưa có thẻ mẫu',
     color: '#A16207',
-    createdAt: new Date('2024-05-01'),
   },
 ];
-
-// ==================== REVIEW DATA ====================
-export const mockReviewQueue = [
-  {
-    id: '1',
-    word: '日本',
-    reading: 'にほん',
-    romaji: 'nihon',
-    meaning: 'Nhật Bản',
-    type: 'danh từ',
-    jlpt: 'N5',
-    example: '日本人は親切です。',
-    exampleMeaning: 'Người Nhật thân thiện.',
-    interval: 1,
-    easeFactor: 2.5,
-    dueDate: new Date(),
-  },
-  {
-    id: '2',
-    word: '食べる',
-    reading: 'たべる',
-    romaji: 'taberu',
-    meaning: 'ăn',
-    type: 'động từ',
-    jlpt: 'N5',
-    example: '朝ごはんを食べます。',
-    exampleMeaning: 'Tôi ăn sáng.',
-    interval: 3,
-    easeFactor: 2.6,
-    dueDate: new Date(),
-  },
-  {
-    id: '3',
-    word: '面白い',
-    reading: 'おもしろい',
-    romaji: 'omoshiroi',
-    meaning: 'thú vị',
-    type: 'tính từ',
-    jlpt: 'N5',
-    example: 'この映画は面白いです。',
-    exampleMeaning: 'Bộ phim này thú vị.',
-    interval: 1,
-    easeFactor: 2.3,
-    dueDate: new Date(),
-  },
-  {
-    id: '4',
-    word: '飲む',
-    reading: 'のむ',
-    romaji: 'nomu',
-    meaning: 'uống',
-    type: 'động từ',
-    jlpt: 'N5',
-    example: '水を飲みます。',
-    exampleMeaning: 'Tôi uống nước.',
-    interval: 7,
-    easeFactor: 2.8,
-    dueDate: new Date(),
-  },
-  {
-    id: '5',
-    word: '漢字',
-    reading: 'かんじ',
-    romaji: 'kanji',
-    meaning: 'chữ Hán',
-    type: 'danh từ',
-    jlpt: 'N5',
-    example: '漢字を勉強しています。',
-    exampleMeaning: 'Tôi đang học chữ Hán.',
-    interval: 2,
-    easeFactor: 2.4,
-    dueDate: new Date(),
-  },
-];
-
-// ==================== HISTORY DATA ====================
-export const mockHistory = [
-  {
-    id: '1',
-    query: '日本',
-    reading: 'にほん',
-    direction: 'ja-vi' as const,
-    resultCount: 5,
-    timestamp: new Date(),
-  },
-  {
-    id: '2',
-    query: '食べる',
-    reading: 'たべる',
-    direction: 'ja-vi' as const,
-    resultCount: 3,
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-  },
-  {
-    id: '3',
-    query: 'học',
-    reading: 'まなぶ',
-    direction: 'vi-ja' as const,
-    resultCount: 8,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-  },
-  {
-    id: '4',
-    query: '面白い',
-    reading: 'おもしろい',
-    direction: 'ja-vi' as const,
-    resultCount: 2,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-  },
-  {
-    id: '5',
-    query: '学校',
-    reading: 'がっこう',
-    direction: 'ja-vi' as const,
-    resultCount: 4,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-  },
-  {
-    id: '6',
-    query: '友達',
-    reading: 'ともだち',
-    direction: 'ja-vi' as const,
-    resultCount: 6,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-  },
-  {
-    id: '7',
-    query: 'du lịch',
-    reading: 'りょこう',
-    direction: 'vi-ja' as const,
-    resultCount: 12,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-  },
-  {
-    id: '8',
-    query: '漢字',
-    reading: 'かんじ',
-    direction: 'ja-vi' as const,
-    resultCount: 7,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
-  },
-  {
-    id: '9',
-    query: '飲む',
-    reading: 'のむ',
-    direction: 'ja-vi' as const,
-    resultCount: 3,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // 1 week ago
-  },
-  {
-    id: '10',
-    query: '勉強',
-    reading: 'べんきょう',
-    direction: 'ja-vi' as const,
-    resultCount: 9,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10), // 10 days ago
-  },
-];
-
-// ==================== STUDY STATS ====================
-export const mockStudyStats = {
-  totalWords: 127,
-  masteredWords: 45,
-  dueToday: 23,
-  streak: 12,
-  accuracy: 87,
-  weeklyProgress: [
-    { day: 'T2', learned: 15, reviewed: 45 },
-    { day: 'T3', learned: 12, reviewed: 38 },
-    { day: 'T4', learned: 18, reviewed: 52 },
-    { day: 'T5', learned: 10, reviewed: 42 },
-    { day: 'T6', learned: 14, reviewed: 48 },
-    { day: 'T7', learned: 20, reviewed: 60 },
-    { day: 'CN', learned: 8, reviewed: 35 },
-  ],
-};
-
-// ==================== SEARCH SUGGESTIONS ====================
-export const mockSearchSuggestions = [
-  { query: '日本', type: 'kanji' as const },
-  { query: '食べる', type: 'verb' as const },
-  { query: '面白い', type: 'adjective' as const },
-  { query: '漢字', type: 'noun' as const },
-  { query: '学校', type: 'noun' as const },
-];
-
-// ==================== UI STATES ====================
-export const mockUIStates = {
-  loading: {
-    skeleton: true,
-    spinner: false,
-    progress: false,
-  },
-  empty: {
-    noResults: true,
-    noHistory: true,
-    noSavedWords: true,
-  },
-  error: {
-    network: true,
-    notFound: true,
-    serverError: true,
-  },
-  success: {
-    saved: true,
-    copied: true,
-    deleted: true,
-  },
-};

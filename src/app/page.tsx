@@ -108,7 +108,6 @@ export default function HomePage() {
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
-  const [isSavedWotd, setIsSavedWotd] = useState(false);
 
   const [readingArticle, setReadingArticle] = useState<ArticleItem | null>(null);
   const [readingLoading, setReadingLoading] = useState(false);
@@ -259,7 +258,7 @@ export default function HomePage() {
                   key={word}
                   type="button"
                   onClick={() => setQuery(word)}
-                  className="tactile rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
+                  className="tactile min-h-11 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
                 >
                   {word}
                 </button>
@@ -321,9 +320,10 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={clearRecentSearches}
+                    aria-label="Xóa toàn bộ lịch sử tìm kiếm"
                     className="flex min-h-11 items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-error)]"
                   >
-                    <Trash size={14} />
+                    <Trash aria-hidden="true" size={14} />
                     <span>Xóa lịch sử</span>
                   </button>
                 </div>
@@ -333,7 +333,7 @@ export default function HomePage() {
                       key={item}
                       type="button"
                       onClick={() => setQuery(item)}
-                      className="surface-lift rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)]"
+                      className="surface-lift min-h-11 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)]"
                     >
                       {item}
                     </button>
@@ -362,13 +362,14 @@ export default function HomePage() {
                         <div>
                           <div className="flex items-baseline gap-3">
                             <motion.h3
+                              lang="ja"
                               layoutId={`term-surface-${wordOfTheDay.id}`}
                               className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
                               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                             >
                               {wordOfTheDay.surface}
                             </motion.h3>
-                            <span className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                            <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
                               {wordOfTheDay.reading}
                             </span>
                           </div>
@@ -386,7 +387,7 @@ export default function HomePage() {
 
                       {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
                         <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
-                          <p className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                          <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
                             {wordOfTheDay.examples[0].textJa}
                           </p>
                           <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">

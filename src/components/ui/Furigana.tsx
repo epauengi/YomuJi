@@ -11,11 +11,11 @@ interface FuriganaProps {
 export function Furigana({ kanji, reading, className = '' }: FuriganaProps) {
   // If there's no reading, just show the kanji
   if (!reading) {
-    return <span className={`jp-text ${className}`}>{kanji}</span>;
+    return <span lang="ja" className={`jp-text ${className}`}>{kanji}</span>;
   }
 
   return (
-    <ruby className={`jp-ruby jp-text furigana-reveal ${className}`}>
+    <ruby lang="ja" className={`jp-ruby jp-text ${className}`}>
       {kanji}
       <rt>{reading}</rt>
     </ruby>

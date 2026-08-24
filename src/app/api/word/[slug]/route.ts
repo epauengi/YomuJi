@@ -21,8 +21,11 @@ export async function GET(
     }
 
     return NextResponse.json({ term });
-  } catch (err: any) {
-    console.error('API /api/word error:', err);
-    return NextResponse.json({ error: err.message || 'Word lookup failed' }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('API /api/word error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Word lookup failed' },
+      { status: 500 },
+    );
   }
 }

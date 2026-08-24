@@ -57,7 +57,7 @@ export default function ShowcasePage() {
                 onClick={() => setActiveSection(section.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   activeSection === section.id
-                    ? 'bg-[var(--color-primary-600)] text-white shadow-md'
+                    ? 'bg-[var(--color-action-primary)] text-white shadow-md'
                     : 'bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)]'
                 }`}
               >
