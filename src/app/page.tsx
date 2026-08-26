@@ -349,8 +349,8 @@ export default function HomePage() {
                   <div className="flex h-full flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)]">
-                          <Sparkle size={15} weight="fill" className="text-[var(--color-primary-700)]" />
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
+                          <Sparkle size={15} weight="fill" className="text-[var(--color-warning)]" />
                           Từ vựng hôm nay
                         </div>
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">

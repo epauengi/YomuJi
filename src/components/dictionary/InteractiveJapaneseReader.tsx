@@ -79,8 +79,8 @@ export function InteractiveJapaneseReader({
       <div>
         <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-100)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-800)]">
-              <BookOpenText size={15} weight="duotone" className="text-[var(--color-primary-700)]" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-info-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-info)]">
+              <BookOpenText size={15} weight="duotone" className="text-[var(--color-info)]" />
               <span>Bài đọc hôm nay</span>
             </div>
           </div>
