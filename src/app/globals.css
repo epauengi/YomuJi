@@ -512,7 +512,7 @@ html[data-theme-transition]::view-transition-old(root) {
 }
 
 html[data-theme-transition]::view-transition-new(root) {
-  animation: theme-circle-reveal 600ms var(--ease-out) both;
+  animation: theme-circle-reveal 750ms var(--ease-out) both;
   clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
   z-index: 2;
 }
