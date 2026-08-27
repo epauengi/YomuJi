@@ -502,6 +502,27 @@ main {
   animation-timing-function: var(--ease-out);
 }
 
+html[data-theme-transition] main {
+  view-transition-name: none;
+}
+
+html[data-theme-transition]::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+html[data-theme-transition]::view-transition-new(root) {
+  animation: theme-circle-reveal var(--duration-slow) var(--ease-out) both;
+  clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+  z-index: 2;
+}
+
+@keyframes theme-circle-reveal {
+  to {
+    clip-path: circle(150vmax at var(--theme-transition-x) var(--theme-transition-y));
+  }
+}
+
 /* Japanese text */
 [lang="ja"],
 .jp-text,
@@ -616,6 +637,11 @@ ruby.jp-ruby rt {
   }
 
   .status-dot {
+    animation: none;
+  }
+
+  html[data-theme-transition]::view-transition-old(root),
+  html[data-theme-transition]::view-transition-new(root) {
     animation: none;
   }
 }

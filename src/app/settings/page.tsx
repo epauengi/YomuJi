@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import { useReducedMotion } from 'motion/react';
 import { Database, Gear, Globe, Monitor, Moon, Sun } from '@phosphor-icons/react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -11,15 +13,74 @@ import {
   type ThemePreference,
 } from '@/lib/browserState';
 
+type ThemeTransition = {
+  finished: Promise<unknown>;
+};
+
+type ThemeTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => ThemeTransition;
+};
+
 export default function SettingsPage() {
   const { progress, manifest, retry, isReady } = useDictionary();
   const [theme, setTheme] = useState<ThemePreference>('system');
+  const themeRef = useRef<ThemePreference>('system');
+  const reduceMotion = useReducedMotion();
+  const transitionToken = useRef(0);
 
-  useEffect(() => subscribeToTheme(setTheme), []);
-
-  const handleThemeChange = (preference: ThemePreference) => {
+  useEffect(() => subscribeToTheme((preference) => {
+    themeRef.current = preference;
     setTheme(preference);
-    writeThemePreference(preference);
+  }), []);
+
+  useEffect(() => () => {
+    const root = document.documentElement;
+    root.removeAttribute('data-theme-transition');
+    root.style.removeProperty('--theme-transition-x');
+    root.style.removeProperty('--theme-transition-y');
+  }, []);
+
+  const handleThemeChange = (preference: ThemePreference, button: HTMLButtonElement) => {
+    if (preference === themeRef.current) return;
+    themeRef.current = preference;
+
+    const commit = () => {
+      flushSync(() => {
+        themeRef.current = preference;
+        setTheme(preference);
+        writeThemePreference(preference);
+      });
+    };
+    const documentWithTransition = document as ThemeTransitionDocument;
+
+    const prefersReducedMotion = reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion || !documentWithTransition.startViewTransition) {
+      commit();
+      return;
+    }
+
+    const root = document.documentElement;
+    const { left, top, width, height } = button.getBoundingClientRect();
+    const token = ++transitionToken.current;
+    root.dataset.themeTransition = String(token);
+    root.style.setProperty('--theme-transition-x', `${left + width / 2}px`);
+    root.style.setProperty('--theme-transition-y', `${top + height / 2}px`);
+
+    const clearTransition = () => {
+      if (transitionToken.current !== token) return;
+      root.removeAttribute('data-theme-transition');
+      root.style.removeProperty('--theme-transition-x');
+      root.style.removeProperty('--theme-transition-y');
+    };
+
+    try {
+      const transition = documentWithTransition.startViewTransition!(commit);
+      void transition.finished.then(clearTransition, clearTransition);
+    } catch {
+      clearTransition();
+      commit();
+    }
   };
 
   const isChecking = progress.status === 'checking'
@@ -72,7 +133,7 @@ export default function SettingsPage() {
                   <button
                     key={preference}
                     type="button"
-                    onClick={() => handleThemeChange(preference)}
+                    onClick={(event) => handleThemeChange(preference, event.currentTarget)}
                     aria-pressed={theme === preference}
                     className={`min-h-11 rounded-md px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-[--duration-fast] ${
                       theme === preference
