@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import {
   CaretRight,
@@ -105,6 +105,8 @@ export default function HomePage() {
   const [results, setResults] = useState<DictionarySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const heroPointerFrame = useRef<number | null>(null);
+  const heroPointerPosition = useRef({ x: 0, y: 0 });
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
@@ -113,12 +115,34 @@ export default function HomePage() {
   const [readingLoading, setReadingLoading] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) return;
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
+    heroPointerPosition.current = {
+      x: (e.clientX - rect.left) / rect.width - 0.5,
+      y: (e.clientY - rect.top) / rect.height - 0.5,
+    };
+
+    if (heroPointerFrame.current !== null) return;
+    heroPointerFrame.current = window.requestAnimationFrame(() => {
+      heroPointerFrame.current = null;
+      setMousePos(heroPointerPosition.current);
+    });
   };
+
+  const handleMouseLeave = () => {
+    if (heroPointerFrame.current !== null) {
+      window.cancelAnimationFrame(heroPointerFrame.current);
+      heroPointerFrame.current = null;
+    }
+    heroPointerPosition.current = { x: 0, y: 0 };
+    setMousePos({ x: 0, y: 0 });
+  };
+
+  useEffect(() => () => {
+    if (heroPointerFrame.current !== null) {
+      window.cancelAnimationFrame(heroPointerFrame.current);
+    }
+  }, []);
 
   const loadNewRandomArticle = async () => {
     setReadingLoading(true);
@@ -207,6 +231,7 @@ export default function HomePage() {
     <div className="pb-16">
       <section
         onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
       >
         <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
@@ -296,7 +321,11 @@ export default function HomePage() {
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {results.map((result, index) => (
-                    <div key={result.term.id} className="result-enter" style={{ '--result-index': index } as CSSProperties}>
+                    <div
+                      key={result.term.id}
+                      className={`result-enter ${index > 4 ? 'result-enter-fade' : ''}`}
+                      style={{ '--result-index': index } as CSSProperties}
+                    >
                       <TermCard term={result.term} />
                     </div>
                   ))}

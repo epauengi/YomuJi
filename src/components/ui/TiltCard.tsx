@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
 
 interface TiltCardProps {
   children: React.ReactNode;
@@ -18,9 +18,28 @@ export function TiltCard({
 }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [canTilt, setCanTilt] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const tiltEnabled = canTilt && reduceMotion === false;
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
+  useEffect(() => {
+    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const syncPointerCapability = () => setCanTilt(pointerQuery.matches);
+
+    syncPointerCapability();
+    pointerQuery.addEventListener('change', syncPointerCapability);
+    return () => pointerQuery.removeEventListener('change', syncPointerCapability);
+  }, []);
+
+  useEffect(() => {
+    if (tiltEnabled) return;
+    setIsHovered(false);
+    x.set(0);
+    y.set(0);
+  }, [tiltEnabled, x, y]);
 
   const springConfig = { damping: 25, stiffness: 250 };
   const mouseXSpring = useSpring(x, springConfig);
@@ -30,7 +49,7 @@ export function TiltCard({
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-maxAngle, maxAngle]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!tiltEnabled || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -46,6 +65,7 @@ export function TiltCard({
   };
 
   const handleMouseLeave = () => {
+    if (!tiltEnabled) return;
     setIsHovered(false);
     x.set(0);
     y.set(0);
@@ -55,14 +75,14 @@ export function TiltCard({
     <motion.div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => tiltEnabled && setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
       style={{
-        rotateX: isHovered ? rotateX : 0,
-        rotateY: isHovered ? rotateY : 0,
-        transformStyle: 'preserve-3d',
+        rotateX: tiltEnabled && isHovered ? rotateX : 0,
+        rotateY: tiltEnabled && isHovered ? rotateY : 0,
+        transformStyle: tiltEnabled ? 'preserve-3d' : undefined,
       }}
-      animate={{ scale: isHovered ? scale : 1 }}
+      animate={{ scale: tiltEnabled && isHovered ? scale : 1 }}
       transition={{ duration: 0.2 }}
       className={`relative overflow-hidden rounded-[--radius-xl] border border-[var(--color-border-strong)] bg-[var(--color-surface)] transition-colors duration-200 ${className}`}
     >

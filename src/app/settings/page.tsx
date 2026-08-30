@@ -198,7 +198,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className={`status-dot h-2 w-2 rounded-full ${hasError ? 'bg-[var(--color-error)]' : isChecking ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-success)]'}`}
+                  className={`${isChecking ? 'status-dot' : ''} h-2 w-2 rounded-full ${hasError ? 'bg-[var(--color-error)]' : isChecking ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-success)]'}`}
                 />
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">
                   {manifest?.dataVersion || (isReady ? 'Trực tuyến' : 'Chưa sẵn sàng')}

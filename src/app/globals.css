@@ -400,6 +400,11 @@ main {
   }
 }
 
+@keyframes content-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes quiet-shimmer {
   from {
     background-position: 180% 0;
@@ -477,7 +482,11 @@ main {
 
 .result-enter {
   animation: content-rise var(--duration-normal) var(--ease-out) both;
-  animation-delay: calc(var(--result-index, 0) * 24ms);
+  animation-delay: min(calc(var(--result-index, 0) * 24ms), 120ms);
+}
+
+.result-enter-fade {
+  animation-name: content-fade;
 }
 
 .confidence-track {
@@ -634,6 +643,10 @@ ruby.jp-ruby rt {
   .tactile:active,
   .study-card:hover {
     transform: none;
+  }
+
+  .result-enter {
+    animation-delay: 0ms !important;
   }
 
   .status-dot {
