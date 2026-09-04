@@ -1,0 +1,528 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  CaretRight,
+  ClockCounterClockwise,
+  GraduationCap,
+  Sparkle,
+  Trash,
+} from '@phosphor-icons/react';
+import { motion } from 'motion/react';
+import { SearchInput } from '@/components/SearchInput';
+import { TermCard } from '@/components/dictionary/TermCard';
+import { TiltCard } from '@/components/ui/TiltCard';
+import { NumberTicker } from '@/components/ui/NumberTicker';
+import { BookmarkButton } from '@/components/ui/BookmarkButton';
+import { AudioButton } from '@/components/AudioButton';
+import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
+import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import { playJapaneseAudio } from '@/lib/tts';
+import { searchHref } from '@/lib/navigation';
+import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
+
+const jlptLevels = [
+  { level: 'N5', label: 'Cơ bản', text: 'var(--color-jlpt-n5-text)', background: 'var(--color-jlpt-n5-bg)', border: 'var(--color-jlpt-n5-border)', count: 800 },
+  { level: 'N4', label: 'Sơ cấp', text: 'var(--color-jlpt-n4-text)', background: 'var(--color-jlpt-n4-bg)', border: 'var(--color-jlpt-n4-border)', count: 1500 },
+  { level: 'N3', label: 'Trung cấp', text: 'var(--color-jlpt-n3-text)', background: 'var(--color-jlpt-n3-bg)', border: 'var(--color-jlpt-n3-border)', count: 3750 },
+  { level: 'N2', label: 'Thượng cấp', text: 'var(--color-jlpt-n2-text)', background: 'var(--color-jlpt-n2-bg)', border: 'var(--color-jlpt-n2-border)', count: 6000 },
+  { level: 'N1', label: 'Cao cấp', text: 'var(--color-jlpt-n1-text)', background: 'var(--color-jlpt-n1-bg)', border: 'var(--color-jlpt-n1-border)', count: 10000 },
+];
+
+const decorativeKanji = [
+  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
+  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-rev', blur: 'blur-[1px]' },
+  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.035]', anim: 'animate-kanji-rev', blur: 'none' },
+  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'none' },
+];
+
+const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
+
+interface ArticleItem {
+  title: string;
+  extract: string;
+  url: string;
+}
+
+const fallbackArticles: Record<string, ArticleItem> = {
+  '日本': {
+    title: '日本',
+    extract: '日本国（にほんこく、にっぽんこく）、または日本（にほん、にっぽん）は、東アジアに位置する島国である。首都は東京都。太平洋と日本海、東シナ海、オホーツク海に囲まれている。四方を海に囲まれた島国であり、独自の歴史と豊かな自然文化を育んできた。四季が明確であり、春の桜、夏の青空、秋の紅葉、冬の雪景色など、年間を通じて多様な自然の表情を楽しむことができる。',
+    url: 'https://ja.wikipedia.org/wiki/日本',
+  },
+  '富士山': {
+    title: '富士山',
+    extract: '富士山（ふじさん）は、山梨県と静岡県にまたがる独立峰であり、標高3,776 mの日本最高峰である。日本の象徴として古来より世界的に知られており、信仰の対象や芸術の源泉として2013年にユネスコの世界文化遺産に登録された。美しい円錐形の山容を誇り、新幹線や東京の高層ビル群からも望むことができる。',
+    url: 'https://ja.wikipedia.org/wiki/富士山',
+  },
+  '桜': {
+    title: '桜',
+    extract: 'サクラ（桜）は、バラ科サクラ属の植物の総称、またはその花である。春に咲くピンクや白の美しい花で広く親しまれており、日本の国花の一つとされる。春になると全国各地で「花見」の習慣が行われ、人々が集まって満開の桜を楽しむ伝統が古くから受け継がれている。',
+    url: 'https://ja.wikipedia.org/wiki/桜',
+  },
+  '東京': {
+    title: '東京',
+    extract: '東京（とうきょう）は、日本の首都であり、東京都の主要都市である。政治、経済、文化の中心地として世界最大級の都市圏を形成している。歴史ある神社仏閣と近代的な超高層ビル群が共存する世界有数の国際都市として、多くの観光客を魅了している。',
+    url: 'https://ja.wikipedia.org/wiki/東京',
+  },
+  '新幹線': {
+    title: '新幹線',
+    extract: '新幹線（しんかんせん）は、JRグループが運営する日本の高速鉄道システムである。1964年の東京オリンピックに合わせて東海道新幹線が開業して以来、高い安全性と世界トップレベルの定時運行率を維持しており、日本の高度経済成長を支えた技術の結晶として称えられている。',
+    url: 'https://ja.wikipedia.org/wiki/新幹線',
+  },
+};
+
+async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem | null> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch('https://ja.wikipedia.org/api/rest_v1/page/random/summary', {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+        signal,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.extract && data.extract.trim().length > 30 && data.type === 'standard') {
+          return {
+            title: data.title || data.displaytitle || 'Wikipedia',
+            extract: data.extract,
+            url: data.content_urls?.desktop?.page || `https://ja.wikipedia.org/wiki/${encodeURIComponent(data.title)}`,
+          };
+        }
+      }
+    } catch (err) {
+      if (signal.aborted) return null;
+      console.error('Random Wiki fetch error:', err);
+    }
+
+    if (signal.aborted) return null;
+  }
+
+  if (signal.aborted) return null;
+  const fallbackKeys = Object.keys(fallbackArticles);
+  const randomKey = fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
+  return fallbackArticles[randomKey];
+}
+
+export function HomePage({ initialQuery }: { initialQuery: string }) {
+  const router = useRouter();
+  const { isReady, progress } = useDictionary();
+  const query = initialQuery;
+  const [results, setResults] = useState<DictionarySearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const heroPointerFrame = useRef<number | null>(null);
+  const heroPointerPosition = useRef({ x: 0, y: 0 });
+
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
+
+  const [readingArticle, setReadingArticle] = useState<ArticleItem | null>(null);
+  const [readingLoading, setReadingLoading] = useState(false);
+  const articleRequestRef = useRef<AbortController | null>(null);
+
+  const commitSearch = (value: string) => {
+    router.push(searchHref(value));
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    heroPointerPosition.current = {
+      x: (e.clientX - rect.left) / rect.width - 0.5,
+      y: (e.clientY - rect.top) / rect.height - 0.5,
+    };
+
+    if (heroPointerFrame.current !== null) return;
+    heroPointerFrame.current = window.requestAnimationFrame(() => {
+      heroPointerFrame.current = null;
+      setMousePos(heroPointerPosition.current);
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (heroPointerFrame.current !== null) {
+      window.cancelAnimationFrame(heroPointerFrame.current);
+      heroPointerFrame.current = null;
+    }
+    heroPointerPosition.current = { x: 0, y: 0 };
+    setMousePos({ x: 0, y: 0 });
+  };
+
+  useEffect(() => () => {
+    if (heroPointerFrame.current !== null) {
+      window.cancelAnimationFrame(heroPointerFrame.current);
+    }
+  }, []);
+
+  const loadNewRandomArticle = useCallback(async () => {
+    articleRequestRef.current?.abort();
+    const controller = new AbortController();
+    articleRequestRef.current = controller;
+    setReadingLoading(true);
+
+    const article = await fetchRandomWikiArticle(controller.signal);
+    if (articleRequestRef.current !== controller) return;
+
+    articleRequestRef.current = null;
+    if (article) setReadingArticle(article);
+    setReadingLoading(false);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('yomuji_recent_searches');
+      if (saved) setRecentSearches(JSON.parse(saved));
+    } catch (err) {
+      console.error(err);
+    }
+
+    getWordOfTheDay().then(setWordOfTheDay);
+    loadNewRandomArticle();
+
+    return () => {
+      articleRequestRef.current?.abort();
+      articleRequestRef.current = null;
+    };
+  }, [loadNewRandomArticle]);
+
+  const handleNextArticle = () => {
+    loadNewRandomArticle();
+  };
+
+  const addRecentSearch = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setRecentSearches((prev) => {
+      const next = [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 8);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('yomuji_recent_searches', JSON.stringify(next));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      return next;
+    });
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('yomuji_recent_searches');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const playPronunciation = (text: string) => {
+    playJapaneseAudio(text);
+  };
+
+  useEffect(() => {
+    if (!isReady) return;
+    let cancelled = false;
+
+    async function run() {
+      setLoading(true);
+      const next = query.trim()
+        ? await searchDictionary(query, 12)
+        : await getPopularTerms(12);
+
+      if (!cancelled) {
+        setResults(next);
+        setLoading(false);
+        if (query.trim()) {
+          addRecentSearch(query.trim());
+        }
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [isReady, query]);
+
+  return (
+    <div className="pb-16">
+      <section
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
+      >
+        <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.22)_0%,transparent_65%)] blur-3xl" />
+
+          <div
+            className="absolute inset-0 transition-transform duration-500 ease-out"
+            style={{
+              transform: `translate3d(${mousePos.x * 12}px, ${mousePos.y * 12}px, 0)`,
+            }}
+          >
+            {decorativeKanji.map((item, index) => (
+              <span
+                key={`${item.char}-${index}`}
+                aria-hidden="true"
+                style={{
+                  top: item.top,
+                  left: item.left,
+                  right: item.right,
+                }}
+                className={`floating-kanji-char absolute jp-text font-black leading-none text-white ${item.size} ${item.opacity} ${item.anim} ${item.blur}`}
+              >
+                {item.char}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center">
+          <h1 className="max-w-3xl text-balance text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
+            Tra nhanh, hiểu sâu <span className="text-teal-200">tiếng Nhật</span>
+          </h1>
+
+          <p className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
+            Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
+          </p>
+
+          <div className="mt-6 w-full max-w-[800px] text-left">
+            <SearchInput
+              onSearch={commitSearch}
+              initialValue={query}
+              placeholder="Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt..."
+            />
+
+            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
+              <span className="text-teal-100">Thử tìm:</span>
+              {suggestionChips.map((word) => (
+                <button
+                  key={word}
+                  type="button"
+                  onClick={() => commitSearch(word)}
+                  className="tactile min-h-11 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-[1120px] px-4 py-8">
+        {query.trim() ? (
+          <section aria-label="Kết quả tìm kiếm">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+                  Kết quả tra cứu cho &ldquo;{query}&rdquo;
+                </h2>
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                  Tìm thấy {results.length} từ phù hợp trong dữ liệu
+                </p>
+              </div>
+            </div>
+
+            <div aria-live="polite">
+              {!isReady ? (
+                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                  {progress.message}
+                </div>
+              ) : loading ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="skeleton-quiet h-36 rounded-[--radius-lg] bg-[var(--color-surface-subtle)]" />
+                  ))}
+                </div>
+              ) : results.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {results.map((result, index) => (
+                    <div
+                      key={result.term.id}
+                      className={`result-enter ${index > 4 ? 'result-enter-fade' : ''}`}
+                      style={{ '--result-index': index } as CSSProperties}
+                    >
+                      <TermCard term={result.term} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                  Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
+                </div>
+              )}
+            </div>
+          </section>
+        ) : (
+          <div className="space-y-10">
+            {recentSearches.length > 0 && (
+              <section aria-label="Tìm kiếm gần đây">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-bold text-[var(--color-text-secondary)]">
+                    <ClockCounterClockwise size={18} weight="bold" className="text-[var(--color-primary-700)]" />
+                    <span>Tìm kiếm gần đây</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearRecentSearches}
+                    aria-label="Xóa toàn bộ lịch sử tìm kiếm"
+                    className="flex min-h-11 items-center gap-1 text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-error)]"
+                  >
+                    <Trash aria-hidden="true" size={14} />
+                    <span>Xóa lịch sử</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recentSearches.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => commitSearch(item)}
+                      className="surface-lift min-h-11 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)]"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Bento Grid Dashboard: Row 1 (Word of the day + Wikipedia Interactive Reader) */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2.2fr)] items-stretch">
+              {wordOfTheDay && (
+                <TiltCard className="p-6 sm:p-7 shadow-sm">
+                  <div className="flex h-full flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
+                          <Sparkle size={15} weight="fill" className="text-[var(--color-warning)]" />
+                          Từ vựng hôm nay
+                        </div>
+                        <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
+                          {wordOfTheDay.isCommon ? 'Phổ biến • N5' : 'JLPT'}
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-baseline gap-3">
+                            <motion.h3
+                              lang="ja"
+                              layoutId={`term-surface-${wordOfTheDay.id}`}
+                              className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
+                              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                            >
+                              {wordOfTheDay.surface}
+                            </motion.h3>
+                            <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                              {wordOfTheDay.reading}
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.meaningsVi.join(', ')}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
+                          <BookmarkButton word={wordOfTheDay.surface} />
+                        </div>
+                      </div>
+
+                      {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
+                        <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
+                          <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.examples[0].textJa}
+                          </p>
+                          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                            {wordOfTheDay.examples[0].textVi}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
+                      <Link
+                        href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                      >
+                        Xem chi tiết từ vựng
+                        <CaretRight size={14} weight="bold" />
+                      </Link>
+                    </div>
+                  </div>
+                </TiltCard>
+              )}
+
+              {/* Interactive Japanese Reader Box */}
+              <TiltCard className="p-6 sm:p-7 shadow-sm">
+                <InteractiveJapaneseReader
+                  title={readingArticle?.title || 'Đang tải...'}
+                  extract={readingArticle?.extract || ''}
+                  url={readingArticle?.url || ''}
+                  onRefresh={handleNextArticle}
+                  isLoading={readingLoading}
+                />
+              </TiltCard>
+            </div>
+
+            {/* Bento Grid Row 2: JLPT Quick Level Cards with Animated Number Counters */}
+            <section aria-label="Tra cứu theo cấp độ JLPT">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <GraduationCap size={20} weight="duotone" className="text-[var(--color-primary-700)]" />
+                  <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
+                    Lộ trình & Cấp độ JLPT
+                  </h3>
+                </div>
+                <Link
+                  href="/jlpt"
+                  className="text-xs font-bold text-[var(--color-primary-700)] hover:underline"
+                >
+                  Xem tổng quan →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+                {jlptLevels.map((jlpt, index) => (
+                  <Link
+                    key={jlpt.level}
+                    href="/jlpt"
+                    style={{ '--jlpt-color': jlpt.text, '--jlpt-bg': jlpt.background, '--jlpt-border': jlpt.border } as CSSProperties}
+                    className="surface-lift group relative overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--jlpt-border)]"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-xl font-black text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--jlpt-color)]">
+                        {jlpt.level}
+                      </span>
+                      <span className="rounded-full bg-[var(--jlpt-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--jlpt-color)]">
+                        {jlpt.label}
+                      </span>
+                    </div>
+
+                    <div className="mt-3">
+                      <div className="text-lg font-extrabold text-[var(--jlpt-color)]">
+                        ~<NumberTicker value={jlpt.count} delay={0.2 + index * 0.1} />
+                      </div>
+                      <span className="text-[11px] font-medium text-[var(--color-text-muted)]">
+                        từ vựng cốt lõi
+                      </span>
+                    </div>
+
+                    <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5 bg-[var(--jlpt-color)] opacity-60" />
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

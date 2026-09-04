@@ -1,43 +1,45 @@
-'use client';
-
-import React from 'react';
-import { MotionConfig } from 'motion/react';
-import { Toaster } from 'sonner';
-import { Navbar } from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
-import { ThemeManager } from '@/components/ThemeManager';
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import { RootShell } from '@/components/RootShell';
 import '@/app/globals.css';
+
+const title = 'YomuJi – Từ điển Nhật Việt hiện đại';
+const description = 'Tra nhanh, hiểu sâu tiếng Nhật với từ điển Nhật Việt YomuJi.';
+
+export const metadata: Metadata = {
+  title: {
+    default: title,
+    template: `%s | YomuJi`,
+  },
+  description,
+  applicationName: 'YomuJi',
+  icons: {
+    icon: '/Logo.png',
+    apple: '/Logo.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    siteName: 'YomuJi',
+    title,
+    description,
+  },
+  twitter: {
+    card: 'summary',
+    title,
+    description,
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="vi" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <ThemeManager />
-        <MotionConfig reducedMotion="user">
-          <Toaster position="top-right" richColors closeButton />
-          <div className="scroll-progress no-print" aria-hidden="true" />
-          <a href="#main-content" className="skip-link">
-            Nhảy đến nội dung chính
-          </a>
-          <Navbar />
-          <main id="main-content" className="min-h-[100dvh] pb-20 md:pb-0">
-            {children}
-          </main>
-          <div className="md:hidden">
-            <BottomNav />
-          </div>
-          <footer className="hidden border-t border-[var(--color-border-subtle)] bg-[var(--color-surface)] py-8 md:block">
-            <div className="mx-auto max-w-7xl px-4 text-center">
-              <p className="text-sm text-[var(--color-text-muted)]">
-                © {new Date().getFullYear()} YomuJi - Từ điển Nhật Việt hiện đại.
-              </p>
-            </div>
-          </footer>
-        </MotionConfig>
+        <RootShell>{children}</RootShell>
       </body>
     </html>
   );

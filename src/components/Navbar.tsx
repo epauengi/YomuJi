@@ -1,14 +1,13 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
-import { searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
-import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
-import { isRouteActive, navItems as navigationItems } from '@/lib/navigation';
+import { SearchInput } from '@/components/SearchInput';
+import { isRouteActive, navItems as navigationItems, searchHref } from '@/lib/navigation';
 
 const navItems = navigationItems.map((item) => ({
   ...item,
@@ -18,15 +17,18 @@ const navItems = navigationItems.map((item) => ({
 
 export function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const isHomepage = pathname === '/';
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <nav aria-label="Điều hướng chính" className="sticky top-0 z-[var(--z-sticky)] w-full border-b border-[var(--color-border-subtle)] bg-[var(--color-surface)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
-          {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group" onClick={() => setIsOpen(false)}>
+          <Link href="/" className="group flex shrink-0 items-center gap-3" onClick={() => setIsOpen(false)}>
             <div className="relative h-9 w-9 overflow-hidden rounded-[--radius-md]">
               <Image src="/Logo.png" alt="YomuJi Logo" fill sizes="36px" className="object-cover" />
             </div>
@@ -35,17 +37,15 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Search Bar in Middle (Wrapped in Suspense for Next.js App Router CSR compliance) */}
           {!isHomepage && (
-            <div className="hidden sm:block flex-1 max-w-md mx-2 md:mx-4">
+            <div className="mx-2 hidden min-w-0 max-w-md flex-1 sm:block md:mx-4">
               <Suspense fallback={<NavbarSearchInputFallback />}>
                 <NavbarSearchInput />
               </Suspense>
             </div>
           )}
 
-          {/* Navigation Links with Framer Motion Sliding Active Indicator */}
-          <div className="hidden items-center gap-1 md:flex shrink-0">
+          <div className="hidden shrink-0 items-center gap-1 md:flex">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = isRouteActive(pathname, item.href);
@@ -83,50 +83,27 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setIsOpen((value) => !value)}
-            className="flex h-11 w-11 items-center justify-center rounded-[--radius-md] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-subtle)] md:hidden"
-            aria-label={isOpen ? 'Đóng menu' : 'Mở menu'}
-            aria-expanded={isOpen}
-          >
-            {isOpen ? <X size={24} /> : <List size={24} />}
-          </button>
+          {!isHomepage && (
+            <button
+              type="button"
+              onClick={() => setIsOpen((value) => !value)}
+              className="flex h-11 w-11 items-center justify-center rounded-[--radius-md] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-subtle)] sm:hidden"
+              aria-label={isOpen ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
+              aria-controls={isOpen ? 'navbar-search-drawer' : undefined}
+              aria-expanded={isOpen}
+            >
+              {isOpen ? <X aria-hidden="true" size={24} /> : <List aria-hidden="true" size={24} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {isOpen && (
-        <div className="border-t border-[var(--color-border)] bg-[var(--color-surface)] md:hidden">
-          <div className="mx-auto flex max-w-7xl flex-col gap-2 px-3 py-3">
-            {!isHomepage && (
-              <div className="mb-2 sm:hidden">
-                <Suspense fallback={<NavbarSearchInputFallback />}>
-                  <NavbarSearchInput onSearchComplete={() => setIsOpen(false)} />
-                </Suspense>
-              </div>
-            )}
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = isRouteActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex min-h-12 items-center gap-3 rounded-[--radius-md] px-3 text-base font-medium transition-colors ${
-                    isActive
-                      ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
-                      : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  <Icon size={20} weight={isActive ? 'fill' : 'regular'} />
-                  {item.label}
-                </Link>
-              );
-            })}
+      {isOpen && !isHomepage && (
+        <div id="navbar-search-drawer" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] sm:hidden">
+          <div className="mx-auto max-w-7xl px-3 py-3">
+            <Suspense fallback={<NavbarSearchInputFallback />}>
+              <NavbarSearchInput onSearchComplete={() => setIsOpen(false)} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -136,9 +113,9 @@ export function Navbar() {
 
 function NavbarSearchInputFallback() {
   return (
-    <div className="relative flex items-center w-full">
-      <div className="absolute left-3 flex items-center pointer-events-none text-[var(--color-primary-700)]">
-        <MagnifyingGlass size={17} weight="bold" />
+    <div className="relative flex w-full items-center">
+      <div className="pointer-events-none absolute left-3 flex items-center text-[var(--color-primary-700)]">
+        <MagnifyingGlass aria-hidden="true" size={17} weight="bold" />
       </div>
       <input
         type="text"
@@ -154,195 +131,16 @@ function NavbarSearchInputFallback() {
 function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const statusId = React.useId();
-  const initialQ = searchParams?.get('q') || '';
-  const [query, setQuery] = React.useState(initialQ);
-  const [isFocused, setIsFocused] = React.useState(false);
-  const [termResults, setTermResults] = React.useState<DictionarySearchResult[]>([]);
-  const [kanjiResults, setKanjiResults] = React.useState<KanjiDictionarySearchResult[]>([]);
-  const [isResolving, setIsResolving] = React.useState(false);
-  const [searchFailed, setSearchFailed] = React.useState(false);
-  const blurTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  React.useEffect(() => {
-    setQuery(initialQ);
-  }, [initialQ]);
-
-  // Live debounced search for autocomplete suggestions
-  React.useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      setTermResults([]);
-      setKanjiResults([]);
-      setIsResolving(false);
-      setSearchFailed(false);
-      return;
-    }
-
-    let isCancelled = false;
-    setIsResolving(true);
-    setSearchFailed(false);
-    const timer = setTimeout(async () => {
-      try {
-        const [terms, kanji] = await Promise.all([
-          searchDictionary(trimmed, 4),
-          searchKanjiDictionary(trimmed, 3),
-        ]);
-        if (!isCancelled) {
-          setTermResults(terms || []);
-          setKanjiResults(kanji || []);
-        }
-      } catch (err) {
-        console.error('Navbar search error:', err);
-        if (!isCancelled) {
-          setTermResults([]);
-          setKanjiResults([]);
-          setSearchFailed(true);
-        }
-      } finally {
-        if (!isCancelled) setIsResolving(false);
-      }
-    }, 100);
-
-    return () => {
-      isCancelled = true;
-      clearTimeout(timer);
-    };
-  }, [query]);
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const trimmed = query.trim();
-    if (trimmed) {
-      router.push(`/?q=${encodeURIComponent(trimmed)}`);
-      setIsFocused(false);
-      onSearchComplete?.();
-    }
-  };
-
-  const handleClear = () => {
-    setQuery('');
-    setTermResults([]);
-    setKanjiResults([]);
-  };
-
-  const handleFocus = () => {
-    if (blurTimer.current) clearTimeout(blurTimer.current);
-    setIsFocused(true);
-  };
-
-  const handleBlur = () => {
-    blurTimer.current = setTimeout(() => setIsFocused(false), 200);
-  };
-
-  const resultCount = termResults.length + kanjiResults.length;
-  const hasQuery = query.trim().length >= 1;
-  const hasSuggestions = isFocused && hasQuery && !isResolving && resultCount > 0;
-  const resultStatus = !hasQuery
-    ? ''
-    : isResolving
-      ? 'Đang tìm trong từ điển'
-      : searchFailed
-        ? 'Chưa thể tải gợi ý tìm kiếm'
-        : resultCount
-          ? `${resultCount} kết quả từ điển`
-          : 'Không có kết quả phù hợp';
+  const initialQuery = searchParams?.get('q') || '';
 
   return (
-    <div className="relative w-full">
-      <form onSubmit={handleSubmit} className="relative flex items-center w-full">
-        <div className="absolute left-3 flex items-center pointer-events-none text-[var(--color-primary-700)]">
-          <MagnifyingGlass aria-hidden="true" size={17} weight="bold" />
-        </div>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder="Tra từ vựng, Kanji, Hán Việt..."
-          aria-label="Tra từ vựng hoặc Kanji"
-          aria-describedby={statusId}
-          autoComplete="off"
-          className="h-11 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-11 text-sm text-[var(--color-text-primary)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-500)] focus:bg-[var(--color-surface)] focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-0 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
-            aria-label="Xóa nội dung tìm kiếm"
-          >
-            <X aria-hidden="true" size={13} />
-          </button>
-        )}
-      </form>
-      <span id={statusId} role="status" aria-live="polite" className="sr-only">
-        {resultStatus}
-      </span>
-
-      {/* Autocomplete Dropdown */}
-      {hasSuggestions && (
-        <div className="content-rise absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]">
-          <div className="max-h-80 overflow-y-auto py-1 text-sm">
-            {termResults.length > 0 && (
-              <div>
-                <div className="px-3 py-1 text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider bg-[var(--color-surface-subtle)]">
-                  Từ vựng
-                </div>
-                {termResults.map((res) => (
-                  <Link
-                    key={res.term.id}
-                    href={`/word/${encodeURIComponent(res.term.id)}`}
-                    onClick={() => {
-                      setIsFocused(false);
-                      onSearchComplete?.();
-                    }}
-                    className="flex min-h-11 items-baseline justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
-                  >
-                    <div className="flex items-baseline gap-2 min-w-0">
-                      <span lang="ja" className="jp-text font-semibold text-[var(--color-text-primary)]">{res.term.surface}</span>
-                      <span lang="ja" className="jp-text text-xs text-[var(--color-text-muted)]">{res.term.reading}</span>
-                    </div>
-                    <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[140px]">
-                      {res.term.meaningsVi[0]}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {kanjiResults.length > 0 && (
-              <div>
-                <div className="px-3 py-1 text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider bg-[var(--color-surface-subtle)]">
-                  Hán tự
-                </div>
-                {kanjiResults.map((res) => (
-                  <Link
-                    key={res.kanji.literal}
-                    href={`/kanji/${encodeURIComponent(res.kanji.literal)}`}
-                    onClick={() => {
-                      setIsFocused(false);
-                      onSearchComplete?.();
-                    }}
-                    className="flex min-h-11 items-center justify-between gap-2 px-3 py-2 hover:bg-[var(--color-primary-50)] transition-colors"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span lang="ja" className="jp-text text-base font-bold text-[var(--color-primary-800)]">{res.kanji.literal}</span>
-                      <span className="text-xs font-medium text-[var(--color-text-primary)]">
-                        {res.kanji.hanViet.join(', ')}
-                      </span>
-                    </div>
-                    <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[140px]">
-                      {res.kanji.meanings[0]}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+    <SearchInput
+      variant="compact"
+      initialValue={initialQuery}
+      placeholder="Tra từ vựng, Kanji, Hán Việt..."
+      onSearch={(query) => router.push(searchHref(query))}
+      onNavigate={onSearchComplete}
+      onClear={onSearchComplete}
+    />
   );
 }

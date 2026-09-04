@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ClockCounterClockwise, MagnifyingGlass, Trash } from '@phosphor-icons/react';
+import { searchHref } from '@/lib/navigation';
 
 const STORAGE_KEY = 'yomuji_recent_searches';
 
@@ -72,7 +73,7 @@ export default function HistoryPage() {
             <ul className="space-y-3">
               {recentSearches.map((query) => (
                 <li key={query} className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 transition-colors hover:border-[var(--color-primary-300)]">
-                  <Link href={`/?q=${encodeURIComponent(query)}`} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-lg px-2">
+                  <Link href={searchHref(query)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-lg px-2">
                     <MagnifyingGlass aria-hidden="true" className="h-4 w-4 shrink-0 text-[var(--color-text-muted)]" />
                     <span className="truncate font-medium">{query}</span>
                   </Link>

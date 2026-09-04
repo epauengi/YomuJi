@@ -11,6 +11,9 @@ interface SearchInputProps {
   placeholder?: string;
   className?: string;
   initialValue?: string;
+  variant?: 'default' | 'compact';
+  onNavigate?: () => void;
+  onClear?: () => void;
 }
 
 type CommandItem =
@@ -22,6 +25,9 @@ export function SearchInput({
   placeholder = 'Tìm kiếm từ vựng, kanji...',
   className = '',
   initialValue = '',
+  variant = 'default',
+  onNavigate,
+  onClear,
 }: SearchInputProps) {
   const router = useRouter();
   const listboxId = useId();
@@ -55,8 +61,8 @@ export function SearchInput({
       setSearchFailed(false);
       try {
         const [terms, kanji] = await Promise.all([
-          searchDictionary(trimmed, 7),
-          searchKanjiDictionary(trimmed, 5),
+          searchDictionary(trimmed, variant === 'compact' ? 4 : 7),
+          searchKanjiDictionary(trimmed, variant === 'compact' ? 3 : 5),
         ]);
         if (!cancelled) {
           setTermSuggestions(terms || []);
@@ -81,7 +87,7 @@ export function SearchInput({
       setIsResolving(false);
       clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, variant]);
 
   const commandItems = useMemo<CommandItem[]>(() => [
     ...termSuggestions.map((result) => ({
@@ -118,6 +124,7 @@ export function SearchInput({
     if (!trimmed) return;
     onSearch(trimmed);
     setIsFocused(false);
+    onNavigate?.();
   };
 
   const handleClear = () => {
@@ -126,7 +133,9 @@ export function SearchInput({
     setKanjiSuggestions([]);
     setActiveIndex(-1);
     setSearchFailed(false);
+    setIsFocused(false);
     onSearch('');
+    onClear?.();
   };
 
   const handleFocus = () => {
@@ -141,12 +150,19 @@ export function SearchInput({
   const openActiveItem = () => {
     if (!activeItem) return;
     router.push(activeItem.href);
+    setIsFocused(false);
+    onNavigate?.();
   };
+
+  const compact = variant === 'compact';
+  const panelClassName = compact
+    ? 'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]'
+    : 'absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]';
 
   return (
     <form
       onSubmit={handleSearch}
-      className={`search-shell group relative z-50 mx-auto flex w-full max-w-[800px] items-center rounded-[--radius-lg] border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[--duration-fast] ${
+      className={`search-shell group relative z-50 mx-auto flex w-full ${compact ? 'max-w-none rounded-[--radius-md]' : 'max-w-[800px] rounded-[--radius-lg]'} items-center border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[--duration-fast] ${
         isFocused
           ? 'border-[var(--color-primary-400)]'
           : 'border-[var(--color-border-strong)] hover:border-[var(--color-primary-400)]'
@@ -165,16 +181,21 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className="h-13 w-full min-w-0 border-0 bg-transparent px-3 text-base text-[var(--color-text-primary)] shadow-none outline-none placeholder:text-[var(--color-text-muted)]"
+          className={`${compact ? 'h-11 text-sm' : 'h-13 text-base'} w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none placeholder:text-[var(--color-text-muted)]`}
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
-          aria-expanded={showSuggestions}
-          aria-controls={showSuggestions ? listboxId : undefined}
+          aria-expanded={showPanel}
+          aria-controls={showPanel ? listboxId : undefined}
           aria-describedby={statusId}
           aria-autocomplete="list"
-          aria-activedescendant={showSuggestions && activeItem ? activeItem.id : undefined}
+          aria-activedescendant={showPanel && activeItem ? activeItem.id : undefined}
           onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsFocused(false);
+              return;
+            }
+
             if (!showSuggestions) {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -189,8 +210,6 @@ export function SearchInput({
             } else if (e.key === 'ArrowUp') {
               e.preventDefault();
               setActiveIndex((value) => Math.max(value - 1, 0));
-            } else if (e.key === 'Escape') {
-              setIsFocused(false);
             } else if (e.key === 'Enter') {
               e.preventDefault();
               openActiveItem();
@@ -223,10 +242,10 @@ export function SearchInput({
         type="submit"
         disabled={!hasQuery}
         aria-label="Tìm kiếm"
-        className="h-13 shrink-0 rounded-r-[--radius-lg] border-0 bg-[var(--color-action-primary)] px-5 font-semibold text-white transition-colors duration-[--duration-fast] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:px-7"
+        className={`${compact ? 'h-11 rounded-r-[--radius-md] px-3' : 'h-13 rounded-r-[--radius-lg] px-5 sm:px-7'} shrink-0 border-0 bg-[var(--color-action-primary)] font-semibold text-white transition-colors duration-[--duration-fast] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50`}
       >
-        <span className="hidden sm:inline">Tìm kiếm</span>
-        <MagnifyingGlass aria-hidden="true" size={18} className="sm:hidden" />
+        <span className={compact ? 'sr-only' : 'hidden sm:inline'}>Tìm kiếm</span>
+        <MagnifyingGlass aria-hidden="true" size={18} className={compact ? '' : 'sm:hidden'} />
       </button>
 
       <span id={statusId} role="status" aria-live="polite" className="sr-only">
@@ -235,7 +254,7 @@ export function SearchInput({
 
       {/* Autocomplete Suggestions Dropdown */}
       {showPanel && (
-        <div className="content-rise absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]">
+        <div className={`content-rise ${panelClassName}`}>
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Sparkle aria-hidden="true" size={13} weight="duotone" />
@@ -246,8 +265,8 @@ export function SearchInput({
             </span>
           </div>
           {commandItems.length ? (
-            <div className="grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_240px]">
-              <div id={listboxId} role="listbox" className="min-w-0 py-1">
+            <div className={`grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto ${compact ? '' : 'lg:grid-cols-[minmax(0,1fr)_240px]'}`}>
+              <div id={listboxId} role="listbox" aria-label="Gợi ý tìm kiếm" className="min-w-0 py-1">
                 <SuggestionSection
                   title="Từ vựng"
                   emptyLabel="Không có từ phù hợp"
@@ -259,7 +278,11 @@ export function SearchInput({
                   }))}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={(href) => router.push(href)}
+                  onOpen={(href) => {
+                    router.push(href);
+                    setIsFocused(false);
+                    onNavigate?.();
+                  }}
                 />
 
                 <SuggestionSection
@@ -273,16 +296,20 @@ export function SearchInput({
                   }))}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={(href) => router.push(href)}
+                  onOpen={(href) => {
+                    router.push(href);
+                    setIsFocused(false);
+                    onNavigate?.();
+                  }}
                 />
               </div>
 
-              <SuggestionPreview item={activeItem} query={query} />
+              {!compact && <SuggestionPreview item={activeItem} query={query} />}
             </div>
           ) : (
-            <p className="px-4 py-5 text-sm text-[var(--color-text-secondary)]">
+            <div id={listboxId} role="listbox" aria-label="Gợi ý tìm kiếm" className="px-4 py-5 text-sm text-[var(--color-text-secondary)]">
               {searchFailed ? 'Chưa thể tải gợi ý. Nhấn Tìm kiếm để thử tra cứu đầy đủ.' : 'Không có kết quả phù hợp.'}
-            </p>
+            </div>
           )}
         </div>
       )}
