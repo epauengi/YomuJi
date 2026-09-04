@@ -181,7 +181,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className={`${compact ? 'h-11 text-sm' : 'h-13 text-base'} w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none placeholder:text-[var(--color-text-muted)]`}
+          className={`${compact ? 'h-11 text-sm' : 'h-13 text-base'} w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
