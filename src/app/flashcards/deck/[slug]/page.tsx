@@ -10,7 +10,8 @@ import { playJapaneseAudio } from '@/lib/tts';
 
 export default function DeckDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const rawSlug = params.slug;
+  const slug = (Array.isArray(rawSlug) ? rawSlug[0] : rawSlug) || '';
   const [isStudying, setIsStudying] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);

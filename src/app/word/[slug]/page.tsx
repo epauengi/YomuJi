@@ -12,7 +12,9 @@ import { useWordDetail } from '@/hooks/useDictionary';
 
 export default function WordDetailPage() {
   const params = useParams();
-  const id = decodeURIComponent(params.slug as string);
+  const rawSlug = params.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+  const id = decodeURIComponent(slug || '');
   const { term, status, error, retry } = useWordDetail(id);
 
   if (status === 'loading') {

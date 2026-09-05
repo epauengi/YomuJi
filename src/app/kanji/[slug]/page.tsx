@@ -28,7 +28,9 @@ function looksVietnamese(text: string) {
 export default function KanjiDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const literal = decodeURIComponent(params.slug as string);
+  const rawSlug = params.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+  const literal = decodeURIComponent(slug || '');
   const { kanji, compounds, status, error, retry } = useKanjiDetail(literal);
   const [query, setQuery] = useState(literal);
 
