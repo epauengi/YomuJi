@@ -17,6 +17,7 @@ interface SearchInputProps {
 }
 
 type CommandItem =
+  | { kind: 'search'; id: string }
   | { kind: 'term'; id: string; href: string; result: DictionarySearchResult }
   | { kind: 'kanji'; id: string; href: string; result: KanjiDictionarySearchResult };
 
@@ -89,7 +90,9 @@ export function SearchInput({
     };
   }, [query, variant]);
 
+  const suggestionCount = termSuggestions.length + kanjiSuggestions.length;
   const commandItems = useMemo<CommandItem[]>(() => [
+    ...(suggestionCount ? [{ kind: 'search' as const, id: `${listboxId}-search-all` }] : []),
     ...termSuggestions.map((result) => ({
       kind: 'term' as const,
       id: `term-${result.term.id}`,
@@ -102,7 +105,7 @@ export function SearchInput({
       href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
       result,
     })),
-  ], [termSuggestions, kanjiSuggestions]);
+  ], [kanjiSuggestions, listboxId, suggestionCount, termSuggestions]);
 
   const activeItem = activeIndex >= 0 ? commandItems[activeIndex] : commandItems[0];
   const hasQuery = query.trim().length >= 1;
@@ -114,8 +117,8 @@ export function SearchInput({
       ? 'Đang tìm trong từ điển'
       : searchFailed
         ? 'Chưa thể tải gợi ý tìm kiếm'
-        : commandItems.length
-          ? `${commandItems.length} kết quả từ điển`
+        : suggestionCount
+          ? `${suggestionCount} kết quả từ điển`
           : 'Không có kết quả phù hợp';
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -149,6 +152,11 @@ export function SearchInput({
 
   const openActiveItem = () => {
     if (!activeItem) return;
+    if (activeItem.kind === 'search') {
+      handleSearch();
+      return;
+    }
+
     router.push(activeItem.href);
     setIsFocused(false);
     onNavigate?.();
@@ -258,15 +266,42 @@ export function SearchInput({
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Sparkle aria-hidden="true" size={13} weight="duotone" />
-              {searchFailed ? 'Chưa thể tải gợi ý' : commandItems.length ? `${commandItems.length} kết quả từ điển` : 'Không có kết quả'}
+              {searchFailed ? 'Chưa thể tải gợi ý' : suggestionCount ? `${suggestionCount} kết quả từ điển` : 'Không có kết quả'}
             </span>
             <span className="hidden items-center gap-1 sm:inline-flex">
-              dùng phím mũi tên <KeyReturn aria-hidden="true" size={13} />
+              <KeyReturn aria-hidden="true" size={13} /> để tra · mũi tên để chọn
             </span>
           </div>
           {commandItems.length ? (
             <div className={`grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto ${compact ? '' : 'lg:grid-cols-[minmax(0,1fr)_240px]'}`}>
               <div id={listboxId} role="listbox" aria-label="Gợi ý tìm kiếm" className="min-w-0 py-1">
+                <button
+                  id={`${listboxId}-search-all`}
+                  type="button"
+                  role="option"
+                  tabIndex={-1}
+                  aria-selected={activeIndex === 0}
+                  onMouseEnter={() => setActiveIndex(0)}
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={() => handleSearch()}
+                  className={`relative flex min-h-14 w-full items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 py-2.5 text-left transition-colors ${
+                    activeIndex === 0 ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
+                  }`}
+                >
+                  {activeIndex === 0 && (
+                    <span aria-hidden="true" className="absolute left-0 top-2 h-[calc(100%-16px)] w-1 rounded-r-full bg-[var(--color-primary-600)]" />
+                  )}
+                  <span className="min-w-0 pl-1">
+                    <span className="block text-sm font-semibold text-[var(--color-text-primary)]">
+                      Xem tất cả kết quả cho <span className="break-words font-bold">&ldquo;{query.trim()}&rdquo;</span>
+                    </span>
+                    <span className="mt-0.5 block text-xs text-[var(--color-text-secondary)]">Tra cứu đầy đủ theo cụm từ đã nhập</span>
+                  </span>
+                  <span className="hidden shrink-0 items-center gap-1 text-xs font-medium text-[var(--color-primary-700)] sm:inline-flex">
+                    <KeyReturn aria-hidden="true" size={14} /> Tra đầy đủ
+                  </span>
+                </button>
+
                 <SuggestionSection
                   title="Từ vựng"
                   emptyLabel="Không có từ phù hợp"
@@ -421,6 +456,22 @@ function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResul
 
 function SuggestionPreview({ item, query }: { item?: CommandItem; query: string }) {
   if (!item) return null;
+
+  if (item.kind === 'search') {
+    return (
+      <aside className="hidden border-l border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 lg:block">
+        <div className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary-700)]">Tra cứu đầy đủ</div>
+        <div className="mt-3 break-words text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">&ldquo;{query.trim()}&rdquo;</div>
+        <p className="mt-4 text-sm leading-6 text-[var(--color-text-secondary)]">
+          Xem tất cả từ vựng và Hán tự phù hợp với cụm từ đã nhập.
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+          <KeyReturn aria-hidden="true" size={14} />
+          Enter để tra đầy đủ
+        </div>
+      </aside>
+    );
+  }
 
   if (item.kind === 'kanji') {
     const kanji = item.result.kanji;
