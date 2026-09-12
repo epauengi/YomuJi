@@ -8,6 +8,7 @@ import { AudioButton } from '@/components/AudioButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { Furigana } from '@/components/ui/Furigana';
 import { useWordDetail } from '@/hooks/useDictionary';
 
 export default function WordDetailPage() {
@@ -64,7 +65,7 @@ export default function WordDetailPage() {
                 className="jp-text text-4xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] md:text-5xl"
                 transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               >
-                {term.surface}
+                <Furigana kanji={term.surface} reading={term.reading !== term.surface ? term.reading : ''} />
               </motion.h1>
               {term.isCommon && <Badge variant="success">Phổ biến</Badge>}
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ShareNetwork, Sparkle } from '@phosphor-icons/react';
@@ -27,12 +27,10 @@ function looksVietnamese(text: string) {
 
 export default function KanjiDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const rawSlug = params.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
   const literal = decodeURIComponent(slug || '');
   const { kanji, compounds, status, error, retry } = useKanjiDetail(literal);
-  const [query, setQuery] = useState(literal);
 
   // AI Explanation State
   const [showAiBox, setShowAiBox] = useState(false);
@@ -41,7 +39,6 @@ export default function KanjiDetailPage() {
   const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
-    setQuery(literal);
     setShowAiBox(false);
     setAiExplanation(null);
     setAiError(null);
@@ -108,12 +105,6 @@ export default function KanjiDetailPage() {
   const meanings = useMemo(() => (kanji?.meanings || []).filter(looksVietnamese), [kanji]);
   const analysisLabel = kanji?.components.length ? kanji.components.join(' + ') : `${literal} (bộ thủ)`;
 
-  function submitSearch(event: React.FormEvent) {
-    event.preventDefault();
-    const nextQuery = query.trim();
-    if (nextQuery) router.push(`/?q=${encodeURIComponent(nextQuery)}`);
-  }
-
   if (status === 'loading') {
     return <Centered title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
   }
@@ -140,31 +131,31 @@ export default function KanjiDetailPage() {
         1 kết quả của Hán tự <span lang="ja" className="jp-text font-semibold text-[var(--color-primary-700)]">{kanji.literal}</span>
       </div>
 
-      <div className="content-rise grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-        <div className="min-w-0">
-          <header className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-7">
-            <div className="flex min-w-0 items-start gap-5 sm:gap-7">
-              <motion.h1
-                layoutId={`kanji-literal-${kanji.literal}`}
-                lang="ja"
-                className="jp-text text-7xl font-medium leading-none text-[var(--color-primary-800)] sm:text-8xl"
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              >
-                {kanji.literal}
-              </motion.h1>
-              <div className="min-w-0 pt-1">
-                <div className="text-2xl font-medium leading-tight text-[var(--color-text-primary)] sm:text-3xl">
-                  {kanji.hanViet.join(', ') || 'Không rõ'}
-                </div>
-                <p className="mt-2 max-w-xl text-base leading-7 text-[var(--color-text-secondary)]">
-                  {meanings.slice(0, 4).join(', ') || 'Chưa có nghĩa tiếng Việt trong dữ liệu hiện tại.'}
-                </p>
-              </div>
+      <header className="content-rise mb-8 flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-7">
+        <div className="flex min-w-0 items-start gap-5 sm:gap-7">
+          <motion.h1
+            layoutId={`kanji-literal-${kanji.literal}`}
+            lang="ja"
+            className="jp-text text-7xl font-medium leading-none text-[var(--color-primary-800)] sm:text-8xl"
+            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+          >
+            {kanji.literal}
+          </motion.h1>
+          <div className="min-w-0 pt-1">
+            <div className="text-2xl font-medium leading-tight text-[var(--color-text-primary)] sm:text-3xl">
+              {kanji.hanViet.join(', ') || 'Không rõ'}
             </div>
-            <BookmarkButton word={kanji.literal} variant="star" size="lg" title="Lưu Hán tự" />
-          </header>
+            <p className="mt-2 max-w-xl text-base leading-7 text-[var(--color-text-secondary)]">
+              {meanings.slice(0, 4).join(', ') || 'Chưa có nghĩa tiếng Việt trong dữ liệu hiện tại.'}
+            </p>
+          </div>
+        </div>
+        <BookmarkButton word={kanji.literal} variant="star" size="lg" title="Lưu Hán tự" />
+      </header>
 
-          <div className="mt-7 flex flex-col gap-6">
+      <div className="content-rise grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <div className="order-2 min-w-0 lg:order-1">
+          <div className="flex flex-col gap-6">
             <ReadingLine label="On" values={kanji.onReadings} lang="ja" type="on" />
             <ReadingLine label="Kun" values={kanji.kunReadings} lang="ja" type="kun" />
 
@@ -285,7 +276,7 @@ export default function KanjiDetailPage() {
           </div>
         </div>
 
-        <aside className="lg:sticky lg:top-24">
+        <aside className="order-1 lg:order-2 lg:sticky lg:top-24">
           <StrokeAnimator
             literal={kanji.literal}
             strokePaths={kanji.strokePaths}
