@@ -87,11 +87,17 @@ export default function SettingsPage() {
     || progress.status === 'downloading'
     || progress.status === 'indexing';
   const hasError = progress.status === 'error';
-  const dataSummary = manifest
-    ? `${manifest.totals.terms.toLocaleString('vi-VN')} mục từ · ${manifest.totals.kanji.toLocaleString('vi-VN')} Kanji`
-    : isReady
-      ? 'Tra cứu trực tuyến sẵn sàng; chưa có thông tin dữ liệu dự phòng.'
-      : progress.message;
+  const dataSummary = progress.source === 'api'
+    ? 'Đã kết nối máy chủ từ điển trực tuyến.'
+    : progress.source === 'offline'
+      ? manifest
+        ? `Đang dùng dữ liệu offline trên thiết bị (${manifest.totals.terms.toLocaleString('vi-VN')} mục từ · ${manifest.totals.kanji.toLocaleString('vi-VN')} Kanji).`
+        : 'Đang dùng dữ liệu offline trên thiết bị.'
+      : isChecking
+        ? progress.message
+        : manifest
+          ? `${manifest.totals.terms.toLocaleString('vi-VN')} mục từ · ${manifest.totals.kanji.toLocaleString('vi-VN')} Kanji`
+          : progress.message;
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] pb-20">
@@ -201,7 +207,7 @@ export default function SettingsPage() {
                   className={`${isChecking ? 'status-dot' : ''} h-2 w-2 rounded-full ${hasError ? 'bg-[var(--color-error)]' : isChecking ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-success)]'}`}
                 />
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {manifest?.dataVersion || (isReady ? 'Trực tuyến' : 'Chưa sẵn sàng')}
+                  {manifest?.dataVersion || (progress.source === 'api' ? 'Trực tuyến' : progress.source === 'offline' ? 'Offline cục bộ' : 'Chưa xác nhận')}
                 </span>
               </div>
             </div>

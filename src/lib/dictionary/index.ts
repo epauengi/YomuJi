@@ -3,8 +3,20 @@ import type { DictionaryRepository } from './types';
 import { SupabaseDictionaryRepository } from './supabaseRepository';
 import { TursoDictionaryRepository } from './tursoRepository';
 import { CompareDictionaryRepository } from './compareRepository';
+import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 let cachedRepository: DictionaryRepository | null = null;
+
+export function isDictionaryBackendConfigured(): boolean {
+  const backend = (process.env.DICTIONARY_BACKEND || 'supabase').toLowerCase().trim();
+  if (backend === 'turso') {
+    return Boolean(process.env.TURSO_DATABASE_URL);
+  }
+  if (backend === 'compare') {
+    return isSupabaseConfigured && Boolean(process.env.TURSO_DATABASE_URL);
+  }
+  return isSupabaseConfigured;
+}
 
 export function getDictionaryRepository(): DictionaryRepository {
   if (cachedRepository) return cachedRepository;

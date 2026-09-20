@@ -15,6 +15,34 @@ import type {
   DictionaryShard,
   DictionaryShardPayload,
 } from '@/types/dictionary';
+import {
+  classifyTermMatch,
+  normalizeKanjiRecord,
+  normalizeKanjiSearchResult,
+  normalizeQuery,
+  normalizeSearchResult,
+  normalizeTermRecord,
+} from '@/lib/dictionary/formatters';
+
+export { normalizeQuery } from '@/lib/dictionary/formatters';
+export type { DictionarySource } from '@/types/dictionary';
+import type { DictionarySource } from '@/types/dictionary';
+
+function setDictionarySource(source: DictionarySource) {
+  updateProgress({ source });
+}
+
+function isSearchResponse(value: unknown): value is {
+  source?: 'api';
+  terms: DictionarySearchResult[];
+  kanji: KanjiDictionarySearchResult[];
+} {
+  return isRecord(value)
+    && Array.isArray(value.terms)
+    && Array.isArray(value.kanji)
+    && value.terms.every((result) => isRecord(result) && isTermRecord(result.term))
+    && value.kanji.every((result) => isRecord(result) && isKanjiRecord(result.kanji));
+}
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 // ── In-Memory Cache ─────────────────────────────────────────────────────────
@@ -39,6 +67,7 @@ function notifyListeners() {
 
 let globalProgress: DictionaryProgress = {
   status: 'idle',
+  source: 'unknown',
   message: 'Đang chuẩn bị từ điển...',
   downloadedBytes: 0,
   totalBytes: 0,
@@ -56,16 +85,6 @@ function getErrorMessage(error: unknown) {
 }
 
 // ── Normalize Query ─────────────────────────────────────────────────────────
-
-export function normalizeQuery(str: string): string {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[\s\-_.,!?]/g, '');
-}
 
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
@@ -383,16 +402,6 @@ export function initDictionary(): Promise<void> {
   initializationPromise = (async () => {
     updateProgress({ status: 'checking', message: 'Đang kiểm tra dữ liệu từ điển...', error: undefined });
 
-    if (isSupabaseConfigured) {
-      isInitialized = true;
-      updateProgress({
-        status: 'ready',
-        message: 'Từ điển trực tuyến sẵn sàng.',
-        error: undefined,
-      });
-      return;
-    }
-
     await hydrateCachedDictionary();
     if (isInitialized) {
       updateProgress({
@@ -470,51 +479,30 @@ export async function searchDictionary(query: string, limit = 50): Promise<Dicti
     const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`);
     if (apiResponse.ok) {
       const value: unknown = await apiResponse.json();
-      if (isRecord(value) && Array.isArray(value.terms) && value.terms.length > 0) {
-        return value.terms as DictionarySearchResult[];
+      if (isSearchResponse(value)) {
+        setDictionarySource('api');
+        return value.terms.slice(0, limit).map(normalizeSearchResult);
       }
     }
   } catch {
     // Network failure falls through to the static index.
   }
 
+  setDictionarySource('offline');
   if (globalSearchIndex.length === 0) await ensureStaticDictionaryReady();
 
   const results: DictionarySearchResult[] = [];
 
   for (const entry of globalSearchIndex) {
-    const normSurface = normalizeQuery(entry.surface);
-    const normReading = normalizeQuery(entry.reading);
-    const normRomaji = normalizeQuery(entry.romaji);
-    const isExactSurface = normSurface === normalized;
-    const isExactReading = normReading === normalized;
-    const isExactRomaji = normRomaji === normalized;
-    const isPrefixSurface = normSurface.startsWith(normalized);
-    const isPrefixReading = normReading.startsWith(normalized);
-    const isMeaningMatch = entry.meaningsPreview.some((meaning) => normalizeQuery(meaning).includes(normalized));
-    const isTokenMatch = entry.tokens.some((token) => normalizeQuery(token).includes(normalized));
-    let score = 0;
-    let matchType: DictionarySearchResult['matchType'] = 'partial';
-
-    if (isExactSurface) {
-      score = 20000 + entry.score;
-      matchType = 'exact-surface';
-    } else if (isExactReading) {
-      score = 15000 + entry.score;
-      matchType = 'exact-reading';
-    } else if (isExactRomaji) {
-      score = 12000 + entry.score;
-      matchType = 'exact-romaji';
-    } else if (isPrefixSurface || isPrefixReading) {
-      score = 8000 + entry.score;
-      matchType = 'prefix';
-    } else if (isMeaningMatch || isTokenMatch) {
-      score = 2000 + entry.score;
-    }
-
-    if (score > 0) {
-      const termRecord = globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry);
-      results.push({ term: termRecord, score, matchType });
+    const match = classifyTermMatch(entry, trimmed);
+    if (match.bonus > 0) {
+      const rawTerm = globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry);
+      const term = normalizeTermRecord(rawTerm);
+      results.push({
+        term,
+        score: entry.score + match.bonus,
+        matchType: match.matchType,
+      });
     }
 
     if (results.length >= limit * 3) break;
@@ -532,18 +520,21 @@ export async function searchKanjiDictionary(query: string, limit = 8): Promise<K
     const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`);
     if (apiResponse.ok) {
       const value: unknown = await apiResponse.json();
-      if (isRecord(value) && Array.isArray(value.kanji) && value.kanji.length > 0) {
-        return value.kanji as KanjiDictionarySearchResult[];
+      if (isSearchResponse(value)) {
+        setDictionarySource('api');
+        return value.kanji.slice(0, limit).map(normalizeKanjiSearchResult);
       }
     }
   } catch {
     // Network failure falls through to the static index.
   }
 
+  setDictionarySource('offline');
   if (globalKanjiMap.size === 0) await ensureStaticDictionaryReady();
 
   const results: KanjiDictionarySearchResult[] = [];
-  for (const kanji of globalKanjiMap.values()) {
+  for (const rawKanji of globalKanjiMap.values()) {
+    const kanji = normalizeKanjiRecord(rawKanji);
     const normLiteral = normalizeQuery(kanji.literal);
     const normHanViet = kanji.hanViet.map(normalizeQuery);
     const normOn = kanji.onReadings.map(normalizeQuery);
@@ -687,13 +678,17 @@ export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRe
 
   const apiTerm = await requestTermFromApi(key, signal);
   if (apiTerm) {
-    globalTermsMap.set(apiTerm.id, apiTerm);
-    return apiTerm;
+    const normalizedTerm = normalizeTermRecord(apiTerm);
+    setDictionarySource('api');
+    globalTermsMap.set(normalizedTerm.id, normalizedTerm);
+    return normalizedTerm;
   }
 
+  setDictionarySource('offline');
   await ensureStaticDictionaryReady();
   signal?.throwIfAborted();
-  return findLocalTerm(key);
+  const localTerm = await findLocalTerm(key);
+  return localTerm ? normalizeTermRecord(localTerm) : undefined;
 }
 
 export async function findKanji(literal: string, signal?: AbortSignal): Promise<KanjiRecord | undefined> {
@@ -705,13 +700,17 @@ export async function findKanji(literal: string, signal?: AbortSignal): Promise<
 
   const apiKanji = await requestKanjiFromApi(key, signal);
   if (apiKanji) {
-    globalKanjiMap.set(apiKanji.literal, apiKanji);
-    return apiKanji;
+    const normalizedKanji = normalizeKanjiRecord(apiKanji);
+    setDictionarySource('api');
+    globalKanjiMap.set(normalizedKanji.literal, normalizedKanji);
+    return normalizedKanji;
   }
 
+  setDictionarySource('offline');
   await ensureStaticDictionaryReady();
   signal?.throwIfAborted();
-  return findLocalKanji(key);
+  const localKanji = findLocalKanji(key);
+  return localKanji ? normalizeKanjiRecord(localKanji) : undefined;
 }
 
 export async function getPopularTerms(limit = 12): Promise<DictionarySearchResult[]> {
@@ -721,7 +720,7 @@ export async function getPopularTerms(limit = 12): Promise<DictionarySearchResul
     .filter((entry) => entry.isCommon)
     .slice(0, limit)
     .map((entry) => ({
-      term: globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry),
+      term: normalizeTermRecord(globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry)),
       score: entry.score,
       matchType: 'partial' as const,
     }));

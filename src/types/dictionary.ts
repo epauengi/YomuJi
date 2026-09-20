@@ -151,9 +151,11 @@ export interface DictionaryShardPayload<T> {
 }
 
 export type DictionaryStatus = 'idle' | 'checking' | 'downloading' | 'indexing' | 'ready' | 'error';
+export type DictionarySource = 'unknown' | 'api' | 'offline';
 
 export interface DictionaryProgress {
   status: DictionaryStatus;
+  source: DictionarySource;
   message: string;
   dataVersion?: string;
   downloadedBytes: number;

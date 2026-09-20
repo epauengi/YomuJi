@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, Gear, GraduationCap, List, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { BookOpenText, Gear, List, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
 import { isRouteActive, navItems as navigationItems, searchHref } from '@/lib/navigation';
@@ -12,7 +12,7 @@ import { isRouteActive, navItems as navigationItems, searchHref } from '@/lib/na
 const navItems = navigationItems.map((item) => ({
   ...item,
   label: item.name,
-  icon: item.href === '/' ? BookOpenText : item.href === '/jlpt' ? GraduationCap : Gear,
+  icon: item.href === '/' ? BookOpenText : Gear,
 }));
 
 export function Navbar() {

@@ -3,7 +3,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
-import { searchDictionary, searchKanjiDictionary } from '@/lib/mockDictionary';
+import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
+import {
+  formatKanjiMatchType,
+  formatMatchType,
+} from '@/lib/dictionary/formatters';
 import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 
 interface SearchInputProps {
@@ -31,6 +35,7 @@ export function SearchInput({
   onClear,
 }: SearchInputProps) {
   const router = useRouter();
+  const { progress } = useDictionary();
   const listboxId = useId();
   const statusId = useId();
   const [query, setQuery] = useState(initialValue);
@@ -118,7 +123,9 @@ export function SearchInput({
       : searchFailed
         ? 'Chưa thể tải gợi ý tìm kiếm'
         : suggestionCount
-          ? `${suggestionCount} kết quả từ điển`
+          ? progress.source === 'offline'
+            ? `${suggestionCount} kết quả từ điển (dữ liệu offline trên thiết bị)`
+            : `${suggestionCount} kết quả từ điển`
           : 'Không có kết quả phù hợp';
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -266,12 +273,23 @@ export function SearchInput({
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Sparkle aria-hidden="true" size={13} weight="duotone" />
-              {searchFailed ? 'Chưa thể tải gợi ý' : suggestionCount ? `${suggestionCount} kết quả từ điển` : 'Không có kết quả'}
+              {searchFailed
+                ? 'Chưa thể tải gợi ý'
+                : suggestionCount
+                  ? progress.source === 'offline'
+                    ? `${suggestionCount} kết quả (offline)`
+                    : `${suggestionCount} kết quả từ điển`
+                  : 'Không có kết quả'}
             </span>
             <span className="hidden items-center gap-1 sm:inline-flex">
               <KeyReturn aria-hidden="true" size={13} /> để tra · mũi tên để chọn
             </span>
           </div>
+          {progress.source === 'offline' && (
+            <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 text-[11px] text-[var(--color-text-muted)]">
+              Máy chủ chưa sẵn sàng — đang dùng dữ liệu offline trên thiết bị.
+            </div>
+          )}
           {commandItems.length ? (
             <div className={`grid max-h-[min(460px,calc(100vh-180px))] grid-cols-1 overflow-y-auto ${compact ? '' : 'lg:grid-cols-[minmax(0,1fr)_240px]'}`}>
               <div id={listboxId} role="listbox" aria-label="Gợi ý tìm kiếm" className="min-w-0 py-1">
@@ -402,7 +420,7 @@ function SuggestionSection({
 }
 
 function TermSuggestion({ result, query }: { result: DictionarySearchResult; query: string }) {
-  const { term } = result;
+  const { term, matchType } = result;
   return (
     <div className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
       <div className="min-w-0 flex-1">
@@ -423,17 +441,24 @@ function TermSuggestion({ result, query }: { result: DictionarySearchResult; que
           <Highlight text={term.meaningsVi.slice(0, 2).join('; ') || 'Chưa có nghĩa hiển thị'} query={query} />
         </p>
       </div>
-      {term.isCommon && (
-        <span className="mt-1 shrink-0 rounded-full bg-[var(--color-primary-100)] px-2 py-0.5 text-xs font-medium text-[var(--color-primary-700)]">
-          phổ biến
-        </span>
-      )}
+      <div className="mt-1 flex shrink-0 flex-col items-end gap-1">
+        {term.isCommon && (
+          <span className="rounded-full bg-[var(--color-primary-100)] px-2 py-0.5 text-xs font-medium text-[var(--color-primary-700)]">
+            Phổ biến
+          </span>
+        )}
+        {matchType && (
+          <span className="text-[11px] text-[var(--color-text-muted)]">
+            {formatMatchType(matchType)}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
 
 function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResult; query: string }) {
-  const { kanji } = result;
+  const { kanji, matchType } = result;
   return (
     <div className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
       <div lang="ja" className="jp-text flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-surface-subtle)] text-2xl font-semibold text-[var(--color-text-primary)]">
@@ -450,6 +475,11 @@ function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResul
           <Highlight text={kanji.meanings.slice(0, 3).join(', ')} query={query} />
         </p>
       </div>
+      {matchType && (
+        <span className="mt-1 shrink-0 text-[11px] text-[var(--color-text-muted)]">
+          {formatKanjiMatchType(matchType)}
+        </span>
+      )}
     </div>
   );
 }

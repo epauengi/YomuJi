@@ -1,55 +1,65 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import {
+  classifyTermMatch,
+  normalizeKanjiRecord,
+  normalizeTermRecord,
+} from '@/lib/dictionary/formatters';
 import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
 
 function mapTermRow(t: any, q: string): DictionarySearchResult {
-  return {
-    term: {
-      id: t.id,
-      sequence: t.sequence,
-      surface: t.surface,
-      reading: t.reading,
-      romaji: t.romaji,
-      meaningsVi: t.meanings_vi || [],
-      glossesRaw: t.glosses_raw || [],
-      partOfSpeech: t.part_of_speech || [],
-      tags: t.tags || [],
-      score: t.score,
-      isCommon: t.is_common,
-      kanji: t.kanji || [],
-      kanjiReadings: t.kanji_readings || [],
-      examples: [],
-      related: [],
-      searchAliases: t.search_aliases || [],
-      source: { jmdict: true },
-    },
+  const term = normalizeTermRecord({
+    id: t.id,
+    sequence: t.sequence,
+    surface: t.surface,
+    reading: t.reading,
+    romaji: t.romaji,
+    meaningsVi: t.meanings_vi || [],
+    glossesRaw: t.glosses_raw || [],
+    partOfSpeech: t.part_of_speech || [],
+    tags: t.tags || [],
     score: t.score,
-    matchType: t.surface === q ? 'exact-surface' : t.reading === q ? 'exact-reading' : 'partial',
+    isCommon: t.is_common,
+    kanji: t.kanji || [],
+    kanjiReadings: t.kanji_readings || [],
+    examples: [],
+    related: [],
+    searchAliases: t.search_aliases || [],
+    source: { jmdict: true },
+  });
+
+  const match = classifyTermMatch(term, q);
+  return {
+    term,
+    score: t.score + match.bonus,
+    matchType: match.matchType,
   };
 }
 
 function mapKanjiRow(k: any, q: string): KanjiDictionarySearchResult {
+  const kanji = normalizeKanjiRecord({
+    literal: k.literal,
+    onReadings: k.on_readings || [],
+    kunReadings: k.kun_readings || [],
+    hanViet: k.han_viet || [],
+    meanings: k.meanings || [],
+    meaningsRaw: k.meanings_raw || [],
+    radical: k.radical,
+    penStrokes: k.pen_strokes,
+    strokeCount: k.stroke_count,
+    jlpt: k.jlpt,
+    grade: k.grade,
+    frequency: k.frequency,
+    unicode: k.unicode,
+    tags: k.tags || [],
+    components: k.components || [],
+    strokePaths: k.stroke_paths || [],
+  });
+
   return {
-    kanji: {
-      literal: k.literal,
-      onReadings: k.on_readings || [],
-      kunReadings: k.kun_readings || [],
-      hanViet: k.han_viet || [],
-      meanings: k.meanings || [],
-      meaningsRaw: k.meanings_raw || [],
-      radical: k.radical,
-      penStrokes: k.pen_strokes,
-      strokeCount: k.stroke_count,
-      jlpt: k.jlpt,
-      grade: k.grade,
-      frequency: k.frequency,
-      unicode: k.unicode,
-      tags: k.tags || [],
-      components: k.components || [],
-      strokePaths: k.stroke_paths || [],
-    },
-    score: 10000,
-    matchType: k.literal === q ? 'exact-kanji' : 'han-viet',
+    kanji,
+    score: kanji.literal === q ? 20000 : 10000,
+    matchType: kanji.literal === q ? 'exact-kanji' : 'han-viet',
   };
 }
 
@@ -109,7 +119,7 @@ export class SupabaseDictionaryRepository implements DictionaryRepository {
     if (error) throw new Error(`Supabase getTermByIdOrSlug: ${error.message}`);
     if (!data) return null;
 
-    return {
+    return normalizeTermRecord({
       id: data.id,
       sequence: data.sequence,
       surface: data.surface,
@@ -128,7 +138,7 @@ export class SupabaseDictionaryRepository implements DictionaryRepository {
       related: [],
       searchAliases: data.search_aliases || [],
       source: { jmdict: true },
-    };
+    });
   }
 
   async getKanjiByLiteral(literal: string): Promise<KanjiRecord | null> {

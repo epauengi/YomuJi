@@ -1,5 +1,10 @@
 import { createClient, type Client } from '@libsql/client';
 import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import {
+  classifyTermMatch,
+  normalizeKanjiRecord,
+  normalizeTermRecord,
+} from '@/lib/dictionary/formatters';
 import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
 
 function parseJson<T>(value: unknown, fallback: T): T {
@@ -12,7 +17,7 @@ function parseJson<T>(value: unknown, fallback: T): T {
 }
 
 function rowToTerm(row: any): TermRecord {
-  return {
+  return normalizeTermRecord({
     id: String(row.id),
     sequence: Number(row.sequence || 0),
     surface: String(row.surface || ''),
@@ -30,11 +35,11 @@ function rowToTerm(row: any): TermRecord {
     related: [],
     searchAliases: parseJson<string[]>(row.search_aliases, []),
     source: { jmdict: true },
-  };
+  });
 }
 
 function rowToKanji(row: any): KanjiRecord {
-  return {
+  return normalizeKanjiRecord({
     literal: String(row.literal),
     onReadings: parseJson<string[]>(row.on_readings, []),
     kunReadings: parseJson<string[]>(row.kun_readings, []),
@@ -51,7 +56,7 @@ function rowToKanji(row: any): KanjiRecord {
     tags: parseJson<string[]>(row.tags, []),
     components: parseJson<string[]>(row.components, []),
     strokePaths: parseJson<any[]>(row.stroke_paths, []),
-  };
+  });
 }
 
 const TERM_COLS = `id, sequence, surface, reading, romaji, meanings_vi, glosses_raw,
@@ -106,15 +111,8 @@ export class TursoDictionaryRepository implements DictionaryRepository {
       if (seen.has(term.id)) continue;
       seen.add(term.id);
 
-      let matchType: DictionarySearchResult['matchType'] = 'partial';
-      let bonus = 2000;
-      if (term.surface === q)              { bonus = 20000; matchType = 'exact-surface'; }
-      else if (term.reading === q)         { bonus = 15000; matchType = 'exact-reading'; }
-      else if (term.romaji === normalizedQ) { bonus = 12000; matchType = 'exact-romaji'; }
-      else if (term.surface.startsWith(q) || term.reading.startsWith(q))
-                                           { bonus = 8000;  matchType = 'prefix'; }
-
-      results.push({ term, score: term.score + bonus, matchType });
+      const match = classifyTermMatch(term, q);
+      results.push({ term, score: term.score + match.bonus, matchType: match.matchType });
       if (results.length >= limit) break;
     }
 

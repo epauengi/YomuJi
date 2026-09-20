@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import {
   CaretRight,
   ClockCounterClockwise,
-  GraduationCap,
   Sparkle,
   Trash,
 } from '@phosphor-icons/react';
@@ -14,7 +13,6 @@ import { motion } from 'motion/react';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { TiltCard } from '@/components/ui/TiltCard';
-import { NumberTicker } from '@/components/ui/NumberTicker';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
 import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
@@ -22,14 +20,6 @@ import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } fro
 import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
-
-const jlptLevels = [
-  { level: 'N5', label: 'Cơ bản', text: 'var(--color-jlpt-n5-text)', background: 'var(--color-jlpt-n5-bg)', border: 'var(--color-jlpt-n5-border)', count: 800 },
-  { level: 'N4', label: 'Sơ cấp', text: 'var(--color-jlpt-n4-text)', background: 'var(--color-jlpt-n4-bg)', border: 'var(--color-jlpt-n4-border)', count: 1500 },
-  { level: 'N3', label: 'Trung cấp', text: 'var(--color-jlpt-n3-text)', background: 'var(--color-jlpt-n3-bg)', border: 'var(--color-jlpt-n3-border)', count: 3750 },
-  { level: 'N2', label: 'Thượng cấp', text: 'var(--color-jlpt-n2-text)', background: 'var(--color-jlpt-n2-bg)', border: 'var(--color-jlpt-n2-border)', count: 6000 },
-  { level: 'N1', label: 'Cao cấp', text: 'var(--color-jlpt-n1-text)', background: 'var(--color-jlpt-n1-bg)', border: 'var(--color-jlpt-n1-border)', count: 10000 },
-];
 
 const decorativeKanji = [
   { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
@@ -229,15 +219,23 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
     async function run() {
       setLoading(true);
-      const next = query.trim()
-        ? await searchDictionary(query, 12)
-        : await getPopularTerms(12);
+      try {
+        const next = query.trim()
+          ? await searchDictionary(query, 12)
+          : await getPopularTerms(12);
 
-      if (!cancelled) {
-        setResults(next);
-        setLoading(false);
-        if (query.trim()) {
-          addRecentSearch(query.trim());
+        if (!cancelled) {
+          setResults(next);
+          setLoading(false);
+          if (query.trim()) {
+            addRecentSearch(query.trim());
+          }
+        }
+      } catch (err) {
+        console.error('Home search error:', err);
+        if (!cancelled) {
+          setResults([]);
+          setLoading(false);
         }
       }
     }
@@ -329,6 +327,11 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
             </div>
 
             <div aria-live="polite">
+              {progress.source === 'offline' && (
+                <div className="mb-4 rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
+                  Máy chủ chưa sẵn sàng — đang hiển thị kết quả từ dữ liệu offline trên thiết bị.
+                </div>
+              )}
               {!isReady ? (
                 <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
                   {progress.message}
@@ -347,7 +350,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                       className={`result-enter ${index > 4 ? 'result-enter-fade' : ''}`}
                       style={{ '--result-index': index } as CSSProperties}
                     >
-                      <TermCard term={result.term} />
+                      <TermCard term={result.term} matchType={result.matchType} />
                     </div>
                   ))}
                 </div>
@@ -404,7 +407,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                           Từ vựng hôm nay
                         </div>
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
-                          {wordOfTheDay.isCommon ? 'Phổ biến • N5' : 'JLPT'}
+                          {wordOfTheDay.isCommon ? 'Từ vựng phổ biến' : 'Từ vựng'}
                         </div>
                       </div>
 
@@ -471,55 +474,6 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                 />
               </TiltCard>
             </div>
-
-            {/* Bento Grid Row 2: JLPT Quick Level Cards with Animated Number Counters */}
-            <section aria-label="Tra cứu theo cấp độ JLPT">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <GraduationCap size={20} weight="duotone" className="text-[var(--color-primary-700)]" />
-                  <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-                    Lộ trình & Cấp độ JLPT
-                  </h3>
-                </div>
-                <Link
-                  href="/jlpt"
-                  className="text-xs font-bold text-[var(--color-primary-700)] hover:underline"
-                >
-                  Xem tổng quan →
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-                {jlptLevels.map((jlpt, index) => (
-                  <Link
-                    key={jlpt.level}
-                    href="/jlpt"
-                    style={{ '--jlpt-color': jlpt.text, '--jlpt-bg': jlpt.background, '--jlpt-border': jlpt.border } as CSSProperties}
-                    className="surface-lift group relative overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--jlpt-border)]"
-                  >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-xl font-black text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--jlpt-color)]">
-                        {jlpt.level}
-                      </span>
-                      <span className="rounded-full bg-[var(--jlpt-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--jlpt-color)]">
-                        {jlpt.label}
-                      </span>
-                    </div>
-
-                    <div className="mt-3">
-                      <div className="text-lg font-extrabold text-[var(--jlpt-color)]">
-                        ~<NumberTicker value={jlpt.count} delay={0.2 + index * 0.1} />
-                      </div>
-                      <span className="text-[11px] font-medium text-[var(--color-text-muted)]">
-                        từ vựng cốt lõi
-                      </span>
-                    </div>
-
-                    <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5 bg-[var(--jlpt-color)] opacity-60" />
-                  </Link>
-                ))}
-              </div>
-            </section>
           </div>
         )}
       </div>
