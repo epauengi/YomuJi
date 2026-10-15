@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { lookupWordRoute } from '@/lib/dictionaryService';
+import type { TermLookupResponse } from '@/types/dictionary';
 import {
   searchDictionary,
   searchKanjiDictionary,
-  findTerm,
   findKanji,
   getCompoundsForKanji,
   useDictionary,
@@ -84,39 +85,34 @@ function errorMessage(error: unknown) {
 /**
  * Fetch a word detail record without depending on global search readiness.
  */
-export function useWordDetail(id: string) {
+export function useWordDetail(slug: string, sequence?: string, initial?: TermLookupResponse) {
+  const key = JSON.stringify([slug, sequence]);
   const [attempt, setAttempt] = useState(0);
-  const [state, setState] = useState<DetailState<TermRecord>>(() => loadingState(id));
-  const currentState = state.key === id ? state : loadingState<TermRecord>(id);
+  const initialState: DetailState<TermLookupResponse> = initial
+    ? { key, status: 'found', value: initial, error: null }
+    : loadingState(key);
+  const [state, setState] = useState(initialState);
+  const currentState = state.key === key ? state : initialState;
 
   useEffect(() => {
+    if (initial && attempt === 0) return;
     const controller = new AbortController();
-    setState(loadingState(id));
-
-    findTerm(id, controller.signal)
-      .then((term) => {
-        if (controller.signal.aborted) return;
-        setState(term
-          ? { key: id, status: 'found', value: term, error: null }
-          : { key: id, status: 'not-found', error: null });
+    setState(loadingState(key));
+    lookupWordRoute(slug, controller.signal, sequence)
+      .then((value) => {
+        if (!controller.signal.aborted) setState({ key, status: 'found', value, error: null });
       })
       .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setState({ key: id, status: 'error', error: errorMessage(error) });
+        if (!controller.signal.aborted) setState({ key, status: 'error', error: errorMessage(error) });
       });
-
     return () => controller.abort();
-  }, [id, attempt]);
+  }, [slug, sequence, key, attempt, initial]);
 
   return {
-    term: currentState.status === 'found'
-      ? currentState.value
-      : currentState.status === 'not-found'
-        ? null
-        : undefined,
+    term: currentState.status === 'found' ? currentState.value.term : undefined,
+    alternatives: currentState.status === 'found' ? currentState.value.alternatives : undefined,
     status: currentState.status,
     error: currentState.error,
-    isLoading: currentState.status === 'loading',
     retry: () => setAttempt((value) => value + 1),
   };
 }

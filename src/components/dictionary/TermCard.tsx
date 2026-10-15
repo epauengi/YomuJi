@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { playJapaneseAudio } from '@/lib/tts';
+import { wordHref } from '@/lib/wordRoutes';
 import {
   formatMatchType,
   formatPartOfSpeech,
@@ -25,7 +26,7 @@ export function TermCard({
       className="surface-lift group relative h-full border-[var(--color-border)] p-0 shadow-none hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface)]"
     >
       <Link
-        href={`/word/${encodeURIComponent(term.id)}`}
+        href={wordHref(term)}
         className="block h-full rounded-[--radius-lg] p-4 pr-16"
       >
         <div className="min-w-0">

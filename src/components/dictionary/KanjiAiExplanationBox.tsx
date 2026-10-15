@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { wordHref } from '@/lib/wordRoutes';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
 interface KanjiAiExplanationBoxProps {
@@ -154,7 +155,7 @@ export function KanjiAiExplanationBox({
                   {explanation.compounds.map((c, idx) => (
                     <Link
                       key={`${c.word}-${idx}`}
-                      href={`/word/${encodeURIComponent(c.word)}`}
+                      href={wordHref(c.word)}
                       className="group flex flex-col justify-between rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5 transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)]/30"
                     >
                       <div className="flex items-baseline justify-between gap-1">

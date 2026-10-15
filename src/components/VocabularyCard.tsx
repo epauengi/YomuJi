@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Furigana } from '@/components/ui/Furigana';
 import type { Vocabulary } from '@/types';
+import { wordHref } from '@/lib/wordRoutes';
 import { CaretRight } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 
@@ -16,7 +17,7 @@ interface VocabularyCardProps {
 
 export function VocabularyCard({ word, className = '' }: VocabularyCardProps) {
   return (
-    <Link href={`/word/${word.slug}`} className={`block group ${className}`}>
+    <Link href={wordHref(word.slug)} className={`block group ${className}`}>
       <motion.div
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}

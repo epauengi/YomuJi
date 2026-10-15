@@ -144,12 +144,13 @@ export class TursoDictionaryRepository implements DictionaryRepository {
   }
 
   async getTermByIdOrSlug(slug: string): Promise<TermRecord | null> {
-    const decoded = decodeURIComponent(slug).trim();
+    const decoded = slug.trim();
     if (!decoded) return null;
 
     const res = await this.client.execute({
-      sql: `SELECT ${TERM_COLS} FROM terms WHERE id = ? OR surface = ? OR reading = ? LIMIT 1`,
-      args: [decoded, decoded, decoded],
+      sql: `SELECT ${TERM_COLS} FROM terms WHERE id = ? OR surface = ? OR reading = ?
+        ORDER BY CASE WHEN id = ? THEN 0 WHEN surface = ? THEN 1 ELSE 2 END, score DESC, sequence ASC LIMIT 1`,
+      args: [decoded, decoded, decoded, decoded, decoded],
     });
     if (res.rows.length === 0) return null;
 

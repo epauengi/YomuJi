@@ -4,6 +4,7 @@ import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
 import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
+import { wordHref } from '@/lib/wordRoutes';
 import {
   formatKanjiMatchType,
   formatMatchType,
@@ -101,7 +102,7 @@ export function SearchInput({
     ...termSuggestions.map((result) => ({
       kind: 'term' as const,
       id: `term-${result.term.id}`,
-      href: `/word/${encodeURIComponent(result.term.id)}`,
+      href: wordHref(result.term),
       result,
     })),
     ...kanjiSuggestions.map((result) => ({
@@ -326,7 +327,7 @@ export function SearchInput({
                   items={termSuggestions.map((result) => ({
                     key: `term-${result.term.id}`,
                     item: commandItems.findIndex((entry) => entry.kind === 'term' && entry.id === `term-${result.term.id}`),
-                    href: `/word/${encodeURIComponent(result.term.id)}`,
+                    href: wordHref(result.term),
                     content: <TermSuggestion result={result} query={query} />,
                   }))}
                   activeIndex={activeIndex}

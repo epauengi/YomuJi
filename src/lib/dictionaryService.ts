@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { wordSlug } from '@/lib/wordRoutes';
 import type {
   DictionaryManifest,
   DictionaryProgress,
@@ -150,7 +151,8 @@ function isKanjiRecord(value: unknown): value is KanjiRecord {
 }
 
 function isTermLookupResponse(value: unknown): value is TermLookupResponse {
-  return isRecord(value) && (value.term === null || isTermRecord(value.term));
+  return isRecord(value) && (value.term === null || isTermRecord(value.term))
+    && (value.alternatives === undefined || (Array.isArray(value.alternatives) && value.alternatives.every(isTermRecord)));
 }
 
 function isKanjiLookupResponse(value: unknown): value is KanjiLookupResponse {
@@ -702,12 +704,13 @@ function findLocalKanji(literal: string) {
   return globalKanjiMap.get(literal);
 }
 
-async function requestTermFromApi(key: string, signal?: AbortSignal) {
+async function requestTermFromApi(key: string, signal?: AbortSignal, sequence?: string) {
   try {
-    const response = await fetch(`/api/word/${encodeURIComponent(key)}`, { signal });
+    const response = await fetch(`/api/word/${encodeURIComponent(key)}${sequence ? `?id=${encodeURIComponent(sequence)}` : ''}`, { signal });
+    if (response.status === 404 || response.status === 400) return { term: null };
     if (!response.ok) return undefined;
     const value: unknown = await response.json();
-    return isTermLookupResponse(value) && value.term ? value.term : undefined;
+    return isTermLookupResponse(value) ? value : undefined;
   } catch (error) {
     if (signal?.aborted) throw error;
     return undefined;
@@ -726,6 +729,31 @@ async function requestKanjiFromApi(literal: string, signal?: AbortSignal) {
   }
 }
 
+export async function lookupWordRoute(slug: string, signal?: AbortSignal, sequence?: string): Promise<TermLookupResponse> {
+  const online = await requestTermFromApi(slug, signal, sequence);
+  signal?.throwIfAborted();
+  if (online) {
+    setDictionarySource('api');
+    return online;
+  }
+
+  await hydrateCachedDictionary();
+  signal?.throwIfAborted();
+  if (globalSearchIndex.length === 0) {
+    throw new Error('Không thể kết nối máy chủ. Chưa có dữ liệu từ vựng offline trên thiết bị.');
+  }
+  setDictionarySource('offline');
+  let entries = globalSearchIndex.filter((entry) => entry.termId === slug);
+  if (!entries.length) entries = globalSearchIndex.filter((entry) => wordSlug(entry) === slug);
+  if (!entries.length && !sequence) {
+    entries = globalSearchIndex.filter((entry) => entry.surface === slug || entry.reading === slug);
+  }
+  if (sequence) entries = entries.filter((entry) => String(entry.sequence) === sequence);
+  if (entries.length > 1) return { term: null, alternatives: entries.map(termFromSearchEntry) };
+  if (!entries.length) return { term: null };
+  return { term: await findLocalTerm(entries[0].termId) ?? null };
+}
+
 export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRecord | undefined> {
   const key = id.trim();
   if (!key) return undefined;
@@ -734,8 +762,10 @@ export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRe
   if (memoryHit) return memoryHit;
 
   void hydrateCachedDictionary();
-  const apiTerm = await requestTermFromApi(key, signal);
+  const apiResult = await requestTermFromApi(key, signal);
   if (signal?.aborted) throw new DOMException('Lookup aborted.', 'AbortError');
+  const apiTerm = apiResult?.term ?? apiResult?.alternatives?.[0];
+  if (apiResult && !apiTerm) return undefined;
   if (apiTerm) {
     const normalizedTerm = normalizeTermRecord(apiTerm);
     setDictionarySource('api');

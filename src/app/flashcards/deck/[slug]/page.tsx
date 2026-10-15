@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, CaretRight, Check, Play, SpeakerHigh, X } from '@phosphor-icons/react';
 import { demoDecks, demoWords } from '@/data/mockData';
 import { playJapaneseAudio } from '@/lib/tts';
+import { wordHref } from '@/lib/wordRoutes';
 
 export default function DeckDetailPage() {
   const params = useParams();
@@ -126,7 +127,7 @@ export default function DeckDetailPage() {
                   {deckWords.map((word, index) => (
                     <motion.div key={word.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                       <Link
-                        href={`/word/${encodeURIComponent(word.word)}`}
+                        href={wordHref(word.word)}
                         className="block rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-colors hover:border-[var(--color-primary-300)]"
                       >
                         <div className="flex items-center justify-between gap-3">

@@ -106,17 +106,19 @@ export class SupabaseDictionaryRepository implements DictionaryRepository {
   }
 
   async getTermByIdOrSlug(slug: string): Promise<TermRecord | null> {
-    const decoded = decodeURIComponent(slug).trim();
+    const decoded = slug.trim();
     if (!decoded || !isSupabaseConfigured || !supabase) return null;
 
-    const { data, error } = await supabase
-      .from('terms')
-      .select('*')
-      .or(`id.eq.${decoded},surface.eq.${decoded},reading.eq.${decoded}`)
-      .limit(1)
-      .maybeSingle();
-
-    if (error) throw new Error(`Supabase getTermByIdOrSlug: ${error.message}`);
+    let data = null;
+    for (const field of ['id', 'surface', 'reading']) {
+      const result = await supabase.from('terms').select('*').eq(field, decoded)
+        .order('score', { ascending: false }).order('sequence').limit(1).maybeSingle();
+      if (result.error) throw new Error(`Supabase getTermByIdOrSlug: ${result.error.message}`);
+      if (result.data) {
+        data = result.data;
+        break;
+      }
+    }
     if (!data) return null;
 
     return normalizeTermRecord({

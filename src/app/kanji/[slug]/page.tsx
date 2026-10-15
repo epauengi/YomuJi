@@ -12,6 +12,7 @@ import { StrokeAnimator } from '@/components/dictionary/StrokeAnimator';
 import { KanjiAiExplanationBox } from '@/components/dictionary/KanjiAiExplanationBox';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { toast } from 'sonner';
+import { wordHref } from '@/lib/wordRoutes';
 import type { TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
@@ -200,7 +201,7 @@ export default function KanjiDetailPage() {
               {compounds.length ? (
                 <div className="flex flex-wrap gap-x-2 gap-y-2">
                   {compounds.slice(0, 6).map((term: TermRecord, index: number) => (
-                    <Link key={term.id} href={`/word/${encodeURIComponent(term.id)}`} className="group inline-flex flex-col leading-tight">
+                    <Link key={term.id} href={wordHref(term)} className="group inline-flex flex-col leading-tight">
                       <span lang="ja" className="jp-text text-[11px] text-[var(--color-primary-700)]">{term.reading}</span>
                       <span lang="ja" className="jp-text text-xl font-medium text-[var(--color-primary-700)] group-hover:underline">
                         {term.surface}{index < Math.min(compounds.length, 6) - 1 ? '、' : ''}

@@ -75,6 +75,7 @@ export interface KanjiRecord {
 
 export interface TermLookupResponse {
   term: TermRecord | null;
+  alternatives?: TermRecord[];
 }
 
 export interface KanjiLookupResponse {

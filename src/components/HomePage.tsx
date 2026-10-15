@@ -19,6 +19,7 @@ import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJa
 import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
 import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
+import { wordHref } from '@/lib/wordRoutes';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 const decorativeKanji = [
@@ -466,7 +467,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
                     <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
                       <Link
-                        href={`/word/${encodeURIComponent(wordOfTheDay.surface)}`}
+                        href={wordHref(wordOfTheDay)}
                         className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
                       >
                         Xem chi tiết từ vựng

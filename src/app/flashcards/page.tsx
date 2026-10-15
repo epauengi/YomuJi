@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'motion/react';
 import { BookBookmark, CaretRight, Clock } from '@phosphor-icons/react';
 import { demoDecks, demoWords } from '@/data/mockData';
+import { wordHref } from '@/lib/wordRoutes';
 
 export default function FlashcardsPage() {
   const dueWords = demoWords.filter((word) => word.isDue);
@@ -82,7 +83,7 @@ export default function FlashcardsPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link
-                  href={`/word/${encodeURIComponent(word.word)}`}
+                  href={wordHref(word.word)}
                   className="surface-lift block rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--color-primary-300)]"
                 >
                   <div lang="ja" className="jp-text mb-1 text-xl font-medium">{word.word}</div>

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:dict": "npx tsx scripts/build-dictionary.ts",
+    "build": "node scripts/build-word-routes.cjs --check && next build",
+    "build:dict": "npx tsx scripts/build-dictionary.ts && node scripts/build-word-routes.cjs",
     "supabase:clear": "npx tsx scripts/clear-supabase.ts",
     "turso:migrate": "npx tsx scripts/migrate-turso.ts",
     "turso:validate": "npx tsx scripts/validate-turso.ts",
