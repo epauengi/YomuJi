@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import { flushSync } from 'react-dom';
 import { useReducedMotion } from 'motion/react';
 import { Database, Gear, Globe, Monitor, Moon, Sun } from '@phosphor-icons/react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { useDictionary } from '@/lib/mockDictionary';
+import { downloadOfflineDictionary, useDictionary } from '@/lib/mockDictionary';
 import {
   subscribeToTheme,
   writeThemePreference,
@@ -22,8 +22,9 @@ type ThemeTransitionDocument = Document & {
 };
 
 export default function SettingsPage() {
-  const { progress, manifest, retry, isReady } = useDictionary();
+  const { progress, manifest, isReady, isOfflineReady } = useDictionary();
   const [theme, setTheme] = useState<ThemePreference>('system');
+  const [isDownloading, startDownload] = useTransition();
   const themeRef = useRef<ThemePreference>('system');
   const reduceMotion = useReducedMotion();
   const transitionToken = useRef(0);
@@ -85,19 +86,30 @@ export default function SettingsPage() {
 
   const isChecking = progress.status === 'checking'
     || progress.status === 'downloading'
-    || progress.status === 'indexing';
+    || progress.status === 'indexing'
+    || isDownloading;
   const hasError = progress.status === 'error';
-  const dataSummary = progress.source === 'api'
-    ? 'Đã kết nối máy chủ từ điển trực tuyến.'
+
+  const handleOfflineDownload = () => {
+    startDownload(async () => {
+      try {
+        await downloadOfflineDictionary();
+      } catch {
+        // Progress state exposes the failure and retry action.
+      }
+    });
+  };
+  const dataSummary = isChecking
+    ? progress.message
     : progress.source === 'offline'
-      ? manifest
-        ? `Đang dùng dữ liệu offline trên thiết bị (${manifest.totals.terms.toLocaleString('vi-VN')} mục từ · ${manifest.totals.kanji.toLocaleString('vi-VN')} Kanji).`
-        : 'Đang dùng dữ liệu offline trên thiết bị.'
-      : isChecking
-        ? progress.message
-        : manifest
-          ? `${manifest.totals.terms.toLocaleString('vi-VN')} mục từ · ${manifest.totals.kanji.toLocaleString('vi-VN')} Kanji`
-          : progress.message;
+      ? 'Đang tra cứu bằng dữ liệu offline trên thiết bị.'
+      : isOfflineReady
+        ? 'Dữ liệu từ vựng và Kanji offline đã sẵn sàng.'
+        : isReady
+          ? 'Dữ liệu từ vựng offline đã sẵn sàng; Kanji có thể cần mạng.'
+          : manifest
+            ? 'Đang tra cứu trực tuyến. Dữ liệu offline chưa được tải đầy đủ.'
+            : 'Đang tra cứu trực tuyến. Chưa tải dữ liệu offline.';
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] pb-20">
@@ -187,18 +199,44 @@ export default function SettingsPage() {
                   )}
                 </div>
               </div>
-              {hasError && (
-                <Button
-                  variant="secondary"
-                  className="self-start font-medium sm:self-auto"
-                  onClick={retry}
-                  disabled={isChecking}
-                >
-                  Thử lại
-                </Button>
-              )}
+              <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+                {!isOfflineReady && !isDownloading && (
+                  <Button
+                    variant="primary"
+                    className="font-medium"
+                    onClick={handleOfflineDownload}
+                    disabled={isChecking}
+                  >
+                    {hasError ? 'Thử tải lại' : 'Tải dữ liệu offline'}
+                  </Button>
+                )}
+                {isChecking && progress.status !== 'checking' && (
+                  <Button variant="secondary" className="font-medium" disabled>
+                    {progress.status === 'indexing' ? 'Đang hoàn tất…' : 'Đang tải…'}
+                  </Button>
+                )}
+              </div>
             </div>
 
+            {progress.status === 'downloading' && progress.totalBytes > 0 && (
+              <div className="px-5 pb-4">
+                <div className="mb-2 flex justify-between text-sm text-[var(--color-text-secondary)]">
+                  <span>{progress.downloadedShards}/{progress.totalShards} phân đoạn</span>
+                  <span>{Math.round((progress.downloadedBytes / progress.totalBytes) * 100)}%</span>
+                </div>
+                <progress
+                  className="h-2 w-full accent-[var(--color-primary-600)]"
+                  value={progress.downloadedBytes}
+                  max={progress.totalBytes}
+                  aria-label="Tiến độ tải dữ liệu offline"
+                />
+              </div>
+            )}
+            {!isOfflineReady && (
+              <div className="px-5 pb-4 text-sm text-[var(--color-text-secondary)]">
+                Tải khoảng 86 MiB dữ liệu JSON trước nén; cần kết nối mạng và dung lượng trình duyệt.
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-5 py-3">
               <p className="text-sm text-[var(--color-text-secondary)]">Phiên bản dữ liệu</p>
               <div className="flex items-center gap-2">

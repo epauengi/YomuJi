@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import {
-  useDictionary,
   searchDictionary,
   searchKanjiDictionary,
   findTerm,
   findKanji,
   getCompoundsForKanji,
+  useDictionary,
 } from '@/lib/mockDictionary';
 import type {
   TermRecord,
@@ -20,19 +20,20 @@ import type {
  * Custom hook to handle searching terms and kanji with debounce
  */
 export function useSearch(query: string, limit = 10) {
-  const { isReady } = useDictionary();
   const [termResults, setTermResults] = useState<DictionarySearchResult[]>([]);
   const [kanjiResults, setKanjiResults] = useState<KanjiDictionarySearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (!isReady || trimmed.length < 1) {
+    if (trimmed.length < 1) {
       setTermResults([]);
       setKanjiResults([]);
       setIsSearching(false);
       return;
     }
+
+    const controller = new AbortController();
 
     let isCancelled = false;
     setIsSearching(true);
@@ -40,8 +41,8 @@ export function useSearch(query: string, limit = 10) {
     const timer = setTimeout(async () => {
       try {
         const [terms, kanji] = await Promise.all([
-          searchDictionary(trimmed, limit),
-          searchKanjiDictionary(trimmed, 6),
+          searchDictionary(trimmed, limit, controller.signal),
+          searchKanjiDictionary(trimmed, 6, controller.signal),
         ]);
         if (!isCancelled) {
           setTermResults(terms);
@@ -56,11 +57,12 @@ export function useSearch(query: string, limit = 10) {
 
     return () => {
       isCancelled = true;
+      controller.abort();
       clearTimeout(timer);
     };
-  }, [query, isReady, limit]);
+  }, [query, limit]);
 
-  return { termResults, kanjiResults, isSearching, isReady };
+  return { termResults, kanjiResults, isSearching };
 }
 
 type DetailState<T> =

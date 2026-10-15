@@ -98,10 +98,11 @@ async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem 
 
 export function HomePage({ initialQuery }: { initialQuery: string }) {
   const router = useRouter();
-  const { isReady, progress } = useDictionary();
+  const { progress } = useDictionary();
   const query = initialQuery;
   const [results, setResults] = useState<DictionarySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const heroPointerFrame = useRef<number | null>(null);
   const heroPointerPosition = useRef({ x: 0, y: 0 });
@@ -169,7 +170,11 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
       console.error(err);
     }
 
-    getWordOfTheDay().then(setWordOfTheDay);
+    getWordOfTheDay().then((term) => {
+      if (term) setWordOfTheDay(term);
+    }).catch((err: unknown) => {
+      console.error('Word of the day error:', err);
+    });
     loadNewRandomArticle();
 
     return () => {
@@ -214,26 +219,29 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   };
 
   useEffect(() => {
-    if (!isReady) return;
     let cancelled = false;
+    const controller = new AbortController();
+    const currentQuery = query.trim();
 
     async function run() {
       setLoading(true);
+      setSearchError(null);
       try {
-        const next = query.trim()
-          ? await searchDictionary(query, 12)
+        const next = currentQuery
+          ? await searchDictionary(currentQuery, 12, controller.signal)
           : await getPopularTerms(12);
 
         if (!cancelled) {
           setResults(next);
           setLoading(false);
-          if (query.trim()) {
-            addRecentSearch(query.trim());
+          if (currentQuery) {
+            addRecentSearch(currentQuery);
           }
         }
       } catch (err) {
-        console.error('Home search error:', err);
-        if (!cancelled) {
+        if (!cancelled && !controller.signal.aborted) {
+          console.error('Home search error:', err);
+          setSearchError(err instanceof Error ? err.message : 'Chưa thể tra cứu. Vui lòng thử lại.');
           setResults([]);
           setLoading(false);
         }
@@ -243,8 +251,9 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
     run();
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [isReady, query]);
+  }, [query]);
 
   return (
     <div className="pb-16">
@@ -332,15 +341,20 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                   Máy chủ chưa sẵn sàng — đang hiển thị kết quả từ dữ liệu offline trên thiết bị.
                 </div>
               )}
-              {!isReady ? (
-                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                  {progress.message}
-                </div>
-              ) : loading ? (
+              {loading ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <div key={index} className="skeleton-quiet h-36 rounded-[--radius-lg] bg-[var(--color-surface-subtle)]" />
                   ))}
+                </div>
+              ) : searchError ? (
+                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                  <p role="alert">{searchError}</p>
+                  {progress.status !== 'downloading' && progress.status !== 'indexing' && (
+                    <Link href="/settings" className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--color-primary-700)]">
+                      Tải dữ liệu offline trong Cài đặt
+                    </Link>
+                  )}
                 </div>
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

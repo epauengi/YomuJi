@@ -14,4 +14,5 @@ export {
   normalizeQuery,
   formatBytes,
   initDictionary,
+  downloadOfflineDictionary,
 } from '@/lib/dictionaryService';

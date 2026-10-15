@@ -55,9 +55,11 @@ const loadedTermShards = new Set<string>();
 const termShardPromises = new Map<string, Promise<void>>();
 let isInitialized = false;
 let isStaticFallbackReady = false;
+let isSearchIndexReady = false;
 let initializationPromise: Promise<void> | null = null;
 let cacheHydrationPromise: Promise<void> | null = null;
 let staticSyncPromise: Promise<void> | null = null;
+let offlineDownloadPromise: Promise<void> | null = null;
 
 const listeners = new Set<() => void>();
 
@@ -242,6 +244,7 @@ async function hydrateCachedDictionary() {
     if (isCompleteSearchCache(manifestValue, searchValue)) {
       globalSearchIndex = searchValue;
       isInitialized = true;
+      isSearchIndexReady = true;
     }
     if (isCompleteKanjiCache(manifestValue, kanjiValue)) publishKanji(kanjiValue);
     isStaticFallbackReady = globalSearchIndex.length === manifestValue.totals.terms
@@ -312,6 +315,10 @@ async function syncStaticDictionary() {
 
   const searchShards = manifest.shards.filter((shard) => shard.type === 'search');
   const kanjiShards = manifest.shards.filter((shard) => shard.type === 'kanji');
+  if (!searchShards.length || !kanjiShards.length) {
+    throw new Error('Manifest chưa có đầy đủ dữ liệu từ vựng và Kanji.');
+  }
+
   const totalShards = searchShards.length + kanjiShards.length;
   const totalBytes = [...searchShards, ...kanjiShards].reduce((sum, shard) => sum + shard.bytes, 0);
   let downloadedShards = 0;
@@ -347,6 +354,7 @@ async function syncStaticDictionary() {
   globalSearchIndex = searchRecords;
   publishKanji(kanjiRecords);
   isInitialized = true;
+  isSearchIndexReady = true;
   isStaticFallbackReady = true;
 
   if (previousVersion && previousVersion !== manifest.dataVersion) {
@@ -384,7 +392,11 @@ function startStaticSync() {
           error: message,
         });
       } else {
-        updateProgress({ status: 'error', message: 'Không thể tải từ điển.', error: message });
+        updateProgress({
+          status: 'idle',
+          message: 'Không thể tải dữ liệu offline. Bạn vẫn có thể tra cứu trực tuyến.',
+          error: message,
+        });
       }
       throw error;
     })
@@ -396,33 +408,34 @@ function startStaticSync() {
 }
 
 export function initDictionary(): Promise<void> {
-  if (isInitialized) return Promise.resolve();
   if (initializationPromise) return initializationPromise;
 
   initializationPromise = (async () => {
-    updateProgress({ status: 'checking', message: 'Đang kiểm tra dữ liệu từ điển...', error: undefined });
-
+    updateProgress({ status: 'checking', message: 'Đang kiểm tra dữ liệu offline...', error: undefined });
     await hydrateCachedDictionary();
-    if (isInitialized) {
+
+    if (isStaticFallbackReady) {
       updateProgress({
         status: 'ready',
-        message: isStaticFallbackReady
-          ? `Từ điển sẵn sàng (${globalSearchIndex.length.toLocaleString('vi-VN')} mục từ, ${globalKanjiMap.size.toLocaleString('vi-VN')} Kanji)`
-          : `Chỉ mục tra cứu sẵn sàng (${globalSearchIndex.length.toLocaleString('vi-VN')} mục từ)`,
+        message: `Dữ liệu offline sẵn sàng (${globalSearchIndex.length.toLocaleString('vi-VN')} mục từ, ${globalKanjiMap.size.toLocaleString('vi-VN')} Kanji)`,
         dataVersion: globalManifest?.dataVersion,
         error: undefined,
       });
-      void startStaticSync().catch((error: unknown) => console.error('Dictionary refresh error:', error));
       return;
     }
 
-    await startStaticSync();
+    updateProgress({
+      status: 'idle',
+      message: 'Chưa tải dữ liệu offline. Bạn vẫn có thể tra cứu trực tuyến.',
+      error: undefined,
+    });
   })()
     .catch((error: unknown) => {
-      if (!isInitialized && globalProgress.status !== 'error') {
-        updateProgress({ status: 'error', message: 'Không thể tải từ điển.', error: getErrorMessage(error) });
-      }
-      throw error;
+      updateProgress({
+        status: 'idle',
+        message: 'Chưa thể kiểm tra dữ liệu offline. Bạn vẫn có thể tra cứu trực tuyến.',
+        error: getErrorMessage(error),
+      });
     })
     .finally(() => {
       initializationPromise = null;
@@ -431,14 +444,28 @@ export function initDictionary(): Promise<void> {
   return initializationPromise;
 }
 
-async function ensureStaticDictionaryReady() {
-  if (isStaticFallbackReady) return;
+export function downloadOfflineDictionary(): Promise<void> {
+  if (isStaticFallbackReady) return Promise.resolve();
+  if (offlineDownloadPromise) return offlineDownloadPromise;
 
-  await hydrateCachedDictionary();
-  if (isStaticFallbackReady) return;
+  const download = (async () => {
+    await hydrateCachedDictionary();
+    if (!isStaticFallbackReady) await startStaticSync();
+  })();
+  offlineDownloadPromise = download
+    .catch((error: unknown) => {
+      updateProgress({
+        status: 'error',
+        message: 'Không thể tải dữ liệu offline.',
+        error: getErrorMessage(error),
+      });
+      throw error;
+    })
+    .finally(() => {
+      offlineDownloadPromise = null;
+    });
 
-  await startStaticSync();
-  if (!isStaticFallbackReady) throw new Error('Dữ liệu từ điển dự phòng chưa sẵn sàng.');
+  return offlineDownloadPromise;
 }
 
 // ── Custom Hook: useDictionary ──────────────────────────────────────────────
@@ -449,6 +476,7 @@ export function useDictionary() {
   useEffect(() => {
     const handleUpdate = () => setProgress(globalProgress);
     listeners.add(handleUpdate);
+    handleUpdate();
     void initDictionary().catch(() => {});
     return () => {
       listeners.delete(handleUpdate);
@@ -457,40 +485,53 @@ export function useDictionary() {
 
   return {
     isReady: isInitialized,
+    isOfflineReady: isStaticFallbackReady,
     progress,
     manifest: globalManifest,
-    retry: () => {
-      initializationPromise = null;
-      if (globalProgress.status === 'error') isInitialized = false;
-      void initDictionary().catch(() => {});
-    },
+    retry: downloadOfflineDictionary,
   };
 }
 
 // ── Search & Retrieval Public APIs ─────────────────────────────────────────
 
-export async function searchDictionary(query: string, limit = 50): Promise<DictionarySearchResult[]> {
+export async function searchDictionary(
+  query: string,
+  limit = 50,
+  signal?: AbortSignal,
+): Promise<DictionarySearchResult[]> {
   const trimmed = query.trim();
   const normalized = normalizeQuery(trimmed);
 
   if (!normalized) return getPopularTerms(limit);
+  signal?.throwIfAborted();
 
+  let apiError: unknown;
   try {
-    const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`);
+    const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`, { signal });
     if (apiResponse.ok) {
       const value: unknown = await apiResponse.json();
+      if (signal?.aborted) throw new DOMException('Search aborted.', 'AbortError');
       if (isSearchResponse(value)) {
         setDictionarySource('api');
         return value.terms.slice(0, limit).map(normalizeSearchResult);
       }
+      apiError = new Error('Phản hồi tìm kiếm không hợp lệ.');
+    } else {
+      apiError = new Error(`Máy chủ tìm kiếm không khả dụng (${apiResponse.status}).`);
     }
-  } catch {
-    // Network failure falls through to the static index.
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    apiError = error;
   }
 
-  setDictionarySource('offline');
-  if (globalSearchIndex.length === 0) await ensureStaticDictionaryReady();
+  await hydrateCachedDictionary();
+  if (signal?.aborted) throw new DOMException('Search aborted.', 'AbortError');
+  if (globalSearchIndex.length === 0) {
+    throw new Error('Không thể kết nối máy chủ. Chưa có dữ liệu offline trên thiết bị.', { cause: apiError });
+  }
 
+  if (!isSearchIndexReady) await hydrateCachedDictionary();
+  setDictionarySource('offline');
   const results: DictionarySearchResult[] = [];
 
   for (const entry of globalSearchIndex) {
@@ -511,26 +552,41 @@ export async function searchDictionary(query: string, limit = 50): Promise<Dicti
   return results.sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
-export async function searchKanjiDictionary(query: string, limit = 8): Promise<KanjiDictionarySearchResult[]> {
+export async function searchKanjiDictionary(
+  query: string,
+  limit = 8,
+  signal?: AbortSignal,
+): Promise<KanjiDictionarySearchResult[]> {
   const trimmed = query.trim();
   const normalized = normalizeQuery(trimmed);
   if (!normalized) return [];
 
+  let apiError: unknown;
   try {
-    const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`);
+    const apiResponse = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}`, { signal });
     if (apiResponse.ok) {
       const value: unknown = await apiResponse.json();
+      if (signal?.aborted) throw new DOMException('Search aborted.', 'AbortError');
       if (isSearchResponse(value)) {
         setDictionarySource('api');
         return value.kanji.slice(0, limit).map(normalizeKanjiSearchResult);
       }
+      apiError = new Error('Phản hồi tìm kiếm không hợp lệ.');
+    } else {
+      apiError = new Error(`Máy chủ tìm kiếm không khả dụng (${apiResponse.status}).`);
     }
-  } catch {
-    // Network failure falls through to the static index.
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    apiError = error;
+  }
+
+  await hydrateCachedDictionary();
+  if (signal?.aborted) throw new DOMException('Search aborted.', 'AbortError');
+  if (globalKanjiMap.size === 0) {
+    throw new Error('Không thể kết nối máy chủ. Chưa có dữ liệu Kanji offline trên thiết bị.', { cause: apiError });
   }
 
   setDictionarySource('offline');
-  if (globalKanjiMap.size === 0) await ensureStaticDictionaryReady();
 
   const results: KanjiDictionarySearchResult[] = [];
   for (const rawKanji of globalKanjiMap.values()) {
@@ -623,6 +679,7 @@ async function findLocalTerm(key: string): Promise<TermRecord | undefined> {
   const memoryHit = globalTermsMap.get(key);
   if (memoryHit) return memoryHit;
 
+  await hydrateCachedDictionary();
   const position = globalSearchIndex.findIndex(
     (entry) => entry.termId === key || entry.surface === key || entry.reading === key,
   );
@@ -676,7 +733,9 @@ export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRe
   const memoryHit = globalTermsMap.get(key);
   if (memoryHit) return memoryHit;
 
+  void hydrateCachedDictionary();
   const apiTerm = await requestTermFromApi(key, signal);
+  if (signal?.aborted) throw new DOMException('Lookup aborted.', 'AbortError');
   if (apiTerm) {
     const normalizedTerm = normalizeTermRecord(apiTerm);
     setDictionarySource('api');
@@ -684,9 +743,13 @@ export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRe
     return normalizedTerm;
   }
 
+  await hydrateCachedDictionary();
+  if (signal?.aborted) throw new DOMException('Lookup aborted.', 'AbortError');
+  if (globalSearchIndex.length === 0) {
+    throw new Error('Không thể kết nối máy chủ. Chưa có dữ liệu từ vựng offline trên thiết bị.');
+  }
+
   setDictionarySource('offline');
-  await ensureStaticDictionaryReady();
-  signal?.throwIfAborted();
   const localTerm = await findLocalTerm(key);
   return localTerm ? normalizeTermRecord(localTerm) : undefined;
 }
@@ -698,7 +761,9 @@ export async function findKanji(literal: string, signal?: AbortSignal): Promise<
   const memoryHit = findLocalKanji(key);
   if (memoryHit) return memoryHit;
 
+  void hydrateCachedDictionary();
   const apiKanji = await requestKanjiFromApi(key, signal);
+  if (signal?.aborted) throw new DOMException('Lookup aborted.', 'AbortError');
   if (apiKanji) {
     const normalizedKanji = normalizeKanjiRecord(apiKanji);
     setDictionarySource('api');
@@ -706,15 +771,19 @@ export async function findKanji(literal: string, signal?: AbortSignal): Promise<
     return normalizedKanji;
   }
 
+  await hydrateCachedDictionary();
+  if (signal?.aborted) throw new DOMException('Lookup aborted.', 'AbortError');
+  if (globalKanjiMap.size === 0) {
+    throw new Error('Không thể kết nối máy chủ. Chưa có dữ liệu Kanji offline trên thiết bị.');
+  }
+
   setDictionarySource('offline');
-  await ensureStaticDictionaryReady();
-  signal?.throwIfAborted();
   const localKanji = findLocalKanji(key);
   return localKanji ? normalizeKanjiRecord(localKanji) : undefined;
 }
 
 export async function getPopularTerms(limit = 12): Promise<DictionarySearchResult[]> {
-  if (globalSearchIndex.length === 0) await ensureStaticDictionaryReady();
+  if (globalSearchIndex.length === 0) return [];
 
   return globalSearchIndex
     .filter((entry) => entry.isCommon)
@@ -732,40 +801,21 @@ const DAILY_WORD_POOL = [
   '音楽', '季節', '感謝', '挑戦',
 ];
 
-export async function getWordOfTheDay(): Promise<TermRecord> {
+export async function getWordOfTheDay(): Promise<TermRecord | undefined> {
   const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
   const selectedSlug = DAILY_WORD_POOL[daysSinceEpoch % DAILY_WORD_POOL.length];
   const term = await findTerm(selectedSlug);
-  if (term) return term;
-
-  return {
-    id: selectedSlug,
-    sequence: 1,
-    surface: selectedSlug,
-    reading: 'にほん',
-    romaji: 'nihon',
-    meaningsVi: ['Nhật Bản'],
-    glossesRaw: ['Japan'],
-    partOfSpeech: ['n'],
-    tags: ['P'],
-    score: 1000,
-    isCommon: true,
-    kanji: ['日', '本'],
-    examples: [{ id: 'ex-1', termSequence: 1, textJa: '日本は美しい国です。', textVi: 'Nhật Bản là một đất nước xinh đẹp.' }],
-    related: [],
-    searchAliases: ['日本', 'にほん'],
-    source: { jmdict: true },
-  };
+  return term;
 }
 
 export async function getKanjiByLevel(level?: JLPTLevel): Promise<KanjiRecord[]> {
-  if (globalKanjiMap.size === 0) await ensureStaticDictionaryReady();
+  await hydrateCachedDictionary();
   const allKanji = Array.from(globalKanjiMap.values());
   return level ? allKanji.filter((kanji) => kanji.jlpt === level) : allKanji;
 }
 
 export async function getCompoundsForKanji(literal: string, limit = 12): Promise<TermRecord[]> {
-  if (globalSearchIndex.length === 0) await ensureStaticDictionaryReady();
+  await hydrateCachedDictionary();
   const matches = globalSearchIndex.filter((entry) => entry.kanji.includes(literal)).slice(0, limit);
   const terms: TermRecord[] = [];
 
