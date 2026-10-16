@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { wordHref } from '@/lib/wordRoutes';
+import { termBookmark } from '@/lib/browserState';
 import type { TermLookupResponse } from '@/types/dictionary';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
@@ -140,7 +141,7 @@ export default function WordDetailPage({ slug, sequence, initial }: {
             </div>
           </div>
 
-          <BookmarkButton word={term.surface} size="lg" />
+          <BookmarkButton item={termBookmark(term)} size="lg" />
         </div>
       </header>
 

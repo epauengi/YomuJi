@@ -13,6 +13,7 @@ import { KanjiAiExplanationBox } from '@/components/dictionary/KanjiAiExplanatio
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { toast } from 'sonner';
 import { wordHref } from '@/lib/wordRoutes';
+import { kanjiBookmark } from '@/lib/browserState';
 import type { TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
@@ -151,7 +152,7 @@ export default function KanjiDetailPage() {
             </p>
           </div>
         </div>
-        <BookmarkButton word={kanji.literal} variant="star" size="lg" title="Lưu Hán tự" />
+        <BookmarkButton item={kanjiBookmark(kanji)} variant="star" size="lg" title="Lưu Hán tự" />
       </header>
 
       <div className="content-rise grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">

@@ -5,6 +5,8 @@ import { CaretRight, SpeakerHigh } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { BookmarkButton } from '@/components/ui/BookmarkButton';
+import { termBookmark } from '@/lib/browserState';
 import { playJapaneseAudio } from '@/lib/tts';
 import { wordHref } from '@/lib/wordRoutes';
 import {
@@ -27,7 +29,7 @@ export function TermCard({
     >
       <Link
         href={wordHref(term)}
-        className="block h-full rounded-[--radius-lg] p-4 pr-16"
+        className="block h-full rounded-[var(--radius-lg)] p-4 pr-16"
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -69,12 +71,15 @@ export function TermCard({
           size={20}
         />
       </Link>
+      <div className="absolute right-3 top-3">
+        <BookmarkButton item={termBookmark(term)} size="sm" />
+      </div>
       <button
         type="button"
         onClick={() => playJapaneseAudio(term.reading || term.surface)}
         title="Nghe phát âm"
         aria-label={`Nghe phát âm ${term.surface}`}
-        className="tactile absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
+        className="tactile absolute right-3 top-16 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
       >
         <SpeakerHigh aria-hidden="true" size={16} />
       </button>

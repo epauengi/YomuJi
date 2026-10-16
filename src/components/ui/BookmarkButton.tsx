@@ -6,15 +6,17 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { toast } from 'sonner';
 import {
   readBookmarks,
+  readBookmarkStorageAvailable,
   setBookmark,
   subscribeToBookmarks,
+  type SavedBookmark,
 } from '@/lib/browserState';
 
 interface BookmarkButtonProps {
   isSaved?: boolean;
   onToggle?: (nextState: boolean) => void;
   title?: string;
-  word?: string;
+  item?: SavedBookmark;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'bookmark' | 'star';
@@ -24,7 +26,7 @@ export function BookmarkButton({
   isSaved = false,
   onToggle,
   title = 'Lưu từ vựng',
-  word,
+  item,
   className = '',
   size = 'md',
   variant = 'bookmark',
@@ -33,27 +35,38 @@ export function BookmarkButton({
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
   const reduceMotion = useReducedMotion();
 
+  const itemId = item?.id;
   useEffect(() => {
-    if (!word) {
+    if (!itemId) {
       setSaved(isSaved);
       return;
     }
-    const update = () => setSaved(readBookmarks().has(word));
+    const update = () => setSaved(readBookmarks().some((entry) => entry.id === itemId));
     update();
     return subscribeToBookmarks(update);
-  }, [isSaved, word]);
+  }, [isSaved, itemId]);
 
   const updateSaved = (nextState: boolean) => {
-    setSaved(nextState);
-    if (word) setBookmark(word, nextState);
-    onToggle?.(nextState);
+    try {
+      if (item) setBookmark(item, nextState);
+      setSaved(nextState);
+      onToggle?.(nextState);
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Chưa thể cập nhật mục đã lưu.');
+      return false;
+    }
   };
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     const nextState = !saved;
-    updateSaved(nextState);
+    if (!updateSaved(nextState)) return;
+    if (item && !readBookmarkStorageAvailable()) {
+      toast.warning('Bộ nhớ trình duyệt không khả dụng. Thay đổi chỉ giữ trong phiên này.');
+      return;
+    }
 
     if (nextState) {
       if (!reduceMotion) {
@@ -68,7 +81,7 @@ export function BookmarkButton({
       }
 
       toast.success(
-        word ? `Đã lưu "${word}" trên thiết bị này` : 'Đã lưu trên thiết bị này',
+        item ? `Đã lưu "${item.surface}" trên thiết bị này` : 'Đã lưu trên thiết bị này',
         {
           action: {
             label: 'Hoàn tác',
@@ -77,7 +90,7 @@ export function BookmarkButton({
         },
       );
     } else {
-      toast.info(word ? `Đã bỏ lưu "${word}" trên thiết bị này` : 'Đã bỏ lưu');
+      toast.info(item ? `Đã bỏ lưu "${item.surface}" trên thiết bị này` : 'Đã bỏ lưu');
     }
   };
 
@@ -93,13 +106,13 @@ export function BookmarkButton({
       <button
         type="button"
         onClick={handleToggle}
-        className={`surface-lift relative flex items-center justify-center rounded-[--radius-md] border transition-colors ${dimensions} ${
+        className={`surface-lift relative flex items-center justify-center rounded-[var(--radius-md)] border transition-colors ${dimensions} ${
           saved
             ? 'border-[var(--color-warning-300)] bg-[var(--color-warning-100)] text-[var(--color-warning-700)]'
             : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-warning-300)] hover:text-[var(--color-warning-700)]'
         } ${className}`}
-        title={saved ? 'Đã lưu trên thiết bị này' : title}
-        aria-label={saved ? 'Đã lưu trên thiết bị này' : title}
+        title={saved ? 'Bỏ lưu' : title}
+        aria-label={`${saved ? 'Bỏ lưu' : title}${item ? ` ${item.surface}` : ''}`}
         aria-pressed={saved}
       >
         {variant === 'star' ? (

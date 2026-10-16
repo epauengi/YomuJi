@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, Gear } from '@phosphor-icons/react';
+import { BookOpenText, BookmarkSimple, Gear } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { isRouteActive, navItems as navigationItems } from '@/lib/navigation';
 
 const navItems = navigationItems.map((item) => ({
   ...item,
-  icon: item.href === '/' ? BookOpenText : Gear,
+  icon: item.href === '/' ? BookOpenText : item.href === '/saved' ? BookmarkSimple : Gear,
 }));
 
 export default function BottomNav() {
@@ -52,4 +52,3 @@ export default function BottomNav() {
     </nav>
   );
 }
-

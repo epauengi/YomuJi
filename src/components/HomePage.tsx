@@ -20,6 +20,7 @@ import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } fro
 import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
 import { wordHref } from '@/lib/wordRoutes';
+import { termBookmark } from '@/lib/browserState';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 const decorativeKanji = [
@@ -449,7 +450,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
                         <div className="flex items-center gap-2 shrink-0">
                           <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
-                          <BookmarkButton word={wordOfTheDay.surface} />
+                          <BookmarkButton item={termBookmark(wordOfTheDay)} />
                         </div>
                       </div>
 
