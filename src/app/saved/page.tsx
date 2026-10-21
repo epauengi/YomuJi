@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BookmarkSimple, MagnifyingGlass } from '@phosphor-icons/react';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
+import { reviewWords } from '@/lib/reviewSession';
 import {
   readBookmarks,
   readBookmarkStorageAvailable,
@@ -43,6 +44,7 @@ export default function SavedPage() {
     return subscribeToBookmarks(update);
   }, []);
 
+  const reviewCount = Math.min(reviewWords(entries).length, 10);
   const normalizedQuery = normalizeSearchText(query.trim());
   const visibleEntries = entries.filter((entry) => {
     if (filter !== 'all' && entry.kind !== filter) return false;
@@ -71,9 +73,16 @@ export default function SavedPage() {
           <p role="status" className="py-8 text-sm text-[var(--color-text-secondary)]">Đang tải mục đã lưu…</p>
         ) : (
           <>
-            <p className="mb-4 text-sm text-[var(--color-text-secondary)]" aria-live="polite">
-              {entries.length} mục đã lưu
-            </p>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-[var(--color-text-secondary)]" aria-live="polite">
+                {entries.length} mục đã lưu
+              </p>
+              {reviewCount > 0 && (
+                <Link href="/review" className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
+                  Ôn từ đã lưu ({reviewCount} từ)
+                </Link>
+              )}
+            </div>
 
             <div className="relative mb-4">
               <MagnifyingGlass aria-hidden="true" size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
