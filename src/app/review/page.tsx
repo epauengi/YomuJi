@@ -68,6 +68,9 @@ export default function ReviewPage() {
     }
     setAudioStatus('playing');
     void playJapaneseAudio(currentWord.reading, {
+      onStart: () => {
+        if (run === audioRun.current) setAudioStatus('playing');
+      },
       onEnd: () => {
         if (run === audioRun.current) setAudioStatus((status) => status === 'error' ? status : 'idle');
       },
