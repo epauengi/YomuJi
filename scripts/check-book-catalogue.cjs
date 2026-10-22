@@ -53,6 +53,9 @@ function loadModule(file, fetchImpl, imports = {}) {
       if (name === '@/lib/bookCatalogue') {
         return loadModule('src/lib/bookCatalogue.ts', fetchImpl, imports);
       }
+      if (name === '@/lib/bookCovers') {
+        return loadModule('src/lib/bookCovers.ts', fetchImpl, imports);
+      }
       throw new Error(`Unexpected import: ${name}`);
     },
   }, { filename: file });
@@ -590,6 +593,8 @@ async function main() {
   {
     const routeModule = loadModule('src/app/api/books/route.ts', undefined, {
       '@/lib/bookCatalogue': catalogueModule,
+      '@/lib/bookCovers': { getBookCoverUrls: async () => ({}) },
+      '@/data/books': { books: [] },
     });
 
     // Valid query -> 200 with cache headers
@@ -644,6 +649,8 @@ async function main() {
           throw new Error('Database / Network failure');
         },
       },
+      '@/lib/bookCovers': { getBookCoverUrls: async () => ({}) },
+      '@/data/books': { books: [] },
     });
     const reqFail = new Request('http://localhost/api/books');
     const resFail = await failingRoute.GET(reqFail);

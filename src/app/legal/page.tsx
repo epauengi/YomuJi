@@ -14,6 +14,11 @@ export default function LegalPage() {
       <p>Danh mục có bản chụp metadata dự phòng; máy chủ kiểm tra cập nhật theo ngày và giữ bản gần nhất khi nguồn tạm thời gián đoạn. Không lưu toàn văn tác phẩm vào cơ sở dữ liệu của YomuJi.</p>
     </section>
     <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
+      <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Ảnh bìa</h2>
+      <p>Ảnh bìa tùy chọn được tra cứu từ <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://openlibrary.org/">Open Library</a> theo tên tác phẩm và tác giả; ảnh được tải trực tiếp từ máy chủ Open Library và không lưu trong cơ sở dữ liệu YomuJi. Có thể hiển thị bìa của một ấn bản khác; ảnh không khớp hoặc không tải được sẽ dùng bìa chữ YomuJi.</p>
+      <p>API: <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://openlibrary.org/dev/docs/api/search">Open Library Search</a> · <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://openlibrary.org/dev/docs/api/covers">Covers API</a>. Gửi góp ý về cách dùng API: <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://openlibrary.org/developers/api">hướng dẫn sử dụng</a>.</p>
+    </section>
+    <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
       <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Toàn văn và cách hiển thị</h2>
       <p>Thư viện chỉ chọn các mục được nguồn đánh dấu không còn bản quyền đối với tác phẩm và mọi người đóng góp được liệt kê, gồm cả người dịch. Tình trạng bảo hộ có thể khác nhau theo quốc gia; thông tin này không thay thế tư vấn pháp lý.</p>
       <p>Nội dung được tải khi đọc, chuyển từ XHTML thành văn bản và ruby. Định dạng trang, thông tin xuất bản cuối tệp, ảnh minh họa không được tái hiện; ký tự ngoài bộ chữ có thể được biểu diễn bằng mô tả. Bìa chữ do YomuJi tạo, không phải ảnh bìa xuất bản gốc.</p>

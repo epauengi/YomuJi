@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Clock, BookOpenText } from '@phosphor-icons/react/dist/ssr';
 import { getBook, books } from '@/data/books';
 import { findCatalogueBook } from '@/lib/bookCatalogue';
+import { getBookCoverUrls } from '@/lib/bookCovers';
+import BookCoverImage from '@/components/books/BookCoverImage';
 
 export function generateStaticParams() {
   return books.map(({ slug }) => ({ slug }));
@@ -12,13 +14,14 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const book = getBook(slug) || (await findCatalogueBook(slug))?.book;
   if (!book) notFound();
+  const coverUrl = (await getBookCoverUrls([book]))[book.slug];
   const related = books.filter((item) => item.category === book.category && item.slug !== book.slug).slice(0, 3);
 
   return <article className="books-page mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
     <Link href="/books" className="inline-flex min-h-10 items-center gap-2 rounded-full pr-3 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"><ArrowLeft aria-hidden="true" size={18} /> Thư viện</Link>
     <div className="mt-7 grid items-center gap-8 md:grid-cols-[minmax(220px,0.7fr)_1.3fr] md:gap-16">
       <div className="mx-auto w-[min(62vw,18rem)] md:w-full"><div className="relative isolate flex aspect-[2/3] flex-col items-center justify-between overflow-hidden rounded-[5px_10px_10px_5px] border border-[#26372f]/15 p-5 text-center shadow-[0_18px_26px_-16px_rgba(23,32,42,0.52)]" style={{ background: 'linear-gradient(90deg, rgb(16 39 31 / 0.18), transparent 8%, transparent 94%, rgb(16 39 31 / 0.16)), #d9e4d8' }}>
-        <span className="relative z-10 mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#26372f]">YomuJi · 読む字</span><span lang="ja" className="jp-text relative z-10 line-clamp-6 break-words font-serif text-3xl font-bold text-[#1d2923] sm:text-4xl">{book.japaneseTitle}</span><span className="relative z-10 mb-4 font-serif text-lg italic text-[#26372f]">{book.title === book.japaneseTitle ? book.author : book.title}</span>
+        <BookCoverImage src={coverUrl} alt={`Bìa ${book.title}`} className="absolute inset-0 size-full object-cover"><><span className="relative z-10 mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#26372f]">YomuJi · 読む字</span><span lang="ja" className="jp-text relative z-10 line-clamp-6 break-words font-serif text-3xl font-bold text-[#1d2923] sm:text-4xl">{book.japaneseTitle}</span><span className="relative z-10 mb-4 font-serif text-lg italic text-[#26372f]">{book.title === book.japaneseTitle ? book.author : book.title}</span></></BookCoverImage>
       </div></div>
       <div>
         <h1 lang={book.title === book.japaneseTitle ? 'ja' : 'vi'} className="break-words font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">{book.title}</h1>

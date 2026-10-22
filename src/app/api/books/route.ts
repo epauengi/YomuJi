@@ -1,4 +1,6 @@
 import { searchBookCatalogue } from '@/lib/bookCatalogue';
+import { books as curatedBooks } from '@/data/books';
+import { getBookCoverUrls } from '@/lib/bookCovers';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -69,8 +71,9 @@ export async function GET(request: Request) {
       page,
       slugs,
     });
+    const covers = await getBookCoverUrls([...curatedBooks, ...result.books]).catch(() => ({}));
 
-    return Response.json(result, {
+    return Response.json({ ...result, covers }, {
       status: 200,
       headers: {
         'Cache-Control': 'public, max-age=60, s-maxage=3600',
