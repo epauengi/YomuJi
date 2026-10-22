@@ -52,6 +52,7 @@ export default function SavedPage() {
     const searchable = normalizeSearchText([entry.surface, entry.reading, ...entry.meanings.map(previewMeaning)].join(' '));
     return searchable.includes(normalizedQuery);
   });
+  const hasActiveCriteria = entries.length > 0 && (filter !== 'all' || normalizedQuery.length > 0);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] pb-24">
@@ -75,7 +76,9 @@ export default function SavedPage() {
           <>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-[var(--color-text-secondary)]" aria-live="polite">
-                {entries.length} mục đã lưu
+                {hasActiveCriteria
+                  ? `Đang hiển thị ${visibleEntries.length} / ${entries.length} mục đã lưu`
+                  : `${entries.length} mục đã lưu`}
               </p>
               {reviewCount > 0 && (
                 <Link href="/review" className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
