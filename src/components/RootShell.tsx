@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { MotionConfig } from 'motion/react';
 import { Toaster } from 'sonner';
 import { Navbar } from '@/components/Navbar';
@@ -29,6 +30,7 @@ export function RootShell({ children }: { children: ReactNode }) {
             <p className="text-sm text-[var(--color-text-muted)]">
               © {new Date().getFullYear()} YomuJi - Từ điển Nhật Việt hiện đại.
             </p>
+            <Link href="/legal" className="mt-2 inline-flex min-h-11 items-center text-xs text-[var(--color-text-secondary)] hover:underline">Nguồn dữ liệu và giấy phép</Link>
           </div>
         </footer>
       </MotionConfig>
