@@ -8,6 +8,7 @@
 @theme {
   /* Font Families */
   --font-sans: "Noto Sans", "Segoe UI", Arial, sans-serif;
+  --font-serif: "Noto Serif", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP", Georgia, serif;
   --font-jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 
@@ -371,6 +372,57 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+.books-page {
+  --color-background: #f6f8fa;
+  --color-surface: #fff;
+  --color-surface-subtle: #f1f5f9;
+  --color-text-primary: #17202a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #586a7e;
+  --color-border: #d7e0e8;
+  --color-border-subtle: #e5ebf0;
+  --color-border-strong: #b8c4ce;
+  --color-action-primary: #0f766e;
+  --color-action-primary-hover: #115e59;
+  --color-primary-700: #0f766e;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+[data-theme="dark"] .books-page {
+  --color-background: #0e141b;
+  --color-surface: #151e27;
+  --color-surface-subtle: #1b2631;
+  --color-text-primary: #f3f7fa;
+  --color-text-secondary: #c4ced8;
+  --color-text-muted: #a8b5c4;
+  --color-border: #34414e;
+  --color-border-subtle: #26323d;
+  --color-border-strong: #536170;
+  --color-action-primary: #0f766e;
+  --color-action-primary-hover: #115e59;
+  --color-primary-700: #99f6e4;
+}
+
+.books-page h1,
+.books-page h2 {
+  font-family: var(--font-serif);
+}
+
+.books-page > section:first-child {
+  min-height: 38rem;
+}
+
+@media (max-width: 1023px) {
+  .books-page > section:first-child { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 body {

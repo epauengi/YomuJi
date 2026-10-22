@@ -1,5 +1,6 @@
 export const navItems = [
   { name: 'Từ điển', href: '/' },
+  { name: 'Thư viện', href: '/books' },
   { name: 'Đã lưu', href: '/saved' },
   { name: 'Thiết lập', href: '/settings' },
 ] as const;
@@ -12,6 +13,10 @@ export function searchHref(query: string) {
 export function isRouteActive(pathname: string, href: string) {
   if (href === '/') {
     return pathname === '/' || pathname.startsWith('/word/') || pathname.startsWith('/kanji/');
+  }
+
+  if (href === '/books') {
+    return pathname === '/books' || pathname.startsWith('/books/');
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
