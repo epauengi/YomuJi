@@ -59,12 +59,12 @@ export default function BooksPage() {
             <label htmlFor="book-search" className="sr-only">Tìm truyện hoặc tác giả</label>
             <div className="relative">
               <MagnifyingGlass aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={19} />
-              <input id="book-search" value={query} maxLength={120} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Tìm truyện, tên Nhật hoặc tác giả" className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] pl-11 pr-11 text-base outline-none transition focus:border-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-100)]" />
+              <input id="book-search" value={query} maxLength={120} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Tìm truyện, tên Nhật hoặc tác giả" className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] pl-11 pr-11 text-base placeholder:text-[var(--color-text-secondary)] placeholder:opacity-100 outline-none transition focus:border-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-100)]" />
               {query && <button type="button" onClick={() => { setQuery(''); setPage(1); }} className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)]" aria-label="Xóa từ khóa"><X size={17} /></button>}
             </div>
           </div>
         </div>
-        <div className="mx-auto flex w-full max-w-[40rem] items-end justify-center gap-3 sm:gap-5 lg:pt-4" aria-label="Một vài truyện trong thư viện">
+        <div role="group" aria-label="Một vài truyện trong thư viện" className="mx-auto flex w-full max-w-[40rem] items-end justify-center gap-3 sm:gap-5 lg:pt-4">
           {featured.map((book, index) => <Link key={book.slug} href={`/books/${book.slug}`} className={`group w-[31%] max-w-[13rem] text-center ${index === 1 ? 'mb-8 sm:mb-12' : index === 2 ? 'mb-2' : ''}`}>
             <Jacket book={book} index={index} coverUrl={covers?.[book.slug]} className="aspect-[2/3] rounded-[5px_10px_10px_5px]" />
             <p className="mt-3 line-clamp-1 text-xs font-semibold sm:text-sm">{book.title}</p>
@@ -94,10 +94,10 @@ export default function BooksPage() {
           {error ? <div role="alert" className="border-y border-[var(--color-border-subtle)] py-8"><p>Chưa tải được danh mục. Kiểm tra kết nối rồi thử lại.</p><button type="button" onClick={() => setAttempt((value) => value + 1)} className="mt-4 min-h-11 rounded-full bg-[var(--color-action-primary)] px-5 font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Thử lại</button></div>
             : loading ? <div aria-hidden="true" className="grid grid-cols-2 gap-5 sm:grid-cols-4 lg:grid-cols-6">{Array.from({ length: 6 }, (_, index) => <div key={index} className="aspect-[2/3] rounded-lg bg-[var(--color-surface-subtle)]" />)}</div>
               : catalogue?.books.length ? <>
-                <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:grid-cols-6" role="list">{catalogue.books.map((book, index) => <Link role="listitem" prefetch={false} key={book.slug} href={`/books/${book.slug}`} className="group min-w-0 text-center">
+                <ul className="grid list-none grid-cols-2 gap-x-5 gap-y-8 p-0 sm:grid-cols-4 lg:grid-cols-6">{catalogue.books.map((book, index) => <li key={book.slug} className="min-w-0"><Link prefetch={false} href={`/books/${book.slug}`} className="group block text-center">
                   <Jacket book={book} index={index} coverUrl={catalogue.covers?.[book.slug]} className="aspect-[2/3]" />
                   <p className="mt-3 line-clamp-2 min-h-10 break-words text-sm font-semibold leading-snug">{book.title}</p><p lang="ja" className="jp-text mt-1 line-clamp-2 text-xs text-[var(--color-text-muted)]">{book.author}</p><p className="mt-1 text-xs text-[var(--color-text-muted)]">{book.orthography || book.category}</p>
-                </Link>)}</div>
+                </Link></li>)}</ul>
                 <nav aria-label="Phân trang truyện" className="mt-8 flex items-center justify-center gap-4 text-sm">
                   <button type="button" disabled={catalogue.page <= 1} onClick={() => { setPage(catalogue.page - 1); document.getElementById('catalogue')?.scrollIntoView(); }} className="min-h-11 rounded-full border border-[var(--color-border)] px-4 font-semibold hover:bg-[var(--color-surface-subtle)] disabled:opacity-40">Trang trước</button>
                   <span className="tabular-nums">{catalogue.page} / {catalogue.pages}</span>
@@ -126,14 +126,14 @@ export default function BooksPage() {
 }
 
 function BookRail({ entries, covers }: { entries: typeof books; covers?: Record<string, string> }) {
-  return <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:gap-6 sm:px-0" role="list">
-    {entries.map((book, index) => <Link role="listitem" key={book.slug} href={`/books/${book.slug}`} className="group w-[42vw] max-w-[11.5rem] shrink-0 snap-start text-center sm:w-[calc((100%-7.5rem)/6)] sm:max-w-none">
+  return <ul className="-mx-4 flex list-none snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 sm:mx-0 sm:gap-6 sm:px-0">
+    {entries.map((book, index) => <li key={book.slug} className="w-[42vw] max-w-[11.5rem] shrink-0 snap-start sm:w-[calc((100%-7.5rem)/6)] sm:max-w-none"><Link href={`/books/${book.slug}`} className="group block text-center">
       <Jacket book={book} index={index} coverUrl={covers?.[book.slug]} className="aspect-[2/3] rounded-[5px_10px_10px_5px]" />
       <p className="mt-3 line-clamp-2 min-h-10 text-[13px] font-semibold leading-snug sm:text-sm">{book.title}</p>
       <p lang="ja" className="jp-text mt-0.5 text-xs text-[var(--color-text-muted)]">{book.author}</p>
       <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">{book.minutes ? `${book.minutes < 60 ? `${book.minutes} phút` : `${Math.round(book.minutes / 60)} giờ`} · ước tính` : book.orthography}</p>
-    </Link>)}
-  </div>;
+    </Link></li>)}
+  </ul>;
 }
 
 function Jacket({ book, index, coverUrl, className }: { book: (typeof books)[number]; index: number; coverUrl?: string; className: string }) {
