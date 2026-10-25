@@ -44,8 +44,6 @@ Want to run YomuJi locally or work on the project? See the [development guide](.
 
 ## License & Credits
 
-The earlier README referenced MIT, but this repository does not include a project `LICENSE` file; the intended code license still needs confirmation. Third-party data and assets retain their own licenses.
-
 - **Dictionary and stroke data:** OmohaDictionary, KANJIDIC (Vietnamese), KanjiDictVN, animCJK, and KanjiVG, as listed in the [data manifest](./public/dict/manifest.json).
 - **Reading library:** [Aozora Bunko](https://www.aozora.gr.jp/); see the app’s [source credits and usage notes](https://yomuji.vercel.app/legal).
 - **Font:** Lora, distributed under the [SIL Open Font License](./public/fonts/OFL.txt).
