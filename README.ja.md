@@ -44,8 +44,6 @@ YomuJi (読む字) は、ベトナム語を使う日本語学習者のための 
 
 ## ライセンス・クレジット
 
-旧 README には MIT の記載がありましたが、このリポジトリにはプロジェクトの `LICENSE` ファイルがないため、コードに適用するライセンスは確認が必要です。外部のデータや素材には、それぞれのライセンスが適用されます。
-
 - **辞書・筆順データ:** [データマニフェスト](./public/dict/manifest.json)に記載された OmohaDictionary、KANJIDIC (Vietnamese)、KanjiDictVN、animCJK、KanjiVG。
 - **読書ライブラリ:** [青空文庫](https://www.aozora.gr.jp/)。アプリの[出典・利用上の注意](https://yomuji.vercel.app/legal)もご覧ください。
 - **フォント:** Lora。[SIL Open Font License](./public/fonts/OFL.txt)に基づいて配布されています。
