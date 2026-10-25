@@ -15,4 +15,5 @@ PRODUCT.md
 .aider*
 .roo/
 .impeccable/
-/docs/
+/docs/*
+!/docs/development.md
