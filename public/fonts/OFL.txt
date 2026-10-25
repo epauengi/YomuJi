@@ -1,0 +1,5 @@
+Copyright 2011 Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora".
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+A copy of the license is available at https://scripts.sil.org/OFL and in the Google Fonts Lora repository:
+https://github.com/google/fonts/blob/main/ofl/lora/OFL.txt
