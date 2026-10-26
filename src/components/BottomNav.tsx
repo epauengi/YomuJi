@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, BookmarkSimple, Books, Gear } from '@phosphor-icons/react';
+import { BookOpenText, BookmarkSimple, Books, Gear, GraduationCap } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { isRouteActive, navItems as navigationItems } from '@/lib/navigation';
 
 const navItems = navigationItems.map((item) => ({
   ...item,
-  icon: item.href === '/' ? BookOpenText : item.href === '/books' ? Books : item.href === '/saved' ? BookmarkSimple : Gear,
+  icon: item.href === '/' ? BookOpenText : item.href === '/books' ? Books : item.href === '/jlpt' ? GraduationCap : item.href === '/saved' ? BookmarkSimple : Gear,
 }));
 
 export default function BottomNav() {
@@ -43,7 +43,7 @@ export default function BottomNav() {
                 )}
               </div>
               <span className={`text-xs font-medium transition-colors duration-200 ${isActive ? 'font-bold text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]'}`}>
-                {item.name}
+                {item.href === '/jlpt' ? 'JLPT' : item.name}
               </span>
             </Link>
           );

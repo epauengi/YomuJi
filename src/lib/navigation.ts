@@ -1,6 +1,7 @@
 export const navItems = [
   { name: 'Từ điển', href: '/' },
   { name: 'Thư viện', href: '/books' },
+  { name: 'Luyện JLPT', href: '/jlpt' },
   { name: 'Đã lưu', href: '/saved' },
   { name: 'Thiết lập', href: '/settings' },
 ] as const;

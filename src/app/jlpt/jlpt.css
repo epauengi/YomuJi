@@ -1,0 +1,250 @@
+.jlpt-page {
+  min-height: 80vh;
+  padding: 0 0 5rem;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+.jlpt-container { max-width: 1168px; margin: 0 auto; padding: 44px 32px; scroll-margin-top: 80px; }
+.jlpt-page h1 { font-size: clamp(1.75rem, 3vw, 2.4rem); font-weight: 720; line-height: 1.2; letter-spacing: -0.03em; text-wrap: balance; }
+.jlpt-page h1:focus:not(:focus-visible) { outline: none; }
+.jlpt-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+.jlpt-session-heading p { color: var(--color-text-secondary); margin-top: 12px; font-size: 15px; line-height: 1.65; }
+.jlpt-levels { display: flex; gap: 10px; margin-bottom: 36px; }
+.jlpt-level { position: relative; display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 10px 16px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 12px; transition: background 180ms var(--ease-out), border-color 180ms var(--ease-out); cursor: pointer; }
+.jlpt-level > span { font-size: 17px; font-weight: 650; }
+.jlpt-level:hover { background: var(--color-surface-subtle); border-color: var(--color-border-strong); }
+.jlpt-level.is-selected { background: var(--color-primary-50); border-color: var(--color-primary-700); color: var(--color-primary-700); }
+.jlpt-catalog-layout { display: grid; grid-template-columns: 245px minmax(0, 1fr); gap: 40px; align-items: start; }
+.jlpt-categories { padding-top: 4px; }
+.jlpt-category-list { display: grid; gap: 5px; }
+.jlpt-category { display: flex; align-items: center; gap: 13px; text-align: left; width: 100%; min-height: 56px; border-radius: 12px; padding: 14px; color: var(--color-text-secondary); border: 1px solid transparent; transition: background 180ms var(--ease-out); cursor: pointer; }
+.jlpt-category > span { flex: 1; }
+.jlpt-category strong { display: block; font-size: 15px; font-weight: 650; }
+.jlpt-category:hover { background: var(--color-surface-muted); }
+.jlpt-category.is-selected { background: var(--color-primary-50); color: var(--color-primary-700); border-color: var(--color-primary-200); }
+.jlpt-exams { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; min-width: 0; overflow: hidden; }
+.jlpt-mode-switch { display: flex; padding: 7px; gap: 6px; border-bottom: 1px solid var(--color-border-subtle); }
+.jlpt-mode-switch button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; flex: 1; padding: 11px 14px; font-size: 14px; font-weight: 600; color: var(--color-text-secondary); border-radius: 10px; cursor: pointer; transition: background 180ms var(--ease-out), color 180ms var(--ease-out); }
+.jlpt-mode-switch button:hover { background: var(--color-surface-subtle); }
+.jlpt-mode-switch .is-selected { color: var(--color-primary-700); background: var(--color-primary-50); }
+.jlpt-exams-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 27px 28px 0; }
+.jlpt-exams-heading h2 { font-size: 23px; font-weight: 670; letter-spacing: -0.02em; }
+.jlpt-mock-note { margin: -8px 28px 21px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+.jlpt-n2-badge { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 7px; background: var(--color-jlpt-n2-bg); color: var(--color-jlpt-n2-text); font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.jlpt-exams-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin: 18px 28px 21px; color: var(--color-text-secondary); font-size: 12px; }
+.jlpt-exams-meta > span { display: inline-flex; align-items: center; gap: 6px; }
+.jlpt-exam-list { list-style: none; margin: 0; padding: 0 28px; }
+.jlpt-exam-list li { display: flex; align-items: center; gap: 18px; min-height: 68px; padding: 12px 0; border-top: 1px solid var(--color-border-subtle); }
+.jlpt-exam-title { flex: 1; }
+.jlpt-exam-title h3 { font-size: 15px; font-weight: 650; }
+.jlpt-button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 650; line-height: 1.4; transition: background 180ms var(--ease-out), border-color 180ms var(--ease-out); cursor: pointer; }
+.jlpt-primary { background: var(--color-action-primary); color: #fff; }
+.jlpt-primary:hover { background: var(--color-action-primary-hover); }
+.jlpt-secondary { background: var(--color-surface); border: 1px solid var(--color-border-strong); color: var(--color-text-primary); }
+.jlpt-secondary:hover { background: var(--color-surface-subtle); }
+.jlpt-row-button { color: var(--color-primary-700); background: var(--color-primary-50); min-width: 114px; }
+.jlpt-row-button:hover { background: var(--color-primary-100); }
+.jlpt-page button:disabled { cursor: not-allowed; opacity: .55; }
+.jlpt-page .is-loading { background: var(--color-primary-50); }
+.jlpt-source-note { padding: 22px 28px; font-size: 12px; line-height: 1.8; color: var(--color-text-secondary); border-top: 1px solid var(--color-border-subtle); margin-top: 8px; }
+.jlpt-loading { display: flex; min-height: 230px; align-items: center; justify-content: center; gap: 10px; color: var(--color-text-secondary); font-size: 14px; }
+.jlpt-message { display: flex; align-items: start; gap: 12px; border-radius: 12px; padding: 18px 20px; margin: 20px 0; font-size: 14px; line-height: 1.7; }
+.jlpt-message svg { flex-shrink: 0; margin-top: 2px; }
+.jlpt-message strong { display: block; margin-bottom: 3px; }
+.jlpt-exams .jlpt-message { margin: 20px 28px; }
+.jlpt-error { background: var(--color-error-bg); color: var(--color-error-700); }
+.jlpt-warning { background: var(--color-warning-bg); color: var(--color-warning-700); }
+.jlpt-text-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; font-size: 13px; font-weight: 650; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.jlpt-text-button:hover { text-decoration-thickness: 2px; }
+.jlpt-empty { max-width: 620px; padding: 70px 30px; margin: 10px auto; text-align: center; }
+.jlpt-empty > svg { color: var(--color-primary-700); margin: 0 auto 20px; }
+.jlpt-empty h2 { font-size: 25px; font-weight: 650; }
+.jlpt-empty p { color: var(--color-text-secondary); margin: 12px 0 24px; line-height: 1.8; }
+.jlpt-session-top { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 24px; }
+.jlpt-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: var(--color-text-secondary); cursor: pointer; }
+.jlpt-back:hover { color: var(--color-primary-700); }
+.jlpt-session-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 26px; }
+.jlpt-session-heading h1 { font-size: clamp(1.6rem, 3vw, 2rem); }
+.jlpt-timer { display: flex; align-items: center; gap: 9px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 12px 16px; font-size: 22px; font-weight: 650; color: var(--color-primary-700); font-variant-numeric: tabular-nums; }
+.jlpt-timer.jlpt-time-low { color: var(--color-warning-700); border-color: var(--color-warning-300); background: var(--color-warning-bg); }
+.jlpt-progress { margin-bottom: 28px; }
+.jlpt-progress > div { display: flex; justify-content: space-between; gap: 16px; color: var(--color-text-secondary); font-size: 13px; margin-bottom: 10px; }
+.jlpt-progress strong { color: var(--color-primary-700); font-weight: 650; }
+.jlpt-progress progress { display: block; appearance: none; width: 100%; height: 5px; accent-color: var(--color-primary-700); overflow: hidden; border: 0; border-radius: 3px; background: var(--color-surface-muted); }
+.jlpt-progress progress::-webkit-progress-bar { background: var(--color-surface-muted); }
+.jlpt-progress progress::-webkit-progress-value { background: var(--color-primary-700); transition: width 220ms var(--ease-out); }
+.jlpt-progress progress::-moz-progress-bar { background: var(--color-primary-700); }
+.jlpt-work-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 28px; align-items: start; }
+.jlpt-question { scroll-margin-top: 84px; min-width: 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 26px 30px 28px; }
+.jlpt-question-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 14px; margin-bottom: 22px; border-bottom: 1px solid var(--color-border-subtle); color: var(--color-text-secondary); font-size: 13px; }
+.jlpt-question-header > span > span { color: var(--color-border-strong); margin: 0 5px; }
+.jlpt-flag { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px; color: var(--color-text-secondary); border-radius: 8px; flex-shrink: 0; cursor: pointer; font-size: 12px; }
+.jlpt-flag:hover { background: var(--color-surface-subtle); }
+.jlpt-flag.is-selected { color: var(--color-warning-700); background: var(--color-warning-bg); }
+.jlpt-question-instruction { font-size: 14px; line-height: 1.9; }
+.jlpt-problem-title { display: flex; gap: 12px; align-items: baseline; margin-bottom: 8px; font-weight: 600; }
+.jlpt-problem-title > span:first-child { color: var(--color-primary-700); white-space: nowrap; }
+.jlpt-problem-title > span:last-child { font-size: 13px; color: var(--color-text-secondary); }
+.jlpt-answer-rule { font-size: 13px; color: var(--color-text-secondary); background: var(--color-surface-subtle); border-radius: 8px; padding: 12px 15px; margin-top: 18px; line-height: 1.8; }
+.jlpt-choices { margin: 0; padding: 0; border: 0; min-width: 0; }
+.jlpt-question-text { display: block; padding: 28px 0 23px; width: 100%; font-size: 21px; line-height: 2; font-weight: 500; overflow-wrap: anywhere; }
+.jlpt-focus-word { font-weight: 650; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+.jlpt-choice { display: flex; position: relative; align-items: center; gap: 13px; width: 100%; min-height: 61px; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: 10px; margin-bottom: 11px; font-size: 17px; line-height: 1.8; cursor: pointer; transition: background 160ms var(--ease-out), border-color 160ms var(--ease-out); overflow-wrap: anywhere; }
+.jlpt-choice:hover { background: var(--color-surface-subtle); border-color: var(--color-border-strong); }
+.jlpt-choice input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: inherit; }
+.jlpt-choice:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.jlpt-choice-number { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; height: 26px; width: 26px; border: 1px solid var(--color-border-strong); border-radius: 50%; font-size: 13px; font-weight: 650; color: var(--color-text-secondary); font-family: var(--font-sans); }
+.jlpt-choice.is-selected { background: var(--color-primary-50); border-color: var(--color-primary-700); }
+.jlpt-choice.is-selected .jlpt-choice-number { background: var(--color-action-primary); border-color: var(--color-action-primary); color: #fff; }
+.jlpt-choice.is-correct { border-color: var(--color-success-700); background: var(--color-success-bg); }
+.jlpt-choice.is-incorrect { border-color: var(--color-error-700); background: var(--color-error-bg); }
+.jlpt-choice.is-correct .jlpt-choice-number { background: var(--color-success-700); border-color: var(--color-success-700); color: var(--color-surface); }
+.jlpt-choice.is-incorrect .jlpt-choice-number { background: var(--color-error-700); border-color: var(--color-error-700); color: var(--color-surface); }
+.jlpt-choice-state { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0; font-size: 12px; font-family: var(--font-sans); font-weight: 600; }
+.jlpt-choice.is-correct .jlpt-choice-state { color: var(--color-success-700); }
+.jlpt-choice.is-incorrect .jlpt-choice-state { color: var(--color-error-700); }
+.jlpt-choices:disabled .jlpt-choice { cursor: default; }
+.jlpt-passage { margin-top: 22px; background: var(--color-surface-subtle); border: 1px solid var(--color-border-subtle); border-radius: 10px; padding: 20px; }
+.jlpt-passage-label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 650; color: var(--color-text-secondary); margin-bottom: 14px; }
+.jlpt-passage-part + .jlpt-passage-part { border-top: 1px solid var(--color-border); margin-top: 22px; padding-top: 22px; }
+.jlpt-passage-part h3 { font-size: 15px; font-weight: 650; margin-bottom: 12px; color: var(--color-primary-700); }
+.jlpt-passage-part p { white-space: pre-wrap; line-height: 2.15; font-size: 16px; overflow-wrap: anywhere; }
+.jlpt-question-actions { display: flex; gap: 14px; justify-content: space-between; border-top: 1px solid var(--color-border-subtle); margin-top: 25px; padding-top: 23px; }
+.jlpt-question-nav { position: sticky; top: 88px; padding: 22px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; }
+.jlpt-question-nav h2 { font-size: 17px; font-weight: 650; }
+.jlpt-question-nav > p { font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); margin-top: 8px; }
+.jlpt-nav-section { margin-top: 22px; }
+.jlpt-nav-section h3 { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 10px; }
+.jlpt-question-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.jlpt-question-grid button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 39px; font-size: 12px; font-weight: 600; border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; cursor: pointer; }
+.jlpt-question-grid button:hover { background: var(--color-surface-subtle); }
+.jlpt-question-grid button.is-answered { background: var(--color-primary-100); color: var(--color-primary-800); border-color: var(--color-primary-200); }
+.jlpt-question-grid button.is-correct { background: var(--color-success-bg); border-color: var(--color-success-300); color: var(--color-success-700); }
+.jlpt-question-grid button.is-incorrect { background: var(--color-error-bg); border-color: var(--color-error-300); color: var(--color-error-700); }
+.jlpt-question-grid button[aria-current] { outline: 2px solid var(--color-primary-700); outline-offset: 1px; color: var(--color-primary-700); }
+.jlpt-question-grid svg { position: absolute; top: 2px; right: 2px; color: var(--color-warning-700); }
+.jlpt-nav-legend { display: flex; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--color-border-subtle); padding-top: 17px; margin-top: 22px; font-size: 11px; color: var(--color-text-secondary); }
+.jlpt-nav-legend > span { display: flex; align-items: center; gap: 5px; }
+.jlpt-nav-legend i { display: inline-block; width: 11px; height: 11px; background: var(--color-primary-100); border: 1px solid var(--color-primary-200); border-radius: 2px; }
+.jlpt-submit { width: 100%; margin-top: 17px; }
+.jlpt-question-nav .jlpt-submit-note { margin-top: 16px; }
+.jlpt-question-nav .jlpt-session-notice { text-align: center; font-size: 11px; margin-top: 12px; }
+.jlpt-confirm { margin-top: 18px; border-top: 1px solid var(--color-border-subtle); padding-top: 16px; }
+.jlpt-confirm p { font-size: 13px; line-height: 1.7; margin-bottom: 14px; }
+.jlpt-confirm .jlpt-button { width: 100%; }
+.jlpt-confirm .jlpt-text-button { width: 100%; margin-top: 5px; }
+.jlpt-result { display: grid; grid-template-columns: auto 1fr; gap: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 28px; margin-bottom: 32px; }
+.jlpt-result-score { display: flex; align-items: center; gap: 16px; }
+.jlpt-result-score > svg { color: var(--color-primary-700); }
+.jlpt-result-score strong { font-size: 40px; line-height: 1.2; font-weight: 650; color: var(--color-primary-700); font-variant-numeric: tabular-nums; }
+.jlpt-result-score strong span { font-size: 21px; font-weight: 500; color: var(--color-text-secondary); }
+.jlpt-result-score p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.jlpt-result-detail { display: flex; justify-content: space-evenly; gap: 25px; padding: 0 16px; border-right: 0; }
+.jlpt-result-detail p { display: grid; gap: 6px; align-content: center; }
+.jlpt-result-detail span { color: var(--color-text-secondary); font-size: 12px; }
+.jlpt-result-detail strong { font-size: 21px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.jlpt-result-sections { display: grid; align-content: center; gap: 7px; font-size: 12px; grid-column: 1 / -1; }
+.jlpt-result-sections > div { display: flex; gap: 25px; justify-content: space-between; }
+.jlpt-result-sections span { color: var(--color-text-secondary); }
+.jlpt-result-sections strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+.jlpt-result-note { font-size: 12px; color: var(--color-text-secondary); line-height: 1.8; align-self: center; grid-column: 1 / 2; }
+.jlpt-result > .jlpt-button { align-self: start; }
+.jlpt-review-filter { display: flex; gap: 6px; margin-top: 16px; }
+.jlpt-review-filter button { flex: 1; font-size: 11px; font-weight: 600; min-height: 36px; border: 1px solid var(--color-border); border-radius: 6px; cursor: pointer; padding: 5px; }
+.jlpt-review-filter button[aria-pressed="true"] { color: var(--color-primary-700); border-color: var(--color-primary-700); background: var(--color-primary-50); }
+.jlpt-review-answer { margin-top: 20px; padding: 17px; border-radius: 10px; font-size: 13px; line-height: 1.9; }
+.jlpt-review-answer.is-correct { background: var(--color-success-bg); color: var(--color-success-700); }
+.jlpt-review-answer.is-incorrect { background: var(--color-error-bg); color: var(--color-error-700); }
+.jlpt-review-answer strong { font-weight: 600; }
+.jlpt-review-answer p { margin-top: 9px; }
+.jlpt-review-answer .jp-text { font-size: 15px; }
+.jlpt-all-correct { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 1023px) {
+  .jlpt-container { padding: 32px 24px; }
+  .jlpt-catalog-layout { grid-template-columns: 210px minmax(0, 1fr); gap: 24px; }
+  .jlpt-exams-heading { padding: 23px 22px 0; }
+  .jlpt-exams-meta { margin-left: 22px; margin-right: 22px; gap: 13px; }
+  .jlpt-exam-list { padding: 0 22px; }
+  .jlpt-exam-list li { gap: 14px; }
+  .jlpt-work-layout { grid-template-columns: minmax(0, 1fr) 245px; gap: 20px; }
+  .jlpt-question { padding: 22px; }
+  .jlpt-question-nav { padding: 18px; }
+  .jlpt-result { grid-template-columns: auto 1fr; gap: 24px; }
+  .jlpt-result-detail { border: 0; padding-right: 0; }
+}
+@media (max-width: 767px) {
+  .jlpt-container { padding: 26px 18px 36px; }
+  .jlpt-page-heading { align-items: start; gap: 18px; margin-bottom: 24px; }
+  .jlpt-levels { gap: 7px; margin-bottom: 26px; }
+  .jlpt-level { flex: 1; padding: 10px 3px; min-width: 0; min-height: 65px; }
+  .jlpt-level > span { font-size: 16px; }
+  .jlpt-catalog-layout { display: flex; flex-direction: column; gap: 22px; }
+  .jlpt-categories { width: 100%; padding: 0; }
+  .jlpt-category-list { display: flex; gap: 6px; }
+  .jlpt-category { flex: 1; gap: 7px; min-height: 60px; padding: 9px 8px; border: 1px solid var(--color-border); }
+  .jlpt-category > svg:first-child { display: none; }
+  .jlpt-category > svg:last-child { display: none; }
+  .jlpt-category strong { font-size: 12px; text-align: center; white-space: nowrap; }
+  .jlpt-exams { width: 100%; border-radius: 14px; }
+  .jlpt-mode-switch { padding: 6px; gap: 4px; }
+  .jlpt-mode-switch button { min-height: 44px; padding: 10px 7px; font-size: 12px; gap: 6px; }
+  .jlpt-exams-heading { padding: 21px 18px 0; gap: 15px; }
+  .jlpt-exams-heading h2 { font-size: 20px; }
+  .jlpt-mock-note { margin: -5px 18px 17px; font-size: 11px; }
+  .jlpt-exams-meta { margin: 14px 18px 17px; gap: 10px 14px; font-size: 11px; }
+  .jlpt-exams-meta > span { gap: 5px; }
+  .jlpt-exam-list { padding: 0 18px; }
+  .jlpt-exam-list li { gap: 10px; min-height: 68px; padding: 12px 0; }
+  .jlpt-exam-title h3 { font-size: 14px; }
+  .jlpt-row-button { font-size: 12px; min-width: 92px; padding: 10px; gap: 7px; }
+  .jlpt-row-button svg { width: 16px; }
+  .jlpt-source-note { padding: 18px; font-size: 11px; }
+  .jlpt-exams .jlpt-message { margin: 18px; }
+  .jlpt-empty { padding: 40px 10px; }
+  .jlpt-empty h2 { font-size: 22px; }
+  .jlpt-empty p { font-size: 14px; }
+  .jlpt-session-top { margin-bottom: 17px; }
+  .jlpt-session-heading { align-items: start; gap: 15px; flex-wrap: wrap; margin-bottom: 22px; }
+  .jlpt-session-heading h1 { font-size: 25px; }
+  .jlpt-session-heading p { font-size: 13px; margin-top: 8px; }
+  .jlpt-timer { font-size: 20px; padding: 8px 12px; }
+  .jlpt-progress { margin-bottom: 20px; }
+  .jlpt-progress > div { font-size: 11px; gap: 10px; }
+  .jlpt-work-layout { display: flex; flex-direction: column; gap: 20px; }
+  .jlpt-question { width: 100%; padding: 20px 17px; border-radius: 14px; }
+  .jlpt-question-header { font-size: 11px; gap: 8px; padding-bottom: 13px; margin-bottom: 18px; align-items: center; }
+  .jlpt-question-header > span { max-width: 65%; }
+  .jlpt-flag { font-size: 10px; gap: 5px; padding: 5px; }
+  .jlpt-problem-title { gap: 10px; font-size: 13px; flex-wrap: wrap; }
+  .jlpt-problem-title > span:last-child { font-size: 12px; }
+  .jlpt-question-instruction { font-size: 13px; }
+  .jlpt-question-text { font-size: 19px; padding: 22px 0 19px; line-height: 1.9; }
+  .jlpt-choice { padding: 12px; font-size: 16px; gap: 11px; min-height: 56px; flex-wrap: wrap; }
+  .jlpt-choice > .jp-text { flex: 1; min-width: 0; }
+  .jlpt-choice-state { font-size: 10px; width: 100%; margin-left: 37px; }
+  .jlpt-passage { padding: 16px 14px; }
+  .jlpt-passage-part p { font-size: 15px; line-height: 2.1; }
+  .jlpt-question-actions { gap: 12px; }
+  .jlpt-question-actions .jlpt-button { flex: 1; font-size: 13px; padding: 11px 10px; }
+  .jlpt-question-nav { position: static; width: 100%; padding: 22px; border-radius: 14px; }
+  .jlpt-question-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .jlpt-question-grid button { min-height: 39px; }
+  .jlpt-submit { min-height: 47px; }
+  .jlpt-result { display: flex; flex-wrap: wrap; padding: 22px; gap: 21px; }
+  .jlpt-result-score { width: 100%; }
+  .jlpt-result-detail { width: 100%; justify-content: space-between; padding: 0; }
+  .jlpt-result-detail span { font-size: 11px; }
+  .jlpt-result-detail strong { font-size: 20px; }
+  .jlpt-result-sections { width: 100%; border-top: 1px solid var(--color-border-subtle); padding-top: 16px; }
+  .jlpt-result-note { font-size: 11px; }
+  .jlpt-result > .jlpt-button { width: 100%; }
+}
+@media (max-width: 359px) {
+  .jlpt-container { padding-left: 12px; padding-right: 12px; }
+  .jlpt-question-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .jlpt-category strong { font-size: 11px; }
+  .jlpt-question-header { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jlpt-page *, .jlpt-progress progress::-webkit-progress-value { transition: none !important; }
+}
