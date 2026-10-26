@@ -7,11 +7,13 @@ import { Toaster } from 'sonner';
 import { Navbar } from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import { ThemeManager } from '@/components/ThemeManager';
+import { OfflineDictionaryPrompt } from '@/components/OfflineDictionaryPrompt';
 
 export function RootShell({ children }: { children: ReactNode }) {
   return (
     <>
       <ThemeManager />
+<OfflineDictionaryPrompt />
       <MotionConfig reducedMotion="user">
         <Toaster position="top-right" richColors closeButton />
         <div className="scroll-progress no-print" aria-hidden="true" />

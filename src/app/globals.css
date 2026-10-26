@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+dialog.offline-choice-dialog::backdrop {
+  background: rgb(8 20 24 / 0.72);
+}
+
 @font-face {
   font-family: "Lora";
   font-style: normal;
