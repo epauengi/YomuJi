@@ -60,6 +60,7 @@ function Passage({ question }: { question: PaperQuestion }) {
   </section>;
 }
 
+
 export function JlptPractice() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [catalogError, setCatalogError] = useState('');
@@ -77,7 +78,9 @@ export function JlptPractice() {
   const [reviewFilter, setReviewFilter] = useState<'all' | 'missed'>('all');
   const headingRef = useRef<HTMLHeadingElement>(null);
   const questionRef = useRef<HTMLElement>(null);
+  const answerSheetHeadingRef = useRef<HTMLHeadingElement>(null);
   const focusQuestion = useRef(false);
+  const focusStartedSession = useRef(false);
   const sessionRef = useRef(session);
   const gradeRef = useRef(grade);
   gradeRef.current = grade;
@@ -138,8 +141,9 @@ export function JlptPractice() {
   useEffect(() => {
     const target = focusQuestion.current ? questionRef.current : headingRef.current;
     target?.focus({ preventScroll: true });
-    (focusQuestion.current ? questionRef.current : document.getElementById('jlpt-workspace'))?.scrollIntoView({ block: 'start' });
+    (focusQuestion.current ? target : document.getElementById('jlpt-workspace'))?.scrollIntoView({ block: 'start', behavior: focusStartedSession.current ? 'smooth' : 'instant' });
     focusQuestion.current = false;
+    focusStartedSession.current = false;
   }, [session?.paper, session?.index, !!grade]);
 
   useEffect(() => {
@@ -166,6 +170,7 @@ export function JlptPractice() {
 
   const start = async (number: number, selectedMode = mode, selectedCategory = category) => {
     if (busy !== null) return;
+    const restarting = !!sessionRef.current;
     setBusy(number); setError('');
     const controller = new AbortController();
     requestRef.current?.abort(); requestRef.current = controller;
@@ -176,6 +181,8 @@ export function JlptPractice() {
       if (!sessionRef.current) window.history.pushState({ ...window.history.state, jlptSession: true }, '');
       setMode(paper.mode); setCategory(paper.questions[0].category);
       setSession({ paper, answers: {}, flags: [], index: 0, startedAt: now, deadline: paper.durationMinutes ? now + paper.durationMinutes * 60000 : null });
+      focusQuestion.current = true;
+      focusStartedSession.current = restarting;
       setGrade(null); setExpired(false); setConfirmSubmit(false); setReviewFilter('all'); setElapsed(0);
     } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error && e.name !== 'TimeoutError' && e.name !== 'TypeError' ? e.message : 'Chưa tải được đề. Kiểm tra kết nối rồi chọn lại đề.'); }
     finally { if (!controller.signal.aborted) setBusy(null); }
@@ -231,10 +238,11 @@ export function JlptPractice() {
         </header>
 
         <div className="jlpt-levels" role="group" aria-label="Chọn cấp độ JLPT">
-          {levels.map((item) => <button key={item} type="button" className={`jlpt-level ${level === item ? 'is-selected' : ''}`} aria-pressed={level === item} onClick={() => { setLevel(item); setError(''); }}>
+          {levels.map((item) => <button key={item} type="button" className={`jlpt-level ${level === item ? 'is-selected' : ''} ${item !== 'N2' ? 'is-unavailable' : ''}`} aria-label={`${item}${item === 'N2' ? ', có đề' : ', chưa có đề'}`} aria-pressed={level === item} onClick={() => { setLevel(item); setError(''); }}>
             <span>{item}</span>
           </button>)}
         </div>
+        <p className="jlpt-level-note">Có đề: N2</p>
 
         {level !== 'N2' ? <section className="jlpt-empty" aria-labelledby="jlpt-empty-heading">
           <GraduationCap aria-hidden="true" size={36} weight="duotone" />
@@ -245,15 +253,16 @@ export function JlptPractice() {
             <div className="jlpt-category-list">
               {CATEGORIES.map((part) => {
                 const Icon = sectionIcons[part.id];
-                return <button key={part.id} type="button" aria-pressed={mode === 'practice' && category === part.id} className={`jlpt-category ${mode === 'practice' && category === part.id ? 'is-selected' : ''}`} onClick={() => { setCategory(part.id); setMode('practice'); setError(''); }}>
+                return <button key={part.id} type="button" aria-pressed={mode === 'practice' && category === part.id} aria-describedby={mode === 'mock' ? 'jlpt-mode-switch-hint' : undefined} className={`jlpt-category ${mode === 'practice' && category === part.id ? 'is-selected' : ''}`} onClick={() => { setCategory(part.id); setMode('practice'); setError(''); }}>
                   <Icon size={22} aria-hidden="true" /><span><strong>{part.label}</strong></span><CaretRight size={16} aria-hidden="true" />
                 </button>;
               })}
+              {mode === 'mock' ? <p id="jlpt-mode-switch-hint" className="jlpt-mode-hint" role="status">Chọn một phần để chuyển sang luyện từng phần.</p> : null}
             </div>
           </aside>
 
           <section className="jlpt-exams" aria-labelledby="jlpt-exams-heading" aria-busy={!catalog && !catalogError}>
-            <div className="jlpt-mode-switch" role="group" aria-label="Cách luyện">
+            <div className="jlpt-mode-switch" id="jlpt-mode-switch" role="group" aria-label="Cách luyện">
               <button type="button" aria-pressed={mode === 'practice'} className={mode === 'practice' ? 'is-selected' : ''} onClick={() => { setMode('practice'); setError(''); }}><BookOpenText size={18} aria-hidden="true" />Luyện từng phần</button>
               <button type="button" aria-pressed={mode === 'mock'} className={mode === 'mock' ? 'is-selected' : ''} onClick={() => { setMode('mock'); setError(''); }}><Clock size={18} aria-hidden="true" />Thi thử đủ đề</button>
             </div>
@@ -290,6 +299,7 @@ export function JlptPractice() {
         {error ? <div role="alert" className="jlpt-message jlpt-error"><WarningCircle size={22} aria-hidden="true" /><div><p>{error}</p><p>{grade ? 'Kết quả bài trước vẫn được giữ.' : 'Các câu trả lời vẫn được giữ trong phiên này.'}</p><button type="button" className="jlpt-text-button" onClick={() => grade ? void start(session.paper.number, session.paper.mode, session.paper.questions[0].category) : void finish()} disabled={busy !== null}>{grade ? 'Thử mở lại đề' : 'Thử nộp lại'}</button></div></div> : null}
 
         <div className="jlpt-work-layout">
+          <button type="button" className="jlpt-answer-sheet-jump" onClick={() => { answerSheetHeadingRef.current?.focus(); answerSheetHeadingRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }}>Đi tới phiếu trả lời</button>
           {question ? <section ref={questionRef} tabIndex={-1} className="jlpt-question" aria-label={`${grade ? 'Xem lại câu' : 'Câu hỏi'} ${session.index + 1} / ${total}`}>
             <div className="jlpt-question-header"><span>{question.categoryLabel} <span aria-hidden="true">/</span> Câu {session.index + 1} / {total}</span>{!grade ? <button type="button" className={`jlpt-flag ${session.flags.includes(question.id) ? 'is-selected' : ''}`} aria-pressed={session.flags.includes(question.id)} onClick={() => setSession((previous) => previous ? { ...previous, flags: previous.flags.includes(question.id) ? previous.flags.filter((id) => id !== question.id) : [...previous.flags, question.id] } : previous)} disabled={busy === 'grading' || expired}><Flag size={18} weight={session.flags.includes(question.id) ? 'fill' : 'regular'} aria-hidden="true" /><span>{session.flags.includes(question.id) ? 'Đã đánh dấu' : 'Đánh dấu'}</span></button> : null}</div>
             <div className="jlpt-question-instruction"><p className="jlpt-problem-title"><span lang="ja">問題 {question.problemNumber}</span><span lang="ja">{question.subtype}</span></p><p lang="ja" className="jp-text">{question.instruction}</p></div>
@@ -313,7 +323,7 @@ export function JlptPractice() {
           </section> : null}
 
           <aside className="jlpt-question-nav" aria-label="Điều hướng câu hỏi">
-            <h2>{grade ? 'Xem lại bài làm' : 'Phiếu trả lời'}</h2>
+            <h2 ref={answerSheetHeadingRef} tabIndex={-1}>{grade ? 'Xem lại bài làm' : 'Phiếu trả lời'}</h2>
             {grade ? <div className="jlpt-review-filter" role="group" aria-label="Lọc câu xem lại"><button type="button" aria-pressed={reviewFilter === 'all'} onClick={() => setReviewFilter('all')}>Tất cả</button><button type="button" aria-pressed={reviewFilter === 'missed'} onClick={() => { setReviewFilter('missed'); const index = session.paper.questions.findIndex((q) => session.answers[q.id] !== grade.answers[q.id].answer); if (index >= 0) goTo(index); }}>Sai / Bỏ trống</button></div> : null}
             {CATEGORIES.map((part) => {
               const items = navigationQuestions.filter(({ q }) => q.category === part.id);
