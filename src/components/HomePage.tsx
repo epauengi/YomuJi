@@ -24,10 +24,10 @@ import { termBookmark } from '@/lib/browserState';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 const decorativeKanji = [
-  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
-  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-rev', blur: 'blur-[1px]' },
-  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.035]', anim: 'animate-kanji-rev', blur: 'none' },
-  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.04]', anim: 'animate-kanji-slow', blur: 'none' },
+  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
+  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-rev', blur: 'blur-[1px]' },
+  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.065]', anim: 'animate-kanji-rev', blur: 'none' },
+  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-slow', blur: 'none' },
 ];
 
 const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
@@ -265,7 +265,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
         className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
       >
         <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.22)_0%,transparent_65%)] blur-3xl" />
+          <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.32)_0%,rgba(20,184,166,0.12)_38%,transparent_68%)] blur-3xl" />
 
           <div
             className="absolute inset-0 transition-transform duration-500 ease-out"
