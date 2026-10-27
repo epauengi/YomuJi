@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Furigana } from '@/components/ui/Furigana';
 import { useWordDetail } from '@/hooks/useDictionary';
+import { TatoebaExamples } from './TatoebaExamples';
 
 export default function WordDetailPage({ slug, sequence, initial }: {
   slug: string;
@@ -185,9 +186,8 @@ export default function WordDetailPage({ slug, sequence, initial }: {
                   <p className="text-[var(--color-text-secondary)]">{example.textVi}</p>
                 </Card>
               ))
-            ) : (
-              <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có ví dụ cho từ này.</p>
-            )}
+            ) : null}
+            <TatoebaExamples key={term.id} word={term.surface} localExamples={term.examples} />
           </section>
         </div>
 

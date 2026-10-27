@@ -45,5 +45,6 @@ Want to run YomuJi locally or work on the project? See the [development guide](.
 ## License & Credits
 
 - **Dictionary and stroke data:** OmohaDictionary, KANJIDIC (Vietnamese), KanjiDictVN, animCJK, and KanjiVG, as listed in the [data manifest](./public/dict/manifest.json).
+- **Community examples:** [Tatoeba API](https://api.tatoeba.org/); Japanese–Vietnamese sentences load automatically on word detail pages, without an API key. Source information is available on the legal page. Requires an internet connection.
 - **Reading library:** [Aozora Bunko](https://www.aozora.gr.jp/); see the app’s [source credits and usage notes](https://yomuji.vercel.app/legal).
 - **Font:** Lora, distributed under the [SIL Open Font License](./public/fonts/OFL.txt).

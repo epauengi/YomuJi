@@ -44,6 +44,7 @@ YomuJi (読む字) は、ベトナム語を使う日本語学習者のための 
 
 ## ライセンス・クレジット
 
+- **コミュニティ用例:** [Tatoeba API](https://api.tatoeba.org/) から日本語・ベトナム語の文を単語詳細に自動表示します。API キー不要、インターネット接続が必要です。出典情報はライセンスページに記載しています。
 - **辞書・筆順データ:** [データマニフェスト](./public/dict/manifest.json)に記載された OmohaDictionary、KANJIDIC (Vietnamese)、KanjiDictVN、animCJK、KanjiVG。
 - **読書ライブラリ:** [青空文庫](https://www.aozora.gr.jp/)。アプリの[出典・利用上の注意](https://yomuji.vercel.app/legal)もご覧ください。
 - **フォント:** Lora。[SIL Open Font License](./public/fonts/OFL.txt)に基づいて配布されています。
