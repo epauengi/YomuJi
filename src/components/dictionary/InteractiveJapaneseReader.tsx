@@ -77,12 +77,14 @@ export function InteractiveJapaneseReader({
     <div className="relative flex h-full flex-col justify-between">
       {/* Top Bar Header */}
       <div>
-        <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-[var(--color-border-subtle)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-info-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-info)]">
-              <BookOpenText size={15} weight="duotone" className="text-[var(--color-info)]" />
-              <span>Bài đọc hôm nay</span>
-            </div>
+            <h2
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[var(--color-info-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-info)]"
+            >
+              <BookOpenText aria-hidden="true" size={15} weight="duotone" className="text-[var(--color-info)]" />
+              <span>Bài đọc ngẫu nhiên</span>
+            </h2>
           </div>
 
           {/* Controls: Vertical Mode Toggle */}
@@ -167,6 +169,8 @@ export function InteractiveJapaneseReader({
           }}
           disabled={isLoading}
           className="tactile inline-flex min-h-11 items-center gap-1.5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)] disabled:opacity-50"
+          title="Đọc bài khác (ngẫu nhiên)"
+          aria-label="Đọc bài khác (ngẫu nhiên)"
         >
           <ArrowsClockwise size={14} className={isLoading ? 'animate-spin' : ''} />
           Đọc bài khác
@@ -177,7 +181,7 @@ export function InteractiveJapaneseReader({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[var(--color-link)] transition-colors hover:text-[var(--color-link-hover)]"
+            className="inline-flex min-h-11 items-center gap-1 text-[var(--color-link)] transition-colors hover:text-[var(--color-link-hover)]"
           >
             Đọc trên Wikipedia
             <ArrowSquareOut size={14} />

@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-dialog.offline-choice-dialog::backdrop {
-  background: rgb(8 20 24 / 0.72);
-}
-
 @font-face {
   font-family: "Lora";
   font-style: normal;
@@ -768,63 +764,6 @@ ruby.jp-ruby rt {
   .kanji-glow {
     transition: none;
   }
-  .hero-orb,
-  .floating-kanji-char {
-    animation: none !important;
-    transform: none !important;
-    transition: none !important;
-  }
-}
-
-/* ========================================
-   Hero Section Animations
-   ======================================== */
-
-@keyframes orb-float-1 {
-  0%, 100% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(35px, -25px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
-}
-
-@keyframes orb-float-2 {
-  0%, 100% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(-40px, 30px) scale(1.15); }
-  66% { transform: translate(25px, -20px) scale(0.9); }
-}
-
-@keyframes orb-float-3 {
-  0%, 100% { transform: translate(0px, 0px) scale(1); }
-  50% { transform: translate(30px, 25px) scale(1.08); }
-}
-
-@keyframes float-kanji-slow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-14px) rotate(3deg); }
-}
-
-@keyframes float-kanji-rev {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(12px) rotate(-3deg); }
-}
-
-.animate-orb-1 {
-  animation: orb-float-1 16s ease-in-out infinite;
-}
-
-.animate-orb-2 {
-  animation: orb-float-2 19s ease-in-out infinite;
-}
-
-.animate-orb-3 {
-  animation: orb-float-3 22s ease-in-out infinite;
-}
-
-.animate-kanji-slow {
-  animation: float-kanji-slow 14s ease-in-out infinite;
-}
-
-.animate-kanji-rev {
-  animation: float-kanji-rev 17s ease-in-out infinite;
 }
 
 @media print {

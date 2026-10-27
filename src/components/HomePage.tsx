@@ -23,11 +23,12 @@ import { wordHref } from '@/lib/wordRoutes';
 import { termBookmark } from '@/lib/browserState';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
+// ponytail: Keep the hero decoration static; add motion only if it improves the lookup experience.
 const decorativeKanji = [
-  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-slow', blur: 'blur-[0.5px]' },
-  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-rev', blur: 'blur-[1px]' },
-  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.065]', anim: 'animate-kanji-rev', blur: 'none' },
-  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.075]', anim: 'animate-kanji-slow', blur: 'none' },
+  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.06]' },
+  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.06]' },
+  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.05]' },
+  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.06]' },
 ];
 
 const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
@@ -105,9 +106,6 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   const [results, setResults] = useState<DictionarySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const heroPointerFrame = useRef<number | null>(null);
-  const heroPointerPosition = useRef({ x: 0, y: 0 });
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
@@ -119,36 +117,6 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   const commitSearch = (value: string) => {
     router.push(searchHref(value));
   };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    heroPointerPosition.current = {
-      x: (e.clientX - rect.left) / rect.width - 0.5,
-      y: (e.clientY - rect.top) / rect.height - 0.5,
-    };
-
-    if (heroPointerFrame.current !== null) return;
-    heroPointerFrame.current = window.requestAnimationFrame(() => {
-      heroPointerFrame.current = null;
-      setMousePos(heroPointerPosition.current);
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (heroPointerFrame.current !== null) {
-      window.cancelAnimationFrame(heroPointerFrame.current);
-      heroPointerFrame.current = null;
-    }
-    heroPointerPosition.current = { x: 0, y: 0 };
-    setMousePos({ x: 0, y: 0 });
-  };
-
-  useEffect(() => () => {
-    if (heroPointerFrame.current !== null) {
-      window.cancelAnimationFrame(heroPointerFrame.current);
-    }
-  }, []);
 
   const loadNewRandomArticle = useCallback(async () => {
     articleRequestRef.current?.abort();
@@ -260,34 +228,24 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   return (
     <div className="pb-16">
       <section
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
       >
-        <div className="hero-background pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="hero-orb animate-orb-3 absolute left-1/2 top-1/2 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.32)_0%,rgba(20,184,166,0.12)_38%,transparent_68%)] blur-3xl" />
-
-          <div
-            className="absolute inset-0 transition-transform duration-500 ease-out"
-            style={{
-              transform: `translate3d(${mousePos.x * 12}px, ${mousePos.y * 12}px, 0)`,
-            }}
-          >
-            {decorativeKanji.map((item, index) => (
-              <span
-                key={`${item.char}-${index}`}
-                aria-hidden="true"
-                style={{
-                  top: item.top,
-                  left: item.left,
-                  right: item.right,
-                }}
-                className={`floating-kanji-char absolute jp-text font-black leading-none text-white ${item.size} ${item.opacity} ${item.anim} ${item.blur}`}
-              >
-                {item.char}
-              </span>
-            ))}
-          </div>
+        {/* Subtle Static Japanese Marks */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          {decorativeKanji.map((item, index) => (
+            <span
+              key={`${item.char}-${index}`}
+              aria-hidden="true"
+              style={{
+                top: item.top,
+                left: item.left,
+                right: item.right,
+              }}
+              className={`absolute select-none jp-text font-black leading-none text-white ${item.size} ${item.opacity}`}
+            >
+              {item.char}
+            </span>
+          ))}
         </div>
 
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center">
@@ -372,7 +330,12 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                 </div>
               ) : (
                 <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                  Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
+                  <p className="font-semibold text-[var(--color-text-primary)]">
+                    Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
+                  </p>
+                  <p className="mt-1.5 text-xs text-[var(--color-text-secondary)]">
+                    Kiểm tra lại chính tả hoặc thử tìm bằng Kanji, Hiragana, Katakana, Romaji hoặc nghĩa tiếng Việt.
+                  </p>
                 </div>
               )}
             </div>
@@ -382,10 +345,10 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
             {recentSearches.length > 0 && (
               <section aria-label="Tìm kiếm gần đây">
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-bold text-[var(--color-text-secondary)]">
+                  <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--color-text-secondary)]">
                     <ClockCounterClockwise size={18} weight="bold" className="text-[var(--color-primary-700)]" />
                     <span>Tìm kiếm gần đây</span>
-                  </div>
+                  </h2>
                   <button
                     type="button"
                     onClick={clearRecentSearches}
@@ -418,10 +381,10 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                   <div className="flex h-full flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
-                          <Sparkle size={15} weight="fill" className="text-[var(--color-warning)]" />
+                        <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
+                          <Sparkle aria-hidden="true" size={15} weight="fill" className="text-[var(--color-warning)]" />
                           Từ vựng hôm nay
-                        </div>
+                        </h2>
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
                           {wordOfTheDay.isCommon ? 'Từ vựng phổ biến' : 'Từ vựng'}
                         </div>
@@ -469,7 +432,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                     <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
                       <Link
                         href={wordHref(wordOfTheDay)}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                        className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
                       >
                         Xem chi tiết từ vựng
                         <CaretRight size={14} weight="bold" />
