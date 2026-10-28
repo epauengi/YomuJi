@@ -10,6 +10,7 @@ import {
   Trash,
 } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { TiltCard } from '@/components/ui/TiltCard';
@@ -99,6 +100,21 @@ async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem 
   return fallbackArticles[randomKey];
 }
 
+function readStoredRecentSearches(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem('yomuji_recent_searches');
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed) && parsed.every((item) => typeof item === 'string')) {
+      return parsed.slice(0, 8);
+    }
+  } catch (err) {
+    console.error('Failed to read search history:', err);
+  }
+  return [];
+}
+
 export function HomePage({ initialQuery }: { initialQuery: string }) {
   const router = useRouter();
   const { progress } = useDictionary();
@@ -109,6 +125,9 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
+  const [wordLoading, setWordLoading] = useState(true);
+  const [wordError, setWordError] = useState<string | null>(null);
+  const [wordRetryKey, setWordRetryKey] = useState(0);
 
   const [readingArticle, setReadingArticle] = useState<ArticleItem | null>(null);
   const [readingLoading, setReadingLoading] = useState(false);
@@ -132,22 +151,51 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
     setReadingLoading(false);
   }, []);
 
+  // ponytail: Tiny retry counter triggers effect reload; upgrade to query client when server sync needed.
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('yomuji_recent_searches');
-      if (saved) setRecentSearches(JSON.parse(saved));
-    } catch (err) {
-      console.error(err);
-    }
+    let active = true;
+    setWordLoading(true);
+    setWordError(null);
 
-    getWordOfTheDay().then((term) => {
-      if (term) setWordOfTheDay(term);
-    }).catch((err: unknown) => {
-      console.error('Word of the day error:', err);
-    });
-    loadNewRandomArticle();
+    getWordOfTheDay()
+      .then((term) => {
+        if (!active) return;
+        if (term) {
+          setWordOfTheDay(term);
+          setWordError(null);
+        } else {
+          setWordOfTheDay(null);
+          setWordError('Chưa có dữ liệu từ vựng hôm nay.');
+        }
+        setWordLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        console.error('Word of the day error:', err);
+        setWordOfTheDay(null);
+        setWordError('Chưa thể tải từ vựng hôm nay. Vui lòng thử lại.');
+        setWordLoading(false);
+      });
 
     return () => {
+      active = false;
+    };
+  }, [wordRetryKey]);
+
+  const handleRetryWord = () => {
+    setWordRetryKey((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    const syncSearches = () => {
+      setRecentSearches(readStoredRecentSearches());
+    };
+    syncSearches();
+    loadNewRandomArticle();
+
+    window.addEventListener('yomuji:recent_searches', syncSearches);
+    return () => {
+      window.removeEventListener('yomuji:recent_searches', syncSearches);
       articleRequestRef.current?.abort();
       articleRequestRef.current = null;
     };
@@ -161,12 +209,14 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
     const trimmed = term.trim();
     if (!trimmed) return;
     setRecentSearches((prev) => {
-      const next = [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 8);
+      const stored = readStoredRecentSearches();
+      const base = stored.length > 0 ? Array.from(new Set([...stored, ...prev])) : prev;
+      const next = [trimmed, ...base.filter((item) => item !== trimmed)].slice(0, 8);
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem('yomuji_recent_searches', JSON.stringify(next));
         } catch (err) {
-          console.error(err);
+          console.error('Failed to save search history:', err);
         }
       }
       return next;
@@ -174,14 +224,39 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   };
 
   const clearRecentSearches = () => {
-    setRecentSearches([]);
+    if (recentSearches.length === 0) return;
+    const snapshot = [...recentSearches];
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('yomuji_recent_searches');
       } catch (err) {
-        console.error(err);
+        console.error('Failed to clear search history:', err);
+        toast.error('Không thể xóa lịch sử trên thiết bị.');
+        return;
       }
     }
+    setRecentSearches([]);
+
+    toast('Đã xóa lịch sử tìm kiếm', {
+      action: {
+        label: 'Hoàn tác',
+        onClick: () => {
+          const latest = readStoredRecentSearches();
+          const merged = Array.from(new Set([...latest, ...snapshot])).slice(0, 8);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('yomuji_recent_searches', JSON.stringify(merged));
+            } catch (err) {
+              console.error('Failed to restore search history:', err);
+              toast.error('Không thể khôi phục lịch sử trên thiết bị.');
+              return;
+            }
+            window.dispatchEvent(new CustomEvent('yomuji:recent_searches'));
+          }
+          setRecentSearches(merged);
+        },
+      },
+    });
   };
 
   const playPronunciation = (text: string) => {
@@ -376,59 +451,91 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
             {/* Bento Grid Dashboard: Row 1 (Word of the day + Wikipedia Interactive Reader) */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2.2fr)] items-stretch">
-              {wordOfTheDay && (
-                <TiltCard className="p-6 sm:p-7 shadow-sm">
-                  <div className="flex h-full flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
-                          <Sparkle aria-hidden="true" size={15} weight="fill" className="text-[var(--color-warning)]" />
-                          Từ vựng hôm nay
-                        </h2>
+              <TiltCard className="p-6 sm:p-7 shadow-sm">
+                <div className="flex h-full flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
+                        <Sparkle aria-hidden="true" size={15} weight="fill" className="text-[var(--color-warning)]" />
+                        Từ vựng hôm nay
+                      </h2>
+                      {wordOfTheDay ? (
                         <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
                           {wordOfTheDay.isCommon ? 'Từ vựng phổ biến' : 'Từ vựng'}
                         </div>
-                      </div>
-
-                      <div className="mt-5 flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-baseline gap-3">
-                            <motion.h3
-                              lang="ja"
-                              layoutId={`term-surface-${wordOfTheDay.id}`}
-                              className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
-                              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                            >
-                              {wordOfTheDay.surface}
-                            </motion.h3>
-                            <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
-                              {wordOfTheDay.reading}
-                            </span>
-                          </div>
-
-                          <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
-                            {wordOfTheDay.meaningsVi.join(', ')}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
-                          <BookmarkButton item={termBookmark(wordOfTheDay)} />
-                        </div>
-                      </div>
-
-                      {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
-                        <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
-                          <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
-                            {wordOfTheDay.examples[0].textJa}
-                          </p>
-                          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-                            {wordOfTheDay.examples[0].textVi}
-                          </p>
-                        </div>
-                      )}
+                      ) : wordLoading ? (
+                        <div className="skeleton-quiet h-6 w-24 rounded-full bg-[var(--color-surface-subtle)]" />
+                      ) : null}
                     </div>
 
+                    {wordLoading ? (
+                      <div className="mt-5 space-y-3" role="status" aria-label="Đang tải từ vựng hôm nay" aria-busy="true">
+                        <div className="skeleton-quiet h-10 w-full rounded-[--radius-md] bg-[var(--color-surface-subtle)]" />
+                        <div className="skeleton-quiet h-6 w-full rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
+                        <div className="skeleton-quiet h-16 w-full rounded-[--radius-md] bg-[var(--color-surface-subtle)]" />
+                        <span className="sr-only">Đang tải từ vựng hôm nay...</span>
+                      </div>
+                    ) : wordError || !wordOfTheDay ? (
+                      <div className="mt-8 flex flex-col items-center justify-center py-6 text-center" role="alert">
+                        <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+                          {wordError || 'Chưa thể tải từ vựng hôm nay.'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleRetryWord}
+                          className="tactile mt-4 inline-flex min-h-11 min-w-[44px] items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-primary-700)] shadow-xs transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]"
+                        >
+                          Thử lại
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="mt-5 flex items-start justify-between gap-4">
+                          <div>
+                            <div className="flex items-baseline gap-3">
+                              <motion.h3
+                                lang="ja"
+                                layoutId={`term-surface-${wordOfTheDay.id}`}
+                                className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
+                                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                              >
+                                {wordOfTheDay.surface}
+                              </motion.h3>
+                              <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                                {wordOfTheDay.reading}
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
+                              {wordOfTheDay.meaningsVi.join(', ')}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
+                            <BookmarkButton item={termBookmark(wordOfTheDay)} />
+                          </div>
+                        </div>
+
+                        {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
+                          <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
+                            <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                              {wordOfTheDay.examples[0].textJa}
+                            </p>
+                            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                              {wordOfTheDay.examples[0].textVi}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {wordLoading ? (
+                    <div className="mt-6 flex justify-end border-t border-[var(--color-border-subtle)] pt-3">
+                      <div className="skeleton-quiet h-5 w-36 rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
+                    </div>
+                  ) : wordOfTheDay ? (
                     <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
                       <Link
                         href={wordHref(wordOfTheDay)}
@@ -438,9 +545,9 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                         <CaretRight size={14} weight="bold" />
                       </Link>
                     </div>
-                  </div>
-                </TiltCard>
-              )}
+                  ) : null}
+                </div>
+              </TiltCard>
 
               {/* Interactive Japanese Reader Box */}
               <TiltCard className="p-6 sm:p-7 shadow-sm">
