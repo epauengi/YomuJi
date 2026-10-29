@@ -22,7 +22,7 @@ For online dictionary search or AI explanations, create an ignored `.env.local` 
 - **Supabase dictionary:** `DICTIONARY_BACKEND=supabase` (default), `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The database needs the dictionary schema and data; see [`supabase/`](../supabase/).
 - **Turso dictionary:** `DICTIONARY_BACKEND=turso`, `TURSO_DATABASE_URL`, and `TURSO_AUTH_TOKEN`. Schema and validation tooling are in [`turso/`](../turso/); operational notes are in the existing [migration handbook](./turso-migration.md).
 - **Backend comparison:** `DICTIONARY_BACKEND=compare` needs both backends and is intended for development checks.
-- **AI kanji explanations:** `GEMINI_API_KEY`.
+- **AI kanji explanations:** `NVIDIA_API_KEY` for NVIDIA NIM (`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`), with `GEMINI_API_KEY` as fallback. Either provider can be configured alone. Keys are server-only. NVIDIA API reference: https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-nano-omni-30b-a3b-reasoning-infer.
 - **Administrative scripts:** `SUPABASE_SERVICE_ROLE_KEY` is for server-side administrative access, not browser use or basic local startup.
 
 Never commit credentials. Keep service-role keys, database tokens, and AI keys server-side; do not give them a `NEXT_PUBLIC_` prefix. Restart the development server after changing service configuration.

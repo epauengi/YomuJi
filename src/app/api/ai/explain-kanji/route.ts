@@ -24,6 +24,7 @@ type KanjiRequest = {
 
 type JsonRecord = Record<string, unknown>;
 
+const NVIDIA_MODEL = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning';
 const GEMINI_MODELS = [
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
@@ -177,6 +178,46 @@ function getErrorClass(error: unknown) {
   return 'network';
 }
 
+async function callNvidia(prompt: string): Promise<KanjiAiExplanation | null> {
+  const apiKey = process.env.NVIDIA_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      method: 'POST',
+      redirect: 'error',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      body: JSON.stringify({
+        model: NVIDIA_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3,
+        max_tokens: 1_200,
+        stream: false,
+      }),
+    });
+    if (!response.ok) {
+      reportProviderFailure('nvidia', NVIDIA_MODEL, 'http_error', response.status);
+      return null;
+    }
+
+    const data: unknown = await response.json();
+    const content = isRecord(data) && Array.isArray(data.choices) && isRecord(data.choices[0])
+      && isRecord(data.choices[0].message)
+      ? data.choices[0].message.content
+      : null;
+    const explanation = parseExplanation(content);
+    if (explanation) return explanation;
+    reportProviderFailure('nvidia', NVIDIA_MODEL, 'invalid_response', response.status);
+  } catch (error) {
+    reportProviderFailure('nvidia', NVIDIA_MODEL, getErrorClass(error));
+  }
+  return null;
+}
+
 async function callGemini(prompt: string): Promise<KanjiAiExplanation | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -251,7 +292,7 @@ export async function POST(request: Request) {
 
   try {
     const prompt = buildPrompt(input);
-    const explanation = await callGemini(prompt);
+    const explanation = await callNvidia(prompt) ?? await callGemini(prompt);
     if (explanation) return NextResponse.json({ explanation });
 
     return NextResponse.json({ error: FRIENDLY_ERROR }, { status: 503 });
