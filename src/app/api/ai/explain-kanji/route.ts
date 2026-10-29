@@ -24,18 +24,12 @@ type KanjiRequest = {
 
 type JsonRecord = Record<string, unknown>;
 
-const TOKENROUTER_BASE_URL = 'https://api.tokenrouter.com/v1';
-const TOKENROUTER_MODELS = [
-  'qwen/qwen3.8-max-free',
-  'deepseek/deepseek-v4-pro-0813-free',
-];
 const GEMINI_MODELS = [
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
   'gemini-3-flash-preview',
 ];
 const REQUEST_TIMEOUT_MS = 15_000;
-const TOKENROUTER_TIMEOUT_MS = 8_000;
 const MAX_METADATA_ITEMS = 20;
 const MAX_METADATA_ITEM_LENGTH = 120;
 const MAX_EXPLANATION_LENGTH = 4_000;
@@ -183,60 +177,6 @@ function getErrorClass(error: unknown) {
   return 'network';
 }
 
-async function callTokenRouter(prompt: string): Promise<KanjiAiExplanation | null> {
-  const apiKey = process.env.TOKENROUTER_API_KEY;
-  if (!apiKey) {
-    reportProviderFailure('tokenrouter', TOKENROUTER_MODELS[0], 'missing_api_key');
-    return null;
-  }
-
-  for (const model of TOKENROUTER_MODELS) {
-    try {
-      const response = await fetch(`${TOKENROUTER_BASE_URL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(TOKENROUTER_TIMEOUT_MS),
-        body: JSON.stringify({
-          model,
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.3,
-          max_tokens: 1_200,
-          response_format: { type: 'json_object' },
-        }),
-      });
-
-      if (!response.ok) {
-        reportProviderFailure('tokenrouter', model, 'http_error', response.status);
-        continue;
-      }
-
-      let data: unknown;
-      try {
-        data = await response.json();
-      } catch {
-        reportProviderFailure('tokenrouter', model, 'invalid_response', response.status);
-        continue;
-      }
-
-      const content = isRecord(data) && Array.isArray(data.choices) && isRecord(data.choices[0])
-        && isRecord(data.choices[0].message)
-        ? data.choices[0].message.content
-        : null;
-      const explanation = parseExplanation(content);
-      if (explanation) return explanation;
-
-      reportProviderFailure('tokenrouter', model, 'invalid_response', response.status);
-    } catch (error) {
-      reportProviderFailure('tokenrouter', model, getErrorClass(error));
-    }
-  }
-
-  return null;
-}
-
 async function callGemini(prompt: string): Promise<KanjiAiExplanation | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -311,7 +251,7 @@ export async function POST(request: Request) {
 
   try {
     const prompt = buildPrompt(input);
-    const explanation = await callTokenRouter(prompt) ?? await callGemini(prompt);
+    const explanation = await callGemini(prompt);
     if (explanation) return NextResponse.json({ explanation });
 
     return NextResponse.json({ error: FRIENDLY_ERROR }, { status: 503 });

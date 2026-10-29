@@ -22,7 +22,7 @@ For online dictionary search or AI explanations, create an ignored `.env.local` 
 - **Supabase dictionary:** `DICTIONARY_BACKEND=supabase` (default), `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The database needs the dictionary schema and data; see [`supabase/`](../supabase/).
 - **Turso dictionary:** `DICTIONARY_BACKEND=turso`, `TURSO_DATABASE_URL`, and `TURSO_AUTH_TOKEN`. Schema and validation tooling are in [`turso/`](../turso/); operational notes are in the existing [migration handbook](./turso-migration.md).
 - **Backend comparison:** `DICTIONARY_BACKEND=compare` needs both backends and is intended for development checks.
-- **AI kanji explanations:** `TOKENROUTER_API_KEY` and/or `GEMINI_API_KEY`, depending on the provider used.
+- **AI kanji explanations:** `GEMINI_API_KEY`.
 - **Administrative scripts:** `SUPABASE_SERVICE_ROLE_KEY` is for server-side administrative access, not browser use or basic local startup.
 
 Never commit credentials. Keep service-role keys, database tokens, and AI keys server-side; do not give them a `NEXT_PUBLIC_` prefix. Restart the development server after changing service configuration.
@@ -56,4 +56,4 @@ Routine setup does not require rebuilding or migrating dictionary data. `npm run
 - [`src/lib/browserState.ts`](../src/lib/browserState.ts) — Browser-local saved items and preferences.
 - [`public/dict/`](../public/dict/) — Checked-in dictionary data and stroke assets.
 
-Verify new product claims against the actual screens. JLPT is a placeholder; `/flashcards` and `/conjugation` use sample data. `/review` uses saved vocabulary but does not persist session results. Keep the English and Japanese READMEs synchronized when user-facing behavior changes.
+Verify new product claims against the actual screens. JLPT is a placeholder; `/flashcards` uses sample data. `/review` uses saved vocabulary but does not persist session results. Keep the English and Japanese READMEs synchronized when user-facing behavior changes.

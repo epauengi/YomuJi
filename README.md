@@ -36,7 +36,7 @@ Use it directly in your browser, on a phone or computer. The interface is in Vie
 
 If a lookup reports that the online dictionary is unavailable, open **Thiết lập (Settings) → Tải dữ liệu offline** while connected to the internet, let the download finish, then retry. Some word details and audio may still need a connection.
 
-Saved items stay in the current browser; review results last only for the current session. Flashcard decks and conjugation tables are sample previews, not complete study tools. JLPT study is not yet available.
+Saved items stay in the current browser; review results last only for the current session. Flashcard decks are sample previews, not complete study tools. Conjugation analysis is integrated into dictionary search, with expandable form tables on word detail pages. JLPT study is not yet available.
 
 ## Development
 
