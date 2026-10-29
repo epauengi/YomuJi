@@ -13,6 +13,7 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
+import { ConjugationAnalysis } from '@/components/dictionary/ConjugationAnalysis';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
@@ -370,6 +371,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
               </div>
             </div>
 
+            {!loading && <ConjugationAnalysis key={query} query={query} results={results} />}
             <div aria-live="polite">
               {progress.source === 'offline' && (
                 <div className="mb-4 rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">

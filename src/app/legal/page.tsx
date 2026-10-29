@@ -8,6 +8,10 @@ export default function LegalPage() {
     <Link href="/books" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Quay lại thư viện</Link>
     <h1 className="mt-6 font-serif text-3xl font-semibold sm:text-4xl">Nguồn dữ liệu và giấy phép</h1>
     <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
+      <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Phân tích và bảng chia tiếng Nhật</h2>
+      <p>Dữ liệu nhận diện dạng chia và bảng chia được cung cấp bởi <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://kotoba.lt/api">Kotoba.lt</a>, từ điển Nhật–Litva. Nghĩa Nhật–Việt vẫn lấy từ từ điển hiện có. Tham khảo <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://kotoba.lt/api#attribution">điều kiện sử dụng API</a>.</p>
+      </section>
+      <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
       <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Câu ví dụ Nhật–Việt</h2>
       <p>Câu ví dụ cộng đồng được tải từ <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://tatoeba.org/">Tatoeba</a>. Dữ liệu văn bản sử dụng giấy phép CC BY 2.0 FR hoặc CC0 1.0 tùy từng câu. Nội dung có thể có sai sót; ví dụ không được lọc theo nghĩa riêng của mục từ. Giọng đọc do YomuJi tổng hợp, không phải bản thu của Tatoeba.</p>
     </section>

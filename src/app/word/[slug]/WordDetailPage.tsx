@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/Card';
 import { Furigana } from '@/components/ui/Furigana';
 import { useWordDetail } from '@/hooks/useDictionary';
 import { TatoebaExamples } from './TatoebaExamples';
+import { ConjugationTable } from '@/components/dictionary/ConjugationTable';
 
 export default function WordDetailPage({ slug, sequence, initial }: {
   slug: string;
@@ -169,6 +170,8 @@ export default function WordDetailPage({ slug, sequence, initial }: {
               <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có nghĩa tiếng Việt cho mục từ này.</p>
             )}
           </section>
+
+          <ConjugationTable key={term.id} term={term} />
 
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
