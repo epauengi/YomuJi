@@ -16,7 +16,7 @@ import { wordHref } from '@/lib/wordRoutes';
 import { kanjiBookmark } from '@/lib/browserState';
 import type { TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
-import { getVietnameseKanjiMeanings } from '@/lib/dictionary/kanjiMeanings';
+import { attachKanjiMeaningExamples, formatKanjiHanViet, getVietnameseKanjiMeanings } from '@/lib/dictionary/kanjiMeanings';
 
 export default function KanjiDetailPage() {
   const params = useParams();
@@ -95,7 +95,12 @@ export default function KanjiDetailPage() {
     }
   };
 
-  const meanings = useMemo(() => getVietnameseKanjiMeanings(kanji?.meanings), [kanji]);
+  const meanings = useMemo(() => attachKanjiMeaningExamples(
+    getVietnameseKanjiMeanings(kanji?.meanings),
+    compounds,
+    kanji?.literal ?? literal,
+  ), [kanji, compounds, literal]);
+  const hanVietReadings = useMemo(() => formatKanjiHanViet(kanji?.hanViet), [kanji]);
   const analysisLabel = kanji?.components.length ? kanji.components.join(' + ') : `${literal} (bộ thủ)`;
 
   if (status === 'loading') {
@@ -136,10 +141,10 @@ export default function KanjiDetailPage() {
           </motion.h1>
           <div className="min-w-0 pt-1">
             <div className="text-2xl font-medium leading-tight text-[var(--color-text-primary)] sm:text-3xl">
-              {kanji.hanViet.join(', ') || 'Không rõ'}
+              {hanVietReadings.join(', ') || 'Không rõ'}
             </div>
             <p className="mt-2 max-w-xl text-base leading-7 text-[var(--color-text-secondary)]">
-              {meanings.slice(0, 4).join(', ') || 'Chưa có nghĩa tiếng Việt trong dữ liệu hiện tại.'}
+              {meanings.slice(0, 4).map(({ label }) => label).join(', ') || 'Chưa có nghĩa tiếng Việt trong dữ liệu hiện tại.'}
             </p>
           </div>
         </div>
@@ -170,11 +175,18 @@ export default function KanjiDetailPage() {
 
             <InfoBlock label="Ý nghĩa">
               {meanings.length ? (
-                <div className="flex flex-wrap gap-x-2 gap-y-1 text-xl font-medium leading-relaxed text-[var(--color-primary-700)]">
-                  {meanings.slice(0, 6).map((meaning: string, index: number) => (
-                    <span key={`${meaning}-${index}`}>{meaning}{index < Math.min(meanings.length, 6) - 1 ? ',' : ''}</span>
+                <ul className="list-disc space-y-3 pl-5">
+                  {meanings.slice(0, 6).map((meaning, index) => (
+                    <li key={`${meaning.label}-${index}`}>
+                      <p className="font-medium text-[var(--color-text-primary)]">{meaning.label}</p>
+                      {meaning.examples.length > 0 && (
+                        <p className="mt-0.5 text-sm leading-6 text-[var(--color-text-secondary)]">
+                          VD: {meaning.examples.map((example) => `${example.surface} (${example.meaning})`).join(', ')}
+                        </p>
+                      )}
+                    </li>
                   ))}
-                </div>
+                </ul>
               ) : (
                 <span className="text-[var(--color-text-secondary)]">Chưa có nghĩa tiếng Việt trong dữ liệu hiện tại.</span>
               )}
@@ -237,7 +249,7 @@ export default function KanjiDetailPage() {
                 onClick={() => {
                   if (typeof navigator !== 'undefined' && navigator.share) {
                     navigator.share({
-                      title: `Chữ Hán: ${kanji.literal} (${kanji.hanViet.join(', ')})`,
+                      title: `Chữ Hán: ${kanji.literal} (${hanVietReadings.join(', ')})`,
                       url: window.location.href,
                     }).catch(() => {});
                   } else if (typeof navigator !== 'undefined' && navigator.clipboard) {

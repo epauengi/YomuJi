@@ -846,13 +846,9 @@ export async function getKanjiByLevel(level?: JLPTLevel): Promise<KanjiRecord[]>
 
 export async function getCompoundsForKanji(literal: string, limit = 12): Promise<TermRecord[]> {
   await hydrateCachedDictionary();
-  const matches = globalSearchIndex.filter((entry) => entry.kanji.includes(literal)).slice(0, limit);
-  const terms: TermRecord[] = [];
-
-  for (const match of matches) {
-    const term = await findLocalTerm(match.termId);
-    if (term) terms.push(term);
-  }
-
-  return terms;
+  if (!globalSearchIndex.length) await startStaticSync();
+  const matches = globalSearchIndex
+    .filter((entry) => entry.kanji.includes(literal) && entry.surface !== literal)
+    .slice(0, limit);
+  return matches.map(termFromSearchEntry);
 }
