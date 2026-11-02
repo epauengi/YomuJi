@@ -16,16 +16,7 @@ import { wordHref } from '@/lib/wordRoutes';
 import { kanjiBookmark } from '@/lib/browserState';
 import type { TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
-
-function looksVietnamese(text: string) {
-  const value = String(text || '').trim();
-  if (!value) return false;
-  if (/[ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(value)) {
-    return true;
-  }
-
-  return /\b(của|là|và|người|được|trong|theo|một|như|với|thứ|dùng|gọi|yêu|thương|buồn|đỏ|lớn|nhỏ|nghĩa)\b/i.test(value);
-}
+import { getVietnameseKanjiMeanings } from '@/lib/dictionary/kanjiMeanings';
 
 export default function KanjiDetailPage() {
   const params = useParams();
@@ -104,7 +95,7 @@ export default function KanjiDetailPage() {
     }
   };
 
-  const meanings = useMemo(() => (kanji?.meanings || []).filter(looksVietnamese), [kanji]);
+  const meanings = useMemo(() => getVietnameseKanjiMeanings(kanji?.meanings), [kanji]);
   const analysisLabel = kanji?.components.length ? kanji.components.join(' + ') : `${literal} (bộ thủ)`;
 
   if (status === 'loading') {

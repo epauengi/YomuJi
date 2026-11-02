@@ -21,6 +21,7 @@ const KANJIVG_DIR = path.join(RAW_DATA_BASE, 'kanjivg-master', 'kanjivg-master')
 
 // Output target path
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'dict');
+const BUMP_DATA_VERSION = '1.0.1';
 
 // Kana to Romaji converter
 const KANA_ROMAJI_MAP: Record<string, string> = {
@@ -364,7 +365,7 @@ async function main() {
     }
   }
 
-  // Enrich with KanjiDictVN out_vn
+  // Enrich with KanjiDictVN out_vn; its meanings are the concise Vietnamese source.
   if (fs.existsSync(KANJIDICT_VN_DIR)) {
     const vnFiles = fs.readdirSync(KANJIDICT_VN_DIR).filter((f) => f.startsWith('kanji_bank_') && f.endsWith('.json'));
     for (const file of vnFiles) {
@@ -391,6 +392,7 @@ async function main() {
           kanjiRecordsMap.set(literal, record);
         } else {
           if (cleanHanViet.length > 0) record.hanViet = Array.from(new Set([...cleanHanViet, ...record.hanViet]));
+          if (Array.isArray(meanings) && meanings.length > 0) record.meanings = meanings;
           if (meta?.Radical) record.radical = meta.Radical;
           if (meta?.PenStrokes) record.penStrokes = meta.PenStrokes;
         }
@@ -461,7 +463,7 @@ async function main() {
   for (let i = 0; i < kanjiShardCount; i++) {
     const shardId = `kanji-${String(i + 1).padStart(4, '0')}`;
     const chunk = allKanji.slice(i * KANJI_PER_SHARD, (i + 1) * KANJI_PER_SHARD);
-    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: '1.0.0', type: 'kanji', records: chunk });
+    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: BUMP_DATA_VERSION, type: 'kanji', records: chunk });
 
     const fileName = `shard-${String(i + 1).padStart(4, '0')}.json`;
     const fileRelPath = `kanji/${fileName}`;
@@ -517,7 +519,7 @@ async function main() {
   // Write Manifest
   const manifest: DictionaryManifest = {
     schemaVersion: 1,
-    dataVersion: '1.0.0',
+    dataVersion: BUMP_DATA_VERSION,
     generatedAt: new Date().toISOString(),
     basePath: '/dict',
     totals: {
