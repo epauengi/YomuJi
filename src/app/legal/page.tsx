@@ -8,6 +8,11 @@ export default function LegalPage() {
     <Link href="/books" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Quay lại thư viện</Link>
     <h1 className="mt-6 font-serif text-3xl font-semibold sm:text-4xl">Nguồn dữ liệu và giấy phép</h1>
     <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
+      <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Dữ liệu từ điển</h2>
+      <p>Mục từ, cấu trúc nhóm nghĩa và ví dụ Nhật–Việt được lấy từ OmohaDictionary. Omoha dựa trên cấu trúc dữ liệu <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html">JMdict</a> của Electronic Dictionary Research and Development Group (EDRDG); JMdict tuân theo <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://www.edrdg.org/edrdg/licence.html">giấy phép EDRDG</a> (CC BY-SA 4.0). Bản dịch tiếng Việt do Omoha cung cấp; giấy phép riêng của phần dịch này chưa được xác minh.</p>
+      <p>Ví dụ nằm trong mục từ do Omoha cung cấp, có tham chiếu nguồn Tatoeba; thông tin tác giả và giấy phép từng câu trong bản dữ liệu này chưa được xác minh.</p>
+    </section>
+    <section className="mt-10 space-y-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
       <h2 className="font-serif text-2xl font-semibold text-[var(--color-text-primary)]">Phân tích và bảng chia tiếng Nhật</h2>
       <p>Dữ liệu nhận diện dạng chia và bảng chia được cung cấp bởi <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://kotoba.lt/api">Kotoba.lt</a>, từ điển Nhật–Litva. Nghĩa Nhật–Việt vẫn lấy từ từ điển hiện có. Tham khảo <a className="text-[var(--color-primary-700)] underline underline-offset-4" href="https://kotoba.lt/api#attribution">điều kiện sử dụng API</a>.</p>
       </section>

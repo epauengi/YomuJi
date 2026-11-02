@@ -447,12 +447,11 @@ export function initDictionary(): Promise<void> {
 }
 
 export function downloadOfflineDictionary(): Promise<void> {
-  if (isStaticFallbackReady) return Promise.resolve();
   if (offlineDownloadPromise) return offlineDownloadPromise;
 
   const download = (async () => {
     await hydrateCachedDictionary();
-    if (!isStaticFallbackReady) await startStaticSync();
+    await startStaticSync();
   })();
   offlineDownloadPromise = download
     .catch((error: unknown) => {

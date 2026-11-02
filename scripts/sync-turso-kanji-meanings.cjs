@@ -8,7 +8,7 @@ const { createClient } = require('@libsql/client');
 const args = process.argv.slice(2);
 assert(args.every((arg) => arg === '--dry-run'), 'Usage: node scripts/sync-turso-kanji-meanings.cjs [--dry-run]');
 const dryRun = args.includes('--dry-run');
-const expectedVersion = '1.0.1';
+const expectedVersion = '1.1.0';
 const databaseUrl = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 assert(databaseUrl && authToken, 'TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are required');

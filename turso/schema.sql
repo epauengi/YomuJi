@@ -28,6 +28,16 @@ CREATE INDEX IF NOT EXISTS idx_terms_romaji ON terms(romaji);
 CREATE INDEX IF NOT EXISTS idx_terms_score ON terms(score DESC);
 CREATE INDEX IF NOT EXISTS idx_terms_is_common ON terms(is_common);
 
+-- Omoha grouped details; additive so existing term rows and indexes stay intact.
+CREATE TABLE IF NOT EXISTS term_senses (
+  term_id TEXT PRIMARY KEY NOT NULL REFERENCES terms(id) ON DELETE CASCADE,
+  sequence INTEGER NOT NULL UNIQUE,
+  data_version TEXT NOT NULL,
+  written_forms TEXT NOT NULL DEFAULT '[]',
+  reading_forms TEXT NOT NULL DEFAULT '[]',
+  senses TEXT NOT NULL DEFAULT '[]'
+);
+
 -- Full-Text Search (FTS5) for Terms
 CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
   id UNINDEXED,

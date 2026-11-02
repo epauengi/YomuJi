@@ -45,7 +45,7 @@ npm run turso:validate
 
 There is no test script. The current `npm run lint` calls `next lint`, which is unavailable in Next.js 16; no ESLint flat configuration is checked in.
 
-Routine setup does not require rebuilding or migrating dictionary data. `npm run build:dict` depends on raw source files at a hard-coded local path in [`scripts/build-dictionary.ts`](../scripts/build-dictionary.ts). `npm run turso:migrate` writes to the configured database; review the migration handbook and script before running it. **Do not run `npm run supabase:clear` for setup: it deletes dictionary data.**
+Routine setup does not require rebuilding or migrating dictionary data. `npm run build:dict` reads local source files from `YOMUJI_DATA_DIR` (or the default path in [`scripts/build-dictionary.ts`](../scripts/build-dictionary.ts)) and generates versioned sense sidecars alongside dictionary shards. Publish the sidecars with the app; online details fall back to flat meanings if they are unavailable. Existing offline users can select **Thiết lập → Cập nhật dữ liệu offline**. `npm run turso:migrate` drops and recreates tables in the configured database; review the migration handbook and script before running it. **Do not run `npm run supabase:clear` for setup: it deletes dictionary data.**
 
 ## Code Map
 

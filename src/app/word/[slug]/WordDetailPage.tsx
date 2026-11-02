@@ -16,6 +16,10 @@ import { Furigana } from '@/components/ui/Furigana';
 import { useWordDetail } from '@/hooks/useDictionary';
 import { TatoebaExamples } from './TatoebaExamples';
 import { ConjugationTable } from '@/components/dictionary/ConjugationTable';
+import {
+  getCleanSenseLabels,
+  formatSenseRestrictions,
+} from '@/lib/dictionary/sensePresenter';
 
 export default function WordDetailPage({ slug, sequence, initial }: {
   slug: string;
@@ -72,6 +76,25 @@ export default function WordDetailPage({ slug, sequence, initial }: {
   const kanjiReadings = term.kanjiReadings || [];
   const audioText = term.reading || term.surface;
 
+  // Alternate written forms
+  const alternateWrittenForms = Array.from(
+    new Set((term.writtenForms || []).map((f) => f.trim()).filter((f) => Boolean(f) && f !== term.surface))
+  );
+
+  // Senses and examples handling
+  const hasSenses = Boolean(term.senses && term.senses.length > 0);
+  const allSenseExamples = hasSenses
+    ? (term.senses || []).flatMap((s) => s.examples || [])
+    : [];
+  const standaloneExamples = hasSenses
+    ? (term.examples || []).filter(
+        (ex) => !allSenseExamples.some((sEx) => sEx.textJa.trim() === ex.textJa.trim() || (sEx.id && sEx.id === ex.id))
+      )
+    : term.examples || [];
+  const allLocalExamples = hasSenses
+    ? [...allSenseExamples, ...standaloneExamples]
+    : term.examples || [];
+
   // Extract per-kanji characters from surface for clickable links
   const surfaceKanjiChars: string[] = [];
   for (const ch of term.surface) {
@@ -112,6 +135,17 @@ export default function WordDetailPage({ slug, sequence, initial }: {
               <span lang="ja" className="jp-text text-lg font-medium text-[var(--color-text-secondary)]">{term.reading}</span>
               {term.romaji && <span className="text-sm text-[var(--color-text-muted)]">[{term.romaji}]</span>}
             </div>
+
+            {alternateWrittenForms.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 text-sm text-[var(--color-text-secondary)]">
+                <span className="text-[var(--color-text-muted)]">Dạng viết khác:</span>
+                {alternateWrittenForms.map((form, idx) => (
+                  <span key={`${form}-${idx}`} lang="ja" className="jp-text font-medium text-[var(--color-text-primary)]">
+                    {form}{idx < alternateWrittenForms.length - 1 ? '、' : ''}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <AudioButton text={audioText} />
@@ -155,19 +189,104 @@ export default function WordDetailPage({ slug, sequence, initial }: {
               <BookOpenText size={20} className="text-[var(--color-primary-600)]" />
               <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Nghĩa của từ</h2>
             </div>
-            {term.meaningsVi.length > 0 ? (
-              term.meaningsVi.map((meaning, index) => (
-                <Card key={`${meaning}-${index}`} variant="subtle" className="surface-lift">
-                  <div className="flex gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-xs font-bold text-[var(--color-primary-700)]">
-                      {index + 1}
-                    </span>
-                    <p className="text-lg text-[var(--color-text-primary)]">{meaning}</p>
-                  </div>
-                </Card>
-              ))
+            {hasSenses ? (
+              <ol className="flex flex-col divide-y divide-[var(--color-border)] rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)]">
+                {term.senses!.map((sense, index) => {
+                  const labels = getCleanSenseLabels(sense.partOfSpeech, sense.misc);
+                  const restrictions = formatSenseRestrictions(sense.appliesToKanji, sense.appliesToReadings);
+                  return (
+                    <li key={`sense-${index}`} className="flex flex-col gap-3 p-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-xs font-bold text-[var(--color-primary-700)]">
+                          {index + 1}
+                        </span>
+                        {labels.map((label, lIdx) => (
+                          <span
+                            key={`${label}-${lIdx}`}
+                            className="inline-flex items-center rounded-[--radius-sm] bg-[var(--color-surface-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                        {restrictions.map((restriction, rIdx) => (
+                          <span
+                            key={`${restriction}-${rIdx}`}
+                            className="inline-flex items-center rounded-[--radius-sm] bg-[var(--color-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-primary)]"
+                          >
+                            {restriction}
+                          </span>
+                        ))}
+                      </div>
+
+                      {sense.meaningsVi && sense.meaningsVi.length > 0 ? (
+                        <ul className="flex flex-col gap-1.5 pl-2 text-[var(--color-text-primary)] sm:pl-8">
+                          {sense.meaningsVi.map((meaning, mIdx) => (
+                            <li key={mIdx} className="flex items-start gap-2 text-base leading-relaxed">
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary-500)]" aria-hidden="true" />
+                              <span>{meaning}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="pl-2 text-sm italic text-[var(--color-text-muted)] sm:pl-8">
+                          Chưa có nghĩa tiếng Việt.
+                        </p>
+                      )}
+
+                      {sense.examples && sense.examples.length > 0 && (
+                        <div className="mt-2 flex flex-col gap-2.5 pl-2 sm:pl-8">
+                          {sense.examples.map((example) => (
+                            <div
+                              key={example.id || `${example.textJa}-${example.textVi}`}
+                              className="rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5"
+                            >
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <p lang="ja" className="jp-text text-base font-medium leading-relaxed text-[var(--color-text-primary)]">
+                                  {example.textJa}
+                                </p>
+                                <AudioButton text={example.textJa} label="Nghe câu" variant="compact" className="shrink-0" />
+                              </div>
+                              {example.highlight && (
+                                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                                  Từ trong câu: <span lang="ja" className="jp-text font-medium">{example.highlight}</span>
+                                </p>
+                              )}
+                              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{example.textVi}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
             ) : (
-              <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có nghĩa tiếng Việt cho mục từ này.</p>
+              <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+                {term.partOfSpeech && term.partOfSpeech.length > 0 && (
+                  <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                    {getCleanSenseLabels(term.partOfSpeech).map((label, idx) => (
+                      <span
+                        key={`${label}-${idx}`}
+                        className="inline-flex items-center rounded-[--radius-sm] bg-[var(--color-surface-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]"
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {term.meaningsVi && term.meaningsVi.length > 0 ? (
+                  <ul className="flex flex-col gap-2 text-[var(--color-text-primary)]">
+                    {term.meaningsVi.map((meaning, index) => (
+                      <li key={`${meaning}-${index}`} className="flex items-start gap-2.5 text-base leading-relaxed">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary-500)]" aria-hidden="true" />
+                        <span>{meaning}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm italic text-[var(--color-text-muted)]">Hiện chưa có nghĩa tiếng Việt cho mục từ này.</p>
+                )}
+              </div>
             )}
           </section>
 
@@ -178,19 +297,22 @@ export default function WordDetailPage({ slug, sequence, initial }: {
               <Repeat size={20} className="text-[var(--color-primary-600)]" />
               <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Ví dụ minh họa</h2>
             </div>
-            {term.examples.length ? (
-              term.examples.map((example) => (
-                <Card key={example.id} className="surface-lift flex flex-col gap-3 shadow-none">
+            {standaloneExamples.length > 0 &&
+              standaloneExamples.map((example) => (
+                <Card key={example.id || `${example.textJa}-${example.textVi}`} className="surface-lift flex flex-col gap-3 shadow-none">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <p lang="ja" className="jp-text text-lg font-medium leading-8 text-[var(--color-text-primary)]">{example.textJa}</p>
                     <AudioButton text={example.textJa} label="Nghe câu" className="shrink-0" />
                   </div>
-                  {example.highlight && <p className="text-sm text-[var(--color-text-muted)]">Từ trong câu: <span lang="ja" className="jp-text">{example.highlight}</span></p>}
+                  {example.highlight && (
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                      Từ trong câu: <span lang="ja" className="jp-text">{example.highlight}</span>
+                    </p>
+                  )}
                   <p className="text-[var(--color-text-secondary)]">{example.textVi}</p>
                 </Card>
-              ))
-            ) : null}
-            <TatoebaExamples key={term.id} word={term.surface} localExamples={term.examples} />
+              ))}
+            <TatoebaExamples key={term.id} word={term.surface} localExamples={allLocalExamples} />
           </section>
         </div>
 

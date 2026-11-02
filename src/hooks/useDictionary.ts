@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { lookupWordRoute } from '@/lib/dictionaryService';
 import type { TermLookupResponse } from '@/types/dictionary';
 import {
+  enrichTermWithSenseRecord,
+  loadSenseDetailForTerm,
+} from '@/lib/dictionary/senseDetails';
+import {
   searchDictionary,
   searchKanjiDictionary,
   findKanji,
@@ -87,11 +91,19 @@ function errorMessage(error: unknown) {
  */
 export function useWordDetail(slug: string, sequence?: string, initial?: TermLookupResponse) {
   const key = JSON.stringify([slug, sequence]);
+  const [prevKey, setPrevKey] = useState(key);
   const [attempt, setAttempt] = useState(0);
   const initialState: DetailState<TermLookupResponse> = initial
     ? { key, status: 'found', value: initial, error: null }
     : loadingState(key);
   const [state, setState] = useState(initialState);
+
+  if (prevKey !== key) {
+    setPrevKey(key);
+    setAttempt(0);
+    setState(initialState);
+  }
+
   const currentState = state.key === key ? state : initialState;
 
   useEffect(() => {
@@ -107,6 +119,43 @@ export function useWordDetail(slug: string, sequence?: string, initial?: TermLoo
       });
     return () => controller.abort();
   }, [slug, sequence, key, attempt, initial]);
+
+  const currentTerm = currentState.status === 'found' ? currentState.value.term : undefined;
+  const currentTermId = currentTerm?.id;
+  const currentSequence = currentTerm?.sequence;
+  const hasSenses = Boolean(currentTerm?.senses && currentTerm.senses.length > 0);
+
+  useEffect(() => {
+    if (!currentTerm || hasSenses) return;
+    if (typeof currentSequence !== 'number' || !Number.isInteger(currentSequence) || currentSequence <= 0) return;
+
+    const controller = new AbortController();
+
+    loadSenseDetailForTerm(currentTerm, controller.signal)
+      .then((record) => {
+        if (controller.signal.aborted || !record) return;
+        setState((prev) => {
+          const baseState = prev.key === key ? prev : initialState;
+          if (baseState.status !== 'found' || !baseState.value.term) return prev;
+          if (baseState.value.term.id !== record.id) return prev;
+          if (baseState.value.term.senses && baseState.value.term.senses.length > 0) return prev;
+          return {
+            key,
+            status: 'found',
+            error: null,
+            value: {
+              ...baseState.value,
+              term: enrichTermWithSenseRecord(baseState.value.term, record),
+            },
+          };
+        });
+      })
+      .catch(() => {
+        // preserve existing flat UI
+      });
+
+    return () => controller.abort();
+  }, [key, currentTermId, currentSequence, hasSenses, currentTerm, initial]);
 
   return {
     term: currentState.status === 'found' ? currentState.value.term : undefined,

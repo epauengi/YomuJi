@@ -200,14 +200,14 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 self-start sm:self-auto">
-                {!isOfflineReady && !isDownloading && (
+                {!isDownloading && (
                   <Button
                     variant="primary"
                     className="font-medium"
                     onClick={handleOfflineDownload}
                     disabled={isChecking}
                   >
-                    {hasError ? 'Thử tải lại' : 'Tải dữ liệu offline'}
+                    {hasError ? 'Thử tải lại' : isOfflineReady ? 'Cập nhật dữ liệu offline' : 'Tải dữ liệu offline'}
                   </Button>
                 )}
                 {isChecking && progress.status !== 'checking' && (

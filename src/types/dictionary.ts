@@ -13,6 +13,15 @@ export interface RelatedTerm {
   id?: string;
 }
 
+export interface TermSense {
+  meaningsVi: string[];
+  partOfSpeech: string[];
+  misc: string[];
+  appliesToKanji: string[];
+  appliesToReadings: string[];
+  examples: ExampleRecord[];
+}
+
 export interface TermRecord {
   id: string;
   sequence: number;
@@ -27,6 +36,9 @@ export interface TermRecord {
   meaningsVi: string[];
   glossesRaw: string[];
   partOfSpeech: string[];
+  writtenForms?: string[];
+  readingForms?: string[];
+  senses?: TermSense[];
   tags: string[];
   score: number;
   isCommon: boolean;

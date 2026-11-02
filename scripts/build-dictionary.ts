@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { parseOmohaEntry } from './omoha';
+import { SENSE_DATA_VERSION } from '../src/lib/dictionary/senseDetails';
 import type {
   TermRecord,
   KanjiRecord,
@@ -12,7 +14,7 @@ import type {
 } from '../src/types/dictionary';
 
 // Input raw data paths
-const RAW_DATA_BASE = 'D:\\IT\\Project\\Data JPVNDict\\Data';
+const RAW_DATA_BASE = process.env.YOMUJI_DATA_DIR || 'D:\\IT\\Project\\Data JPVNDict\\Data';
 const OMOHA_FILE = path.join(RAW_DATA_BASE, 'OmohaDictionary', 'OmohaDictionary');
 const KANJIDIC_DIR = path.join(RAW_DATA_BASE, 'kanjidic_vietnamese');
 const KANJIDICT_VN_DIR = path.join(RAW_DATA_BASE, 'KanjiDictVN-master', 'KanjiDictVN-master', 'out_vn');
@@ -21,7 +23,7 @@ const KANJIVG_DIR = path.join(RAW_DATA_BASE, 'kanjivg-master', 'kanjivg-master')
 
 // Output target path
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'dict');
-const BUMP_DATA_VERSION = '1.0.1';
+const BUMP_DATA_VERSION = SENSE_DATA_VERSION;
 
 // Kana to Romaji converter
 const KANA_ROMAJI_MAP: Record<string, string> = {
@@ -228,46 +230,10 @@ async function main() {
     const termId = `${surface}-${reading}-${sequence}`;
     if (termRecordsMap.has(termId)) continue;
 
-    // Senses
-    const senseRegex = /<sense>([\s\S]*?)<\/sense>/g;
-    let senseMatch: RegExpExecArray | null;
-    const meaningsVi: string[] = [];
-    const partOfSpeech: string[] = [];
-    const examples: any[] = [];
-
-    while ((senseMatch = senseRegex.exec(entryXml)) !== null) {
-      const senseXml = senseMatch[1];
-
-      // pos
-      const posMatches = Array.from(senseXml.matchAll(/<pos>&(.*?);<\/pos>/g)).map((m) => m[1]);
-      for (const p of posMatches) {
-        if (!partOfSpeech.includes(p)) partOfSpeech.push(p);
-      }
-
-      // gloss
-      const glossMatches = Array.from(senseXml.matchAll(/<gloss>(.*?)<\/gloss>/g)).map((m) => m[1]);
-      for (const g of glossMatches) {
-        const cleanG = g.trim();
-        if (cleanG && !meaningsVi.includes(cleanG)) meaningsVi.push(cleanG);
-      }
-
-      // example
-      const exRegex = /<example>([\s\S]*?)<\/example>/g;
-      let exMatch: RegExpExecArray | null;
-      while ((exMatch = exRegex.exec(senseXml)) !== null) {
-        const exXml = exMatch[1];
-        const jpnMatch = exXml.match(/<ex_sent xml:lang="jpn">(.*?)<\/ex_sent>/);
-        const viMatch = exXml.match(/<ex_sent xml:lang="vi">(.*?)<\/ex_sent>/);
-        if (jpnMatch && viMatch) {
-          examples.push({
-            id: `ex-${sequence}-${examples.length + 1}`,
-            termSequence: sequence,
-            textJa: jpnMatch[1].trim(),
-            textVi: viMatch[1].trim(),
-          });
-        }
-      }
-    }
+    // Preserve source senses for detail; keep the flattened fields for existing search clients.
+    const { writtenForms, readingForms, senses, examples } = parseOmohaEntry(entryXml, sequence);
+    const meaningsVi = Array.from(new Set(senses.flatMap((sense) => sense.meaningsVi)));
+    const partOfSpeech = Array.from(new Set(senses.flatMap((sense) => sense.partOfSpeech)));
 
     const tags = Array.from(new Set([...kePriMatches, ...rePriMatches]));
     const isCommon = tags.some((t) => ['ichi1', 'news1', 'nf01', 'spec1', 'gai1', 'P', 'ichi', 'news', 'spec', 'gai'].includes(t));
@@ -291,6 +257,9 @@ async function main() {
       meaningsVi,
       glossesRaw: meaningsVi,
       partOfSpeech,
+      writtenForms,
+      readingForms,
+      senses,
       tags,
       score: isCommon ? 100 : 10,
       isCommon,
@@ -442,7 +411,7 @@ async function main() {
   for (let i = 0; i < termShardCount; i++) {
     const shardId = `terms-${String(i + 1).padStart(4, '0')}`;
     const chunk = allTerms.slice(i * TERMS_PER_SHARD, (i + 1) * TERMS_PER_SHARD);
-    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: '1.0.0', type: 'terms', records: chunk });
+    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: BUMP_DATA_VERSION, type: 'terms', records: chunk });
 
     const fileName = `shard-${String(i + 1).padStart(4, '0')}.json`;
     const fileRelPath = `terms/${fileName}`;
@@ -456,6 +425,24 @@ async function main() {
       sha256: computeSha256(payload),
       recordCount: chunk.length,
     });
+  }
+
+  // Small, versioned sidecars enrich online word details without changing database rows.
+  const senseBuckets = new Map<number, Record<string, Pick<TermRecord, 'id' | 'writtenForms' | 'readingForms' | 'senses'>>>();
+  for (const term of allTerms) {
+    const bucket = Math.floor(term.sequence / 10000);
+    if (!senseBuckets.has(bucket)) senseBuckets.set(bucket, {});
+    senseBuckets.get(bucket)![term.sequence] = {
+      id: term.id,
+      writtenForms: term.writtenForms,
+      readingForms: term.readingForms,
+      senses: term.senses,
+    };
+  }
+  const sensesDir = path.join(OUTPUT_DIR, 'senses', BUMP_DATA_VERSION);
+  fs.mkdirSync(sensesDir, { recursive: true });
+  for (const [bucket, records] of senseBuckets) {
+    fs.writeFileSync(path.join(sensesDir, `${bucket}.json`), JSON.stringify({ schemaVersion: 1, dataVersion: BUMP_DATA_VERSION, records }));
   }
 
   // Shard Kanji
@@ -500,7 +487,7 @@ async function main() {
   for (let i = 0; i < searchShardCount; i++) {
     const shardId = `search-${String(i + 1).padStart(4, '0')}`;
     const chunk = searchIndexEntries.slice(i * INDEX_PER_SHARD, (i + 1) * INDEX_PER_SHARD);
-    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: '1.0.0', type: 'search', records: chunk });
+    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: BUMP_DATA_VERSION, type: 'search', records: chunk });
 
     const fileName = `index-${String(i + 1).padStart(4, '0')}.json`;
     const fileRelPath = `search/${fileName}`;
