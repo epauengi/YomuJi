@@ -624,6 +624,10 @@ html[data-theme-transition]::view-transition-new(root) {
   outline-offset: 2px;
 }
 
+.search-shell input:focus-visible {
+  outline: none;
+}
+
 /* ========================================
    Selection
    ======================================== */
