@@ -136,6 +136,7 @@ export interface DictionaryManifest {
   schemaVersion: number;
   dataVersion: string;
   generatedAt: string;
+  kanjiRevision?: string;
   basePath?: string;
   totals: {
     terms: number;

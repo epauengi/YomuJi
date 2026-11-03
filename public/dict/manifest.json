@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "dataVersion": "1.1.0",
-  "generatedAt": "2026-11-02T16:14:15.953Z",
+  "generatedAt": "2026-11-03T05:03:31.917Z",
   "basePath": "/dict",
   "totals": {
     "terms": 196583,
@@ -808,104 +808,104 @@
       "id": "kanji-0001",
       "type": "kanji",
       "url": "/dict/kanji/shard-0001.json",
-      "bytes": 559433,
-      "sha256": "e2da15a0dfabaa527db27ccea8dd3d9f2b44f0d411ea6a82a930d39b83377e79",
+      "bytes": 559443,
+      "sha256": "ad8c28e236fd381cd947fded70a3ee135269c03e2f0f9f84c7c8ccacf20f0df9",
       "recordCount": 500
     },
     {
       "id": "kanji-0002",
       "type": "kanji",
       "url": "/dict/kanji/shard-0002.json",
-      "bytes": 565792,
-      "sha256": "b56e0dc855b811e5461bd560d60610d11feabc134ff07541b6c9130be9696e72",
+      "bytes": 565672,
+      "sha256": "4a9dd2a60792e960a0e1dc2a5fbc215420196cad16086020ac8ba24cce081d30",
       "recordCount": 500
     },
     {
       "id": "kanji-0003",
       "type": "kanji",
       "url": "/dict/kanji/shard-0003.json",
-      "bytes": 579426,
-      "sha256": "5ec83be9dbee405bcf7c63a1b20e558ab394704d6a00ad3436b4cffc1925b993",
+      "bytes": 579381,
+      "sha256": "99a1bc8d1efae494283cca7103cc9143146740b1c978f2bbdd408e80c541ad16",
       "recordCount": 500
     },
     {
       "id": "kanji-0004",
       "type": "kanji",
       "url": "/dict/kanji/shard-0004.json",
-      "bytes": 598979,
-      "sha256": "e331572a2599ae220ea9a3961c57edfcc199a7093238fd5ea0f29cad0dfd705c",
+      "bytes": 599085,
+      "sha256": "531258a9da19c0357434de851059eab70aabfb5ce70ab4b125e1386e39cfbd08",
       "recordCount": 500
     },
     {
       "id": "kanji-0005",
       "type": "kanji",
       "url": "/dict/kanji/shard-0005.json",
-      "bytes": 589624,
-      "sha256": "0b6fac6969cd5eba7f76e792a224300107bfe0d77465d40bd0f16be0441a771d",
+      "bytes": 589695,
+      "sha256": "aa6c91a0057459c4447fd64cc042fa943ba9940b9dee331aff9b58e8759c8434",
       "recordCount": 500
     },
     {
       "id": "kanji-0006",
       "type": "kanji",
       "url": "/dict/kanji/shard-0006.json",
-      "bytes": 583765,
-      "sha256": "fbfb37d46e4349b79a236bd800e19a0a617c1bea814ee675251d6a0a3869dc6e",
+      "bytes": 583849,
+      "sha256": "e4c71acec52b54aa55668e55a1ffc38e63494174d6f5b1610a1141cd8c6f26d2",
       "recordCount": 500
     },
     {
       "id": "kanji-0007",
       "type": "kanji",
       "url": "/dict/kanji/shard-0007.json",
-      "bytes": 347326,
-      "sha256": "3159c7d99163647db5084c2ca378b66aefe06070e8b3837e61efc86e1957aa63",
+      "bytes": 347447,
+      "sha256": "ccb280747e390ab291a74aef6aa6281f1705be5ff9af7d0d2701d629682c5c6b",
       "recordCount": 500
     },
     {
       "id": "kanji-0008",
       "type": "kanji",
       "url": "/dict/kanji/shard-0008.json",
-      "bytes": 382149,
-      "sha256": "b6b41309b8b1621789bf35d551478d558d8b29887d86798a7fe50ca9dd1345d3",
+      "bytes": 382295,
+      "sha256": "509589271373749d8578f00ea9abd5b01f9ddd424eb05b52c1a27cef5f5ae3ab",
       "recordCount": 500
     },
     {
       "id": "kanji-0009",
       "type": "kanji",
       "url": "/dict/kanji/shard-0009.json",
-      "bytes": 347389,
-      "sha256": "0191d19cb3fca5dfff32926cc737f3d07bf8755b187a72978728d30648f656cf",
+      "bytes": 347447,
+      "sha256": "7821ede41c4ece29ac2afc8fe3835cfd32f1a117b804b16eabb86545b3e27372",
       "recordCount": 500
     },
     {
       "id": "kanji-0010",
       "type": "kanji",
       "url": "/dict/kanji/shard-0010.json",
-      "bytes": 349405,
-      "sha256": "f04418db22f55f020e22f2670e4fff03604b1e6628ba1c517e07af5a27d62020",
+      "bytes": 349578,
+      "sha256": "716c611ca43f6e57ef621f758219f1de320410d9bba60757c66f76d0feebfd5e",
       "recordCount": 500
     },
     {
       "id": "kanji-0011",
       "type": "kanji",
       "url": "/dict/kanji/shard-0011.json",
-      "bytes": 363789,
-      "sha256": "11e096a6bf226033a36004e0088c0b11d2f300d98e2b197fb7285490922f1024",
+      "bytes": 363872,
+      "sha256": "14dc95e4e576e031c9c63e94d91ce728900ecc96cd8d93bb9317cf259ca6a6b4",
       "recordCount": 500
     },
     {
       "id": "kanji-0012",
       "type": "kanji",
       "url": "/dict/kanji/shard-0012.json",
-      "bytes": 381002,
-      "sha256": "fc8acdcaa945a8d6d2f9e3985257275453088c216e794f52877608939147395e",
+      "bytes": 381399,
+      "sha256": "ff96fd68d70a2de8bdb89bdda3ca4f49df2721afb6e70cb22c35cbc2704505a3",
       "recordCount": 500
     },
     {
       "id": "kanji-0013",
       "type": "kanji",
       "url": "/dict/kanji/shard-0013.json",
-      "bytes": 316430,
-      "sha256": "ac6aa8372f699f10d7c324cce0cca60299f54c616a140efd995c182f23e28743",
+      "bytes": 316562,
+      "sha256": "6d4b784a4cc43ff367cece2b46d430446f01ac500d53bb9b1cc5c9d58316c7a4",
       "recordCount": 500
     },
     {
@@ -920,56 +920,56 @@
       "id": "kanji-0015",
       "type": "kanji",
       "url": "/dict/kanji/shard-0015.json",
-      "bytes": 281028,
-      "sha256": "75bf37a50c2d6ea91fa2fee75a221462f5c3bcff79641636d6cd11a895a1303b",
+      "bytes": 280914,
+      "sha256": "b980ef407772f4bf23e3d38cbc250042d019a908cb764b9e66bdb1927eaee417",
       "recordCount": 500
     },
     {
       "id": "kanji-0016",
       "type": "kanji",
       "url": "/dict/kanji/shard-0016.json",
-      "bytes": 267498,
-      "sha256": "fc50493b4aa3df14bfdb3bbe8956782beda8553d65a9b95c75945cac18daca78",
+      "bytes": 267479,
+      "sha256": "0597ee6be1355f55f37ca0d651ed4bf6ae77ed3e2c7513d3d475a42e5fc02688",
       "recordCount": 500
     },
     {
       "id": "kanji-0017",
       "type": "kanji",
       "url": "/dict/kanji/shard-0017.json",
-      "bytes": 279818,
-      "sha256": "0475a317dc23ad1e978c623cd8ab1f9a74ceea45c53fd114cce3c0681d111554",
+      "bytes": 279869,
+      "sha256": "40a0ade1313f5bb2c2df7fd1d4f3add28e7b97f61655236c46aa096e3e6b18e3",
       "recordCount": 500
     },
     {
       "id": "kanji-0018",
       "type": "kanji",
       "url": "/dict/kanji/shard-0018.json",
-      "bytes": 286774,
-      "sha256": "0b368c33e0f05ccd8c842e14a5750f495b70f6570dce1bad6fc8fab4fea59f2c",
+      "bytes": 286804,
+      "sha256": "740a2ce6b4d5448227b7b1ffc0e6860b64d5aecfded393280a8f654d462ed2e3",
       "recordCount": 500
     },
     {
       "id": "kanji-0019",
       "type": "kanji",
       "url": "/dict/kanji/shard-0019.json",
-      "bytes": 287411,
-      "sha256": "d3308ef527d6faf5a902e78a6a20a6ba4627c5870d384fa282ce929a9ddd8ccc",
+      "bytes": 287480,
+      "sha256": "85965f97911d8e65fa8319e8f36ff5e7bc14dc6505e7097ab36cbe621c32a856",
       "recordCount": 500
     },
     {
       "id": "kanji-0020",
       "type": "kanji",
       "url": "/dict/kanji/shard-0020.json",
-      "bytes": 264420,
-      "sha256": "6caaeee2dd13d5741f0c874e6286f0605a412ac9435b3609ea097ef03e0a6921",
+      "bytes": 264324,
+      "sha256": "80d3c9105bd90f14af49d38e23dbad6d10f564db068209a3b59d7d016217848b",
       "recordCount": 500
     },
     {
       "id": "kanji-0021",
       "type": "kanji",
       "url": "/dict/kanji/shard-0021.json",
-      "bytes": 175950,
-      "sha256": "56fdab7504edd31de33ccdc981ca4ca72d7c794545e841e516087bb30f01cec0",
+      "bytes": 175428,
+      "sha256": "a04e355fcc056d5c8e3463f9535768bb1215c433b0409f693915646331ef0e06",
       "recordCount": 355
     },
     {
@@ -1313,6 +1313,18 @@
     {
       "name": "KanjiVG",
       "sourcePath": "kanjivg-master/"
+    },
+    {
+      "name": "KANJIDIC2 — Vietnamese meaning translations",
+      "sourcePath": "https://www.edrdg.org/wiki/KANJIDIC_Project.html",
+      "license": "CC BY-SA 4.0",
+      "note": "© James William Breen and EDRDG; Vietnamese translations by YomuJi."
+    },
+    {
+      "name": "Kanji meaning reference sources",
+      "sourcePath": "/legal",
+      "note": "See the legal page for sources consulted and their license information."
     }
-  ]
+  ],
+  "kanjiRevision": "05cb45cf3d473105750cab3fdb7323ac5d60ca202bb0c47bac23b6284f9e5ed6"
 }

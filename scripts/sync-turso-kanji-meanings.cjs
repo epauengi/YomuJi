@@ -1,4 +1,5 @@
 // Run with: node --env-file=.env.local scripts/sync-turso-kanji-meanings.cjs [--dry-run]
+// PREVIOUS_REVIEWED_KANJI may point to the previous reviewed JSON when correcting an existing translation.
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -16,6 +17,9 @@ assert(databaseUrl && authToken, 'TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are re
 const dictionaryDir = path.resolve(__dirname, '../public/dict');
 const manifest = JSON.parse(fs.readFileSync(path.join(dictionaryDir, 'manifest.json'), 'utf8'));
 assert.equal(manifest.dataVersion, expectedVersion, 'Build and publish the current dictionary version before syncing Turso');
+const reviewed = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data/kanji-meanings-reviewed.json'), 'utf8'));
+const previousReviewedPath = process.env.PREVIOUS_REVIEWED_KANJI;
+const previousReviewed = previousReviewedPath ? JSON.parse(fs.readFileSync(previousReviewedPath, 'utf8')) : {};
 const records = new Map();
 for (const shard of manifest.shards.filter((item) => item.type === 'kanji')) {
   assert(/^\/dict\/kanji\/[\w-]+\.json$/.test(shard.url), 'Invalid Kanji shard URL');
@@ -45,9 +49,12 @@ const client = createClient({ url: databaseUrl, authToken });
     const current = JSON.parse(row.meanings);
     assert(Array.isArray(current), 'Invalid Turso meanings for ' + row.literal);
     if (checksum(current) !== checksum(source.meanings)) {
+      assert(Object.hasOwn(reviewed, row.literal), 'Refusing unrelated Turso difference: ' + row.literal);
+      assert.equal(checksum(source.meanings), checksum(reviewed[row.literal]), 'Static translation mismatch: ' + row.literal);
+      assert(Array.isArray(source.meaningsRaw) && (checksum(current) === checksum(source.meaningsRaw.slice(0, current.length)) || (row.literal === '糸' && checksum(current) === checksum(['[mịch] bộ mịch'])) || (Object.hasOwn(previousReviewed, row.literal) && checksum(current) === checksum(previousReviewed[row.literal]))), 'Refusing to overwrite non-fallback meanings: ' + row.literal);
       updates.push({
-        sql: 'UPDATE kanjis SET meanings = ? WHERE literal = ?',
-        args: [JSON.stringify(source.meanings), row.literal],
+        sql: 'UPDATE kanjis SET meanings = ? WHERE literal = ? AND meanings = ?',
+        args: [JSON.stringify(source.meanings), row.literal, row.meanings],
       });
     }
   }
@@ -56,7 +63,8 @@ const client = createClient({ url: databaseUrl, authToken });
   if (dryRun || updates.length === 0) return;
 
   for (let index = 0; index < updates.length; index += 100) {
-    await client.batch(updates.slice(index, index + 100), 'write');
+    const results = await client.batch(updates.slice(index, index + 100), 'write');
+    assert(results.every((result) => result.rowsAffected === 1), 'Turso changed during sync; rerun the dry run before retrying');
   }
 
   const verification = await client.execute('SELECT literal, meanings FROM kanjis ORDER BY literal');

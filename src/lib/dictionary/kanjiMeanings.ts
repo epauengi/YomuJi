@@ -1,6 +1,6 @@
 const VIETNAMESE_MARKS = /[ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìịóòỏõọốồổỗộớờởỡợúùủũụứừởỡợýỳỷỹỵ]/i;
 const DICTIONARY_MARKUP = /<<ccr:|<\/?(?:tc|tvc)>|\[\/?b\]/i;
-const RAW_GLOSS_MARKERS = /\b(?:khinh bạc|bộ [\p{L}]+|xem [\p{L}]{1,5} \[|một âm là|\d+\s*(?:nét|n))\b|[①-⑳]|\u3010/iu;
+const RAW_GLOSS_MARKERS = /\b(?:xem [\p{L}]{1,5} \[|một âm là|\d+\s*(?:nét|n))\b|[①-⑳]|\u3010/iu;
 
 export interface KanjiMeaning {
   label: string;
@@ -27,11 +27,13 @@ export function getVietnameseKanjiMeanings(meanings: unknown): KanjiMeaning[] {
   return meanings.flatMap((meaning) => {
     if (typeof meaning !== 'string') return [];
     const value = meaning.trim();
-    if (!value || value.length > 180 || DICTIONARY_MARKUP.test(value) || RAW_GLOSS_MARKERS.test(value)
-      || (!VIETNAMESE_MARKS.test(value) && !/\b(của|là|và|người|được|trong|theo|một|như|với|thứ|dùng|gọi|yêu|thương|buồn|đỏ|lớn|nhỏ|nghĩa)\b/i.test(value))) return [];
-
     const match = value.match(/^\[([^\]]+)\]\s*(.+)$/);
     const label = match?.[2].trim() ?? value;
+    const radicalOnly = /^bộ\s+(\S+)$/iu.exec(label);
+    if (!value || value.length > 180 || DICTIONARY_MARKUP.test(value) || RAW_GLOSS_MARKERS.test(value)
+      || (radicalOnly && match && radicalOnly[1].localeCompare(match[1], 'vi', { sensitivity: 'accent' }) === 0 && label.toLocaleLowerCase('vi') !== 'bộ não')
+      || (!match && !VIETNAMESE_MARKS.test(value) && !/\b(của|là|và|người|được|trong|theo|một|như|với|thứ|dùng|gọi|yêu|thương|buồn|đỏ|lớn|nhỏ|nghĩa)\b/i.test(value))) return [];
+
     const key = label.normalize('NFC').toLocaleLowerCase('vi');
     if (!label || seen.has(key)) return [];
     seen.add(key);

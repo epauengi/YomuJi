@@ -116,6 +116,7 @@ function isDictionaryManifest(value: unknown): value is DictionaryManifest {
   if (!isRecord(value) || !isRecord(value.totals) || !Array.isArray(value.shards)) return false;
   return typeof value.schemaVersion === 'number'
     && typeof value.dataVersion === 'string'
+    && (value.kanjiRevision === undefined || typeof value.kanjiRevision === 'string')
     && typeof value.totals.terms === 'number'
     && typeof value.totals.kanji === 'number'
     && value.shards.every(isDictionaryShard);
@@ -259,7 +260,7 @@ async function hydrateCachedDictionary() {
 }
 
 async function fetchJson(url: string): Promise<unknown> {
-  const response = await fetch(url);
+  const response = await fetch(url, url.startsWith('/dict/kanji/') ? { cache: 'no-cache' } : undefined);
   if (!response.ok) throw new Error(`Không thể tải ${url} (${response.status})`);
   return response.json() as Promise<unknown>;
 }
@@ -295,13 +296,16 @@ async function loadShardRecords<T>(
 }
 
 async function syncStaticDictionary() {
-  const manifestValue = await fetchJson('/dict/manifest.json');
+  const manifestResponse = await fetch('/dict/manifest.json', { cache: 'no-cache' });
+  if (!manifestResponse.ok) throw new Error(`Không thể tải manifest từ điển (${manifestResponse.status})`);
+  const manifestValue: unknown = await manifestResponse.json();
   if (!isDictionaryManifest(manifestValue)) throw new Error('Manifest từ điển không hợp lệ.');
   const manifest = manifestValue;
 
   if (
     isStaticFallbackReady
     && globalManifest?.dataVersion === manifest.dataVersion
+    && globalManifest?.kanjiRevision === manifest.kanjiRevision
     && globalSearchIndex.length === manifest.totals.terms
     && globalKanjiMap.size === manifest.totals.kanji
   ) {

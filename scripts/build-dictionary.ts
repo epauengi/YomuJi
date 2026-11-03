@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { parseOmohaEntry } from './omoha';
+import { getVietnameseKanjiMeanings } from '../src/lib/dictionary/kanjiMeanings';
 import { SENSE_DATA_VERSION } from '../src/lib/dictionary/senseDetails';
 import type {
   TermRecord,
@@ -369,6 +370,18 @@ async function main() {
     }
   }
 
+  // Reviewed Japanese meanings remain authoritative across dictionary rebuilds.
+  const reviewed = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data/kanji-meanings-reviewed.json'), 'utf8')) as Record<string, string[]>;
+  for (const [literal, meanings] of Object.entries(reviewed)) {
+    const record = kanjiRecordsMap.get(literal);
+    if (!record || !Array.isArray(meanings) || meanings.length === 0 || meanings.some((meaning) => typeof meaning !== 'string' || !meaning.trim()) || getVietnameseKanjiMeanings(meanings).length !== meanings.length) {
+      throw new Error(`Invalid reviewed Kanji meanings: ${literal}`);
+    }
+    if (getVietnameseKanjiMeanings(record.meanings).length > 0 && JSON.stringify(record.meanings) !== JSON.stringify(meanings)) {
+      throw new Error(`Refusing to overwrite existing Vietnamese meanings: ${literal}`);
+    }
+    record.meanings = meanings;
+  }
   const allKanji = Array.from(kanjiRecordsMap.values());
   console.log(`✅ Loaded & merged ${allKanji.length} unique KanjiRecords.`);
 
@@ -508,6 +521,7 @@ async function main() {
     schemaVersion: 1,
     dataVersion: BUMP_DATA_VERSION,
     generatedAt: new Date().toISOString(),
+    kanjiRevision: computeSha256(JSON.stringify(reviewed)),
     basePath: '/dict',
     totals: {
       terms: allTerms.length,
@@ -521,6 +535,8 @@ async function main() {
     attribution: [
       { name: 'OmohaDictionary', sourcePath: 'OmohaDictionary/' },
       { name: 'KANJIDIC (Vietnamese)', sourcePath: 'kanjidic_vietnamese/' },
+      { name: 'KANJIDIC2 — Vietnamese meaning translations', sourcePath: 'https://www.edrdg.org/wiki/KANJIDIC_Project.html', license: 'CC BY-SA 4.0', note: '© James William Breen and EDRDG; Vietnamese translations by YomuJi.' },
+      { name: 'Kanji meaning reference sources', sourcePath: '/legal', note: 'See the legal page for sources consulted and their license information.' },
       { name: 'KanjiDictVN', sourcePath: 'KanjiDictVN-master/' },
       { name: 'animCJK', sourcePath: 'animCJK-master/' },
       { name: 'KanjiVG', sourcePath: 'kanjivg-master/' },
