@@ -12,6 +12,10 @@ export class CompareDictionaryRepository implements DictionaryRepository {
     this.shadowRepo = new TursoDictionaryRepository();
   }
 
+  async getRandomTerm(dayKey: string): Promise<TermRecord | null> {
+    return this.primaryRepo.getRandomTerm(dayKey);
+  }
+
   async searchTerms(input: SearchTermsInput): Promise<SearchTermsResult> {
     const t0 = performance.now();
     const primaryRes = await this.primaryRepo.searchTerms(input);

@@ -4,9 +4,30 @@ import {
   normalizeKanjiSearchResult,
   normalizeSearchResult,
 } from '@/lib/dictionary/formatters';
+import {
+  getSecondsUntilVietnamMidnight,
+  getVietnamDayKey,
+} from '@/lib/dictionary/randomTerm';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  if (searchParams.get('random') === 'daily') {
+    if (!isDictionaryBackendConfigured()) {
+      return NextResponse.json({ error: 'Dictionary backend unavailable.' }, { status: 503 });
+    }
+    try {
+      const now = new Date();
+      const term = await getDictionaryRepository().getRandomTerm(getVietnamDayKey(now));
+      const cacheSeconds = getSecondsUntilVietnamMidnight(now);
+      return NextResponse.json({ term }, {
+        headers: { 'Cache-Control': `public, max-age=0, s-maxage=${cacheSeconds}` },
+      });
+    } catch (error) {
+      console.error('API /api/search random error:', error);
+      return NextResponse.json({ error: 'Daily term unavailable.' }, { status: 503 });
+    }
+  }
+
   const q = searchParams.get('q')?.trim() || '';
   const rawLimit = Number.parseInt(searchParams.get('limit') || '50', 10);
   const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 50;

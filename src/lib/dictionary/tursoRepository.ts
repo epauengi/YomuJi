@@ -1,4 +1,5 @@
 import { createClient, type Client } from '@libsql/client';
+import { selectDailyOffset } from './randomTerm';
 import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 import {
   classifyTermMatch,
@@ -67,6 +68,19 @@ const KANJI_COLS = `literal, on_readings, kun_readings, han_viet, meanings, mean
   tags, components, stroke_paths`;
 
 export class TursoDictionaryRepository implements DictionaryRepository {
+  async getRandomTerm(dayKey: string): Promise<TermRecord | null> {
+    const total = await this.client.execute('SELECT COUNT(*) AS count FROM terms');
+    const count = Number(total.rows[0]?.count ?? 0);
+    const offset = selectDailyOffset(dayKey, count);
+    if (offset === null) return null;
+
+    const selected = await this.client.execute({
+      sql: `SELECT ${TERM_COLS} FROM terms ORDER BY id LIMIT 1 OFFSET ?`,
+      args: [offset],
+    });
+    return selected.rows.length ? rowToTerm(selected.rows[0]) : null;
+  }
+
   private client: Client;
 
   constructor(customClient?: Client) {

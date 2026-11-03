@@ -828,17 +828,13 @@ export async function getPopularTerms(limit = 12): Promise<DictionarySearchResul
     }));
 }
 
-const DAILY_WORD_POOL = [
-  '日本', '勉強', '学校', '生活', '友達', '人間', '社会', '自由', '世界', '家族',
-  '元気', '希望', '未来', '旅行', '文化', '愛', '平和', '桜', '自然', '歴史',
-  '音楽', '季節', '感謝', '挑戦',
-];
-
 export async function getWordOfTheDay(): Promise<TermRecord | undefined> {
-  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-  const selectedSlug = DAILY_WORD_POOL[daysSinceEpoch % DAILY_WORD_POOL.length];
-  const term = await findTerm(selectedSlug);
-  return term;
+  const response = await fetch('/api/search?random=daily');
+  if (!response.ok) throw new Error('Daily term unavailable.');
+
+  const value: unknown = await response.json();
+  if (!isRecord(value) || !isTermRecord(value.term)) return undefined;
+  return normalizeTermRecord(value.term);
 }
 
 export async function getKanjiByLevel(level?: JLPTLevel): Promise<KanjiRecord[]> {

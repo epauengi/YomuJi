@@ -19,6 +19,8 @@ export interface SearchKanjiResult {
 }
 
 export interface DictionaryRepository {
+  getRandomTerm(dayKey: string): Promise<TermRecord | null>;
+
   /**
    * Search terms by surface, reading, romaji, Vietnamese meanings, or kanji
    */

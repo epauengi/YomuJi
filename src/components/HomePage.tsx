@@ -27,10 +27,10 @@ import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 // ponytail: Keep the hero decoration static; add motion only if it improves the lookup experience.
 const decorativeKanji = [
-  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.06]' },
-  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.06]' },
-  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.05]' },
-  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.06]' },
+  { char: '学', top: '15%', left: '8%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.14]' },
+  { char: '語', top: '18%', right: '10%', size: 'text-6xl md:text-7xl', opacity: 'opacity-[0.14]' },
+  { char: '辞', top: '65%', left: '10%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.12]' },
+  { char: '日', top: '60%', right: '12%', size: 'text-5xl md:text-6xl', opacity: 'opacity-[0.14]' },
 ];
 
 const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];

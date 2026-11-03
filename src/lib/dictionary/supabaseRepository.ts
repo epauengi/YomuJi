@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { selectDailyOffset } from './randomTerm';
 import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 import {
   classifyTermMatch,
@@ -74,6 +75,46 @@ function deriveHanVietStr(termData: any): string | undefined {
 }
 
 export class SupabaseDictionaryRepository implements DictionaryRepository {
+  async getRandomTerm(dayKey: string): Promise<TermRecord | null> {
+    if (!isSupabaseConfigured || !supabase) return null;
+
+    const { count, error: countError } = await supabase
+      .from('terms')
+      .select('id', { count: 'exact', head: true })
+      .order('id');
+    if (countError) throw new Error(`Supabase getRandomTerm count: ${countError.message}`);
+    const offset = selectDailyOffset(dayKey, count ?? 0);
+    if (offset === null) return null;
+
+    const { data, error } = await supabase
+      .from('terms')
+      .select('*')
+      .order('id')
+      .range(offset, offset);
+    if (error) throw new Error(`Supabase getRandomTerm: ${error.message}`);
+    const term = data?.[0];
+    return term ? normalizeTermRecord({
+      id: term.id,
+      sequence: term.sequence,
+      surface: term.surface,
+      reading: term.reading,
+      romaji: term.romaji,
+      hanVietStr: deriveHanVietStr(term),
+      meaningsVi: term.meanings_vi || [],
+      glossesRaw: term.glosses_raw || [],
+      partOfSpeech: term.part_of_speech || [],
+      tags: term.tags || [],
+      score: term.score,
+      isCommon: term.is_common,
+      kanji: term.kanji || [],
+      kanjiReadings: term.kanji_readings || [],
+      examples: [],
+      related: [],
+      searchAliases: term.search_aliases || [],
+      source: { jmdict: true },
+    }) : null;
+  }
+
   async searchTerms(input: SearchTermsInput): Promise<SearchTermsResult> {
     const q = input.query.trim();
     const limit = Math.min(input.limit || 50, 100);
