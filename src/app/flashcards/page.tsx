@@ -15,11 +15,11 @@ export default function FlashcardsPage() {
         <div className="mx-auto max-w-7xl px-4 py-6">
           <div className="mb-4 flex items-center gap-3">
             <BookBookmark aria-hidden="true" className="h-6 w-6 text-[var(--color-primary-600)]" />
-            <h1 className="text-2xl font-bold">Flashcards</h1>
+          <h1 className="text-2xl font-bold">Thẻ từ</h1>
           </div>
           <p className="text-[var(--color-text-secondary)]">Bản xem trước phiên học bằng dữ liệu mẫu.</p>
           <p className="mt-1 text-sm text-[var(--color-warning-700)]">
-            Deck và kết quả học không được lưu.
+          Dữ liệu bộ thẻ mẫu và kết quả học không được lưu.
           </p>
         </div>
       </header>
@@ -31,7 +31,7 @@ export default function FlashcardsPage() {
         </div>
 
         <section className="mb-6">
-          <h2 className="mb-4 text-lg font-semibold">Deck mẫu</h2>
+          <h2 className="mb-4 text-lg font-semibold">Bộ thẻ mẫu</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {demoDecks.map((deck, index) => {
               const words = demoWords.filter((word) => word.deck === deck.id);

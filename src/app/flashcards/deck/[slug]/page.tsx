@@ -36,9 +36,9 @@ export default function DeckDetailPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--color-background)] px-4">
         <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold">Không tìm thấy deck</h1>
+          <h1 className="mb-4 text-2xl font-bold">Không tìm thấy bộ thẻ</h1>
           <Link href="/flashcards" className="inline-flex min-h-11 items-center text-[var(--color-primary-700)] hover:underline">
-            Quay lại danh sách deck
+            Quay lại danh sách bộ thẻ
           </Link>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function DeckDetailPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/flashcards"
-              aria-label="Quay lại Flashcards"
+                  aria-label="Quay lại Thẻ từ"
               className="flex h-11 w-11 items-center justify-center rounded-lg transition-colors hover:bg-[var(--color-surface-subtle)]"
             >
               <ArrowLeft aria-hidden="true" className="h-5 w-5" />
@@ -117,7 +117,7 @@ export default function DeckDetailPage() {
               Bắt đầu phiên mẫu
             </button>
             {deckWords.length === 0 && (
-              <p className="mb-6 text-center text-sm text-[var(--color-text-muted)]">Deck xem trước này chưa có thẻ mẫu.</p>
+                <p className="mb-6 text-center text-sm text-[var(--color-text-muted)]">Bộ thẻ xem trước này chưa có thẻ mẫu.</p>
             )}
 
             <section>
@@ -149,7 +149,7 @@ export default function DeckDetailPage() {
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-muted)]">
-                  Chưa có từ mẫu trong deck này.
+                  Chưa có từ mẫu trong bộ thẻ này.
                 </div>
               )}
             </section>
@@ -160,7 +160,7 @@ export default function DeckDetailPage() {
             <h2 className="mb-2 text-2xl font-bold">Hoàn thành phiên mẫu</h2>
             <p className="mb-8 text-[var(--color-text-secondary)]">Kết quả phiên này không được lưu.</p>
             <button type="button" onClick={exitStudy} className="min-h-11 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 hover:bg-[var(--color-surface-subtle)]">
-              Quay lại deck
+              Quay lại bộ thẻ
             </button>
           </motion.div>
         ) : (

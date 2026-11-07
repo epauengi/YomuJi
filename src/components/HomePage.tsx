@@ -23,6 +23,7 @@ import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
 import { wordHref } from '@/lib/wordRoutes';
 import { termBookmark } from '@/lib/browserState';
+import { readRecentSearches, removeRecentSearches, restoreRecentSearches } from '@/lib/recentSearches';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 // ponytail: Keep the hero decoration static; add motion only if it improves the lookup experience.
@@ -69,47 +70,61 @@ const fallbackArticles: Record<string, ArticleItem> = {
   },
 };
 
-async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem | null> {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch('https://ja.wikipedia.org/api/rest_v1/page/random/summary', {
-        headers: { Accept: 'application/json' },
-        cache: 'no-store',
-        signal,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.extract && data.extract.trim().length > 30 && data.type === 'standard') {
-          return {
-            title: data.title || data.displaytitle || 'Wikipedia',
-            extract: data.extract,
-            url: data.content_urls?.desktop?.page || `https://ja.wikipedia.org/wiki/${encodeURIComponent(data.title)}`,
-          };
-        }
-      }
-    } catch (err) {
+export async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem | null> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const abortRequest = () => controller.abort();
+  if (signal.aborted) controller.abort();
+  else signal.addEventListener('abort', abortRequest, { once: true });
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 6_000);
+
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
       if (signal.aborted) return null;
-      console.error('Random Wiki fetch error:', err);
+      try {
+        const res = await fetch('https://ja.wikipedia.org/api/rest_v1/page/random/summary', {
+          headers: { Accept: 'application/json' },
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (signal.aborted) return null;
+        if (res.ok) {
+          const data = await res.json();
+          if (signal.aborted) return null;
+          if (data && data.extract && data.extract.trim().length > 30 && data.type === 'standard') {
+            return {
+              title: data.title || data.displaytitle || 'Wikipedia',
+              extract: data.extract,
+              url: data.content_urls?.desktop?.page || `https://ja.wikipedia.org/wiki/${encodeURIComponent(data.title)}`,
+            };
+          }
+        }
+      } catch (err) {
+        if (signal.aborted) return null;
+        if (!timedOut) console.error('Random Wiki fetch error:', err);
+      }
+
+      if (signal.aborted) return null;
+      if (controller.signal.aborted) break;
     }
 
     if (signal.aborted) return null;
+    const fallbackKeys = Object.keys(fallbackArticles);
+    const randomKey = fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
+    return fallbackArticles[randomKey];
+  } finally {
+    clearTimeout(timeoutId);
+    signal.removeEventListener('abort', abortRequest);
   }
-
-  if (signal.aborted) return null;
-  const fallbackKeys = Object.keys(fallbackArticles);
-  const randomKey = fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
-  return fallbackArticles[randomKey];
 }
 
 function readStoredRecentSearches(): string[] {
   if (typeof window === 'undefined') return [];
   try {
-    const saved = localStorage.getItem('yomuji_recent_searches');
-    if (!saved) return [];
-    const parsed = JSON.parse(saved);
-    if (Array.isArray(parsed) && parsed.every((item) => typeof item === 'string')) {
-      return parsed.slice(0, 8);
-    }
+    return readRecentSearches();
   } catch (err) {
     console.error('Failed to read search history:', err);
   }
@@ -155,10 +170,12 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   // ponytail: Tiny retry counter triggers effect reload; upgrade to query client when server sync needed.
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8_000);
     setWordLoading(true);
     setWordError(null);
 
-    getWordOfTheDay()
+    getWordOfTheDay(controller.signal)
       .then((term) => {
         if (!active) return;
         if (term) {
@@ -176,10 +193,13 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
         setWordOfTheDay(null);
         setWordError('Chưa thể tải từ vựng hôm nay. Vui lòng thử lại.');
         setWordLoading(false);
-      });
+      })
+      .finally(() => clearTimeout(timeoutId));
 
     return () => {
       active = false;
+      clearTimeout(timeoutId);
+      controller.abort();
     };
   }, [wordRetryKey]);
 
@@ -225,39 +245,27 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   };
 
   const clearRecentSearches = () => {
-    if (recentSearches.length === 0) return;
-    const snapshot = [...recentSearches];
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem('yomuji_recent_searches');
-      } catch (err) {
-        console.error('Failed to clear search history:', err);
-        toast.error('Không thể xóa lịch sử trên thiết bị.');
-        return;
-      }
-    }
-    setRecentSearches([]);
-
-    toast('Đã xóa lịch sử tìm kiếm', {
-      action: {
-        label: 'Hoàn tác',
-        onClick: () => {
-          const latest = readStoredRecentSearches();
-          const merged = Array.from(new Set([...latest, ...snapshot])).slice(0, 8);
-          if (typeof window !== 'undefined') {
+    try {
+      const { searches, removed } = removeRecentSearches();
+      setRecentSearches(searches);
+      if (!removed.length) return;
+      toast.success('Đã xóa lịch sử tìm kiếm', {
+        action: {
+          label: 'Hoàn tác',
+          onClick: () => {
             try {
-              localStorage.setItem('yomuji_recent_searches', JSON.stringify(merged));
+              setRecentSearches(restoreRecentSearches(removed));
             } catch (err) {
               console.error('Failed to restore search history:', err);
               toast.error('Không thể khôi phục lịch sử trên thiết bị.');
-              return;
             }
-            window.dispatchEvent(new CustomEvent('yomuji:recent_searches'));
-          }
-          setRecentSearches(merged);
+          },
         },
-      },
-    });
+      });
+    } catch (err) {
+      console.error('Failed to clear search history:', err);
+      toast.error('Không thể xóa lịch sử trên thiết bị.');
+    }
   };
 
   const playPronunciation = (text: string) => {

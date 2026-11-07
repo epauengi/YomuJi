@@ -44,6 +44,7 @@ export default function BooksPage() {
 
   const resetFilters = () => { setQuery(''); setActiveAuthor(''); setCategory(''); setPage(1); };
   const selectAuthor = (author: string) => { setActiveAuthor(author); setPage(1); document.getElementById('catalogue')?.scrollIntoView(); };
+  const curatedCategories = bookCategories.map((category, index) => ({ category, index })).filter(({ category }) => books.some((book) => book.category === category));
 
   return (
     <div className="books-page pb-20">
@@ -51,9 +52,10 @@ export default function BooksPage() {
         <div>
           <h1 className="font-serif text-[2.8rem] font-medium italic leading-[1.03] tracking-tight sm:text-4xl lg:text-5xl">Đọc truyện Nhật hiểu tiếng Nhật</h1>
           <p className="mt-4 max-w-lg text-sm text-[var(--color-text-secondary)] sm:text-base">Những tác phẩm tiếng Nhật để đọc chậm, tra sâu và làm quen với ngôn ngữ trong ngữ cảnh.</p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <a href="#shelves" className="tactile inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-5 font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Chọn truyện để đọc <ArrowRight aria-hidden="true" size={17} /></a>
-            <Link href="/books/saved" className="tactile inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 font-semibold hover:bg-[var(--color-surface-subtle)]">Sách của tôi</Link>
+ <div className="mt-6 flex flex-wrap gap-2">
+ <a href="#shelves" className="tactile inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-5 font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Chọn truyện để đọc <ArrowRight aria-hidden="true" size={17} /></a>
+ <Link href="/books/saved" className="tactile inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 font-semibold hover:bg-[var(--color-surface-subtle)]">Sách của tôi</Link>
+ <a href="#catalogue" className="tactile inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 font-semibold hover:bg-[var(--color-surface-subtle)]">Xem toàn bộ danh mục</a>
           </div>
           <div className="mt-7 max-w-lg">
             <label htmlFor="book-search" className="sr-only">Tìm truyện hoặc tác giả</label>
@@ -76,7 +78,7 @@ export default function BooksPage() {
       <div id="shelves" className="mx-auto max-w-[84rem] scroll-mt-24 px-4 pb-16 sm:px-6">
         {!browsing && <nav aria-label="Chủ đề tuyển chọn" className="mb-8 flex flex-wrap items-center gap-2 border-b border-[var(--color-border-subtle)] pb-6 sm:mb-12 sm:pb-8">
           <span className="mr-1 text-sm font-semibold text-[var(--color-text-secondary)]">Tuyển chọn</span>
-          {bookCategories.map((category, index) => books.some((book) => book.category === category) && <a key={category} href={`#shelf-${index}`} className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]">{category}</a>)}
+ {curatedCategories.slice(0, 3).map(({ category, index }) => <a key={category} href={`#shelf-${index}`} className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]">{category}</a>)}
         </nav>}
 
 
@@ -86,7 +88,7 @@ export default function BooksPage() {
             <h2 id="curated-heading" className="font-sans text-3xl font-semibold tracking-tight sm:text-4xl">Bắt đầu từ một câu chuyện</h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">Truyện được tuyển chọn theo chủ đề để bạn dễ tìm cuốn muốn đọc tiếp.</p>
           </div>
-          {bookCategories.map((category, index) => {
+ {curatedCategories.slice(0, 3).map(({ category, index }) => {
             const entries = books.filter((book) => book.category === category);
             if (!entries.length) return null;
             return <section key={category} id={`shelf-${index}`} aria-labelledby={`shelf-heading-${index}`} className="mb-9 scroll-mt-24 last:mb-0 sm:mb-12">
@@ -96,7 +98,20 @@ export default function BooksPage() {
               </div>
               <BookRail entries={entries} covers={covers} />
             </section>;
-          })}
+ })}
+ {curatedCategories.length > 3 && <details className="mt-10 border-t border-[var(--color-border-subtle)] pt-3">
+   <summary className="min-h-11 cursor-pointer py-3 font-semibold text-[var(--color-primary-700)] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary-600)]">Xem thêm {curatedCategories.length - 3} chủ đề</summary>
+   {curatedCategories.slice(3).map(({ category, index }) => {
+     const entries = books.filter((book) => book.category === category);
+     return <section key={category} id={`shelf-${index}`} aria-labelledby={`shelf-heading-${index}`} className="mb-9 scroll-mt-24 last:mb-0 sm:mb-12">
+       <div className="mb-4 flex items-end justify-between gap-3">
+         <div><h3 id={`shelf-heading-${index}`} className="font-sans text-2xl font-semibold tracking-tight sm:text-3xl">{category}</h3><p className="mt-1 text-xs text-[var(--color-text-muted)]">{entries.length} truyện</p></div>
+         <a href="#shelves" className="mb-1 inline-flex min-h-11 shrink-0 items-center gap-1 text-xs font-semibold text-[var(--color-primary-700)] hover:underline sm:text-sm">Về chủ đề <ArrowRight aria-hidden="true" size={15} /></a>
+       </div>
+       <BookRail entries={entries} covers={covers} />
+     </section>;
+   })}
+ </details>}
         </section>}
 
         <section id="catalogue" className="scroll-mt-24 border-t border-[var(--color-border-subtle)] pt-8 sm:pt-10" aria-labelledby="catalogue-heading" aria-busy={loading}>

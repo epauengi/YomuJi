@@ -3,48 +3,68 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ClockCounterClockwise, MagnifyingGlass, Trash } from '@phosphor-icons/react';
+import { toast } from 'sonner';
 import { searchHref } from '@/lib/navigation';
-
-const STORAGE_KEY = 'yomuji_recent_searches';
-
-function readRecentSearches() {
-  try {
-    const value: unknown = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '[]');
-    return Array.isArray(value)
-      ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).slice(0, 8)
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeRecentSearches(items: string[]) {
-  try {
-    if (items.length) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    else window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // State remains usable for this page when storage is blocked.
-  }
-}
+import { readRecentSearches, removeRecentSearches, restoreRecentSearches } from '@/lib/recentSearches';
 
 export default function HistoryPage() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   useEffect(() => {
-    setRecentSearches(readRecentSearches());
+    try {
+      setRecentSearches(readRecentSearches());
+    } catch (err) {
+      console.error('Failed to read search history:', err);
+      toast.error('Không thể đọc lịch sử trên thiết bị.');
+    }
   }, []);
 
   const removeSearch = (query: string) => {
-    setRecentSearches((items) => {
-      const next = items.filter((item) => item !== query);
-      writeRecentSearches(next);
-      return next;
-    });
+    try {
+      const { searches, removed } = removeRecentSearches(query);
+      setRecentSearches(searches);
+      if (!removed.length) return;
+      toast.success('Đã xóa tìm kiếm', {
+        action: {
+          label: 'Hoàn tác',
+          onClick: () => {
+            try {
+              setRecentSearches(restoreRecentSearches(removed));
+            } catch (err) {
+              console.error('Failed to restore search history:', err);
+              toast.error('Không thể khôi phục lịch sử trên thiết bị.');
+            }
+          },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to remove search history:', err);
+      toast.error('Không thể xóa lịch sử trên thiết bị.');
+    }
   };
 
   const clearHistory = () => {
-    setRecentSearches([]);
-    writeRecentSearches([]);
+    try {
+      const { searches, removed } = removeRecentSearches();
+      setRecentSearches(searches);
+      if (!removed.length) return;
+      toast.success('Đã xóa lịch sử tìm kiếm', {
+        action: {
+          label: 'Hoàn tác',
+          onClick: () => {
+            try {
+              setRecentSearches(restoreRecentSearches(removed));
+            } catch (err) {
+              console.error('Failed to restore search history:', err);
+              toast.error('Không thể khôi phục lịch sử trên thiết bị.');
+            }
+          },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to clear search history:', err);
+      toast.error('Không thể xóa lịch sử trên thiết bị.');
+    }
   };
 
   return (

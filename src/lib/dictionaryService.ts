@@ -828,8 +828,8 @@ export async function getPopularTerms(limit = 12): Promise<DictionarySearchResul
     }));
 }
 
-export async function getWordOfTheDay(): Promise<TermRecord | undefined> {
-  const response = await fetch('/api/search?random=daily');
+export async function getWordOfTheDay(signal?: AbortSignal): Promise<TermRecord | undefined> {
+  const response = await fetch('/api/search?random=daily', { signal });
   if (!response.ok) throw new Error('Daily term unavailable.');
 
   const value: unknown = await response.json();
