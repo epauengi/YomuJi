@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const AnkiImport = dynamic(() => import('./AnkiImport').then((module) => module.AnkiImport), { loading: () => <p role="status">Đang mở trình nhập Anki…</p> });
 import { ArrowLeft, ArrowRight, BookBookmark, Check, Plus, SpeakerHigh, Trash, X } from '@phosphor-icons/react';
 import { loadFlashcards, saveFlashcards, gradeCard, STORAGE_KEY, type Deck, type Flashcard, type FlashcardData } from '@/lib/flashcards';
 import { playJapaneseAudio, stopCurrentAudio } from '@/lib/tts';
@@ -19,6 +22,7 @@ export function Flashcards({ deckId }: { deckId?: string }) {
   const saving = useRef(false);
   const [pending, setPending] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState('');
   const [now, setNow] = useState(0);
@@ -158,7 +162,7 @@ export function Flashcards({ deckId }: { deckId?: string }) {
           {deckId && !session && <Link className="fc-back" href="/flashcards"><ArrowLeft aria-hidden="true" size={18} /> Tất cả bộ thẻ</Link>}
           <div className="fc-heading-row">
             <h1>{session ? 'Ôn thẻ từ' : deckId ? deck?.name ?? 'Bộ thẻ' : 'Thẻ từ'}</h1>
-            {!deckId && data && <button className="fc-button fc-primary" onClick={() => setCreating(!creating)} aria-expanded={creating} aria-controls="fc-create"><Plus size={18} aria-hidden="true" /> Tạo bộ thẻ</button>}
+            {!deckId && data && <div className="fc-actions"><button className="fc-button" disabled={blocked || pending} onClick={() => { setImporting(!importing); setCreating(false); }} aria-expanded={importing} aria-controls="fc-import">Nhập Anki (.apkg)</button><button className="fc-button fc-primary" disabled={pending} onClick={() => { setCreating(!creating); setImporting(false); }} aria-expanded={creating} aria-controls="fc-create"><Plus size={18} aria-hidden="true" /> Tạo bộ thẻ</button></div>}
           </div>
           <p className="fc-muted">{session ? deck?.name : 'Bộ thẻ và tiến độ chỉ lưu trên trình duyệt này, không đồng bộ tài khoản.'}</p>
         </header>
@@ -169,6 +173,16 @@ export function Flashcards({ deckId }: { deckId?: string }) {
           <section className="fc-empty"><BookBookmark size={36} aria-hidden="true" /><h2>Không tìm thấy bộ thẻ</h2><p>Bộ thẻ có thể đã bị xóa hoặc được tạo trên trình duyệt khác.</p><Link className="fc-button" href="/flashcards">Về danh sách bộ thẻ</Link></section>
         ) : !deckId ? (
           <>
+            {importing && <AnkiImport disabled={blocked || pending} onClose={() => setImporting(false)} onImport={async (imported) => {
+              if (data.decks.length >= 100 || cards.length + imported.cards.length > 10_000) {
+                setError('Không thể nhập: giới hạn 100 bộ thẻ và tổng 10.000 thẻ trên thiết bị. Hãy xóa bớt dữ liệu trước.');
+                return false;
+              }
+              if (!await commit({ ...data, decks: [...data.decks, imported] })) return false;
+              setImporting(false);
+              setNotice(`Đã nhập ${imported.cards.length} thẻ vào bộ “${imported.name}” trên trình duyệt này.`);
+              return true;
+            }} />}
             {creating && <form id="fc-create" className="fc-form" onSubmit={createDeck}>
               <h2>Tạo bộ thẻ mới</h2>
               <label>Tên bộ thẻ<input name="name" required maxLength={80} autoFocus placeholder="Ví dụ: Từ mới tuần này" /></label>

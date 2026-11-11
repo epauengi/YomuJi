@@ -5,6 +5,16 @@
   color: var(--color-text-primary);
 }
 .fc-container { max-width: 960px; margin: 0 auto; }
+.fc-import-preview { overflow-x: auto; margin: 20px 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.fc-import-preview table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+.fc-import-preview th, .fc-import-preview td { text-align: left; vertical-align: top; padding: 12px; overflow-wrap: anywhere; white-space: pre-line; }
+.fc-import-preview th { background: var(--color-surface-subtle); font-weight: 600; }
+.fc-import-preview td { border-top: 1px solid var(--color-border); }
+.flashcards-page select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text-primary); font-size: 16px; }
+.flashcards-page select:focus-visible { outline: 3px solid var(--color-primary-600); outline-offset: 3px; }
+.fc-import-notice { margin-top: 16px; line-height: 1.8; font-size: 14px; }
+.fc-import-file { max-width: 100%; }
+@media (max-width: 600px) { .fc-import-preview th, .fc-import-preview td { padding: 8px; font-size: 13px; } }
 .fc-container.fc-focused { max-width: 680px; }
 .fc-header { margin-bottom: 24px; }
 .fc-heading-row, .fc-list-heading, .fc-deck-toolbar, .fc-study-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
