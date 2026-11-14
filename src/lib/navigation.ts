@@ -1,9 +1,16 @@
 export const navItems = [
+  { name: 'Từ điển', href: '/', group: 'Tra cứu & đọc' },
+  { name: 'Thư viện', href: '/books', group: 'Tra cứu & đọc' },
+  { name: 'Flashcards', href: '/flashcards', group: 'Luyện tập' },
+  { name: 'Luyện JLPT', href: '/jlpt', group: 'Luyện tập' },
+  { name: 'Đã lưu', href: '/saved', group: 'Cá nhân' },
+] as const;
+
+export const mobileNavItems = [
   { name: 'Từ điển', href: '/' },
   { name: 'Thư viện', href: '/books' },
-  { name: 'Luyện JLPT', href: '/jlpt' },
+  { name: 'Luyện tập', href: '/practice' },
   { name: 'Đã lưu', href: '/saved' },
-  { name: 'Thiết lập', href: '/settings' },
 ] as const;
 
 export function searchHref(query: string) {
@@ -15,10 +22,9 @@ export function isRouteActive(pathname: string, href: string) {
   if (href === '/') {
     return pathname === '/' || pathname.startsWith('/word/') || pathname.startsWith('/kanji/');
   }
-
-  if (href === '/books') {
-    return pathname === '/books' || pathname.startsWith('/books/');
+  if (href === '/practice') {
+    return ['/practice', '/flashcards', '/jlpt'].some((route) => pathname === route || pathname.startsWith(`${route}/`));
   }
-
+  if (href === '/saved' && pathname === '/review') return true;
   return pathname === href || pathname.startsWith(`${href}/`);
 }

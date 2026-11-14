@@ -1,146 +1,86 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, BookmarkSimple, Books, Gear, List, MagnifyingGlass, X, GraduationCap } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
+import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, List, SidebarSimple, X } from '@phosphor-icons/react';
 import { SearchInput } from '@/components/SearchInput';
-import { isRouteActive, navItems as navigationItems, searchHref } from '@/lib/navigation';
+import { isRouteActive, navItems, searchHref } from '@/lib/navigation';
+import './navigation.css';
 
-const navItems = navigationItems.map((item) => ({
-  ...item,
-  label: item.name,
-  icon: item.href === '/' ? BookOpenText : item.href === '/books' ? Books : item.href === '/jlpt' ? GraduationCap : item.href === '/saved' ? BookmarkSimple : Gear,
-}));
+const icons = { '/': BookOpenText, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/saved': BookmarkSimple };
+const groups = ['Tra cứu & đọc', 'Luyện tập', 'Cá nhân'];
 
-export function Navbar() {
+function Brand() {
+  return <Link href="/" className="shell-brand" aria-label="YomuJi — Từ điển"><Image src="/Logo.png" alt="" width={32} height={32} /><span className="shell-label" lang="ja">読む字</span></Link>;
+}
+
+function NavigationLinks({ close }: { close?: () => void }) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const isHomepage = pathname === '/';
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  return (
-    <nav aria-label="Điều hướng chính" className="sticky top-0 z-[var(--z-sticky)] w-full border-b border-[var(--color-border-subtle)] bg-[var(--color-surface)]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-3">
-          <Link href="/" className="group flex shrink-0 items-center gap-3" onClick={() => setIsOpen(false)}>
-            <div className="relative h-9 w-9 overflow-hidden rounded-[--radius-md]">
-              <Image src="/Logo.png" alt="YomuJi Logo" fill sizes="36px" className="object-cover" />
-            </div>
-            <div className="leading-tight">
-              <span className="block text-xl font-black tracking-tight text-[var(--color-text-primary)]">読む字</span>
-            </div>
-          </Link>
-
-          {!isHomepage && (
-            <div className="mx-2 hidden min-w-0 max-w-md flex-1 sm:block md:mx-4">
-              <Suspense fallback={<NavbarSearchInputFallback />}>
-                <NavbarSearchInput />
-              </Suspense>
-            </div>
-          )}
-
-          <div className="hidden shrink-0 items-center gap-1 md:flex">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = isRouteActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex h-10 items-center gap-2 rounded-[--radius-md] px-3.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-[var(--color-primary-700)]'
-                      : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-active-pill"
-                      className="absolute inset-0 rounded-[--radius-md] bg-[var(--color-primary-50)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Icon size={18} weight={isActive ? 'fill' : 'regular'} />
-                    {item.label}
-                  </span>
-                  {isActive && (
-                    <motion.span
-                      layoutId="navbar-active-indicator"
-                      className="absolute inset-x-3 -bottom-3 h-0.5 rounded-full bg-[var(--color-primary-600)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-
-          {!isHomepage && (
-            <button
-              type="button"
-              onClick={() => setIsOpen((value) => !value)}
-              className="flex h-11 w-11 items-center justify-center rounded-[--radius-md] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-subtle)] sm:hidden"
-              aria-label={isOpen ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
-              aria-controls={isOpen ? 'navbar-search-drawer' : undefined}
-              aria-expanded={isOpen}
-            >
-              {isOpen ? <X aria-hidden="true" size={24} /> : <List aria-hidden="true" size={24} />}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {isOpen && !isHomepage && (
-        <div id="navbar-search-drawer" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] sm:hidden">
-          <div className="mx-auto max-w-7xl px-3 py-3">
-            <Suspense fallback={<NavbarSearchInputFallback />}>
-              <NavbarSearchInput onSearchComplete={() => setIsOpen(false)} />
-            </Suspense>
-          </div>
-        </div>
-      )}
+  return <>
+    <nav aria-label="Điều hướng chính" className="shell-links">
+      {groups.map((group) => <div className="shell-group" key={group}>
+        <p className="shell-group-title shell-label">{group}</p>
+        {navItems.filter((item) => item.group === group).map((item) => {
+          const Icon = icons[item.href];
+          const active = isRouteActive(pathname, item.href);
+          return <Link key={item.href} href={item.href} className="shell-link" aria-current={active ? 'page' : undefined} aria-label={item.name} title={item.name} onClick={close}>
+            <Icon size={21} weight={active ? 'fill' : 'regular'} aria-hidden="true" /><span className="shell-label">{item.name}</span>
+          </Link>;
+        })}
+      </div>)}
     </nav>
-  );
+    <Link href="/settings" className="shell-link shell-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={isRouteActive(pathname, '/settings') ? 'page' : undefined} onClick={close}><Gear size={21} aria-hidden="true" /><span className="shell-label">Thiết lập</span></Link>
+  </>;
 }
 
-function NavbarSearchInputFallback() {
-  return (
-    <div className="relative flex w-full items-center">
-      <div className="pointer-events-none absolute left-3 flex items-center text-[var(--color-primary-700)]">
-        <MagnifyingGlass aria-hidden="true" size={17} weight="bold" />
-      </div>
-      <input
-        type="text"
-        disabled
-        placeholder="Tra từ vựng, Kanji, Hán Việt..."
-        aria-label="Tra từ vựng hoặc Kanji"
-        className="h-11 w-full rounded-[--radius-md] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] pl-9 pr-8 text-sm text-[var(--color-text-primary)] outline-none"
-      />
+export function Navbar({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState<boolean | null>(null);
+  const shell = useRef<HTMLDivElement>(null);
+  const drawer = useRef<HTMLDialogElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => { drawer.current?.close(); setCollapsed(null); }, [pathname]);
+  useEffect(() => {
+    const media = window.matchMedia('(768px <= width < 1200px)');
+    const close = () => drawer.current?.close();
+    media.addEventListener('change', close);
+    return () => media.removeEventListener('change', close);
+  }, []);
+
+  function toggleSidebar() {
+    const compact = shell.current && getComputedStyle(shell.current).getPropertyValue('--shell-sidebar-width').trim() === '72px';
+    setCollapsed(!compact);
+  }
+
+  return <div ref={shell} className={`app-shell ${collapsed === null ? 'shell-auto' : collapsed ? 'shell-collapsed' : 'shell-expanded'}`}>
+    <aside className="shell-sidebar no-print" aria-label="Thanh bên">
+      <Brand />
+      <button type="button" className="shell-icon-button shell-collapse" onClick={toggleSidebar} aria-label="Thu gọn hoặc mở rộng thanh bên" title="Thu gọn hoặc mở rộng thanh bên"><SidebarSimple size={21} aria-hidden="true" /></button>
+      <NavigationLinks />
+    </aside>
+    <div className="shell-content">
+      <header className="shell-header no-print">
+        <button ref={menuButton} type="button" className="shell-icon-button shell-menu" aria-label="Mở điều hướng" aria-haspopup="dialog" aria-controls="navigation-drawer" onClick={() => drawer.current?.showModal()}><List size={23} aria-hidden="true" /></button>
+        <div className="shell-mobile-brand"><Brand /></div>
+        {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ vựng, Kanji…" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
+        <Link href="/settings" className="shell-icon-button shell-header-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={pathname === '/settings' ? 'page' : undefined}><Gear size={22} aria-hidden="true" /></Link>
+      </header>
+      {children}
     </div>
-  );
+    <dialog ref={drawer} id="navigation-drawer" className="shell-drawer no-print" aria-label="Điều hướng" onClose={() => menuButton.current?.focus()} onClick={(event) => { if (event.target === event.currentTarget) drawer.current?.close(); }}>
+      <div className="shell-drawer-content">
+        <div className="shell-drawer-heading"><Brand /><button type="button" autoFocus className="shell-icon-button" aria-label="Đóng điều hướng" onClick={() => drawer.current?.close()}><X size={22} aria-hidden="true" /></button></div>
+        <NavigationLinks close={() => drawer.current?.close()} />
+      </div>
+    </dialog>
+  </div>;
 }
 
-function NavbarSearchInput({ onSearchComplete }: { onSearchComplete?: () => void }) {
+function NavbarSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams?.get('q') || '';
-
-  return (
-    <SearchInput
-      variant="compact"
-      initialValue={initialQuery}
-      placeholder="Tra từ vựng, Kanji, Hán Việt..."
-      onSearch={(query) => router.push(searchHref(query))}
-      onNavigate={onSearchComplete}
-      onClear={onSearchComplete}
-    />
-  );
+  return <SearchInput variant="compact" initialValue={searchParams?.get('q') || ''} placeholder="Tra từ vựng, Kanji, Hán Việt…" onSearch={(query) => router.push(searchHref(query))} />;
 }

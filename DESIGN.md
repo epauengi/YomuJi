@@ -64,6 +64,15 @@ JLPT dùng mặt phẳng và viền 1px, không bóng trang trí. Dropdown/dialo
 
 Global: radius 8/12/16/20px và pill 9999px. JLPT: panel 16px desktop / 14px mobile, lựa chọn 10px, chỉ số đáp án tròn 26px. Không biến các kích thước cục bộ thành quy tắc chung.
 
+## Global navigation
+
+- Desktop từ 1200px: sidebar 224px, thu gọn còn 72px; nhóm “Tra cứu & đọc”, “Luyện tập”, “Cá nhân”; Thiết lập ở cuối. Giữ nhận diện và tokens hiện hữu.
+- Tablet 768–1199px: nút menu mở native modal dialog; khóa cuộn nền, Escape đóng, trả focus về nút mở.
+- Mobile dưới 768px: bottom bar bốn mục Từ điển, Thư viện, Luyện tập, Đã lưu. `/practice` chọn Flashcards hoặc JLPT; Thiết lập trên header.
+- Header cao 64px, tìm kiếm trên các trang ngoài trang chủ. Không lặp navbar ngang trên desktop.
+- Đọc sách, phiên Flashcards và phiên JLPT tự thu gọn sidebar; người dùng vẫn mở rộng thủ công được. Đổi trang khôi phục trạng thái tự động.
+- Giữ nguyên `/flashcards`, `/jlpt`, `/saved`, `/review` và URL chi tiết; ôn bookmark vẫn thuộc Đã lưu, không tự chuyển dữ liệu sang Flashcards.
+
 ## Components
 
 - **Nút:** hành động chính teal; phụ nền surface + viền; hover/focus/disabled rõ. Nút hành động JLPT tối thiểu 44px; câu trả lời 61px desktop / 56px mobile. Ô phiếu hiện dùng 39px, không thu nhỏ thêm.

@@ -18,7 +18,7 @@ export function RootShell({ children }: { children: ReactNode }) {
         <a href="#main-content" className="skip-link">
           Nhảy đến nội dung chính
         </a>
-        <Navbar />
+        <Navbar>
         <main id="main-content" className="min-h-[100dvh] pb-20 md:pb-0">
           {children}
         </main>
@@ -33,6 +33,7 @@ export function RootShell({ children }: { children: ReactNode }) {
             <Link href="/legal" className="mt-2 inline-flex min-h-11 items-center text-xs text-[var(--color-text-secondary)] hover:underline">Nguồn dữ liệu và giấy phép</Link>
           </div>
         </footer>
+        </Navbar>
       </MotionConfig>
     </>
   );
