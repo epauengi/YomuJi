@@ -54,7 +54,7 @@ Shell hiện hữu dùng `max-w-7xl` và padding responsive. Các số sau chỉ
 
 - Container tối đa 1168px. Catalog desktop: cột chọn phần 245px, danh sách 10 đề bên phải; tablet 210px; dưới 768px phần luyện xếp ngang, danh sách một cột.
 - Workspace desktop: câu hỏi + phiếu trả lời 280px; phiếu sticky cách đỉnh 88px. Mobile đặt phiếu sau câu hỏi.
-- Phiếu: 5 cột desktop, 7 cột mobile, 6 cột dưới 360px. Giữ đủ khoảng cuối trang để điều hướng di động không che nội dung khi cuộn.
+- Phiếu tự chia cột theo vùng chạm tối thiểu 44×44px, gap 8px (khoảng 4 cột ở 320px, 5 cột ở 390px). Giữ đủ khoảng cuối trang để điều hướng di động không che nội dung khi cuộn.
 
 ## Elevation & Depth
 

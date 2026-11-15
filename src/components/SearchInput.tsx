@@ -172,13 +172,13 @@ export function SearchInput({
 
   const compact = variant === 'compact';
   const panelClassName = compact
-    ? 'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]'
-    : 'absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]';
+    ? 'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]'
+    : 'absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]';
 
   return (
     <form
       onSubmit={handleSearch}
-      className={`search-shell group relative z-50 mx-auto flex w-full ${compact ? 'max-w-none rounded-[--radius-md]' : 'max-w-[800px] rounded-[--radius-lg]'} items-center border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[--duration-fast] ${
+      className={`search-shell group relative z-50 mx-auto flex w-full ${compact ? 'max-w-none rounded-[var(--radius-md)]' : 'max-w-[800px] rounded-[var(--radius-lg)]'} items-center border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[var(--duration-fast)] ${
         isFocused
           ? 'border-[var(--color-primary-400)]'
           : 'border-[var(--color-border-strong)] hover:border-[var(--color-primary-400)]'
@@ -197,7 +197,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className={`${compact ? 'h-11 text-sm' : 'h-13 text-base'} w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
+          className={`${compact ? 'h-11' : 'h-13'} text-base w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
@@ -258,7 +258,7 @@ export function SearchInput({
         type="submit"
         disabled={!hasQuery}
         aria-label="Tìm kiếm"
-        className={`${compact ? 'h-11 rounded-r-[--radius-md] px-3' : 'h-13 rounded-r-[--radius-lg] px-5 sm:px-7'} shrink-0 border-0 bg-[var(--color-action-primary)] font-semibold text-white transition-colors duration-[--duration-fast] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${compact ? 'h-11 rounded-r-[var(--radius-md)] px-3' : 'h-13 rounded-r-[var(--radius-lg)] px-5 sm:px-7'} shrink-0 border-0 bg-[var(--color-action-primary)] font-semibold text-white transition-colors duration-[var(--duration-fast)] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50`}
       >
         <span className={compact ? 'sr-only' : 'hidden sm:inline'}>Tìm kiếm</span>
         <MagnifyingGlass aria-hidden="true" size={18} className={compact ? '' : 'sm:hidden'} />
@@ -462,7 +462,7 @@ function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResul
   const { kanji, matchType } = result;
   return (
     <div className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
-      <div lang="ja" className="jp-text flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius-md] bg-[var(--color-surface-subtle)] text-2xl font-semibold text-[var(--color-text-primary)]">
+      <div lang="ja" className="jp-text flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)] text-2xl font-semibold text-[var(--color-text-primary)]">
         {kanji.literal}
       </div>
       <div className="min-w-0 flex-1">

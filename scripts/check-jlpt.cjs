@@ -5,6 +5,11 @@ const path = require('node:path');
 const vm = require('node:vm');
 const ts = require('typescript');
 
+const mobileCss = fs.readFileSync('src/app/jlpt/jlpt.css', 'utf8').split('@media (max-width: 767px)')[1];
+assert(mobileCss, 'Mobile JLPT styles must exist');
+assert(mobileCss.includes('repeat(auto-fit, minmax(44px, 1fr))'), 'Answer grid must adapt without shrinking touch targets');
+assert(!/repeat\([67],/.test(mobileCss), 'Narrow breakpoints must not force six/seven columns');
+
 class MockNextRequest {
   constructor(url, init = {}) {
     this.url = url;

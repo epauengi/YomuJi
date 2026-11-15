@@ -29,18 +29,25 @@ export function TatoebaExamples({ word, localExamples }: { word: string; localEx
     return () => controller.abort();
   }, [word, attempt]);
 
-  if (error) return <div role="status" className="text-sm text-[var(--color-text-secondary)]">Chưa thể tải ví dụ từ Tatoeba.{' '}<button type="button" onClick={() => setAttempt((value) => value + 1)} className="min-h-11 font-semibold text-[var(--color-primary-700)] underline underline-offset-4">Thử lại</button></div>;
-  if (!examples) return <p role="status" className="text-sm text-[var(--color-text-secondary)]">Đang tải ví dụ từ Tatoeba…</p>;
+  if (error) return <div role="status" className="text-base text-[var(--color-text-secondary)]">Chưa thể tải ví dụ từ Tatoeba.{' '}<button type="button" onClick={() => setAttempt((value) => value + 1)} className="min-h-11 font-semibold text-[var(--color-primary-700)] underline underline-offset-4">Thử lại</button></div>;
+  if (!examples) return <p role="status" className="text-base text-[var(--color-text-secondary)]">Đang tải ví dụ từ Tatoeba…</p>;
   const additional = examples.filter((example) => !localExamples.some((local) => local.textJa.trim() === example.textJa.trim()));
   if (!additional.length) return localExamples.length ? null : <p className="text-sm text-[var(--color-text-muted)]">Chưa tìm thấy ví dụ Nhật–Việt cho từ này.</p>;
 
-  return <>
-    {additional.map((example) => <Card key={example.id} className="surface-lift flex flex-col gap-3 shadow-none">
+  const exampleCards = additional.map((example) => <Card key={example.id} className="surface-lift flex flex-col gap-3 shadow-none">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <p lang="ja" className="jp-text text-lg font-medium leading-8 text-[var(--color-text-primary)]">{example.textJa}</p>
-        <AudioButton text={example.textJa} label="Nghe câu" className="shrink-0" />
+        <p lang="ja" className="jp-text text-base font-medium leading-relaxed text-[var(--color-text-primary)]">{example.textJa}</p>
+        <AudioButton text={example.textJa} label="Nghe câu" variant="compact" className="shrink-0" />
       </div>
-      <p className="text-[var(--color-text-secondary)]">{example.textVi}</p>
-    </Card>)}
-  </>;
+      <p className="text-base leading-relaxed text-[var(--color-text-secondary)]">{example.textVi}</p>
+    </Card>);
+
+  return localExamples.length ? (
+    <details>
+      <summary className="flex min-h-11 cursor-pointer items-center rounded-[var(--radius-sm)] text-sm font-medium text-[var(--color-primary-700)] underline decoration-transparent underline-offset-4 hover:decoration-current">
+        {additional.length} ví dụ bổ sung từ Tatoeba
+      </summary>
+      <div className="flex flex-col gap-3 pt-2">{exampleCards}</div>
+    </details>
+  ) : <div className="flex flex-col gap-3">{exampleCards}</div>;
 }

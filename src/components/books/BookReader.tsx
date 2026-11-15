@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, BookmarkSimple, Minus, Plus, Sun, Moon, TextAa, SpeakerHigh, Stop } from '@phosphor-icons/react';
 import type { Book } from '@/data/books';
 import type { BookContent } from '@/lib/bookContent';
+import { readBookReaderPrefs, writeBookReaderPrefs, type StoredBookReaderPrefs } from '@/lib/bookReaderStorage';
+import { writeThemePreference } from '@/lib/browserState';
 
 const STORAGE_KEY = 'yomuji_book_reader_v1';
 type ReaderPrefs = {
@@ -31,6 +33,8 @@ type ReaderPrefs = {
 export default function BookReader({ book }: { book: Book }) {
   const [prefs, setPrefs] = useState<ReaderPrefs>({ size: 23, dark: false, furigana: false, saved: false });
   const [prefsReady, setPrefsReady] = useState(false);
+  const [storageStatus, setStorageStatus] = useState<'ready' | 'corrupt' | 'unavailable' | 'write-error'>('ready');
+  const [storageAttempt, setStorageAttempt] = useState(0);
   const [content, setContent] = useState<BookContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -47,51 +51,64 @@ export default function BookReader({ book }: { book: Book }) {
 
   useEffect(() => {
     setSupportsSpeech('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
-    let next: ReaderPrefs = { size: 23, dark: document.documentElement.dataset.theme === 'dark', furigana: false, saved: false };
-    try {
-      const value: unknown = JSON.parse(localStorage.getItem(`${STORAGE_KEY}:${book.slug}`) || 'null');
-      if (value && typeof value === 'object') {
-        const stored = value as Partial<ReaderPrefs>;
-        next = {
-          size: typeof stored.size === 'number' && Number.isFinite(stored.size) ? Math.min(32, Math.max(18, stored.size)) : 23,
-          dark: typeof stored.dark === 'boolean' ? stored.dark : next.dark,
-          furigana: stored.furigana === true,
-          saved: stored.saved === true,
-        };
-      }
-    } catch { /* Reading remains available when local data is malformed or blocked. */ }
-    setPrefs(next);
+    setPrefsReady(false);
+    let result: ReturnType<typeof readBookReaderPrefs> = { status: 'unavailable' };
+    try { result = readBookReaderPrefs(window.localStorage, `${STORAGE_KEY}:${book.slug}`, book.slug); } catch { /* Storage getter can be blocked. */ }
+    const dark = document.documentElement.dataset.theme === 'dark';
+    setStorageStatus(result.status === 'empty' || result.status === 'ok' ? 'ready' : result.status);
+    setPrefs({
+      size: result.status === 'ok' && typeof result.value.size === 'number' ? Math.min(32, Math.max(18, result.value.size)) : 23,
+      dark,
+      furigana: result.status === 'ok' && result.value.furigana === true,
+      saved: result.status === 'ok' && result.value.saved === true,
+    });
     setPrefsReady(true);
-  }, [book.slug]);
+  }, [book.slug, storageAttempt]);
 
   useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      const dark = root.dataset.theme === 'dark';
+      setPrefs((current) => current.dark === dark ? current : { ...current, dark });
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const updatePrefs = (next: ReaderPrefs) => {
     if (!prefsReady) return;
-    try {
-      const payload: ReaderPrefs = {
-        size: prefs.size,
-        dark: prefs.dark,
-        furigana: prefs.furigana,
-        saved: prefs.saved,
-      };
-      if (prefs.saved) {
-        payload.book = {
-          slug: book.slug,
-          title: book.title,
-          japaneseTitle: book.japaneseTitle,
-          author: book.author,
-          romanizedAuthor: book.romanizedAuthor ?? '',
-          ...(book.minutes !== undefined ? { minutes: book.minutes } : {}),
-          ...(book.category ? { category: book.category } : {}),
-          ...(book.intro ? { intro: book.intro } : {}),
-          ...(book.excerpt ? { excerpt: book.excerpt } : {}),
-          ...(book.orthography ? { orthography: book.orthography } : {}),
-          ...(book.titleReading ? { titleReading: book.titleReading } : {}),
-          ...(book.credits ? { credits: book.credits } : {}),
-        };
-      }
-      localStorage.setItem(`${STORAGE_KEY}:${book.slug}`, JSON.stringify(payload));
-    } catch { /* Storage is optional. */ }
-  }, [book, prefs, prefsReady]);
+    if (storageStatus !== 'ready') {
+      if (next.saved === prefs.saved) setPrefs(next);
+      return;
+    }
+    const payload: StoredBookReaderPrefs = {
+      size: next.size,
+      dark: document.documentElement.dataset.theme === 'dark',
+      furigana: next.furigana,
+      saved: next.saved,
+      ...(next.saved ? { book: {
+        slug: book.slug,
+        title: book.title,
+        japaneseTitle: book.japaneseTitle,
+        author: book.author,
+        romanizedAuthor: book.romanizedAuthor ?? '',
+        ...(book.minutes !== undefined ? { minutes: book.minutes } : {}),
+        ...(book.category ? { category: book.category } : {}),
+        ...(book.intro ? { intro: book.intro } : {}),
+        ...(book.excerpt ? { excerpt: book.excerpt } : {}),
+        ...(book.orthography ? { orthography: book.orthography } : {}),
+        ...(book.titleReading ? { titleReading: book.titleReading } : {}),
+        ...(book.credits ? { credits: book.credits } : {}),
+      } } : {}),
+    };
+    let writeResult: 'ok' | 'corrupt' | 'unavailable' = 'unavailable';
+    try { writeResult = writeBookReaderPrefs(window.localStorage, `${STORAGE_KEY}:${book.slug}`, book.slug, payload); } catch { /* Storage getter can be blocked. */ }
+    if (writeResult !== 'ok') {
+      setStorageStatus(writeResult === 'corrupt' ? 'corrupt' : 'write-error');
+      if (next.saved !== prefs.saved) return;
+    }
+    setPrefs(next);
+  };
 
   useEffect(() => {
     let active = true;
@@ -198,21 +215,22 @@ export default function BookReader({ book }: { book: Book }) {
     next(0);
   };
 
-  return <div data-reader-dark={dark} className="reader-surface min-h-[100dvh] pb-24" style={{ '--reader-size': `${size}px` } as React.CSSProperties}>
+  return <div className="reader-surface min-h-[100dvh] pb-24" style={{ '--reader-size': `${size}px` } as React.CSSProperties}>
     <div className="fixed inset-x-0 top-0 z-20 h-1 bg-[var(--color-border-subtle)]" aria-hidden="true"><div className="h-full bg-[var(--color-primary-600)] motion-safe:transition-[width] motion-safe:duration-150" style={{ width: `${progress}%` }} /></div>
     <header className="sticky top-16 z-10 border-b border-[var(--color-border-subtle)] bg-[var(--reader-bg)]">
       <div className="mx-auto flex min-h-14 max-w-5xl items-center px-1 min-[360px]:gap-1 min-[360px]:px-2 sm:gap-2 sm:px-6">
         <Link href={`/books/${book.slug}`} aria-label="Quay lại chi tiết truyện" className="inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)]"><ArrowLeft aria-hidden="true" size={20} /></Link>
         <p className="min-w-0 flex-1 truncate text-center text-sm font-semibold">{book.title}</p>
         <div className="flex shrink-0 items-center rounded-full bg-[var(--color-surface-subtle)] p-0.5">
-          <button type="button" aria-label="Chữ nhỏ hơn" onClick={() => setPrefs((value) => ({ ...value, size: Math.max(18, value.size - 1) }))} disabled={!prefsReady || size <= 18} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Minus aria-hidden="true" size={17} /></button>
+          <button type="button" aria-label="Chữ nhỏ hơn" onClick={() => updatePrefs({ ...prefs, size: Math.max(18, size - 1) })} disabled={!prefsReady || size <= 18} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Minus aria-hidden="true" size={17} /></button>
           <span className="min-w-6 text-center text-xs tabular-nums" aria-live="polite">{size}</span>
-          <button type="button" aria-label="Chữ to hơn" onClick={() => setPrefs((value) => ({ ...value, size: Math.min(32, value.size + 1) }))} disabled={!prefsReady || size >= 32} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Plus aria-hidden="true" size={17} /></button>
+          <button type="button" aria-label="Chữ to hơn" onClick={() => updatePrefs({ ...prefs, size: Math.min(32, size + 1) })} disabled={!prefsReady || size >= 32} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Plus aria-hidden="true" size={17} /></button>
         </div>
-        <button type="button" disabled={!prefsReady} aria-label={saved ? 'Bỏ lưu truyện' : 'Lưu truyện'} aria-pressed={saved} onClick={() => setPrefs((value) => ({ ...value, saved: !value.saved }))} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><BookmarkSimple aria-hidden="true" size={19} weight={saved ? 'fill' : 'regular'} /></button>
-        <button type="button" disabled={!prefsReady} aria-label={dark ? 'Bật giao diện sáng' : 'Bật giao diện tối'} aria-pressed={dark} onClick={() => setPrefs((value) => ({ ...value, dark: !value.dark }))} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40">{dark ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
-        <button type="button" disabled={!prefsReady} aria-label={furigana ? 'Ẩn Furigana' : 'Hiện Furigana'} aria-pressed={furigana} onClick={() => setPrefs((value) => ({ ...value, furigana: !value.furigana }))} className="flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><TextAa aria-hidden="true" size={21} /></button>
+        <button type="button" disabled={!prefsReady || storageStatus !== 'ready'} aria-label={saved ? 'Bỏ lưu truyện' : 'Lưu truyện'} aria-pressed={saved} onClick={() => updatePrefs({ ...prefs, saved: !saved })} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><BookmarkSimple aria-hidden="true" size={19} weight={saved ? 'fill' : 'regular'} /></button>
+        <button type="button" disabled={!prefsReady} aria-label={dark ? 'Bật giao diện sáng' : 'Bật giao diện tối'} aria-pressed={dark} onClick={() => writeThemePreference(dark ? 'light' : 'dark')} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40">{dark ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
+        <button type="button" disabled={!prefsReady} aria-label={furigana ? 'Ẩn Furigana' : 'Hiện Furigana'} aria-pressed={furigana} onClick={() => updatePrefs({ ...prefs, furigana: !furigana })} className="flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><TextAa aria-hidden="true" size={21} /></button>
       </div>
+      {storageStatus !== 'ready' && <div role="alert" className="mx-auto flex max-w-5xl flex-col items-start gap-1 border-t border-[var(--color-border-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-sm"><p>{storageStatus === 'corrupt' ? 'Dữ liệu truyện đã lưu bị lỗi. Dữ liệu gốc được giữ nguyên; chưa thể thay đổi trạng thái lưu.' : storageStatus === 'unavailable' ? 'Không đọc được bộ nhớ trên thiết bị. Hãy kiểm tra cài đặt trình duyệt rồi thử lại.' : 'Không lưu được thay đổi. Kiểm tra dung lượng bộ nhớ rồi thử lại.'}</p><button type="button" onClick={() => setStorageAttempt((value) => value + 1)} className="inline-flex min-h-11 shrink-0 items-center font-semibold text-[var(--color-primary-700)] underline">Thử đọc lại</button></div>}
     </header>
 
     <main className="mx-auto max-w-[calc(var(--reader-size)*34)] px-5 pb-24 pt-10 sm:px-8 sm:pt-16">
@@ -235,8 +253,8 @@ export default function BookReader({ book }: { book: Book }) {
       <Link href={`/books/${book.slug}`} className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Quay lại chi tiết truyện</Link>
     </main>
     <style jsx>{`
-      .reader-surface { --reader-bg: #f6f8fa; --color-text-primary: #17202a; --color-text-secondary: #475569; --color-text-muted: #586a7e; --color-surface: #fff; --color-surface-subtle: #e9eef3; --color-border: #d7e0e8; --color-border-subtle: #d7e0e8; --color-primary-700: #0f766e; --color-action-primary: #0f766e; --color-action-primary-hover: #115e59; color-scheme: light; background: var(--reader-bg); color: var(--color-text-primary); }
-      .reader-surface[data-reader-dark="true"] { --reader-bg: #111a23; --color-text-primary: #eef3f7; --color-text-secondary: #cbd5e1; --color-text-muted: #a8b5c4; --color-surface: #17232f; --color-surface-subtle: #263443; --color-border: #3e5060; --color-border-subtle: #334155; --color-primary-700: #5eead4; color-scheme: dark; }
+      .reader-surface { --reader-bg: var(--color-bg); background: var(--reader-bg); color: var(--color-text-primary); color-scheme: light; }
+      :global(html[data-theme="dark"]) .reader-surface { color-scheme: dark; }
       .reader-surface :is(button, a):focus-visible { outline: 2px solid var(--color-primary-700); outline-offset: 3px; }
       .reader-copy { font-size: var(--reader-size); line-height: 2.15; font-weight: 400; overflow-wrap: anywhere; white-space: pre-wrap; }
       .reader-copy ::selection { background: #99f6e4; color: #17202a; }

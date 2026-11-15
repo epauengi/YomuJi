@@ -43,7 +43,7 @@ export function AudioButton({
       <button
         type="button"
         onClick={speak}
-        className={`relative flex h-11 w-11 items-center justify-center rounded-[--radius-md] border transition-[background-color,border-color,color,box-shadow] duration-[--duration-fast] ${
+        className={`relative flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] border transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ${
           speaking
             ? 'border-[var(--color-primary-400)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)] shadow-sm'
             : 'border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-primary-700)] hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)]'
@@ -64,7 +64,7 @@ export function AudioButton({
     <button
       type="button"
       onClick={speak}
-      className={`inline-flex h-11 items-center gap-2 rounded-[--radius-md] border px-3.5 text-sm font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-[--duration-fast] active:translate-y-px ${
+      className={`inline-flex h-11 items-center gap-2 rounded-[var(--radius-md)] border px-3.5 text-sm font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--duration-fast)] active:translate-y-px ${
         speaking
           ? 'border-[var(--color-primary-400)] bg-[var(--color-primary-50)] text-[var(--color-primary-800)] shadow-sm'
           : 'border-[var(--color-border-strong)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:border-[var(--color-primary-400)] hover:text-[var(--color-primary-700)]'

@@ -126,7 +126,7 @@
 .jlpt-question-nav > p { font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); margin-top: 8px; }
 .jlpt-nav-section { margin-top: 22px; }
 .jlpt-nav-section h3 { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 10px; }
-.jlpt-question-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.jlpt-question-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 8px; }
 .jlpt-question-grid button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; font-size: 12px; font-weight: 600; border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; cursor: pointer; }
 .jlpt-question-grid button:hover { background: var(--color-surface-subtle); }
 .jlpt-question-grid button.is-answered { background: var(--color-primary-100); color: var(--color-primary-800); border-color: var(--color-primary-200); }
@@ -228,8 +228,8 @@
   .jlpt-answer-sheet-jump:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
   .jlpt-question-nav > h2 { scroll-margin-top: 76px; }
   .jlpt-question-nav .jlpt-nav-section { margin-top: 12px; }
-  .jlpt-question-nav .jlpt-question-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
-  .jlpt-question-nav .jlpt-question-grid button { min-height: 44px; min-width: 0; }
+  .jlpt-question-nav .jlpt-question-grid { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 8px; }
+  .jlpt-question-nav .jlpt-question-grid button { min-height: 44px; min-width: 44px; }
   .jlpt-question-nav .jlpt-submit { min-height: 48px; }
   .jlpt-question { width: 100%; padding: 20px 17px; border-radius: 14px; }
   .jlpt-question-header { font-size: 11px; gap: 8px; padding-bottom: 13px; margin-bottom: 18px; align-items: center; }
@@ -247,7 +247,7 @@
   .jlpt-question-actions { gap: 12px; }
   .jlpt-question-actions .jlpt-button { flex: 1; font-size: 13px; padding: 11px 10px; }
   .jlpt-question-nav { position: static; width: 100%; padding: 22px; border-radius: 14px; }
-  .jlpt-question-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .jlpt-question-grid { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 8px; }
   .jlpt-submit { min-height: 47px; }
   .jlpt-result { display: flex; flex-wrap: wrap; padding: 22px; gap: 21px; }
   .jlpt-result-score { width: 100%; }
@@ -260,7 +260,6 @@
 }
 @media (max-width: 359px) {
   .jlpt-container { padding-left: 12px; padding-right: 12px; }
-  .jlpt-question-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .jlpt-category strong { font-size: 11px; }
   .jlpt-question-header { flex-wrap: wrap; }
 }

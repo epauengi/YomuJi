@@ -1,6 +1,5 @@
 // Run: node scripts/test-homepage-regressions.cjs
 const assert = require('node:assert/strict');
-const cp = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -87,13 +86,8 @@ assert(
   'Hero decorative orb and kanji floating animations must be removed from HomePage'
 );
 
-// 7. Hero static decoration and palette preserved against baseline
-const baseline = cp.execSync('git show HEAD:src/components/HomePage.tsx', { encoding: 'utf8' });
-const extractHero = (code) => {
-  const match = code.match(/<section[^>]*bg-\[#123b36\][\s\S]*?<\/section>/);
-  return match ? match[0].trim().replace(/\r\n/g, '\n') : null;
-};
-assert.equal(extractHero(baseline), extractHero(homePage), 'Hero section markup must match git baseline');
+// 7. Entry hero preserved; active-query state intentionally compact.
+require('./check-lookup-layout.cjs');
 assert(homePage.includes("char: '\u5B66'") && homePage.includes("char: '\u65E5'"), 'Hero must preserve static decorative kanji');
 
 // 8. Daily-word loading/error/retry/success state and stable slot
@@ -119,7 +113,7 @@ const transEffect = ts.transpileModule(
   { compilerOptions: { module: ts.ModuleKind.CommonJS } }
 ).outputText;
 
-const effectVm = { console: { ...console, error: () => {} } };
+const effectVm = { console: { ...console, error: () => {} }, AbortController, setTimeout, clearTimeout };
 vm.createContext(effectVm);
 vm.runInContext(transEffect + '; this.runWordEffect = runWordEffect;', effectVm);
 
@@ -135,36 +129,10 @@ async function testWordEffect(fetcher) {
   return state;
 }
 
-// 9. Sonner history undo merge preserving newer queries (8 cap)
+// 9. Undo now delegates persistence to recentSearches; exercise that implementation.
 assert(homePage.includes("from 'sonner'"), 'HomePage must import toast from sonner');
-const onClickMatch = homePage.match(/onClick:\s*\(\)\s*=>\s*\{([\s\S]*?setRecentSearches\(merged\);[\s\S]*?)\}/);
-assert(onClickMatch, 'Must find sonner undo onClick handler in HomePage');
-
-const transUndo = ts.transpileModule(
-  'function undo(snapshot, readStoredRecentSearches, setRecentSearches) { ' + onClickMatch[1] + ' }',
-  { compilerOptions: { module: ts.ModuleKind.CommonJS } }
-).outputText;
-
-let savedStorage = null;
-let currentSearches = null;
-const mockStorage = { setItem: (k, v) => { savedStorage = JSON.parse(v); } };
-const undoVm = {
-  Array,
-  Set,
-  JSON,
-  console: { ...console, error: () => {} },
-  localStorage: mockStorage,
-  toast: { error: () => {} },
-  window: {
-    localStorage: mockStorage,
-    dispatchEvent: () => true,
-  },
-  dispatchEvent: () => true,
-  CustomEvent: class CustomEvent { constructor(name, detail) { this.name = name; this.detail = detail; } },
-  Event: class Event { constructor(name) { this.name = name; } },
-};
-vm.createContext(undoVm);
-vm.runInContext(transUndo + '; this.undo = undo;', undoVm);
+assert(homePage.includes('setRecentSearches(restoreRecentSearches(removed))'), 'Undo must restore persisted history');
+require('node:child_process').execFileSync(process.execPath, ['scripts/check-home-history.cjs'], { cwd: root, stdio: 'inherit' });
 
 (async () => {
   // Test daily-word states: success, rejection, undefined, retry
@@ -188,18 +156,7 @@ vm.runInContext(transUndo + '; this.undo = undo;', undoVm);
   assert.equal(retried.error, null);
   assert.equal(retried.term?.surface, '\u72AC');
 
-  // Test Sonner undo merge: preserve newer searches & deduplicate
-  undoVm.undo(['s1', 's2', 's3'], () => ['n1', 's2'], (m) => { currentSearches = m; });
-  assert.deepEqual(Array.from(currentSearches), ['n1', 's2', 's1', 's3']);
-  assert.deepEqual(Array.from(savedStorage), ['n1', 's2', 's1', 's3']);
-
-  // Test Sonner undo merge: cap at 8
-  undoVm.undo(['1', '2', '3', '4', '5', '6', '7', '8'], () => ['x1', 'x2', 'x3'], (m) => { currentSearches = m; });
-  assert.deepEqual(Array.from(currentSearches), ['x1', 'x2', 'x3', '1', '2', '3', '4', '5']);
-  assert.equal(currentSearches.length, 8);
-  assert.deepEqual(Array.from(savedStorage), ['x1', 'x2', 'x3', '1', '2', '3', '4', '5']);
-
-  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, random reader label, hero motion removed, hero git baseline preserved, daily-word states & retry, sonner history undo merge (8 cap)');
+  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, random reader label, hero motion removed, entry hero preserved and active query compact, daily-word states & retry, sonner history undo merge (8 cap)');
 })().catch((err) => {
   console.error(err);
   process.exit(1);

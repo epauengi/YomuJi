@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, BookmarkSimple, WarningCircle, ArrowsClockwise } from '@phosphor-icons/react';
 import { getBook, type Book } from '@/data/books';
+import { readBookMetadataCache, scanSavedBookRecords, writeBookMetadataCache } from '@/lib/bookReaderStorage';
 
 const STORAGE_KEY = 'yomuji_book_reader_v1';
 const PREFIX = `${STORAGE_KEY}:`;
+const METADATA_PREFIX = 'yomuji_book_metadata_v1:';
 const CHUNK_SIZE = 50;
 
 function isValidSlug(slug: string): boolean {
@@ -63,43 +65,39 @@ export default function SavedBooksPage() {
       const savedSlugs: string[] = [];
       const offlineMap = new Map<string, Book>();
       const unresolvedSlugs: string[] = [];
-
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (!key || !key.startsWith(PREFIX)) continue;
-          const slug = key.slice(PREFIX.length);
-          if (!isValidSlug(slug)) continue;
-
-          try {
-            const raw = localStorage.getItem(key);
-            if (!raw) continue;
-            const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== 'object' || parsed.saved !== true) continue;
-
-            savedSlugs.push(slug);
-
-            // Local curated first
-            const curated = getBook(slug);
-            if (curated) {
-              offlineMap.set(slug, curated);
-              continue;
-            }
-
-            // Valid stored metadata
-            if (isValidStoredBook(parsed.book, slug)) {
-              offlineMap.set(slug, normalizeStoredBook(parsed.book as Record<string, unknown>, slug));
-              continue;
-            }
-
-            // Needs remote resolution
-            unresolvedSlugs.push(slug);
-          } catch {
-            // Corrupt records ignore only that record
-          }
+      let storageFailure = '';
+      let scan: ReturnType<typeof scanSavedBookRecords>;
+      try { scan = scanSavedBookRecords(window.localStorage, PREFIX); }
+      catch { scan = { status: 'unavailable', records: [] }; }
+      if (scan.status === 'unavailable' || scan.status === 'corrupt') {
+        storageFailure = scan.status === 'unavailable'
+          ? 'Không đọc được danh sách đã lưu trên thiết bị. Hãy kiểm tra cài đặt trình duyệt rồi thử lại.'
+          : 'Một mục lưu bị lỗi. Dữ liệu gốc được giữ nguyên; sửa hoặc xóa mục lỗi để tiếp tục.';
+      } else for (const { slug, value: parsed } of scan.records) {
+        if (!isValidSlug(slug)) {
+          storageFailure = 'Một mục truyện đã lưu không hợp lệ. Dữ liệu gốc được giữ nguyên; danh sách chưa thể tải.';
+          break;
         }
-      } catch {
-        // LocalStorage access failure
+        savedSlugs.push(slug);
+        const curated = getBook(slug);
+        if (curated) { offlineMap.set(slug, curated); continue; }
+        if (isValidStoredBook(parsed.book, slug)) {
+          offlineMap.set(slug, normalizeStoredBook(parsed.book as Record<string, unknown>, slug));
+          continue;
+        }
+        try {
+          const cached = readBookMetadataCache(window.localStorage, METADATA_PREFIX, slug);
+          if (cached.status === 'ok' && isValidStoredBook(cached.value.book, slug)) {
+            offlineMap.set(slug, normalizeStoredBook(cached.value.book as Record<string, unknown>, slug));
+            continue;
+          }
+        } catch { /* Optional metadata cache; fetch it below. */ }
+        unresolvedSlugs.push(slug);
+      }
+      if (storageFailure) {
+        if (active) { setError(storageFailure); setLoading(false); setReady(true); }
+        window.clearTimeout(timeout);
+        return;
       }
 
       // No saved books at all
@@ -145,35 +143,24 @@ export default function SavedBooksPage() {
           const data = await res.json();
           if (Array.isArray(data?.books)) {
             for (const book of data.books as Book[]) {
-              if (book && typeof book.slug === 'string') {
+              if (book && isValidStoredBook(book, book.slug) && isValidSlug(book.slug)) {
                 fetchedMap.set(book.slug, book);
-
-                // Cache metadata back to localStorage safely
                 try {
-                  const raw = localStorage.getItem(`${PREFIX}${book.slug}`);
-                  if (raw) {
-                    const record = JSON.parse(raw);
-                    if (record && typeof record === 'object' && record.saved === true) {
-                      record.book = {
-                        slug: book.slug,
-                        title: book.title,
-                        japaneseTitle: book.japaneseTitle,
-                        author: book.author,
-                        romanizedAuthor: book.romanizedAuthor,
-                        ...(book.minutes !== undefined ? { minutes: book.minutes } : {}),
-                        ...(book.category ? { category: book.category } : {}),
-                        ...(book.intro ? { intro: book.intro } : {}),
-                        ...(book.excerpt ? { excerpt: book.excerpt } : {}),
-                        ...(book.orthography ? { orthography: book.orthography } : {}),
-                        ...(book.titleReading ? { titleReading: book.titleReading } : {}),
-                        ...(book.credits ? { credits: book.credits } : {}),
-                      };
-                      localStorage.setItem(`${PREFIX}${book.slug}`, JSON.stringify(record));
-                    }
-                  }
-                } catch {
-                  // Storage quota or blocked
-                }
+                  writeBookMetadataCache(window.localStorage, METADATA_PREFIX, book.slug, {
+                    slug: book.slug,
+                    title: book.title,
+                    japaneseTitle: book.japaneseTitle,
+                    author: book.author,
+                    romanizedAuthor: book.romanizedAuthor,
+                    ...(book.minutes !== undefined ? { minutes: book.minutes } : {}),
+                    ...(book.category ? { category: book.category } : {}),
+                    ...(book.intro ? { intro: book.intro } : {}),
+                    ...(book.excerpt ? { excerpt: book.excerpt } : {}),
+                    ...(book.orthography ? { orthography: book.orthography } : {}),
+                    ...(book.titleReading ? { titleReading: book.titleReading } : {}),
+                    ...(book.credits ? { credits: book.credits } : {}),
+                  });
+                } catch { /* Optional metadata cache. */ }
               }
             }
           }
@@ -248,7 +235,7 @@ export default function SavedBooksPage() {
         <div role="alert" className="mt-8 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)] p-6">
           <div className="flex items-center gap-2 text-[var(--color-text-primary)]">
             <WarningCircle size={20} className="text-amber-600" aria-hidden="true" />
-            <h2 className="font-serif text-xl font-semibold">Nội dung chưa sẵn sàng</h2>
+            <h2 className="font-serif text-xl font-semibold">{error.includes('Máy chủ') || error.includes('kết nối') ? 'Danh sách chưa tải được' : 'Bộ nhớ chưa sẵn sàng'}</h2>
           </div>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{error}</p>
           <button

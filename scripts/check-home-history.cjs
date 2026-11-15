@@ -72,6 +72,12 @@ async function check() {
   stored = JSON.stringify(['new search', 'newer search']);
   assert.deepEqual(history.restoreRecentSearches(['remove']), ['new search', 'newer search', 'remove']);
   assert.equal(JSON.parse(stored).length, 3);
+  stored = JSON.stringify(['n1', 's2']);
+  assert.deepEqual(history.restoreRecentSearches(['s1', 's2', 's3']), ['n1', 's2', 's1', 's3']);
+  stored = JSON.stringify(['x1', 'x2', 'x3']);
+  assert.deepEqual(history.restoreRecentSearches(['1', '2', '3', '4', '5', '6', '7', '8']), ['x1', 'x2', 'x3', '1', '2', '3', '4', '5']);
+  assert.equal(JSON.parse(stored).length, 8);
+  stored = JSON.stringify(['old']);
 
   blockedOperation = 'remove';
   const beforeFailure = stored;

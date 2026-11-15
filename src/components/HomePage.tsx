@@ -135,6 +135,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   const router = useRouter();
   const { progress } = useDictionary();
   const query = initialQuery;
+  const hasQuery = !!query.trim();
   const [results, setResults] = useState<DictionarySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -312,10 +313,10 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   return (
     <div className="pb-16">
       <section
-        className="relative z-20 overflow-visible border-b border-teal-950/30 bg-[#123b36] py-10 text-white sm:py-12 md:py-14"
+        className={`relative z-20 overflow-visible border-b text-white ${hasQuery ? 'border-[var(--color-border)] bg-[var(--color-surface)] py-4 sm:py-6' : 'border-teal-950/30 bg-[#123b36] py-10 sm:py-12 md:py-14'}`}
       >
         {/* Subtle Static Japanese Marks */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {!hasQuery && <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           {decorativeKanji.map((item, index) => (
             <span
               key={`${item.char}-${index}`}
@@ -330,25 +331,25 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
               {item.char}
             </span>
           ))}
-        </div>
+        </div>}
 
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 text-center">
-          <h1 className="max-w-3xl text-balance text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
+          <h1 className={hasQuery ? 'sr-only' : 'max-w-3xl text-balance text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl'}>
             Tra nhanh, hiểu sâu <span className="text-teal-200">tiếng Nhật</span>
           </h1>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
+          {!hasQuery && <p className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
             Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
-          </p>
+          </p>}
 
-          <div className="mt-6 w-full max-w-[800px] text-left">
+          <div className={`${hasQuery ? '' : 'mt-6 '}w-full max-w-[800px] text-left`}>
             <SearchInput
               onSearch={commitSearch}
               initialValue={query}
               placeholder="Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt..."
             />
 
-            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
+            {!hasQuery && <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
               <span className="text-teal-100">Thử tìm:</span>
               {suggestionChips.map((word) => (
                 <button
@@ -360,17 +361,17 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                   {word}
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1120px] px-4 py-8">
-        {query.trim() ? (
+      <div className={`mx-auto max-w-[1120px] px-4 ${hasQuery ? 'py-6' : 'py-8'}`}>
+        {hasQuery ? (
           <section aria-label="Kết quả tìm kiếm">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+                <h2 className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
                   Kết quả tra cứu cho &ldquo;{query}&rdquo;
                 </h2>
                 <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -382,18 +383,18 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
             {!loading && <ConjugationAnalysis key={query} query={query} results={results} />}
             <div aria-live="polite">
               {progress.source === 'offline' && (
-                <div className="mb-4 rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
+                <div className="mb-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
                   Máy chủ chưa sẵn sàng — đang hiển thị kết quả từ dữ liệu offline trên thiết bị.
                 </div>
               )}
               {loading ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="skeleton-quiet h-36 rounded-[--radius-lg] bg-[var(--color-surface-subtle)]" />
+                    <div key={index} className="skeleton-quiet h-36 rounded-[var(--radius-lg)] bg-[var(--color-surface-subtle)]" />
                   ))}
                 </div>
               ) : searchError ? (
-                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
                   <p role="alert">{searchError}</p>
                   {progress.status !== 'downloading' && progress.status !== 'indexing' && (
                     <Link href="/settings" className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--color-primary-700)]">
@@ -414,7 +415,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-[--radius-lg] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
+                <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
                   <p className="font-semibold text-[var(--color-text-primary)]">
                     Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
                   </p>
@@ -480,9 +481,9 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
                     {wordLoading ? (
                       <div className="mt-5 space-y-3" role="status" aria-label="Đang tải từ vựng hôm nay" aria-busy="true">
-                        <div className="skeleton-quiet h-10 w-full rounded-[--radius-md] bg-[var(--color-surface-subtle)]" />
+                        <div className="skeleton-quiet h-10 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
                         <div className="skeleton-quiet h-6 w-full rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
-                        <div className="skeleton-quiet h-16 w-full rounded-[--radius-md] bg-[var(--color-surface-subtle)]" />
+                        <div className="skeleton-quiet h-16 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
                         <span className="sr-only">Đang tải từ vựng hôm nay...</span>
                       </div>
                     ) : wordError || !wordOfTheDay ? (
@@ -493,7 +494,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                         <button
                           type="button"
                           onClick={handleRetryWord}
-                          className="tactile mt-4 inline-flex min-h-11 min-w-[44px] items-center justify-center rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-primary-700)] shadow-xs transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]"
+                          className="tactile mt-4 inline-flex min-h-11 min-w-[44px] items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-primary-700)] shadow-xs transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]"
                         >
                           Thử lại
                         </button>
@@ -528,7 +529,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                         </div>
 
                         {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
-                          <div className="mt-5 rounded-[--radius-md] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
+                          <div className="mt-5 rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
                             <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
                               {wordOfTheDay.examples[0].textJa}
                             </p>
