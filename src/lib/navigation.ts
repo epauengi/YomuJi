@@ -1,5 +1,6 @@
 export const navItems = [
   { name: 'Từ điển', href: '/', group: 'Tra cứu & đọc' },
+  { name: 'Đếm tiếng Nhật', href: '/counters', group: 'Tra cứu & đọc' },
   { name: 'Thư viện', href: '/books', group: 'Tra cứu & đọc' },
   { name: 'Flashcards', href: '/flashcards', group: 'Luyện tập' },
   { name: 'Luyện JLPT', href: '/jlpt', group: 'Luyện tập' },
