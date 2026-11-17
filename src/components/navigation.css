@@ -36,16 +36,36 @@ body:has(.shell-drawer[open]) { overflow: hidden; }
 }
 @media (min-width: 768px) { .shell-mobile-brand, .shell-header-settings, .shell-bottom-nav { display: none; } }
 @media (min-width: 1200px) {
-  .shell-sidebar { position: fixed; inset: 0 auto 0 0; z-index: var(--z-sticky); display: flex; flex-direction: column; width: var(--shell-sidebar-width); border-right: 1px solid var(--color-border-subtle); background: var(--color-surface); overflow-y: auto; }
+  .shell-sidebar { position: fixed; inset: 0 auto 0 0; z-index: var(--z-sticky); display: flex; flex-direction: column; width: var(--shell-sidebar-width); border-right: 1px solid var(--color-border-subtle); background: var(--color-surface); overflow-x: hidden; overflow-y: auto; transition: width 240ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .shell-sidebar .shell-label { max-width: 160px; opacity: 1; overflow: hidden; white-space: nowrap; transition: max-width 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 150ms ease; }
+  .shell-sidebar .shell-group-title { max-height: 24px; transition: max-height 240ms cubic-bezier(0.16, 1, 0.3, 1), margin-bottom 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 150ms ease; }
+  .shell-sidebar .shell-link, .shell-sidebar > .shell-brand { transition: gap 240ms cubic-bezier(0.16, 1, 0.3, 1), padding 240ms cubic-bezier(0.16, 1, 0.3, 1); }
   .shell-sidebar > .shell-brand { padding: 16px 24px; min-height: 80px; }
   .shell-collapse { align-self: flex-end; margin: 0 12px 12px; }
-  .shell-content { margin-left: var(--shell-sidebar-width); }
+  .shell-content { margin-left: var(--shell-sidebar-width); transition: margin-left 240ms cubic-bezier(0.16, 1, 0.3, 1); }
   .shell-menu { display: none; }
   .shell-header { padding: 0 32px; }
   .shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session) { --shell-sidebar-width: 72px; }
-  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-label { display: none; }
+  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-label { max-width: 0; opacity: 0; }
+  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-group-title { max-height: 0; margin-bottom: 0; }
+  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-link,
+  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar > .shell-brand { gap: 0; }
   :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar > .shell-brand { padding: 16px 20px; }
   :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-links { padding: 12px; }
-  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-link { justify-content: center; padding: 10px 0; }
+  :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-link { padding: 10px 13px; }
+}
+@supports (transition-behavior: allow-discrete) {
+  .shell-drawer { transform: translateX(-100%); transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), display 240ms allow-discrete, overlay 240ms allow-discrete; }
+  .shell-drawer[open] { transform: translateX(0); }
+  .shell-drawer::backdrop { opacity: 0; transition: opacity 200ms ease, display 240ms allow-discrete, overlay 240ms allow-discrete; }
+  .shell-drawer[open]::backdrop { opacity: 1; }
+  @starting-style {
+    .shell-drawer[open] { transform: translateX(-100%); }
+    .shell-drawer[open]::backdrop { opacity: 0; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell-sidebar, .shell-content, .shell-sidebar .shell-label, .shell-sidebar .shell-group-title, .shell-sidebar .shell-link, .shell-sidebar > .shell-brand, .shell-drawer, .shell-drawer::backdrop { transition: none; }
+  .shell-drawer, .shell-drawer[open] { transform: none; }
 }
 @media print { .shell-sidebar, .shell-header, .shell-drawer, .shell-bottom-nav { display: none !important; } .shell-content { margin-left: 0; } }
