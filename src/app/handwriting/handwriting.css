@@ -1,12 +1,13 @@
 @font-face{font-family:'Worksheet Japanese';src:url('/handwriting/fonts/japanese.ttf') format('truetype');font-display:swap;font-weight:400}
 @font-face{font-family:'Worksheet Latin';src:url('/handwriting/fonts/latin.ttf') format('truetype');font-display:swap;font-weight:400}
+@font-face{font-family:'Worksheet Readings';src:url('/handwriting/fonts/biz-udpgothic.ttf') format('truetype');font-display:swap;font-weight:400}
 .hw-studio{max-width:1440px;margin:auto;padding:32px clamp(16px,3vw,44px) 64px;color:var(--color-text-primary)}
 .hw-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:28px}
 .hw-back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--color-text-secondary);min-height:32px;text-decoration:none}
 .hw-back:hover{text-decoration:underline}
 .hw-heading h1{font-size:clamp(26px,3vw,34px);line-height:1.25;font-weight:700;letter-spacing:-.025em;margin:8px 0}
-.hw-heading p{color:var(--color-text-secondary);font-size:14px;line-height:1.7;margin:0}
 .hw-download{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 21px;background:var(--color-action-primary);color:#fff;border-radius:10px;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.hw-workspace>.hw-download{margin-top:16px}
 .hw-download:hover:not(:disabled){filter:brightness(1.1)}
 .hw-studio button:disabled{opacity:.45;cursor:not-allowed}
 .hw-studio :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--color-primary-700);outline-offset:3px}
@@ -46,6 +47,7 @@
 .hw-pagination button{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--color-border);border-radius:7px;background:var(--color-surface);cursor:pointer}
 .hw-paper-stage{background:var(--color-bg);padding:24px 28px 32px;border-radius:12px;min-height:360px;border:1px solid var(--color-border)}
 .hw-sheet{display:block;width:100%;height:auto;max-width:690px;margin:0 auto;box-shadow:0 7px 24px rgb(0 0 0 / .12)}
+.hw-sheet .hw-readings{font-kerning:normal;font-feature-settings:"kern" 1,"liga" 1;letter-spacing:.015em}
 .hw-preview-note{font-size:12px;line-height:1.8;color:var(--color-text-secondary);margin:11px 2px 0}
 .hw-preview-note a{text-decoration:underline;text-underline-offset:3px}
 .hw-empty{min-height:420px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--color-text-secondary);text-align:center;padding:20px}

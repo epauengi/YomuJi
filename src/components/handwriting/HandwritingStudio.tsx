@@ -39,7 +39,7 @@ async function loadGlyph(literal: string, signal: AbortSignal): Promise<Glyph> {
   } else if (svgResponse.status !== 404) {
     throw new Error(`Không tải được mẫu chữ ${literal}. Vui lòng thử lại.`);
   }
-  return { literal, ...shape, source, meaning: data?.meanings?.slice(0, 2).join('; ') || '', on: data?.onReadings?.join('、') || '', kun: data?.kunReadings?.join('、') || '', romaji: READINGS[literal.replace(/[\u30a1-\u30f6]/gu, c => String.fromCodePoint(c.codePointAt(0)! - 0x60))] || '' };
+  return { literal, ...shape, source, hanViet: data?.hanViet?.join('、').toLocaleUpperCase('vi') || '', meaning: data?.meanings?.slice(0, 2).join('; ') || '', on: data?.onReadings?.join('、') || '', kun: data?.kunReadings?.join('、') || '', romaji: READINGS[literal.replace(/[\u30a1-\u30f6]/gu, c => String.fromCodePoint(c.codePointAt(0)! - 0x60))] || '' };
 }
 
 function GlyphShape({ glyph, x, y, size, color, opacity = 1 }: { glyph: Glyph; x: number; y: number; size: number; color: string; opacity?: number }) {
@@ -64,19 +64,15 @@ function SheetPreview({ glyphs, options, page, pages }: { glyphs: Glyph[]; optio
   return <svg className="hw-sheet" viewBox="0 0 210 297" role="img" aria-label={`Bản xem trước giấy luyện viết, trang ${page + 1} trên ${pages}`} lang="ja">
     <rect width="210" height="297" fill={options.paperColor} />
     <g fill={options.inkColor} fontFamily="Worksheet Latin, sans-serif">
-      <text x={margin} y="16" fontSize="4.2" fontWeight="600">{options.title.slice(0, 60) || 'Giấy luyện viết'}</text>
-      <text x={margin} y="21" fontSize="2.3" opacity=".7">YomuJi · Kanji & Kana</text>
-      <text x="198" y="21" textAnchor="end" fontSize="2.3">{page + 1} / {pages}</text>
+      <text x="105" y="15" textAnchor="middle" fontSize="5.2" fontWeight="700">YomuJi</text>
+      <text x="105" y="20" textAnchor="middle" fontSize="2.8" opacity=".8">{options.title.slice(0, 60) || 'Giấy luyện viết'}</text>
+      <text x="198" y="20" textAnchor="end" fontSize="2.3">{page + 1} / {pages}</text>
     </g>
     {glyphs.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((glyph, index) => {
       const y = top + index * (blockHeight + gap);
       const body = y + headerHeight;
-      const readings = [glyph.on && `On: ${glyph.on}`, glyph.kun && `Kun: ${glyph.kun}`].filter(Boolean).join('     ');
       return <g key={glyph.literal}>
-        <g fill={options.inkColor} fontSize="2.5">
-          <text x={margin + 2} y={y + 4} fontFamily="Worksheet Latin, sans-serif">{glyph.meaning.length > 53 ? glyph.meaning.slice(0, 50) + '…' : glyph.meaning || (glyph.romaji ? `Âm: ${glyph.romaji}` : 'Luyện viết')}</text>
-          {options.showReadings ? <text x={margin + 2} y={y + 8} fontFamily="Worksheet Japanese, Worksheet Latin, sans-serif" fontSize="2.3">{readings.length > 90 ? readings.slice(0, 87) + '…' : readings}</text> : null}
-        </g>
+        {options.showReadings ? <g className="hw-readings" fill={options.inkColor} fontFamily="Worksheet Readings, Worksheet Latin, Worksheet Japanese, sans-serif" fontSize="2.7"><text x={margin + 2.5} y={y + 3} fontWeight="700">{glyph.hanViet}</text><text x={margin + 2.5} y={y + 7}><tspan fontWeight="700">On:</tspan> {glyph.on}</text><text x={margin + 2.5} y={y + 11}><tspan fontWeight="700">Kun:</tspan> {glyph.kun}</text></g> : null}
         <g stroke={options.gridColor} strokeWidth=".23" fill="none">
           <rect x={margin} y={y} width={width} height={blockHeight} />
           <path d={`M${margin} ${body}h${width}M${margin + 2 * s} ${body}v${2 * s}`} />
@@ -91,7 +87,6 @@ function SheetPreview({ glyphs, options, page, pages }: { glyphs: Glyph[]; optio
         })}
       </g>;
     })}
-    <text x="12" y="289" fontSize="1.9" fill={options.inkColor} opacity=".65" fontFamily="Worksheet Latin, sans-serif">Mẫu nét: KanjiVG / AnimCJK · Nguồn & giấy phép kèm trong PDF</text>
   </svg>;
 }
 
@@ -190,23 +185,22 @@ export default function HandwritingStudio() {
   }
 
   return <main className="hw-studio">
-    <header className="hw-heading"><div><Link href="/practice" className="hw-back"><ArrowLeft size={15} aria-hidden="true" /> Luyện tập</Link><h1>Giấy luyện viết</h1><p>Chọn chữ. Chỉnh giấy. Mang việc học ra trang viết.</p></div><button type="button" className="hw-download" onClick={download} disabled={loading || loadedKey !== key || exporting || !glyphs.length || parsed.overflow || parsed.unsupported.length > 0}>{exporting ? <SpinnerGap size={19} className="hw-spin" aria-hidden="true" /> : <DownloadSimple size={19} aria-hidden="true" />}{exporting ? 'Đang tạo PDF…' : 'Tải PDF A4'}</button></header>
+    <header className="hw-heading"><div><Link href="/practice" className="hw-back"><ArrowLeft size={15} aria-hidden="true" /> Luyện tập</Link><h1>Giấy luyện viết</h1></div></header>
     <div className="hw-layout">
       <section className="hw-controls" aria-label="Thiết lập giấy luyện viết">
-        <fieldset><legend>Chữ muốn luyện</legend><div className="hw-presets">{PRESETS.map(p => <button key={p.label} type="button" aria-pressed={text === p.text} onClick={() => setText(p.text)}>{p.label}</button>)}</div><label htmlFor="hw-characters" className="hw-label">Kanji, Hiragana hoặc Katakana</label><textarea id="hw-characters" value={text} onChange={e => setText(e.target.value)} maxLength={1000} rows={3} lang="ja" spellCheck={false} aria-describedby="hw-character-help" /><p id="hw-character-help" className="hw-help">{parsed.characters.length} / 100 chữ khác nhau · Bỏ qua chữ lặp.</p>{parsed.overflow ? <p className="hw-warning" role="alert">Tối đa 100 chữ mỗi file. Hãy chia nhỏ danh sách.</p> : null}{parsed.unsupported.length ? <p className="hw-warning" role="alert">Chưa hỗ trợ: {parsed.unsupported.join(' ')}. Chỉ nhập Kanji và Kana.</p> : null}</fieldset>
-        <fieldset><legend>Trang giấy của bạn</legend><label className="hw-label" htmlFor="hw-title">Tiêu đề</label><input id="hw-title" value={options.title} maxLength={60} onChange={e => change('title', e.target.value)} /><span className="hw-label">Màu giấy</span><div className="hw-swatches">{PAPERS.map(p => <button key={p.color} type="button" title={p.name} aria-label={`Giấy ${p.name.toLowerCase()}`} aria-pressed={options.paperColor === p.color} onClick={() => change('paperColor', p.color)} style={{ '--swatch': p.color } as CSSProperties}><span aria-hidden="true" />{p.name}</button>)}</div><div className="hw-colors"><label>Màu tùy chọn<input type="color" value={options.paperColor} onChange={e => change('paperColor', e.target.value)} /></label><label>Màu chữ<input type="color" value={options.inkColor} onChange={e => change('inkColor', e.target.value)} /></label><label>Màu lưới<input type="color" value={options.gridColor} onChange={e => change('gridColor', e.target.value)} /></label></div><p className="hw-help">Giấy trắng tiết kiệm mực. Nền màu được đưa vào PDF và sẽ tốn mực hơn khi in.</p></fieldset>
+        <fieldset><legend>Chữ muốn luyện</legend><div className="hw-presets">{PRESETS.map(p => <button key={p.label} type="button" aria-pressed={text === p.text} onClick={() => setText(p.text)}>{p.label}</button>)}</div><label htmlFor="hw-characters" className="hw-label">Kanji, Hiragana hoặc Katakana</label><textarea id="hw-characters" value={text} onChange={e => setText(e.target.value)} maxLength={1000} rows={3} lang="ja" spellCheck={false} aria-describedby="hw-character-help" />{parsed.overflow ? <p className="hw-warning" role="alert">Tối đa 100 chữ mỗi file. Hãy chia nhỏ danh sách.</p> : null}{parsed.unsupported.length ? <p className="hw-warning" role="alert">Chưa hỗ trợ: {parsed.unsupported.join(' ')}. Chỉ nhập Kanji và Kana.</p> : null}</fieldset>
+        <fieldset><legend>Trang giấy của bạn</legend><label className="hw-label" htmlFor="hw-title">Tiêu đề</label><input id="hw-title" value={options.title} maxLength={60} onChange={e => change('title', e.target.value)} /><span className="hw-label">Màu giấy</span><div className="hw-swatches">{PAPERS.map(p => <button key={p.color} type="button" title={p.name} aria-label={`Giấy ${p.name.toLowerCase()}`} aria-pressed={options.paperColor === p.color} onClick={() => change('paperColor', p.color)} style={{ '--swatch': p.color } as CSSProperties}><span aria-hidden="true" />{p.name}</button>)}</div><div className="hw-colors"><label>Màu tùy chọn<input type="color" value={options.paperColor} onChange={e => change('paperColor', e.target.value)} /></label><label>Màu chữ<input type="color" value={options.inkColor} onChange={e => change('inkColor', e.target.value)} /></label><label>Màu lưới<input type="color" value={options.gridColor} onChange={e => change('gridColor', e.target.value)} /></label></div></fieldset>
         <fieldset><legend>Lưới & nét viết</legend><label className="hw-label" htmlFor="hw-style">Kiểu giấy</label><select id="hw-style" value={options.style} onChange={e => change('style', e.target.value as PaperStyle)}>{STYLES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select><p className="hw-help">{STYLES.find(s => s.value === options.style)?.description}</p><label className="hw-label" htmlFor="hw-size">Cỡ ô viết</label><select id="hw-size" value={options.cellSize} onChange={e => change('cellSize', Number(e.target.value) as WorksheetOptions['cellSize'])}><option value={12}>12 mm · Gọn</option><option value={15}>15 mm · Vừa</option><option value={18}>18 mm · Rộng</option></select><label className="hw-range-label" htmlFor="hw-trace">Số ô tô mờ <output>{options.traceCells}</output></label><input id="hw-trace" type="range" min={0} max={layout.columns * 2} value={Math.min(options.traceCells, layout.columns * 2)} onChange={e => change('traceCells', Number(e.target.value))} /><label className="hw-checkbox"><input type="checkbox" checked={options.showReadings} onChange={e => change('showReadings', e.target.checked)} /> Hiện cách đọc On / Kun</label></fieldset>
       </section>
       <section className="hw-workspace" aria-label="Bản xem trước">
-        <div className="hw-preview-bar"><span><Printer size={17} aria-hidden="true" /> A4 · 210 × 297 mm</span><div className="hw-pagination"><button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 0 || loading} aria-label="Trang trước"><ArrowLeft size={17} /></button><span>Trang {currentPage + 1} / {pages}</span><button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage >= pages - 1 || loading} aria-label="Trang sau"><ArrowRight size={17} /></button></div></div>
+        <div className="hw-preview-bar"><span><Printer size={17} aria-hidden="true" /> A4</span><div className="hw-pagination"><button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 0 || loading} aria-label="Trang trước"><ArrowLeft size={17} /></button><span>Trang {currentPage + 1} / {pages}</span><button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage >= pages - 1 || loading} aria-label="Trang sau"><ArrowRight size={17} /></button></div></div>
         {error ? <div className="hw-warning hw-message" role="alert">{error} <button type="button" className="hw-retry" onClick={() => setReload(r => r + 1)}>Tải lại mẫu chữ</button></div> : null}
         {contrastWarnings.ink ? <p className="hw-warning hw-message" role="status">Màu chữ gần màu giấy, khó đọc khi in. Hãy chọn màu chữ đậm hơn hoặc giấy sáng hơn.</p> : null}
         {contrastWarnings.grid || (options.traceCells > 0 && contrastWarnings.trace) ? <p className="hw-warning hw-message" role="status">Lưới hoặc chữ tô có thể quá nhạt khi in. Hãy tăng tương phản với màu giấy.</p> : null}
         {fallback.length ? <p className="hw-warning hw-message">Chưa có SVG cho {fallback.join(' ')}; dùng font Klee One. Font không thể hiện thứ tự nét.</p> : null}
         {downloaded ? <p className="hw-success hw-message" role="status">PDF đã tạo. Nếu chưa thấy file, kiểm tra mục tải xuống của trình duyệt.</p> : null}
         <div className="hw-paper-stage" aria-busy={loading || loadedKey !== key}>{loading || loadedKey !== key ? <div className="hw-empty" role="status"><SpinnerGap size={25} className="hw-spin" aria-hidden="true" /><p>Đang chuẩn bị mẫu chữ…</p></div> : glyphs.length ? <SheetPreview glyphs={glyphs} options={options} page={currentPage} pages={pages} /> : <div className="hw-empty"><p>Trang viết đang chờ bạn.</p><span>Nhập vài chữ hoặc chọn một bộ chữ để bắt đầu.</span></div>}</div>
-        <p className="hw-preview-note">Bản xem theo bố cục PDF; font và xuống dòng có thể khác nhẹ. In ở kích thước thực 100%.</p>
-        <p className="hw-preview-note">Mẫu nét từ <a href="https://kanjivg.tagaini.net/">KanjiVG</a> và <a href="https://github.com/parsimonhi/animCJK">AnimCJK</a>. <Link href="/handwriting/licenses">Nguồn & giấy phép</Link>.</p>
+        <button type="button" className="hw-download" onClick={download} disabled={loading || loadedKey !== key || exporting || !glyphs.length || parsed.overflow || parsed.unsupported.length > 0}>{exporting ? <SpinnerGap size={19} className="hw-spin" aria-hidden="true" /> : <DownloadSimple size={19} aria-hidden="true" />}{exporting ? 'Đang tạo PDF…' : 'Tải PDF A4'}</button>
       </section>
     </div>
   </main>;

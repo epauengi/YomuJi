@@ -17,6 +17,7 @@ export type Glyph = {
   viewBox: number;
   fill: boolean;
   meaning: string;
+  hanViet: string;
   on: string;
   kun: string;
   romaji?: string;
@@ -73,7 +74,7 @@ export function buildLayout(options: WorksheetOptions) {
   const height = 297;
   const margin = 12;
   const top = 28;
-  const headerHeight = 10;
+  const headerHeight = 13;
   const cellSize = [12, 15, 18].includes(options.cellSize) ? options.cellSize : 15;
   const columns = Math.floor((width - 2 * margin - 2 * cellSize) / cellSize);
   const blockHeight = headerHeight + 2 * cellSize;

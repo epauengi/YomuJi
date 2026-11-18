@@ -43,7 +43,7 @@ console.log('handwriting assertions passed');
     catch { return new Response(null, { status: 404 }); }
   };
   try {
-    const glyph = { literal: 'あ', paths: [], viewBox: 109, fill: false, meaning: 'Âm tiếng Việt', on: 'ア', kun: 'あ', source: 'font' };
+    const glyph = { literal: 'あ', paths: [], viewBox: 109, fill: false, meaning: 'Âm tiếng Việt', hanViet: 'A', on: 'ア', kun: 'あ', source: 'font' };
     const bytes = await createHandwritingPdf([glyph], { ...DEFAULT_OPTIONS, title: '日本語 · Tiếng Việt' });
     const pdf = await PDFDocument.load(bytes);
     assert.equal(pdf.getPageCount(), 1);
@@ -51,7 +51,7 @@ console.log('handwriting assertions passed');
     const { PDFName, PDFDict, PDFArray, PDFStream } = require('pdf-lib');
     const names = pdf.catalog.lookup(PDFName.of('Names'), PDFDict);
     const embeddedFiles = names.lookup(PDFName.of('EmbeddedFiles'), PDFDict);
-    assert.equal(embeddedFiles.lookup(PDFName.of('Names'), PDFArray).size(), 10);
+    assert.equal(embeddedFiles.lookup(PDFName.of('Names'), PDFArray).size(), 12);
     const japaneseFontStream = pdf.context.enumerateIndirectObjects().map(([, object]) => object)
       .filter((object) => object instanceof PDFDict && object.has(PDFName.of('FontFile2')))
       .map((descriptor) => pdf.context.lookup(descriptor.lookup(PDFName.of('FontFile2')), PDFStream))

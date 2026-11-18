@@ -19,15 +19,15 @@ async function fetchAsset(path: string, name: string) {
   return new Uint8Array(await response.arrayBuffer());
 }
 
-function fontRuns(content: string, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, size: number): FontRun[] {
+function fontRuns(content: string, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, size: number, readings?: { font: PDFFont; info: FontInfo }): FontRun[] {
   const missingJapanese = new Set<string>();
   const missingOther = new Set<string>();
   const runs = [...content.normalize('NFC')].map((character): FontRun => {
     const codePoint = character.codePointAt(0)!;
     const isJapanese = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(character);
-    const fontInfo = isJapanese ? japaneseInfo : latinInfo;
+    const fontInfo = readings?.info.hasGlyphForCodePoint(codePoint) ? readings.info : isJapanese ? japaneseInfo : latinInfo;
     if (fontInfo.hasGlyphForCodePoint(codePoint)) {
-      const font = isJapanese ? japanese : latin;
+      const font = fontInfo === readings?.info ? readings.font : isJapanese ? japanese : latin;
       return { character, font, width: font.widthOfTextAtSize(character, size) };
     }
     const fallbackInfo = isJapanese ? latinInfo : japaneseInfo;
@@ -41,12 +41,12 @@ function fontRuns(content: string, japanese: PDFFont, latin: PDFFont, japaneseIn
   return runs;
 }
 
-function drawText(page: PDFPage, content: string, x: number, top: number, size: number, fill: ReturnType<typeof rgb>, maxWidth: number, maxLines: number, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo) {
+function drawText(page: PDFPage, content: string, x: number, top: number, size: number, fill: ReturnType<typeof rgb>, maxWidth: number, maxLines: number, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, opacity = 1, align: 'left' | 'center' | 'right' = 'left', bold = false, readings?: { font: PDFFont; info: FontInfo }) {
   const value = safeText(content, 240);
   if (!value) return;
-  const runs = fontRuns(value, japanese, latin, japaneseInfo, latinInfo, size);
-  const widthLimit = mm(maxWidth);
+  const runs = fontRuns(value, japanese, latin, japaneseInfo, latinInfo, size, readings);
   const lines: FontRun[][] = [[]];
+  const widthLimit = maxWidth > 0 ? mm(maxWidth) : Infinity;
   let lineWidth = 0;
   let truncated = false;
   for (const run of runs) {
@@ -67,7 +67,9 @@ function drawText(page: PDFPage, content: string, x: number, top: number, size: 
   }
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const baseline = mm(297 - top) - size * 0.8 - lineIndex * size;
-    let cursor = mm(x);
+    const currentLineWidth = lines[lineIndex].reduce((sum, run) => sum + run.width, 0);
+    const offset = align === 'center' ? -currentLineWidth / 2 + (maxWidth > 0 ? widthLimit / 2 : 0) : align === 'right' ? -currentLineWidth : 0;
+    let cursor = mm(x) + offset;
     for (let i = 0; i < lines[lineIndex].length;) {
       const font = lines[lineIndex][i].font;
       let end = i;
@@ -78,11 +80,18 @@ function drawText(page: PDFPage, content: string, x: number, top: number, size: 
         runWidth += lines[lineIndex][end].width;
         end++;
       }
-      page.drawText(text, { x: cursor, y: baseline, size, font, color: fill });
+      page.drawText(text, { x: cursor, y: baseline, size, font, color: fill, opacity });
+      if (bold) page.drawText(text, { x: cursor + 0.35, y: baseline, size, font, color: fill, opacity });
       cursor += runWidth;
       i = end;
     }
   }
+}
+
+function drawReadingLine(page: PDFPage, value: string, x: number, y: number, size: number, ink: ReturnType<typeof rgb>, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, readingsFont: PDFFont, readingsInfo: FontInfo, label: 'On' | 'Kun') {
+  const labelWidth = readingsFont.widthOfTextAtSize(`${label}:`, size);
+  drawText(page, `${label}:`, x, y, size, ink, 0, 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', true, { font: readingsFont, info: readingsInfo });
+  drawText(page, value.slice(label.length + 1), x + labelWidth * 25.4 / 72 + 1, y, size, ink, 0, 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', false, { font: readingsFont, info: readingsInfo });
 }
 
 function drawGlyph(page: PDFPage, glyph: Glyph, x: number, y: number, size: number, font: PDFFont, ink: ReturnType<typeof rgb>, opacity = 1) {
@@ -126,19 +135,22 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
   const paper = color(options.paperColor);
   const ink = color(options.inkColor);
   const grid = color(options.gridColor);
-  const [japaneseBytes, latinBytes] = await Promise.all([
+  const [japaneseBytes, latinBytes, readingsBytes] = await Promise.all([
     fetchAsset('/handwriting/fonts/japanese.ttf', 'font tiếng Nhật'),
     fetchAsset('/handwriting/fonts/latin.ttf', 'font Latin'),
+    fetchAsset('/handwriting/fonts/biz-udpgothic.ttf', 'font cách đọc'),
   ]);
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   const japaneseFontInfo = fontkit.create(japaneseBytes);
   const latinFontInfo = fontkit.create(latinBytes);
+  const readingsFontInfo = fontkit.create(readingsBytes);
   const missing = [...new Set(glyphs.filter((glyph) => !glyph.paths.length && [...glyph.literal].some((char) => !japaneseFontInfo.hasGlyphForCodePoint(char.codePointAt(0)!))).map((glyph) => glyph.literal))];
   if (missing.length) throw new Error(`Font tiếng Nhật không hỗ trợ các chữ: ${missing.join('、')}`);
   // ponytail: Klee's composite glyph subsets lose Japanese text in PDF renderers; keep the full ~5 MB font until fontkit subsets composite glyphs correctly.
   const japaneseFont = await doc.embedFont(japaneseBytes, { subset: false });
   const latinFont = await doc.embedFont(latinBytes, { subset: true });
+  const readingsFont = await doc.embedFont(readingsBytes, { subset: true });
   const columns = layout.columns;
   const gridX = layout.margin + 2 * layout.cellSize;
   const gridWidth = columns * layout.cellSize;
@@ -147,8 +159,8 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
 
   for (const [pageIndex, page] of pages.entries()) {
     page.drawRectangle({ x: 0, y: 0, width: mm(layout.width), height: mm(layout.height), color: paper });
-    drawText(page, options.title || 'Giấy luyện viết', layout.margin, 15, 12, ink, 150, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
-    drawText(page, 'YomuJi · Kanji & Kana', layout.margin, 21, 7, ink, 90, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
+    drawText(page, 'YomuJi', 105, 15, 12, ink, 0, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 1, 'center', true);
+    drawText(page, options.title.slice(0, 60) || 'Giấy luyện viết', 105, 21, 7, ink, 0, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 0.8, 'center');
     drawText(page, `${pageIndex + 1} / ${pageCount}`, 180, 21, 7, ink, 18, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
     for (let row = 0; row < layout.rowsPerPage; row++) {
       const glyphIndex = pageIndex * layout.rowsPerPage + row;
@@ -156,9 +168,11 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
       const glyph = glyphs[glyphIndex];
       const y = layout.top + row * (layout.blockHeight + layout.gap);
       const body = y + layout.headerHeight;
-      const meaning = glyph.meaning || (glyph.romaji ? `Âm: ${glyph.romaji}` : 'Luyện viết');
-      drawText(page, meaning, layout.margin + 2, y + 2, 7, ink, layout.width - layout.margin * 2 - 4, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
-      if (options.showReadings) drawText(page, [glyph.on && `On: ${glyph.on}`, glyph.kun && `Kun: ${glyph.kun}`].filter(Boolean).join('    '), layout.margin + 2, y + 5, 6.5, ink, layout.width - layout.margin * 2 - 4, 2, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
+      if (options.showReadings) {
+        drawText(page, glyph.hanViet, layout.margin + 2.5, y + 3, 7.5, ink, layout.width - layout.margin * 2 - 5, 1, japaneseFont, readingsFont, japaneseFontInfo, readingsFontInfo, 1, 'left', true, { font: readingsFont, info: readingsFontInfo });
+        drawReadingLine(page, `On: ${glyph.on}`, layout.margin + 2.5, y + 7, 7.5, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'On');
+        drawReadingLine(page, `Kun: ${glyph.kun}`, layout.margin + 2.5, y + 11, 7.5, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'Kun');
+      }
       const gridTop = mm(297 - body - 2 * layout.cellSize);
       page.drawRectangle({ x: mm(layout.margin), y: gridTop, width: mm(2 * layout.cellSize + gridWidth), height: mm(layout.blockHeight), borderColor: grid, borderWidth: 0.6 });
       line(page, layout.margin, body, layout.margin + 2 * layout.cellSize + gridWidth, body, grid);
@@ -185,11 +199,11 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
     '',
     glyphs.some((glyph) => glyph.source === 'animcjk') ? 'AnimCJK ©2016-2025 FM-SH: https://github.com/parsimonhi/animCJK · Static paths only; resized, recolored, and repeated (modifications dated 2026-11-18). Kanji assets may derive from MakeMeAHanzi and Arphic PL KaitiM GB / PL UKai fonts. See AnimCJK notices: https://github.com/parsimonhi/animCJK/blob/master/licenses/COPYING.txt · Arphic Public License: https://github.com/parsimonhi/animCJK/tree/master/licenses/APL' : '',
     '',
-    'Embedded fonts: Klee One by Fontworks, SIL Open Font License 1.1: https://github.com/fontworks-fonts/Klee · Noto Sans by Google, SIL Open Font License 1.1: https://github.com/notofonts/noto-fonts · Full notices attached.',
+    'Embedded fonts: Klee One by Fontworks, BIZ UDPGothic by BIZ UDGothic Project, Noto Sans by Google; SIL Open Font License 1.1. Full notices attached.',
     'Meanings and readings may include KANJIDIC2 data © James William Breen and EDRDG, CC BY-SA 4.0: https://www.edrdg.org/wiki/KANJIDIC_Project.html · https://www.edrdg.org/edrdg/licence.html · Vietnamese meanings retain their existing source and licensing status.',
     `Project notices: ${typeof window === 'undefined' ? 'https://creativecommons.org/licenses/by-sa/3.0/' : `${window.location.origin}/handwriting/licenses`}`,
   ].filter(Boolean).join('\n');
-  const licenseFiles = ['KanjiVG-COPYING.txt', 'Klee-OFL.txt', 'NotoSans-OFL.txt', 'Arphic-Public-License.txt'];
+  const licenseFiles = ['KanjiVG-COPYING.txt', 'Klee-OFL.txt', 'NotoSans-OFL.txt', 'BIZ-UDPGothic-OFL.txt', 'Arphic-Public-License.txt'];
   const licenseBytes = await Promise.all(licenseFiles.map(async (name) => [name, await fetchAsset(`/handwriting/licenses/${name}`, `thông báo giấy phép ${name}`)] as const));
   for (const [name, bytes] of licenseBytes) await doc.attach(bytes, name);
   await doc.attach(new TextEncoder().encode(attribution), 'YomuJi-source-notices.txt', { mimeType: 'text/plain' });
