@@ -1,0 +1,3223 @@
+{
+  "sources": {
+    "kanjivg": {
+      "repository": "https://github.com/KanjiVG/kanjivg",
+      "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "licenseFile": "licenses/KanjiVG-COPYING.txt"
+    },
+    "klee": {
+      "repository": "https://github.com/fontworks-fonts/Klee",
+      "commit": "8b0532731b63ad8a445ca341d8d7d941079b83ab",
+      "license": "SIL Open Font License 1.1",
+      "licenseUrl": "https://openfontlicense.org/",
+      "licenseFile": "licenses/Klee-OFL.txt"
+    },
+    "noto": {
+      "repository": "https://github.com/notofonts/noto-fonts",
+      "commit": "ffebf8c1ee449e544955a7e813c54f9b73848eac",
+      "license": "SIL Open Font License 1.1",
+      "licenseUrl": "https://openfontlicense.org/",
+      "licenseFile": "licenses/NotoSans-OFL.txt"
+    }
+  },
+  "fonts": {
+    "japanese": {
+      "file": "fonts/japanese.ttf",
+      "family": "Klee One",
+      "source": {
+        "repository": "https://github.com/fontworks-fonts/Klee",
+        "commit": "8b0532731b63ad8a445ca341d8d7d941079b83ab",
+        "path": "fonts/ttf/KleeOne-Regular.ttf",
+        "url": "https://raw.githubusercontent.com/fontworks-fonts/Klee/8b0532731b63ad8a445ca341d8d7d941079b83ab/fonts/ttf/KleeOne-Regular.ttf",
+        "license": "SIL Open Font License 1.1",
+        "licenseUrl": "https://openfontlicense.org/",
+        "licenseFile": "licenses/Klee-OFL.txt"
+      }
+    },
+    "latin": {
+      "file": "fonts/latin.ttf",
+      "family": "Noto Sans",
+      "source": {
+        "repository": "https://github.com/notofonts/noto-fonts",
+        "commit": "ffebf8c1ee449e544955a7e813c54f9b73848eac",
+        "path": "hinted/ttf/NotoSans/NotoSans-Regular.ttf",
+        "url": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSans/NotoSans-Regular.ttf",
+        "license": "SIL Open Font License 1.1",
+        "licenseUrl": "https://openfontlicense.org/",
+        "licenseFile": "licenses/NotoSans-OFL.txt"
+      }
+    }
+  },
+  "requiredCharacters": {
+    "hiragana": [
+      "あ",
+      "い",
+      "う",
+      "え",
+      "お",
+      "か",
+      "き",
+      "く",
+      "け",
+      "こ",
+      "さ",
+      "し",
+      "す",
+      "せ",
+      "そ",
+      "た",
+      "ち",
+      "つ",
+      "て",
+      "と",
+      "な",
+      "に",
+      "ぬ",
+      "ね",
+      "の",
+      "は",
+      "ひ",
+      "ふ",
+      "へ",
+      "ほ",
+      "ま",
+      "み",
+      "む",
+      "め",
+      "も",
+      "や",
+      "ゆ",
+      "よ",
+      "ら",
+      "り",
+      "る",
+      "れ",
+      "ろ",
+      "わ",
+      "を",
+      "ん"
+    ],
+    "katakana": [
+      "ア",
+      "イ",
+      "ウ",
+      "エ",
+      "オ",
+      "カ",
+      "キ",
+      "ク",
+      "ケ",
+      "コ",
+      "サ",
+      "シ",
+      "ス",
+      "セ",
+      "ソ",
+      "タ",
+      "チ",
+      "ツ",
+      "テ",
+      "ト",
+      "ナ",
+      "ニ",
+      "ヌ",
+      "ネ",
+      "ノ",
+      "ハ",
+      "ヒ",
+      "フ",
+      "ヘ",
+      "ホ",
+      "マ",
+      "ミ",
+      "ム",
+      "メ",
+      "モ",
+      "ヤ",
+      "ユ",
+      "ヨ",
+      "ラ",
+      "リ",
+      "ル",
+      "レ",
+      "ロ",
+      "ワ",
+      "ヲ",
+      "ン"
+    ]
+  },
+  "characters": [
+    {
+      "character": "ぁ",
+      "codepoint": "03041",
+      "name": "HIRAGANA LETTER SMALL A",
+      "category": "hiragana",
+      "file": "kana/03041.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03041.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03041.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "あ",
+      "codepoint": "03042",
+      "name": "HIRAGANA LETTER A",
+      "category": "hiragana",
+      "file": "kana/03042.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03042.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03042.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぃ",
+      "codepoint": "03043",
+      "name": "HIRAGANA LETTER SMALL I",
+      "category": "hiragana",
+      "file": "kana/03043.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03043.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03043.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "い",
+      "codepoint": "03044",
+      "name": "HIRAGANA LETTER I",
+      "category": "hiragana",
+      "file": "kana/03044.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03044.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03044.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぅ",
+      "codepoint": "03045",
+      "name": "HIRAGANA LETTER SMALL U",
+      "category": "hiragana",
+      "file": "kana/03045.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03045.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03045.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "う",
+      "codepoint": "03046",
+      "name": "HIRAGANA LETTER U",
+      "category": "hiragana",
+      "file": "kana/03046.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03046.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03046.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぇ",
+      "codepoint": "03047",
+      "name": "HIRAGANA LETTER SMALL E",
+      "category": "hiragana",
+      "file": "kana/03047.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03047.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03047.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "え",
+      "codepoint": "03048",
+      "name": "HIRAGANA LETTER E",
+      "category": "hiragana",
+      "file": "kana/03048.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03048.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03048.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぉ",
+      "codepoint": "03049",
+      "name": "HIRAGANA LETTER SMALL O",
+      "category": "hiragana",
+      "file": "kana/03049.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03049.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03049.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "お",
+      "codepoint": "0304a",
+      "name": "HIRAGANA LETTER O",
+      "category": "hiragana",
+      "file": "kana/0304a.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304a.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304a.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "か",
+      "codepoint": "0304b",
+      "name": "HIRAGANA LETTER KA",
+      "category": "hiragana",
+      "file": "kana/0304b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "が",
+      "codepoint": "0304c",
+      "name": "HIRAGANA LETTER GA",
+      "category": "hiragana",
+      "file": "kana/0304c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "き",
+      "codepoint": "0304d",
+      "name": "HIRAGANA LETTER KI",
+      "category": "hiragana",
+      "file": "kana/0304d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぎ",
+      "codepoint": "0304e",
+      "name": "HIRAGANA LETTER GI",
+      "category": "hiragana",
+      "file": "kana/0304e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "く",
+      "codepoint": "0304f",
+      "name": "HIRAGANA LETTER KU",
+      "category": "hiragana",
+      "file": "kana/0304f.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0304f.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0304f.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぐ",
+      "codepoint": "03050",
+      "name": "HIRAGANA LETTER GU",
+      "category": "hiragana",
+      "file": "kana/03050.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03050.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03050.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "け",
+      "codepoint": "03051",
+      "name": "HIRAGANA LETTER KE",
+      "category": "hiragana",
+      "file": "kana/03051.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03051.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03051.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "げ",
+      "codepoint": "03052",
+      "name": "HIRAGANA LETTER GE",
+      "category": "hiragana",
+      "file": "kana/03052.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03052.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03052.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "こ",
+      "codepoint": "03053",
+      "name": "HIRAGANA LETTER KO",
+      "category": "hiragana",
+      "file": "kana/03053.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03053.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03053.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ご",
+      "codepoint": "03054",
+      "name": "HIRAGANA LETTER GO",
+      "category": "hiragana",
+      "file": "kana/03054.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03054.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03054.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "さ",
+      "codepoint": "03055",
+      "name": "HIRAGANA LETTER SA",
+      "category": "hiragana",
+      "file": "kana/03055.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03055.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03055.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ざ",
+      "codepoint": "03056",
+      "name": "HIRAGANA LETTER ZA",
+      "category": "hiragana",
+      "file": "kana/03056.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03056.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03056.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "し",
+      "codepoint": "03057",
+      "name": "HIRAGANA LETTER SI",
+      "category": "hiragana",
+      "file": "kana/03057.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03057.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03057.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "じ",
+      "codepoint": "03058",
+      "name": "HIRAGANA LETTER ZI",
+      "category": "hiragana",
+      "file": "kana/03058.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03058.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03058.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "す",
+      "codepoint": "03059",
+      "name": "HIRAGANA LETTER SU",
+      "category": "hiragana",
+      "file": "kana/03059.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03059.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03059.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ず",
+      "codepoint": "0305a",
+      "name": "HIRAGANA LETTER ZU",
+      "category": "hiragana",
+      "file": "kana/0305a.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305a.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305a.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "せ",
+      "codepoint": "0305b",
+      "name": "HIRAGANA LETTER SE",
+      "category": "hiragana",
+      "file": "kana/0305b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぜ",
+      "codepoint": "0305c",
+      "name": "HIRAGANA LETTER ZE",
+      "category": "hiragana",
+      "file": "kana/0305c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "そ",
+      "codepoint": "0305d",
+      "name": "HIRAGANA LETTER SO",
+      "category": "hiragana",
+      "file": "kana/0305d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぞ",
+      "codepoint": "0305e",
+      "name": "HIRAGANA LETTER ZO",
+      "category": "hiragana",
+      "file": "kana/0305e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "た",
+      "codepoint": "0305f",
+      "name": "HIRAGANA LETTER TA",
+      "category": "hiragana",
+      "file": "kana/0305f.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0305f.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0305f.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "だ",
+      "codepoint": "03060",
+      "name": "HIRAGANA LETTER DA",
+      "category": "hiragana",
+      "file": "kana/03060.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03060.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03060.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ち",
+      "codepoint": "03061",
+      "name": "HIRAGANA LETTER TI",
+      "category": "hiragana",
+      "file": "kana/03061.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03061.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03061.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぢ",
+      "codepoint": "03062",
+      "name": "HIRAGANA LETTER DI",
+      "category": "hiragana",
+      "file": "kana/03062.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03062.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03062.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "っ",
+      "codepoint": "03063",
+      "name": "HIRAGANA LETTER SMALL TU",
+      "category": "hiragana",
+      "file": "kana/03063.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03063.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03063.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "つ",
+      "codepoint": "03064",
+      "name": "HIRAGANA LETTER TU",
+      "category": "hiragana",
+      "file": "kana/03064.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03064.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03064.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "づ",
+      "codepoint": "03065",
+      "name": "HIRAGANA LETTER DU",
+      "category": "hiragana",
+      "file": "kana/03065.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03065.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03065.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "て",
+      "codepoint": "03066",
+      "name": "HIRAGANA LETTER TE",
+      "category": "hiragana",
+      "file": "kana/03066.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03066.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03066.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "で",
+      "codepoint": "03067",
+      "name": "HIRAGANA LETTER DE",
+      "category": "hiragana",
+      "file": "kana/03067.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03067.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03067.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "と",
+      "codepoint": "03068",
+      "name": "HIRAGANA LETTER TO",
+      "category": "hiragana",
+      "file": "kana/03068.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03068.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03068.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ど",
+      "codepoint": "03069",
+      "name": "HIRAGANA LETTER DO",
+      "category": "hiragana",
+      "file": "kana/03069.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03069.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03069.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "な",
+      "codepoint": "0306a",
+      "name": "HIRAGANA LETTER NA",
+      "category": "hiragana",
+      "file": "kana/0306a.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306a.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306a.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "に",
+      "codepoint": "0306b",
+      "name": "HIRAGANA LETTER NI",
+      "category": "hiragana",
+      "file": "kana/0306b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぬ",
+      "codepoint": "0306c",
+      "name": "HIRAGANA LETTER NU",
+      "category": "hiragana",
+      "file": "kana/0306c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ね",
+      "codepoint": "0306d",
+      "name": "HIRAGANA LETTER NE",
+      "category": "hiragana",
+      "file": "kana/0306d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "の",
+      "codepoint": "0306e",
+      "name": "HIRAGANA LETTER NO",
+      "category": "hiragana",
+      "file": "kana/0306e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "は",
+      "codepoint": "0306f",
+      "name": "HIRAGANA LETTER HA",
+      "category": "hiragana",
+      "file": "kana/0306f.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0306f.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0306f.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ば",
+      "codepoint": "03070",
+      "name": "HIRAGANA LETTER BA",
+      "category": "hiragana",
+      "file": "kana/03070.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03070.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03070.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぱ",
+      "codepoint": "03071",
+      "name": "HIRAGANA LETTER PA",
+      "category": "hiragana",
+      "file": "kana/03071.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03071.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03071.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ひ",
+      "codepoint": "03072",
+      "name": "HIRAGANA LETTER HI",
+      "category": "hiragana",
+      "file": "kana/03072.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03072.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03072.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "び",
+      "codepoint": "03073",
+      "name": "HIRAGANA LETTER BI",
+      "category": "hiragana",
+      "file": "kana/03073.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03073.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03073.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぴ",
+      "codepoint": "03074",
+      "name": "HIRAGANA LETTER PI",
+      "category": "hiragana",
+      "file": "kana/03074.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03074.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03074.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ふ",
+      "codepoint": "03075",
+      "name": "HIRAGANA LETTER HU",
+      "category": "hiragana",
+      "file": "kana/03075.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03075.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03075.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぶ",
+      "codepoint": "03076",
+      "name": "HIRAGANA LETTER BU",
+      "category": "hiragana",
+      "file": "kana/03076.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03076.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03076.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぷ",
+      "codepoint": "03077",
+      "name": "HIRAGANA LETTER PU",
+      "category": "hiragana",
+      "file": "kana/03077.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03077.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03077.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "へ",
+      "codepoint": "03078",
+      "name": "HIRAGANA LETTER HE",
+      "category": "hiragana",
+      "file": "kana/03078.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03078.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03078.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "べ",
+      "codepoint": "03079",
+      "name": "HIRAGANA LETTER BE",
+      "category": "hiragana",
+      "file": "kana/03079.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03079.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03079.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぺ",
+      "codepoint": "0307a",
+      "name": "HIRAGANA LETTER PE",
+      "category": "hiragana",
+      "file": "kana/0307a.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307a.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307a.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ほ",
+      "codepoint": "0307b",
+      "name": "HIRAGANA LETTER HO",
+      "category": "hiragana",
+      "file": "kana/0307b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぼ",
+      "codepoint": "0307c",
+      "name": "HIRAGANA LETTER BO",
+      "category": "hiragana",
+      "file": "kana/0307c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ぽ",
+      "codepoint": "0307d",
+      "name": "HIRAGANA LETTER PO",
+      "category": "hiragana",
+      "file": "kana/0307d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ま",
+      "codepoint": "0307e",
+      "name": "HIRAGANA LETTER MA",
+      "category": "hiragana",
+      "file": "kana/0307e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "み",
+      "codepoint": "0307f",
+      "name": "HIRAGANA LETTER MI",
+      "category": "hiragana",
+      "file": "kana/0307f.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0307f.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0307f.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "む",
+      "codepoint": "03080",
+      "name": "HIRAGANA LETTER MU",
+      "category": "hiragana",
+      "file": "kana/03080.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03080.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03080.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "め",
+      "codepoint": "03081",
+      "name": "HIRAGANA LETTER ME",
+      "category": "hiragana",
+      "file": "kana/03081.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03081.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03081.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "も",
+      "codepoint": "03082",
+      "name": "HIRAGANA LETTER MO",
+      "category": "hiragana",
+      "file": "kana/03082.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03082.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03082.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゃ",
+      "codepoint": "03083",
+      "name": "HIRAGANA LETTER SMALL YA",
+      "category": "hiragana",
+      "file": "kana/03083.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03083.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03083.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "や",
+      "codepoint": "03084",
+      "name": "HIRAGANA LETTER YA",
+      "category": "hiragana",
+      "file": "kana/03084.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03084.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03084.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゅ",
+      "codepoint": "03085",
+      "name": "HIRAGANA LETTER SMALL YU",
+      "category": "hiragana",
+      "file": "kana/03085.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03085.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03085.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゆ",
+      "codepoint": "03086",
+      "name": "HIRAGANA LETTER YU",
+      "category": "hiragana",
+      "file": "kana/03086.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03086.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03086.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ょ",
+      "codepoint": "03087",
+      "name": "HIRAGANA LETTER SMALL YO",
+      "category": "hiragana",
+      "file": "kana/03087.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03087.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03087.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "よ",
+      "codepoint": "03088",
+      "name": "HIRAGANA LETTER YO",
+      "category": "hiragana",
+      "file": "kana/03088.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03088.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03088.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ら",
+      "codepoint": "03089",
+      "name": "HIRAGANA LETTER RA",
+      "category": "hiragana",
+      "file": "kana/03089.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03089.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03089.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "り",
+      "codepoint": "0308a",
+      "name": "HIRAGANA LETTER RI",
+      "category": "hiragana",
+      "file": "kana/0308a.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308a.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308a.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "る",
+      "codepoint": "0308b",
+      "name": "HIRAGANA LETTER RU",
+      "category": "hiragana",
+      "file": "kana/0308b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "れ",
+      "codepoint": "0308c",
+      "name": "HIRAGANA LETTER RE",
+      "category": "hiragana",
+      "file": "kana/0308c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ろ",
+      "codepoint": "0308d",
+      "name": "HIRAGANA LETTER RO",
+      "category": "hiragana",
+      "file": "kana/0308d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゎ",
+      "codepoint": "0308e",
+      "name": "HIRAGANA LETTER SMALL WA",
+      "category": "hiragana",
+      "file": "kana/0308e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "わ",
+      "codepoint": "0308f",
+      "name": "HIRAGANA LETTER WA",
+      "category": "hiragana",
+      "file": "kana/0308f.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0308f.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0308f.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゐ",
+      "codepoint": "03090",
+      "name": "HIRAGANA LETTER WI",
+      "category": "hiragana",
+      "file": "kana/03090.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03090.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03090.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゑ",
+      "codepoint": "03091",
+      "name": "HIRAGANA LETTER WE",
+      "category": "hiragana",
+      "file": "kana/03091.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03091.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03091.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "を",
+      "codepoint": "03092",
+      "name": "HIRAGANA LETTER WO",
+      "category": "hiragana",
+      "file": "kana/03092.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03092.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03092.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ん",
+      "codepoint": "03093",
+      "name": "HIRAGANA LETTER N",
+      "category": "hiragana",
+      "file": "kana/03093.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03093.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03093.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゔ",
+      "codepoint": "03094",
+      "name": "HIRAGANA LETTER VU",
+      "category": "hiragana",
+      "file": "kana/03094.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03094.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03094.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゕ",
+      "codepoint": "03095",
+      "name": "HIRAGANA LETTER SMALL KA",
+      "category": "hiragana",
+      "file": "kana/03095.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03095.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03095.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゖ",
+      "codepoint": "03096",
+      "name": "HIRAGANA LETTER SMALL KE",
+      "category": "hiragana",
+      "file": "kana/03096.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/03096.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/03096.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "゛",
+      "codepoint": "0309b",
+      "name": "KATAKANA-HIRAGANA VOICED SOUND MARK",
+      "category": "hiragana",
+      "file": "kana/0309b.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0309b.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0309b.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "゜",
+      "codepoint": "0309c",
+      "name": "KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK",
+      "category": "hiragana",
+      "file": "kana/0309c.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0309c.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0309c.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゝ",
+      "codepoint": "0309d",
+      "name": "HIRAGANA ITERATION MARK",
+      "category": "hiragana",
+      "file": "kana/0309d.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0309d.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0309d.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゞ",
+      "codepoint": "0309e",
+      "name": "HIRAGANA VOICED ITERATION MARK",
+      "category": "hiragana",
+      "file": "kana/0309e.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/0309e.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/0309e.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ァ",
+      "codepoint": "030a1",
+      "name": "KATAKANA LETTER SMALL A",
+      "category": "katakana",
+      "file": "kana/030a1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ア",
+      "codepoint": "030a2",
+      "name": "KATAKANA LETTER A",
+      "category": "katakana",
+      "file": "kana/030a2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ィ",
+      "codepoint": "030a3",
+      "name": "KATAKANA LETTER SMALL I",
+      "category": "katakana",
+      "file": "kana/030a3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "イ",
+      "codepoint": "030a4",
+      "name": "KATAKANA LETTER I",
+      "category": "katakana",
+      "file": "kana/030a4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゥ",
+      "codepoint": "030a5",
+      "name": "KATAKANA LETTER SMALL U",
+      "category": "katakana",
+      "file": "kana/030a5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ウ",
+      "codepoint": "030a6",
+      "name": "KATAKANA LETTER U",
+      "category": "katakana",
+      "file": "kana/030a6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ェ",
+      "codepoint": "030a7",
+      "name": "KATAKANA LETTER SMALL E",
+      "category": "katakana",
+      "file": "kana/030a7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "エ",
+      "codepoint": "030a8",
+      "name": "KATAKANA LETTER E",
+      "category": "katakana",
+      "file": "kana/030a8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ォ",
+      "codepoint": "030a9",
+      "name": "KATAKANA LETTER SMALL O",
+      "category": "katakana",
+      "file": "kana/030a9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030a9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030a9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "オ",
+      "codepoint": "030aa",
+      "name": "KATAKANA LETTER O",
+      "category": "katakana",
+      "file": "kana/030aa.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030aa.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030aa.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "カ",
+      "codepoint": "030ab",
+      "name": "KATAKANA LETTER KA",
+      "category": "katakana",
+      "file": "kana/030ab.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ab.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ab.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ガ",
+      "codepoint": "030ac",
+      "name": "KATAKANA LETTER GA",
+      "category": "katakana",
+      "file": "kana/030ac.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ac.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ac.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "キ",
+      "codepoint": "030ad",
+      "name": "KATAKANA LETTER KI",
+      "category": "katakana",
+      "file": "kana/030ad.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ad.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ad.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ギ",
+      "codepoint": "030ae",
+      "name": "KATAKANA LETTER GI",
+      "category": "katakana",
+      "file": "kana/030ae.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ae.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ae.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ク",
+      "codepoint": "030af",
+      "name": "KATAKANA LETTER KU",
+      "category": "katakana",
+      "file": "kana/030af.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030af.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030af.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "グ",
+      "codepoint": "030b0",
+      "name": "KATAKANA LETTER GU",
+      "category": "katakana",
+      "file": "kana/030b0.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b0.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b0.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ケ",
+      "codepoint": "030b1",
+      "name": "KATAKANA LETTER KE",
+      "category": "katakana",
+      "file": "kana/030b1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゲ",
+      "codepoint": "030b2",
+      "name": "KATAKANA LETTER GE",
+      "category": "katakana",
+      "file": "kana/030b2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "コ",
+      "codepoint": "030b3",
+      "name": "KATAKANA LETTER KO",
+      "category": "katakana",
+      "file": "kana/030b3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゴ",
+      "codepoint": "030b4",
+      "name": "KATAKANA LETTER GO",
+      "category": "katakana",
+      "file": "kana/030b4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "サ",
+      "codepoint": "030b5",
+      "name": "KATAKANA LETTER SA",
+      "category": "katakana",
+      "file": "kana/030b5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ザ",
+      "codepoint": "030b6",
+      "name": "KATAKANA LETTER ZA",
+      "category": "katakana",
+      "file": "kana/030b6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "シ",
+      "codepoint": "030b7",
+      "name": "KATAKANA LETTER SI",
+      "category": "katakana",
+      "file": "kana/030b7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ジ",
+      "codepoint": "030b8",
+      "name": "KATAKANA LETTER ZI",
+      "category": "katakana",
+      "file": "kana/030b8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ス",
+      "codepoint": "030b9",
+      "name": "KATAKANA LETTER SU",
+      "category": "katakana",
+      "file": "kana/030b9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030b9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030b9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ズ",
+      "codepoint": "030ba",
+      "name": "KATAKANA LETTER ZU",
+      "category": "katakana",
+      "file": "kana/030ba.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ba.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ba.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "セ",
+      "codepoint": "030bb",
+      "name": "KATAKANA LETTER SE",
+      "category": "katakana",
+      "file": "kana/030bb.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030bb.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030bb.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゼ",
+      "codepoint": "030bc",
+      "name": "KATAKANA LETTER ZE",
+      "category": "katakana",
+      "file": "kana/030bc.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030bc.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030bc.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ソ",
+      "codepoint": "030bd",
+      "name": "KATAKANA LETTER SO",
+      "category": "katakana",
+      "file": "kana/030bd.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030bd.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030bd.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ゾ",
+      "codepoint": "030be",
+      "name": "KATAKANA LETTER ZO",
+      "category": "katakana",
+      "file": "kana/030be.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030be.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030be.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "タ",
+      "codepoint": "030bf",
+      "name": "KATAKANA LETTER TA",
+      "category": "katakana",
+      "file": "kana/030bf.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030bf.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030bf.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ダ",
+      "codepoint": "030c0",
+      "name": "KATAKANA LETTER DA",
+      "category": "katakana",
+      "file": "kana/030c0.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c0.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c0.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "チ",
+      "codepoint": "030c1",
+      "name": "KATAKANA LETTER TI",
+      "category": "katakana",
+      "file": "kana/030c1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヂ",
+      "codepoint": "030c2",
+      "name": "KATAKANA LETTER DI",
+      "category": "katakana",
+      "file": "kana/030c2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ッ",
+      "codepoint": "030c3",
+      "name": "KATAKANA LETTER SMALL TU",
+      "category": "katakana",
+      "file": "kana/030c3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ツ",
+      "codepoint": "030c4",
+      "name": "KATAKANA LETTER TU",
+      "category": "katakana",
+      "file": "kana/030c4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヅ",
+      "codepoint": "030c5",
+      "name": "KATAKANA LETTER DU",
+      "category": "katakana",
+      "file": "kana/030c5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "テ",
+      "codepoint": "030c6",
+      "name": "KATAKANA LETTER TE",
+      "category": "katakana",
+      "file": "kana/030c6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "デ",
+      "codepoint": "030c7",
+      "name": "KATAKANA LETTER DE",
+      "category": "katakana",
+      "file": "kana/030c7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ト",
+      "codepoint": "030c8",
+      "name": "KATAKANA LETTER TO",
+      "category": "katakana",
+      "file": "kana/030c8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ド",
+      "codepoint": "030c9",
+      "name": "KATAKANA LETTER DO",
+      "category": "katakana",
+      "file": "kana/030c9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030c9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030c9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ナ",
+      "codepoint": "030ca",
+      "name": "KATAKANA LETTER NA",
+      "category": "katakana",
+      "file": "kana/030ca.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ca.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ca.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ニ",
+      "codepoint": "030cb",
+      "name": "KATAKANA LETTER NI",
+      "category": "katakana",
+      "file": "kana/030cb.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030cb.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030cb.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヌ",
+      "codepoint": "030cc",
+      "name": "KATAKANA LETTER NU",
+      "category": "katakana",
+      "file": "kana/030cc.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030cc.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030cc.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ネ",
+      "codepoint": "030cd",
+      "name": "KATAKANA LETTER NE",
+      "category": "katakana",
+      "file": "kana/030cd.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030cd.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030cd.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ノ",
+      "codepoint": "030ce",
+      "name": "KATAKANA LETTER NO",
+      "category": "katakana",
+      "file": "kana/030ce.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ce.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ce.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ハ",
+      "codepoint": "030cf",
+      "name": "KATAKANA LETTER HA",
+      "category": "katakana",
+      "file": "kana/030cf.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030cf.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030cf.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "バ",
+      "codepoint": "030d0",
+      "name": "KATAKANA LETTER BA",
+      "category": "katakana",
+      "file": "kana/030d0.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d0.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d0.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "パ",
+      "codepoint": "030d1",
+      "name": "KATAKANA LETTER PA",
+      "category": "katakana",
+      "file": "kana/030d1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヒ",
+      "codepoint": "030d2",
+      "name": "KATAKANA LETTER HI",
+      "category": "katakana",
+      "file": "kana/030d2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ビ",
+      "codepoint": "030d3",
+      "name": "KATAKANA LETTER BI",
+      "category": "katakana",
+      "file": "kana/030d3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ピ",
+      "codepoint": "030d4",
+      "name": "KATAKANA LETTER PI",
+      "category": "katakana",
+      "file": "kana/030d4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "フ",
+      "codepoint": "030d5",
+      "name": "KATAKANA LETTER HU",
+      "category": "katakana",
+      "file": "kana/030d5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ブ",
+      "codepoint": "030d6",
+      "name": "KATAKANA LETTER BU",
+      "category": "katakana",
+      "file": "kana/030d6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "プ",
+      "codepoint": "030d7",
+      "name": "KATAKANA LETTER PU",
+      "category": "katakana",
+      "file": "kana/030d7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヘ",
+      "codepoint": "030d8",
+      "name": "KATAKANA LETTER HE",
+      "category": "katakana",
+      "file": "kana/030d8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ベ",
+      "codepoint": "030d9",
+      "name": "KATAKANA LETTER BE",
+      "category": "katakana",
+      "file": "kana/030d9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030d9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030d9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ペ",
+      "codepoint": "030da",
+      "name": "KATAKANA LETTER PE",
+      "category": "katakana",
+      "file": "kana/030da.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030da.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030da.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ホ",
+      "codepoint": "030db",
+      "name": "KATAKANA LETTER HO",
+      "category": "katakana",
+      "file": "kana/030db.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030db.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030db.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ボ",
+      "codepoint": "030dc",
+      "name": "KATAKANA LETTER BO",
+      "category": "katakana",
+      "file": "kana/030dc.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030dc.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030dc.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ポ",
+      "codepoint": "030dd",
+      "name": "KATAKANA LETTER PO",
+      "category": "katakana",
+      "file": "kana/030dd.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030dd.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030dd.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "マ",
+      "codepoint": "030de",
+      "name": "KATAKANA LETTER MA",
+      "category": "katakana",
+      "file": "kana/030de.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030de.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030de.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ミ",
+      "codepoint": "030df",
+      "name": "KATAKANA LETTER MI",
+      "category": "katakana",
+      "file": "kana/030df.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030df.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030df.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ム",
+      "codepoint": "030e0",
+      "name": "KATAKANA LETTER MU",
+      "category": "katakana",
+      "file": "kana/030e0.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e0.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e0.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "メ",
+      "codepoint": "030e1",
+      "name": "KATAKANA LETTER ME",
+      "category": "katakana",
+      "file": "kana/030e1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "モ",
+      "codepoint": "030e2",
+      "name": "KATAKANA LETTER MO",
+      "category": "katakana",
+      "file": "kana/030e2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ャ",
+      "codepoint": "030e3",
+      "name": "KATAKANA LETTER SMALL YA",
+      "category": "katakana",
+      "file": "kana/030e3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヤ",
+      "codepoint": "030e4",
+      "name": "KATAKANA LETTER YA",
+      "category": "katakana",
+      "file": "kana/030e4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ュ",
+      "codepoint": "030e5",
+      "name": "KATAKANA LETTER SMALL YU",
+      "category": "katakana",
+      "file": "kana/030e5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ユ",
+      "codepoint": "030e6",
+      "name": "KATAKANA LETTER YU",
+      "category": "katakana",
+      "file": "kana/030e6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ョ",
+      "codepoint": "030e7",
+      "name": "KATAKANA LETTER SMALL YO",
+      "category": "katakana",
+      "file": "kana/030e7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヨ",
+      "codepoint": "030e8",
+      "name": "KATAKANA LETTER YO",
+      "category": "katakana",
+      "file": "kana/030e8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ラ",
+      "codepoint": "030e9",
+      "name": "KATAKANA LETTER RA",
+      "category": "katakana",
+      "file": "kana/030e9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030e9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030e9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "リ",
+      "codepoint": "030ea",
+      "name": "KATAKANA LETTER RI",
+      "category": "katakana",
+      "file": "kana/030ea.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ea.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ea.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ル",
+      "codepoint": "030eb",
+      "name": "KATAKANA LETTER RU",
+      "category": "katakana",
+      "file": "kana/030eb.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030eb.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030eb.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "レ",
+      "codepoint": "030ec",
+      "name": "KATAKANA LETTER RE",
+      "category": "katakana",
+      "file": "kana/030ec.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ec.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ec.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ロ",
+      "codepoint": "030ed",
+      "name": "KATAKANA LETTER RO",
+      "category": "katakana",
+      "file": "kana/030ed.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ed.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ed.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヮ",
+      "codepoint": "030ee",
+      "name": "KATAKANA LETTER SMALL WA",
+      "category": "katakana",
+      "file": "kana/030ee.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ee.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ee.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ワ",
+      "codepoint": "030ef",
+      "name": "KATAKANA LETTER WA",
+      "category": "katakana",
+      "file": "kana/030ef.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030ef.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030ef.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヰ",
+      "codepoint": "030f0",
+      "name": "KATAKANA LETTER WI",
+      "category": "katakana",
+      "file": "kana/030f0.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f0.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f0.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヱ",
+      "codepoint": "030f1",
+      "name": "KATAKANA LETTER WE",
+      "category": "katakana",
+      "file": "kana/030f1.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f1.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f1.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヲ",
+      "codepoint": "030f2",
+      "name": "KATAKANA LETTER WO",
+      "category": "katakana",
+      "file": "kana/030f2.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f2.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f2.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ン",
+      "codepoint": "030f3",
+      "name": "KATAKANA LETTER N",
+      "category": "katakana",
+      "file": "kana/030f3.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f3.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f3.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヴ",
+      "codepoint": "030f4",
+      "name": "KATAKANA LETTER VU",
+      "category": "katakana",
+      "file": "kana/030f4.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f4.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f4.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヵ",
+      "codepoint": "030f5",
+      "name": "KATAKANA LETTER SMALL KA",
+      "category": "katakana",
+      "file": "kana/030f5.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f5.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f5.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヶ",
+      "codepoint": "030f6",
+      "name": "KATAKANA LETTER SMALL KE",
+      "category": "katakana",
+      "file": "kana/030f6.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f6.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f6.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヷ",
+      "codepoint": "030f7",
+      "name": "KATAKANA LETTER VA",
+      "category": "katakana",
+      "file": "kana/030f7.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f7.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f7.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヸ",
+      "codepoint": "030f8",
+      "name": "KATAKANA LETTER VI",
+      "category": "katakana",
+      "file": "kana/030f8.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f8.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f8.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヹ",
+      "codepoint": "030f9",
+      "name": "KATAKANA LETTER VE",
+      "category": "katakana",
+      "file": "kana/030f9.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030f9.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030f9.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヺ",
+      "codepoint": "030fa",
+      "name": "KATAKANA LETTER VO",
+      "category": "katakana",
+      "file": "kana/030fa.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030fa.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030fa.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "・",
+      "codepoint": "030fb",
+      "name": "KATAKANA MIDDLE DOT",
+      "category": "katakana",
+      "file": "kana/030fb.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030fb.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030fb.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ー",
+      "codepoint": "030fc",
+      "name": "KATAKANA-HIRAGANA PROLONGED SOUND MARK",
+      "category": "katakana",
+      "file": "kana/030fc.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030fc.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030fc.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヽ",
+      "codepoint": "030fd",
+      "name": "KATAKANA ITERATION MARK",
+      "category": "katakana",
+      "file": "kana/030fd.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030fd.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030fd.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    },
+    {
+      "character": "ヾ",
+      "codepoint": "030fe",
+      "name": "KATAKANA VOICED ITERATION MARK",
+      "category": "katakana",
+      "file": "kana/030fe.svg",
+      "source": {
+        "repository": "https://github.com/KanjiVG/kanjivg",
+        "commit": "9d7220dfca09107dca2e0b0e45f90f696185e3c3",
+        "path": "kanji/030fe.svg",
+        "url": "https://raw.githubusercontent.com/KanjiVG/kanjivg/9d7220dfca09107dca2e0b0e45f90f696185e3c3/kanji/030fe.svg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "licenseFile": "licenses/KanjiVG-COPYING.txt"
+      }
+    }
+  ],
+  "missingRequiredCharacters": [],
+  "unavailableOptionalCharacters": [
+    {
+      "character": "゗",
+      "codepoint": "03097",
+      "name": "unassigned"
+    },
+    {
+      "character": "゘",
+      "codepoint": "03098",
+      "name": "unassigned"
+    },
+    {
+      "character": "゙",
+      "codepoint": "03099",
+      "name": "COMBINING KATAKANA-HIRAGANA VOICED SOUND MARK"
+    },
+    {
+      "character": "゚",
+      "codepoint": "0309a",
+      "name": "COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK"
+    },
+    {
+      "character": "ゟ",
+      "codepoint": "0309f",
+      "name": "HIRAGANA DIGRAPH YORI"
+    },
+    {
+      "character": "ヿ",
+      "codepoint": "030ff",
+      "name": "KATAKANA DIGRAPH KOTO"
+    },
+    {
+      "character": "ㇰ",
+      "codepoint": "031f0",
+      "name": "KATAKANA LETTER SMALL KU"
+    },
+    {
+      "character": "ㇱ",
+      "codepoint": "031f1",
+      "name": "KATAKANA LETTER SMALL SI"
+    },
+    {
+      "character": "ㇲ",
+      "codepoint": "031f2",
+      "name": "KATAKANA LETTER SMALL SU"
+    },
+    {
+      "character": "ㇳ",
+      "codepoint": "031f3",
+      "name": "KATAKANA LETTER SMALL TO"
+    },
+    {
+      "character": "ㇴ",
+      "codepoint": "031f4",
+      "name": "KATAKANA LETTER SMALL NU"
+    },
+    {
+      "character": "ㇵ",
+      "codepoint": "031f5",
+      "name": "KATAKANA LETTER SMALL HA"
+    },
+    {
+      "character": "ㇶ",
+      "codepoint": "031f6",
+      "name": "KATAKANA LETTER SMALL HI"
+    },
+    {
+      "character": "ㇷ",
+      "codepoint": "031f7",
+      "name": "KATAKANA LETTER SMALL HU"
+    },
+    {
+      "character": "ㇸ",
+      "codepoint": "031f8",
+      "name": "KATAKANA LETTER SMALL HE"
+    },
+    {
+      "character": "ㇹ",
+      "codepoint": "031f9",
+      "name": "KATAKANA LETTER SMALL HO"
+    },
+    {
+      "character": "ㇺ",
+      "codepoint": "031fa",
+      "name": "KATAKANA LETTER SMALL MU"
+    },
+    {
+      "character": "ㇻ",
+      "codepoint": "031fb",
+      "name": "KATAKANA LETTER SMALL RA"
+    },
+    {
+      "character": "ㇼ",
+      "codepoint": "031fc",
+      "name": "KATAKANA LETTER SMALL RI"
+    },
+    {
+      "character": "ㇽ",
+      "codepoint": "031fd",
+      "name": "KATAKANA LETTER SMALL RU"
+    },
+    {
+      "character": "ㇾ",
+      "codepoint": "031fe",
+      "name": "KATAKANA LETTER SMALL RE"
+    },
+    {
+      "character": "ㇿ",
+      "codepoint": "031ff",
+      "name": "KATAKANA LETTER SMALL RO"
+    }
+  ],
+  "licenseFiles": [
+    "KanjiVG-COPYING.txt",
+    "Klee-OFL.txt",
+    "NotoSans-OFL.txt",
+    "Arphic-Public-License.txt"
+  ],
+  "additionalLicenses": [
+    {
+      "name": "Arphic Public License",
+      "url": "https://ftp.gnu.org/non-gnu/chinese-fonts-truetype/LICENSE",
+      "file": "licenses/Arphic-Public-License.txt"
+    }
+  ]
+}

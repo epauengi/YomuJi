@@ -4,12 +4,12 @@ import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, SidebarSimple, X } from '@phosphor-icons/react';
+import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, PencilSimpleLine, SidebarSimple, X } from '@phosphor-icons/react';
 import { SearchInput } from '@/components/SearchInput';
 import { isRouteActive, navItems, searchHref } from '@/lib/navigation';
 import './navigation.css';
 
-const icons = { '/': BookOpenText, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/saved': BookmarkSimple };
+const icons = { '/': BookOpenText, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/handwriting': PencilSimpleLine, '/saved': BookmarkSimple };
 const groups = ['Tra cứu & đọc', 'Luyện tập', 'Cá nhân'];
 
 function Brand() {

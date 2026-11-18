@@ -16,6 +16,12 @@ typography:
     fontWeight: 400
   japanese:
     fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif'
+  worksheet-japanese:
+    fontFamily: '"Worksheet Japanese"'
+    fontWeight: 400
+  worksheet-latin:
+    fontFamily: '"Worksheet Latin"'
+    fontWeight: 400
 rounded:
   sm: "8px"
   md: "12px"
@@ -79,6 +85,14 @@ Global: radius 8/12/16/20px và pill 9999px. JLPT: panel 16px desktop / 14px mob
 - **Chọn đáp án:** radio native, nhãn bao toàn hàng; focus bàn phím hiện trên hàng. Chỉ hiện đúng/sai sau POST nộp bài.
 - **JLPT:** dealt-2 chọn phần trước; N2 có 10 đề, các cấp khác “Sắp có”. Luyện từng phần không giới hạn giờ; thi thử ghép cùng số đề, chung 105 phút. Kết quả là số câu đúng, không phải điểm JLPT chính thức.
 - **Trạng thái:** lỗi tải có cách thử lại; lỗi nộp giữ câu trả lời. Hết giờ khóa đáp án, tự nộp một lần; lỗi mạng cho nộp lại. Không lưu tiến độ qua lần rời trang; cảnh báo trước khi bỏ bài.
+
+## Giấy luyện viết `/handwriting`
+
+- Operate: giữ Calm Utility Editorial. Desktop thiết lập trái 300–320px, tờ A4 phải; dưới 768px thiết lập trên, bản xem dưới. Màu giấy độc lập theme ứng dụng.
+- Tờ giấy 210×297mm; lề 12mm, chữ mẫu lớn trái, hai hàng ô luyện bên phải. Ô 12/15/18mm, năm kiểu lưới; màu giấy/chữ/lưới cập nhật ngay trên bản xem.
+- Xuất PDF vector client-side bằng `pdf-lib` + `@pdf-lib/fontkit`, nhúng Klee One đầy đủ và tập con Noto Sans tự lưu trữ; giữ Klee One đầy đủ để tránh mất glyph khi subset. SVG Kanji/Kana giữ đúng hình nét fill/stroke; thiếu SVG báo chuyển font, thiếu glyph font chặn xuất.
+- Tối đa 100 chữ khác nhau, NFC; chặn ký tự không hỗ trợ và dữ liệu mẫu chưa khớp nội dung nhập. Lỗi có thử lại; thông báo tương phản thấp không cấm màu tùy chọn.
+- Bản xem dùng chung tọa độ với PDF, ghi rõ font/xuống dòng có thể khác. In 100%; giấy trắng tiết kiệm mực. Nguồn/giấy phép ở `/handwriting/licenses` và đính kèm PDF.
 
 ## Do's and Don'ts
 
