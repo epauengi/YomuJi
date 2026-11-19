@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -9,7 +9,6 @@ import {
   Sparkle,
   Trash,
 } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
@@ -424,14 +423,8 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                 </div>
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {results.map((result, index) => (
-                    <div
-                      key={result.term.id}
-                      className={`result-enter ${index > 4 ? 'result-enter-fade' : ''}`}
-                      style={{ '--result-index': index } as CSSProperties}
-                    >
-                      <TermCard term={result.term} matchType={result.matchType} />
-                    </div>
+                  {results.map(({ term, matchType }) => (
+                    <TermCard key={term.id} term={term} matchType={matchType} />
                   ))}
                 </div>
               ) : (
@@ -524,14 +517,9 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                         <div className="mt-5 flex items-start justify-between gap-4">
                           <div>
                             <div className="flex items-baseline gap-3">
-                              <motion.h3
-                                lang="ja"
-                                layoutId={`term-surface-${wordOfTheDay.id}`}
-                                className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]"
-                                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                              >
+                              <h3 lang="ja" className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]">
                                 {wordOfTheDay.surface}
-                              </motion.h3>
+                              </h3>
                               <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
                                 {wordOfTheDay.reading}
                               </span>

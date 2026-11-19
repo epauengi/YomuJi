@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { ArrowLeft, ShareNetwork, Sparkle } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -129,16 +129,11 @@ export default function KanjiDetailPage() {
         1 kết quả của Hán tự <span lang="ja" className="jp-text font-semibold text-[var(--color-primary-700)]">{kanji.literal}</span>
       </div>
 
-      <header className="content-rise mb-8 flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-7">
+      <header className="mb-8 flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-7">
         <div className="flex min-w-0 items-start gap-5 sm:gap-7">
-          <motion.h1
-            layoutId={`kanji-literal-${kanji.literal}`}
-            lang="ja"
-            className="jp-text text-7xl font-medium leading-none text-[var(--color-primary-800)] sm:text-8xl"
-            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-          >
+          <h1 lang="ja" className="jp-text text-7xl font-medium leading-none text-[var(--color-primary-800)] sm:text-8xl">
             {kanji.literal}
-          </motion.h1>
+          </h1>
           <div className="min-w-0 pt-1">
             <div className="text-2xl font-medium leading-tight text-[var(--color-text-primary)] sm:text-3xl">
               {hanVietReadings.join(', ') || 'Không rõ'}
@@ -151,7 +146,7 @@ export default function KanjiDetailPage() {
         <BookmarkButton item={kanjiBookmark(kanji)} variant="star" size="lg" title="Lưu Hán tự" />
       </header>
 
-      <div className="content-rise grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         <div className="order-2 min-w-0 lg:order-1">
           <div className="flex flex-col gap-6">
             <ReadingLine label="On" values={kanji.onReadings} lang="ja" type="on" />

@@ -301,7 +301,7 @@ export function SearchInput({
         <div className="mr-3 flex shrink-0 items-center gap-1.5">
           {isResolving && (
             <span aria-hidden="true" className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary-600)]">
-              <span className="h-1.5 w-1.5 animate-ping rounded-full bg-[var(--color-primary-600)]" />
+              <span className="size-1.5 rounded-full bg-[var(--color-primary-600)]" />
             </span>
           )}
           {query && (
@@ -352,7 +352,7 @@ export function SearchInput({
 
       {/* Autocomplete Suggestions Dropdown */}
       {showPanel && (
-        <div className={`content-rise ${panelClassName}`}>
+        <div className={panelClassName}>
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Sparkle aria-hidden="true" size={13} weight="duotone" />
@@ -384,7 +384,7 @@ export function SearchInput({
                     cancelExactLookup();
                     finishSearch(query.trim());
                   }}
-                  className={`relative flex min-h-14 w-full items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 py-2.5 text-left transition-colors ${
+                  className={`relative flex min-h-14 w-full items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 py-2.5 text-left active:bg-[var(--color-primary-100)] ${
                     activeIndex === 0 ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
                   }`}
                 >
@@ -489,7 +489,7 @@ function SuggestionSection({
             onMouseEnter={() => onActive(item)}
             onPointerDown={(event) => event.preventDefault()}
             onClick={() => onOpen(href)}
-            className={`relative block w-full min-h-11 text-left transition-colors ${
+            className={`relative block w-full min-h-11 text-left active:bg-[var(--color-primary-100)] ${
               activeIndex === item ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
             }`}
           >

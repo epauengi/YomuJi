@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { CaretRight, SpeakerHigh } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
@@ -33,14 +32,9 @@ export function TermCard({
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <motion.span
-              lang="ja"
-              layoutId={`term-surface-${term.id}`}
-              className="jp-text text-xl font-semibold leading-7 text-[var(--color-text-primary)]"
-              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-            >
+            <span lang="ja" className="jp-text text-xl font-semibold leading-7 text-[var(--color-text-primary)]">
               {term.surface}
-            </motion.span>
+            </span>
             {term.reading && term.reading !== term.surface && (
               <span lang="ja" className="jp-text text-sm leading-5 text-[var(--color-text-secondary)]">{term.reading}</span>
             )}

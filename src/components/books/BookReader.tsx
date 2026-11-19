@@ -244,19 +244,19 @@ export default function BookReader({ book }: { book: Book }) {
   };
 
   return <div className="reader-surface min-h-[100dvh] pb-24" style={{ '--reader-size': `${size}px` } as React.CSSProperties}>
-    <div className="fixed inset-x-0 top-0 z-20 h-1 bg-[var(--color-border-subtle)]" aria-hidden="true"><div className="h-full bg-[var(--color-primary-600)] motion-safe:transition-[width] motion-safe:duration-150" style={{ width: `${progress}%` }} /></div>
+    <div className="fixed inset-x-0 top-0 z-20 h-1 bg-[var(--color-border-subtle)]" aria-hidden="true"><div className="h-full origin-left bg-[var(--color-primary-600)]" style={{ transform: `scaleX(${progress / 100})` }} /></div>
     <header className="sticky top-16 z-10 border-b border-[var(--color-border-subtle)] bg-[var(--reader-bg)]">
       <div className="mx-auto flex min-h-14 max-w-5xl items-center px-1 min-[360px]:gap-1 min-[360px]:px-2 sm:gap-2 sm:px-6">
         <Link href={`/books/${book.slug}`} aria-label="Quay lại chi tiết truyện" className="inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)]"><ArrowLeft aria-hidden="true" size={20} /></Link>
         <p className="min-w-0 flex-1 truncate text-center text-sm font-semibold">{book.title}</p>
         <div className="flex shrink-0 items-center rounded-full bg-[var(--color-surface-subtle)] p-0.5">
-          <button type="button" aria-label="Chữ nhỏ hơn" onClick={() => updatePrefs({ ...prefs, size: Math.max(18, size - 1) })} disabled={!prefsReady || size <= 18} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Minus aria-hidden="true" size={17} /></button>
+          <button type="button" aria-label="Chữ nhỏ hơn" onClick={() => updatePrefs({ ...prefs, size: Math.max(18, size - 1) })} disabled={!prefsReady || size <= 18} className="reader-control flex size-11 items-center justify-center rounded-full enabled:hover:bg-[var(--color-surface)] enabled:active:bg-[var(--color-primary-100)] disabled:opacity-40"><Minus aria-hidden="true" size={17} /></button>
           <span className="min-w-6 text-center text-xs tabular-nums" aria-live="polite">{size}</span>
-          <button type="button" aria-label="Chữ to hơn" onClick={() => updatePrefs({ ...prefs, size: Math.min(32, size + 1) })} disabled={!prefsReady || size >= 32} className="flex size-11 items-center justify-center rounded-full disabled:opacity-40"><Plus aria-hidden="true" size={17} /></button>
+          <button type="button" aria-label="Chữ to hơn" onClick={() => updatePrefs({ ...prefs, size: Math.min(32, size + 1) })} disabled={!prefsReady || size >= 32} className="reader-control flex size-11 items-center justify-center rounded-full enabled:hover:bg-[var(--color-surface)] enabled:active:bg-[var(--color-primary-100)] disabled:opacity-40"><Plus aria-hidden="true" size={17} /></button>
         </div>
-        <button type="button" disabled={!prefsReady || storageStatus !== 'ready'} aria-label={saved ? 'Bỏ lưu truyện' : 'Lưu truyện'} aria-pressed={saved} onClick={() => updatePrefs({ ...prefs, saved: !saved })} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><BookmarkSimple aria-hidden="true" size={19} weight={saved ? 'fill' : 'regular'} /></button>
-        <button type="button" disabled={!prefsReady} aria-label={dark ? 'Bật giao diện sáng' : 'Bật giao diện tối'} aria-pressed={dark} onClick={() => writeThemePreference(dark ? 'light' : 'dark')} className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] disabled:opacity-40">{dark ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
-        <button type="button" disabled={!prefsReady} aria-label={furigana ? 'Ẩn Furigana' : 'Hiện Furigana'} aria-pressed={furigana} onClick={() => updatePrefs({ ...prefs, furigana: !furigana })} className="flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><TextAa aria-hidden="true" size={21} /></button>
+        <button type="button" disabled={!prefsReady || storageStatus !== 'ready'} aria-label={saved ? 'Bỏ lưu truyện' : 'Lưu truyện'} aria-pressed={saved} onClick={() => updatePrefs({ ...prefs, saved: !saved })} className="reader-control reader-toggle flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] enabled:active:bg-[var(--color-primary-100)] disabled:opacity-40"><BookmarkSimple aria-hidden="true" size={19} weight={saved ? 'fill' : 'regular'} /></button>
+        <button type="button" disabled={!prefsReady} aria-label={dark ? 'Bật giao diện sáng' : 'Bật giao diện tối'} aria-pressed={dark} onClick={() => writeThemePreference(dark ? 'light' : 'dark')} className="reader-control reader-toggle flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)] enabled:active:bg-[var(--color-primary-100)] disabled:opacity-40">{dark ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}</button>
+        <button type="button" disabled={!prefsReady} aria-label={furigana ? 'Ẩn Furigana' : 'Hiện Furigana'} aria-pressed={furigana} onClick={() => updatePrefs({ ...prefs, furigana: !furigana })} className="reader-control reader-toggle flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-semibold hover:bg-[var(--color-surface-subtle)] disabled:opacity-40"><TextAa aria-hidden="true" size={21} /></button>
       </div>
       {storageStatus !== 'ready' && <div role="alert" className="mx-auto flex max-w-5xl flex-col items-start gap-1 border-t border-[var(--color-border-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-sm"><p>{storageStatus === 'corrupt' ? 'Dữ liệu truyện đã lưu bị lỗi. Dữ liệu gốc được giữ nguyên; chưa thể thay đổi trạng thái lưu.' : storageStatus === 'unavailable' ? 'Không đọc được bộ nhớ trên thiết bị. Hãy kiểm tra cài đặt trình duyệt rồi thử lại.' : 'Không lưu được thay đổi. Kiểm tra dung lượng bộ nhớ rồi thử lại.'}</p><button type="button" onClick={() => setStorageAttempt((value) => value + 1)} className="inline-flex min-h-11 shrink-0 items-center font-semibold text-[var(--color-primary-700)] underline">Thử đọc lại</button></div>}
     </header>
@@ -295,6 +295,13 @@ export default function BookReader({ book }: { book: Book }) {
       .reader-surface { --reader-bg: var(--color-bg); background: var(--reader-bg); color: var(--color-text-primary); color-scheme: light; }
       :global(html[data-theme="dark"]) .reader-surface { color-scheme: dark; }
       .reader-surface :is(button, a):focus-visible { outline: 2px solid var(--color-primary-700); outline-offset: 3px; }
+      .reader-surface :global(.reader-control) {
+        transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+      }
+      .reader-surface :global(.reader-toggle[aria-pressed="true"]) {
+        background-color: var(--color-primary-50);
+        color: var(--color-primary-700);
+      }
       .reader-surface :global(.reader-lookup) {
         position: fixed;
         inset: auto 1rem calc(5rem + env(safe-area-inset-bottom));

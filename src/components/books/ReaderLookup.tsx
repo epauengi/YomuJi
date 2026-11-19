@@ -33,7 +33,7 @@ export function ReaderLookup({ query, onClose }: { query: string; onClose: () =>
           Tra nghĩa <span lang="ja" className="jp-text ml-1 break-all font-medium text-[var(--color-text-secondary)]">{query}</span>
         </h2>
         <button ref={closeRef} type="button" onClick={onClose} aria-label="Đóng khung tra"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)]">
+          className="reader-control inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)] active:bg-[var(--color-primary-50)]">
           <X size={19} aria-hidden="true" />
         </button>
       </header>

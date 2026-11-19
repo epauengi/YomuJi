@@ -7,7 +7,6 @@ import { termBookmark } from '@/lib/browserState';
 import type { TermLookupResponse } from '@/types/dictionary';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
 import { AudioButton } from '@/components/AudioButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
@@ -124,18 +123,13 @@ export default function WordDetailPage({ slug, sequence, initial }: {
         Quay lại trang chủ
       </Link>
 
-      <header className="content-rise border-b border-[var(--color-border)] pb-8">
+      <header className="border-b border-[var(--color-border)] pb-8">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <motion.h1
-                layoutId={`term-surface-${term.id}`}
-                lang="ja"
-                className="jp-text [overflow-wrap:anywhere] text-4xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] md:text-5xl"
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              >
+              <h1 lang="ja" className="jp-text [overflow-wrap:anywhere] text-4xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] md:text-5xl">
                 <Furigana kanji={term.surface} reading={term.reading !== term.surface ? term.reading : ''} />
-              </motion.h1>
+              </h1>
               {term.isCommon && <Badge variant="success">Phổ biến</Badge>}
             </div>
 
