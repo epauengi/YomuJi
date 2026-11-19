@@ -24,7 +24,7 @@ Use it directly in your browser, on a phone or computer. The interface is in Vie
 
 ## Features
 
-- **Japanese–Vietnamese lookup** — Search using kanji, kana, romaji, or Vietnamese meanings.
+- **Japanese–Vietnamese lookup** — Search using kanji, kana, romaji, or Vietnamese meanings. Use **Viết tay** to draw Kanji or Kana one character at a time.
 - **Words in context** — See readings, Vietnamese definitions, and example sentences, with audio pronunciation for words and examples.
 - **Kanji exploration** — Check meanings, on/kun readings, radicals, and animated stroke order where available.
 - **Reading library** — Read Japanese works from Aozora Bunko, toggle furigana, adjust text size, and select a word or phrase to open a dictionary search.

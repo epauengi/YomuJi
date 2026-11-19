@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { wordHref, wordSequence, wordSlug } from './wordRoutes';
+import { exactWordHref, wordHref, wordSequence, wordSlug } from './wordRoutes';
+
+test('direct submit requires a single exact written headword', () => {
+  const frost = { surface: '霜柱', reading: 'しもばしら' };
+  assert.equal(exactWordHref('霜柱', [frost]), `/word/${encodeURIComponent('霜柱')}`);
+  assert.equal(exactWordHref('霜', [frost]), undefined);
+  assert.equal(exactWordHref('しもばしら', [frost]), undefined);
+  assert.equal(exactWordHref('生', [{ surface: '生', reading: 'せい' }, { surface: '生', reading: 'なま' }]), undefined);
+  assert.equal(exactWordHref('アイ', [{ surface: 'Ｉ', reading: 'アイ', sequence: 2594070 }, { surface: 'アイ', reading: 'アイ', sequence: 1980120 }]), '/word/%E3%81%82%E3%81%84?id=1980120');
+});
 
 test('Han routes preserve the original surface, including supplementary Han', () => {
   assert.equal(wordSlug({ surface: '日本', reading: 'にほん' }), '日本');

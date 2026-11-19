@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, BookmarkSimple, Minus, Plus, Sun, Moon, TextAa, SpeakerHigh, Stop } from '@phosphor-icons/react';
+import { ArrowLeft, BookmarkSimple, MagnifyingGlass, Minus, Plus, Sun, Moon, TextAa, SpeakerHigh, Stop, X } from '@phosphor-icons/react';
+import { ReaderLookup } from './ReaderLookup';
 import type { Book } from '@/data/books';
 import type { BookContent } from '@/lib/bookContent';
 import { readBookReaderPrefs, writeBookReaderPrefs, type StoredBookReaderPrefs } from '@/lib/bookReaderStorage';
@@ -41,6 +42,7 @@ export default function BookReader({ book }: { book: Book }) {
   const [attempt, setAttempt] = useState(0);
   const [progress, setProgress] = useState(0);
   const [selectedWord, setSelectedWord] = useState('');
+  const [lookupWord, setLookupWord] = useState('');
   const [supportsSpeech, setSupportsSpeech] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [speechError, setSpeechError] = useState('');
@@ -176,15 +178,41 @@ export default function BookReader({ book }: { book: Book }) {
   useEffect(() => {
     const captureSelection = () => {
       const selection = window.getSelection();
-      if (!selection?.rangeCount || !bodyRef.current?.contains(selection.anchorNode) || !bodyRef.current.contains(selection.focusNode)) { setSelectedWord(''); return; }
-      const fragment = selection.getRangeAt(0).cloneContents();
+      if (!selection?.rangeCount || selection.isCollapsed || !bodyRef.current?.contains(selection.anchorNode) || !bodyRef.current.contains(selection.focusNode)) { setSelectedWord(''); return; }
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      if ((container instanceof Element ? container : container.parentElement)?.closest('rt, rp')) { setSelectedWord(''); return; }
+      const fragment = range.cloneContents();
       fragment.querySelectorAll('rt, rp').forEach((node) => node.remove());
-      const text = fragment.textContent?.trim() || '';
-      setSelectedWord(text.length <= 80 ? text : '');
+      const text = (fragment.textContent ?? '').normalize('NFKC').trim().replace(/^\p{P}+|\p{P}+$/gu, '').trim();
+      setSelectedWord(text.length <= 80 && /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}]/u.test(text) ? text : '');
     };
     document.addEventListener('selectionchange', captureSelection);
     return () => document.removeEventListener('selectionchange', captureSelection);
   }, []);
+
+  const clearSelection = () => {
+    const selection = window.getSelection();
+    if (selection && bodyRef.current?.contains(selection.anchorNode) && bodyRef.current.contains(selection.focusNode)) selection.removeAllRanges();
+    setSelectedWord('');
+  };
+
+  const closeLookup = () => {
+    clearSelection();
+    setLookupWord('');
+    bodyRef.current?.focus({ preventScroll: true });
+  };
+
+  useEffect(() => {
+    if (!lookupWord && !selectedWord) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      if (lookupWord) closeLookup();
+      else clearSelection();
+    };
+    document.addEventListener('keydown', onEscape);
+    return () => document.removeEventListener('keydown', onEscape);
+  }, [lookupWord, selectedWord]);
 
   const readAloud = () => {
     const id = ++speechRun.current;
@@ -239,15 +267,26 @@ export default function BookReader({ book }: { book: Book }) {
         <p className="mt-3 text-sm font-medium text-[var(--color-text-secondary)]"><span lang="ja" className="jp-text">{book.author}</span>{book.romanizedAuthor ? ` · ${book.romanizedAuthor}` : ''}</p>
         {book.credits && <p lang="ja" className="jp-text mt-2 text-sm text-[var(--color-text-secondary)]">{book.credits}</p>}
         {book.title !== book.japaneseTitle && <p className="mt-1 text-sm italic text-[var(--color-text-muted)]">{book.title}</p>}
-        <p className="mt-6 text-sm text-[var(--color-text-muted)]">Chọn một từ hoặc cụm từ để tra nghĩa.</p>
+        <p className="mt-6 text-sm text-[var(--color-text-muted)]">Bôi chọn một từ, rồi bấm Tra nghĩa.</p>
       </header>
       {loading ? <div role="status" className="space-y-5 py-4"><p className="text-sm text-[var(--color-text-secondary)]">Đang tải nội dung truyện… Tác phẩm dài có thể cần khoảng một phút.</p><div aria-hidden="true" className="space-y-5">{[100, 92, 96, 72].map((width) => <div key={width} className="h-4 rounded-sm bg-[var(--color-surface-subtle)]" style={{ width: `${width}%` }} />)}</div></div>
         : error ? <div role="alert" className="border-y border-[var(--color-border-subtle)] py-8"><h2 className="font-serif text-2xl font-semibold">Nội dung chưa sẵn sàng</h2><p className="mt-3 text-sm text-[var(--color-text-secondary)]">{error}</p><button type="button" onClick={() => setAttempt((value) => value + 1)} className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[var(--color-action-primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Thử lại</button></div>
-          : <article ref={bodyRef} data-furigana={furigana} className="reader-copy jp-text space-y-5" lang="ja" aria-label={book.japaneseTitle}>{paragraphs}</article>}
-      {selectedWord && <aside className="fixed inset-x-4 bottom-24 z-20 mx-auto max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4" aria-live="polite" aria-label="Tra từ đã chọn" onKeyDown={(event) => { if (event.key === 'Escape') setSelectedWord(''); }}>
-        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="jp-text break-words text-lg font-semibold" lang="ja">{selectedWord}</p><Link href={`/?q=${encodeURIComponent(selectedWord)}`} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Tra trong từ điển</Link></div><button type="button" onClick={() => setSelectedWord('')} className="min-h-11 px-3 text-sm font-semibold text-[var(--color-text-secondary)] hover:underline">Đóng</button></div>
-      </aside>}
-      {supportsSpeech && content && !error && !loading && !selectedWord && <button type="button" aria-pressed={speaking} onClick={readAloud} className="fixed bottom-24 right-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)] sm:bottom-8 sm:right-8">{speaking ? <Stop aria-hidden="true" size={18} /> : <SpeakerHigh aria-hidden="true" size={18} />}{speaking ? 'Dừng đọc' : 'Nghe truyện'}</button>}
+          : <article ref={bodyRef} tabIndex={-1} data-furigana={furigana} className="reader-copy jp-text space-y-5" lang="ja" aria-label={book.japaneseTitle}>{paragraphs}</article>}
+      {lookupWord ? <ReaderLookup key={lookupWord} query={lookupWord} onClose={closeLookup} /> : selectedWord && (
+        <aside className="reader-lookup flex items-center gap-2 px-3 py-2" aria-label="Tra từ đã chọn">
+          <p className="jp-text min-w-0 flex-1 truncate font-semibold" lang="ja">{selectedWord}</p>
+          <button type="button" onPointerDown={(event) => event.preventDefault()} onClick={() => setLookupWord(selectedWord)}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] bg-[var(--color-action-primary)] px-3 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
+            <MagnifyingGlass size={16} aria-hidden="true" /> Tra nghĩa
+          </button>
+          <button type="button" aria-label="Bỏ chọn từ" onPointerDown={(event) => event.preventDefault()} onClick={closeLookup}
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)]">
+            <X size={18} aria-hidden="true" />
+          </button>
+        </aside>
+      )}
+
+      {supportsSpeech && content && !error && !loading && !selectedWord && !lookupWord && <button type="button" aria-pressed={speaking} onClick={readAloud} className="fixed bottom-24 right-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)] sm:bottom-8 sm:right-8">{speaking ? <Stop aria-hidden="true" size={18} /> : <SpeakerHigh aria-hidden="true" size={18} />}{speaking ? 'Dừng đọc' : 'Nghe truyện'}</button>}
       {speechError && <p role="alert" className="mt-6 text-sm text-[var(--color-text-secondary)]">{speechError}</p>}
       <div className="mt-12 flex items-center justify-between border-t border-[var(--color-border-subtle)] pt-5 text-xs text-[var(--color-text-muted)]"><span>{content && !error ? `Đang đọc · ${progress}%` : 'Nguyên tác tiếng Nhật'}</span><span>{saved ? 'Đã lưu trên thiết bị' : 'Chưa lưu'}</span></div>
       <Link href={`/books/${book.slug}`} className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Quay lại chi tiết truyện</Link>
@@ -256,6 +295,25 @@ export default function BookReader({ book }: { book: Book }) {
       .reader-surface { --reader-bg: var(--color-bg); background: var(--reader-bg); color: var(--color-text-primary); color-scheme: light; }
       :global(html[data-theme="dark"]) .reader-surface { color-scheme: dark; }
       .reader-surface :is(button, a):focus-visible { outline: 2px solid var(--color-primary-700); outline-offset: 3px; }
+      .reader-surface :global(.reader-lookup) {
+        position: fixed;
+        inset: auto 1rem calc(5rem + env(safe-area-inset-bottom));
+        z-index: 20;
+        max-width: 26rem;
+        max-height: 55dvh;
+        margin-inline: auto;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        color: var(--color-text-primary);
+      }
+      @media (min-width: 768px) {
+        .reader-surface :global(.reader-lookup) { inset: auto 2rem 2rem auto; width: min(26rem, calc(100vw - 4rem)); }
+      }
+      .reader-surface :global(.reader-lookup :is(button, select):focus-visible) {
+        outline: 2px solid var(--color-primary-700);
+        outline-offset: -2px;
+      }
       .reader-copy { font-size: var(--reader-size); line-height: 2.15; font-weight: 400; overflow-wrap: anywhere; white-space: pre-wrap; }
       .reader-copy ::selection { background: #99f6e4; color: #17202a; }
       .reader-copy :global(ruby rt) { font-size: .48em; }

@@ -62,7 +62,7 @@ export function Navbar({ children }: { children: ReactNode }) {
       <NavigationLinks />
     </aside>
     <div className="shell-content">
-      <header className="shell-header no-print">
+      <header className={`shell-header no-print${pathname.startsWith('/word/') ? ' shell-header-word' : ''}`}>
         <button ref={menuButton} type="button" className="shell-icon-button shell-menu" aria-label="Mở điều hướng" aria-haspopup="dialog" aria-controls="navigation-drawer" onClick={() => drawer.current?.showModal()}><List size={23} aria-hidden="true" /></button>
         <div className="shell-mobile-brand"><Brand /></div>
         {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ hoặc Kanji" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}

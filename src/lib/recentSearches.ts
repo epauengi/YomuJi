@@ -17,6 +17,11 @@ function notifyRecentSearchesChanged() {
   window.dispatchEvent(new CustomEvent('yomuji:recent_searches'));
 }
 
+export function recordRecentSearch(query: string) {
+  writeRecentSearches([query, ...readRecentSearches().filter((item) => item !== query)].slice(0, 8));
+  notifyRecentSearchesChanged();
+}
+
 export function removeRecentSearches(query?: string) {
   const latest = readRecentSearches();
   const removed = query === undefined ? latest : latest.filter((item) => item === query);

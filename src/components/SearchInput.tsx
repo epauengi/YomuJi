@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { KeyReturn, MagnifyingGlass, Sparkle, X } from '@phosphor-icons/react';
+import { usePathname, useRouter } from 'next/navigation';
+import { lookupWordRoute } from '@/lib/dictionaryService';
+import { KeyReturn, MagnifyingGlass, PencilSimple, Sparkle, X } from '@phosphor-icons/react';
+import { HandwritingSearch } from './HandwritingSearch';
 import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
-import { wordHref } from '@/lib/wordRoutes';
+import { exactWordHref, wordHref, wordSlug } from '@/lib/wordRoutes';
+import { recordRecentSearch } from '@/lib/recentSearches';
 import {
   formatKanjiMatchType,
   formatMatchType,
@@ -43,8 +46,12 @@ export function SearchInput({
   describedBy,
 }: SearchInputProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { progress } = useDictionary();
   const listboxId = useId();
+  const handwritingId = useId();
+  const handwritingButton = useRef<HTMLButtonElement>(null);
+  const [handwritingOpen, setHandwritingOpen] = useState(false);
   const [query, setQuery] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
@@ -53,17 +60,33 @@ export function SearchInput({
     query: string;
     results: [DictionarySearchResult[], KanjiDictionarySearchResult[]] | null;
   } | null>(null);
-  const suggestionQuery = isFocused && !isComposing ? query.trim() : '';
+  const suggestionQuery = isFocused && !isComposing && !handwritingOpen ? query.trim() : '';
   const suggestions = settledSuggestions?.query === suggestionQuery ? settledSuggestions : null;
   const isResolving = Boolean(suggestionQuery) && !suggestions;
   const searchFailed = suggestions?.results === null;
   const termSuggestions = suggestions?.results?.[0] ?? noTerms;
   const kanjiSuggestions = suggestions?.results?.[1] ?? noKanji;
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingLookup = useRef<AbortController | null>(null);
+  const [checkingExact, setCheckingExact] = useState(false);
+
+  const cancelExactLookup = () => {
+    pendingLookup.current?.abort();
+    pendingLookup.current = null;
+    setCheckingExact(false);
+  };
 
   useEffect(() => {
     setQuery(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    setCheckingExact(false);
+    return () => {
+      pendingLookup.current?.abort();
+      pendingLookup.current = null;
+    };
+  }, [pathname, initialValue]);
 
   useEffect(() => {
     setSettledSuggestions(null);
@@ -83,7 +106,6 @@ export function SearchInput({
         ]);
         if (controller.signal.aborted) return;
         setSettledSuggestions({ query: suggestionQuery, results });
-        setActiveIndex(results[0].length + results[1].length ? 0 : -1);
       } catch (error) {
         if (controller.signal.aborted) return;
         controller.abort();
@@ -127,7 +149,7 @@ export function SearchInput({
   const showPanel = Boolean(suggestions);
   const showSuggestions = commandItems.length > 0;
 
-  const resultStatus = !suggestionQuery
+  const resultStatus = checkingExact ? 'Đang tra mục từ…' : !suggestionQuery
     ? ''
     : isResolving
       ? 'Đang tìm gợi ý…'
@@ -137,16 +159,45 @@ export function SearchInput({
           ? `${suggestionCount} gợi ý${progress.source === 'offline' ? ' (offline)' : ''}`
           : 'Không có gợi ý phù hợp';
 
-  const handleSearch = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const trimmed = query.trim();
-    if (!trimmed || isComposing) return;
-    onSearch(trimmed);
+  const finishSearch = (value: string, href?: string) => {
+    if (href) {
+      try { recordRecentSearch(value); } catch { /* Storage may be blocked. */ }
+      router.push(href);
+    } else {
+      onSearch(value);
+    }
     setIsFocused(false);
     onNavigate?.();
   };
 
+  const handleSearch = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed || isComposing || pendingLookup.current) return;
+    // Only a written Japanese headword can skip the result list; not a reading, alias or translation.
+    if (!/^[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}ー々]+$/u.test(trimmed)) {
+      finishSearch(trimmed);
+      return;
+    }
+
+    const controller = new AbortController();
+    pendingLookup.current = controller;
+    setCheckingExact(true);
+    setIsFocused(false);
+    let href: string | undefined;
+    try {
+      const slug = wordSlug({ surface: trimmed, reading: trimmed });
+      const { term, alternatives } = await lookupWordRoute(slug, AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]));
+      href = exactWordHref(trimmed, term ? [term] : alternatives ?? []);
+    } catch { /* Fall through to ordinary search, which handles failures and retries. */ }
+    if (controller.signal.aborted) return;
+    pendingLookup.current = null;
+    setCheckingExact(false);
+    finishSearch(trimmed, href);
+  };
+
   const handleClear = () => {
+    cancelExactLookup();
     setQuery('');
     setSettledSuggestions(null);
     setActiveIndex(-1);
@@ -164,14 +215,9 @@ export function SearchInput({
     blurTimer.current = setTimeout(() => setIsFocused(false), 200);
   };
 
-  const openActiveItem = () => {
-    if (!activeItem) return;
-    if (activeItem.kind === 'search') {
-      handleSearch();
-      return;
-    }
-
-    router.push(activeItem.href);
+  const openSuggestion = (href: string) => {
+    cancelExactLookup();
+    router.push(href);
     setIsFocused(false);
     onNavigate?.();
   };
@@ -181,7 +227,7 @@ export function SearchInput({
     ? 'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]'
     : 'absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]';
 
-  return (
+  return (<>
     <form
       onSubmit={handleSearch}
       className={`search-shell group relative z-50 mx-auto flex w-full ${compact ? 'max-w-none rounded-[var(--radius-md)]' : 'max-w-[800px] rounded-[var(--radius-lg)]'} items-center border bg-[var(--color-surface)] p-0 transition-[border-color,box-shadow] duration-[var(--duration-fast)] ${
@@ -201,10 +247,14 @@ export function SearchInput({
           ref={inputRef}
           value={query}
           onChange={(e) => {
+            cancelExactLookup();
             setQuery(e.target.value);
             setIsFocused(true);
           }}
-          onCompositionStart={() => setIsComposing(true)}
+          onCompositionStart={() => {
+            cancelExactLookup();
+            setIsComposing(true);
+          }}
           onCompositionEnd={(e) => {
             setQuery(e.currentTarget.value);
             setIsComposing(false);
@@ -224,27 +274,25 @@ export function SearchInput({
           onKeyDown={(e) => {
             if (isComposing || e.nativeEvent.isComposing || e.keyCode === 229) return;
             if (e.key === 'Escape') {
+              cancelExactLookup();
               setIsFocused(false);
               return;
             }
-
-            if (!showSuggestions) {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearch();
-              }
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (activeIndex < 0 || !activeItem) void handleSearch();
+              else if (activeItem.kind === 'search') finishSearch(query.trim());
+              else openSuggestion(activeItem.href);
               return;
             }
+            if (!showSuggestions) return;
 
             if (e.key === 'ArrowDown') {
               e.preventDefault();
-              setActiveIndex((value) => Math.min(value + 1, commandItems.length - 1));
+              setActiveIndex((value) => Math.min(Math.max(0, value) + 1, commandItems.length - 1));
             } else if (e.key === 'ArrowUp') {
               e.preventDefault();
               setActiveIndex((value) => Math.max(value - 1, 0));
-            } else if (e.key === 'Enter') {
-              e.preventDefault();
-              openActiveItem();
             }
           }}
         />
@@ -268,6 +316,24 @@ export function SearchInput({
           )}
         </div>
       </div>
+
+      <button
+        ref={handwritingButton}
+        type="button"
+        className={`search-handwriting-trigger${compact ? ' search-handwriting-trigger-compact' : ''}`}
+        aria-label="Viết tay"
+        title="Viết tay"
+        aria-haspopup="dialog"
+        aria-controls={handwritingOpen ? handwritingId : undefined}
+        onClick={() => {
+          cancelExactLookup();
+          setIsFocused(false);
+          setHandwritingOpen(true);
+        }}
+      >
+        <PencilSimple size={19} aria-hidden="true" />
+        <span>Viết tay</span>
+      </button>
 
       {/* Embedded Flush Right Search Button */}
       <button
@@ -314,7 +380,10 @@ export function SearchInput({
                   aria-selected={activeIndex === 0}
                   onMouseEnter={() => setActiveIndex(0)}
                   onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => handleSearch()}
+                  onClick={() => {
+                    cancelExactLookup();
+                    finishSearch(query.trim());
+                  }}
                   className={`relative flex min-h-14 w-full items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 py-2.5 text-left transition-colors ${
                     activeIndex === 0 ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
                   }`}
@@ -344,11 +413,7 @@ export function SearchInput({
                   }))}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={(href) => {
-                    router.push(href);
-                    setIsFocused(false);
-                    onNavigate?.();
-                  }}
+                  onOpen={openSuggestion}
                 />
 
                 <SuggestionSection
@@ -362,11 +427,7 @@ export function SearchInput({
                   }))}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={(href) => {
-                    router.push(href);
-                    setIsFocused(false);
-                    onNavigate?.();
-                  }}
+                  onOpen={openSuggestion}
                 />
               </div>
 
@@ -380,6 +441,19 @@ export function SearchInput({
         </div>
       )}
     </form>
+    {handwritingOpen && (
+      <HandwritingSearch
+        id={handwritingId}
+        query={query}
+        onQuery={setQuery}
+        onClose={() => {
+          setHandwritingOpen(false);
+          handwritingButton.current?.focus();
+        }}
+        onSearch={() => void handleSearch()}
+      />
+    )}
+    </>
   );
 }
 

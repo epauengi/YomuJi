@@ -28,6 +28,11 @@ export function wordSequence(id: string): number | null {
   return Number.isSafeInteger(sequence) && sequence > 0 ? sequence : null;
 }
 
+export function exactWordHref(query: string, terms: WordRouteTerm[]): string | undefined {
+  const exact = terms.filter(({ surface }) => surface === query);
+  return exact.length === 1 ? wordHref(exact[0]) : undefined;
+}
+
 export function wordHref(term: WordRouteTerm | string): string {
   if (typeof term === 'string') return `/word/${encodeURIComponent(term)}`;
   const slug = wordSlug(term);

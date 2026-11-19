@@ -47,6 +47,12 @@ There is no test script. The current `npm run lint` calls `next lint`, which is 
 
 Routine setup does not require rebuilding or migrating dictionary data. `npm run build:dict` reads local source files from `YOMUJI_DATA_DIR` (or the default path in [`scripts/build-dictionary.ts`](../scripts/build-dictionary.ts)) and generates versioned sense sidecars alongside dictionary shards. Publish the sidecars with the app; online details fall back to flat meanings if they are unavailable. Existing offline users can select **Thiết lập → Cập nhật dữ liệu offline**. `npm run turso:migrate` drops and recreates tables in the configured database; review the migration handbook and script before running it. **Do not run `npm run supabase:clear` for setup: it deletes dictionary data.**
 
+## Handwriting Search
+
+The **Viết tay** button accepts one Kanji, Hiragana, or Katakana at a time. Like [Jisho](https://jisho.org/), it offers candidates, undo, and clear. Picking a candidate appends it to the query without submitting.
+
+[KanjiCanvas](https://github.com/asdfjkl/kanjicanvas) demonstrates client-side template matching. YomuJi matches stroke paths from its own licensed assets; it loads templates only on demand and neither sends nor stores the drawing. The [Chrome handwriting API](https://developer.chrome.com/docs/web-platform/handwriting-recognition) documents limited language and platform support; [ML Kit Digital Ink](https://developers.google.com/ml-kit/vision/digital-ink-recognition) targets native Android and iOS. Neither is required here. Cursive, joined strokes, and glyph variants may need a retry; this is not general handwriting OCR. Regenerate the checked-in templates with `node scripts/build-handwriting-index.cjs` and run `node scripts/test-handwriting-recognition.cjs`. See the [template attribution](../public/handwriting/recognition-index.ATTRIBUTION.txt).
+
 ## Code Map
 
 - [`src/app/`](../src/app/) — Pages and server API handlers.

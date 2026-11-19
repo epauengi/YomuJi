@@ -1,0 +1,8 @@
+Handwriting recognition template attribution
+
+This index contains sampled stroke centerlines derived from the checked-in assets:
+
+- KanjiVG kana SVGs in kana/: KanjiVG, CC BY-SA 3.0. Attribution and license copy: licenses/KanjiVG-COPYING.txt. https://github.com/KanjiVG/kanjivg
+- AnimCJK stroke SVGs in /dict/strokes/: AnimCJK © FM-SH, derived from MakeMeAHanzi and Arphic PL KaitiM GB / UKai; files state redistribution under the Arphic Public License. License copy: licenses/Arphic-Public-License.txt. https://github.com/parsimonhi/animCJK
+
+The index is a transformed, quantized representation of stroke paths. KanjiVG-derived material remains subject to CC BY-SA 3.0; AnimCJK-derived material remains subject to the stated Arphic Public License. See the source files and included license texts for complete terms and attribution.

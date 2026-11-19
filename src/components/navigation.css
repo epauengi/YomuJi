@@ -45,6 +45,7 @@ body:has(.shell-drawer[open]) { overflow: hidden; }
   .shell-content { margin-left: var(--shell-sidebar-width); transition: margin-left 240ms cubic-bezier(0.16, 1, 0.3, 1); }
   .shell-menu { display: none; }
   .shell-header { padding: 0 32px; }
+  .shell-header-word { padding-inline-start: calc(max(0px, (100% - var(--container-4xl)) / 2) + var(--spacing) * 4); }
   .shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session) { --shell-sidebar-width: 72px; }
   :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-label { max-width: 0; opacity: 0; }
   :is(.shell-collapsed, .shell-auto:has(.reader-surface, .fc-focused, .jlpt-session-top, .review-session)) .shell-sidebar .shell-group-title { max-height: 0; margin-bottom: 0; }
