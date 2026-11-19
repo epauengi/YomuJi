@@ -34,7 +34,16 @@ Use it directly in your browser, on a phone or computer. The interface is in Vie
 
 ## Before You Start
 
-If a lookup reports that the online dictionary is unavailable, open **Thiết lập (Settings) → Tải dữ liệu offline** while connected to the internet, let the download finish, then retry. Some word details and audio may still need a connection.
+If a lookup reports that the online dictionary is unavailable, open **Thiết lập (Settings) → Tải dữ liệu offline** while connected to the internet, let the download finish, then retry. Some word details and audio may still need a connection. If offline data is already installed, use **Cập nhật dữ liệu offline** to refresh the search index.
+
+For existing Turso deployments, backfill alternate spellings before enabling variant lookup. Run the local validation first, then apply to the intended database:
+
+```bash
+node scripts/sync-turso-written-forms.cjs --dry-run
+node --env-file=.env.local scripts/sync-turso-written-forms.cjs --apply
+```
+
+Do not use the full `turso:migrate` command for this update.
 
 Saved items stay in the current browser; review results last only for the current session. Flashcard decks are sample previews, not complete study tools. Conjugation analysis is integrated into dictionary search, with expandable form tables on word detail pages. JLPT study is not yet available.
 

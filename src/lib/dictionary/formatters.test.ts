@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   classifyTermMatch,
+  compareTermSearchResults,
   formatMatchType,
   formatPartOfSpeech,
   normalizeDisplayList,
@@ -34,6 +35,19 @@ test('classifyTermMatch prioritizes exact fields', () => {
   assert.equal(classifyTermMatch(term, 'taberu').matchType, 'exact-romaji');
   assert.equal(classifyTermMatch(term, 'ăn').matchType, 'exact-meaning');
   assert.equal(classifyTermMatch(term, '食').matchType, 'prefix');
+});
+
+test('alternate written forms outrank loose results, not the main spelling', () => {
+  const term = { surface: '作る', reading: 'つくる', romaji: 'tsukuru', writtenForms: ['造る', '創る'] };
+  for (const query of term.writtenForms) {
+    const variant = classifyTermMatch(term, query);
+    assert.equal(variant.matchType, 'exact-written-form');
+    const exact = classifyTermMatch({ ...term, surface: query }, query);
+    assert.ok(compareTermSearchResults({ ...exact, score: 0 }, { ...variant, score: 99_999 }) < 0);
+    assert.ok(compareTermSearchResults({ ...variant, score: 0 }, { matchType: 'partial', score: 99_999 }) < 0);
+  }
+  assert.equal(classifyTermMatch(term, 'つくる').matchType, 'exact-reading');
+  assert.equal(classifyTermMatch(term, 'tsukuru').matchType, 'exact-romaji');
 });
 
 test('formatters expose learner-facing labels', () => {

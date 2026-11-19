@@ -18,6 +18,7 @@ import type {
 } from '@/types/dictionary';
 import {
   classifyTermMatch,
+  compareTermSearchResults,
   normalizeKanjiRecord,
   normalizeKanjiSearchResult,
   normalizeQuery,
@@ -50,6 +51,28 @@ import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 let globalManifest: DictionaryManifest | null = null;
 let globalSearchIndex: SearchIndexEntry[] = [];
+let exactWrittenForms = new Map<string, SearchIndexEntry[]>();
+
+function publishSearchIndex(entries: SearchIndexEntry[]) {
+  if (globalSearchIndex === entries) return;
+  globalSearchIndex = entries;
+  const forms = new Map<string, SearchIndexEntry[]>();
+  for (const entry of entries) {
+    if (!entry.writtenForms?.length) continue;
+    for (const form of new Set(entry.writtenForms.map((value) => value.normalize('NFKC')))) {
+      const matches = forms.get(form);
+      if (matches) matches.push(entry);
+      else forms.set(form, [entry]);
+    }
+  }
+  if (forms.size) {
+    for (const entry of entries) {
+      const matches = forms.get(entry.surface.normalize('NFKC'));
+      if (matches && !matches.includes(entry)) matches.push(entry);
+    }
+  }
+  exactWrittenForms = forms;
+}
 const globalTermsMap = new Map<string, TermRecord>();
 const globalKanjiMap = new Map<string, KanjiRecord>();
 const loadedTermShards = new Set<string>();
@@ -117,6 +140,7 @@ function isDictionaryManifest(value: unknown): value is DictionaryManifest {
   return typeof value.schemaVersion === 'number'
     && typeof value.dataVersion === 'string'
     && (value.kanjiRevision === undefined || typeof value.kanjiRevision === 'string')
+    && (value.searchRevision === undefined || typeof value.searchRevision === 'string')
     && typeof value.totals.terms === 'number'
     && typeof value.totals.kanji === 'number'
     && value.shards.every(isDictionaryShard);
@@ -128,7 +152,9 @@ function isSearchIndexEntry(value: unknown): value is SearchIndexEntry {
     && typeof value.surface === 'string'
     && typeof value.reading === 'string'
     && Array.isArray(value.meaningsPreview)
-    && Array.isArray(value.tokens);
+    && Array.isArray(value.tokens)
+    && (value.writtenForms === undefined || (Array.isArray(value.writtenForms)
+      && value.writtenForms.every((form) => typeof form === 'string')));
 }
 
 function isTermRecord(value: unknown): value is TermRecord {
@@ -232,6 +258,7 @@ function isCompleteKanjiCache(manifest: DictionaryManifest, value: unknown): val
 }
 
 async function hydrateCachedDictionary() {
+  if (isStaticFallbackReady) return;
   if (cacheHydrationPromise) return cacheHydrationPromise;
 
   cacheHydrationPromise = (async () => {
@@ -245,7 +272,7 @@ async function hydrateCachedDictionary() {
 
     globalManifest = manifestValue;
     if (isCompleteSearchCache(manifestValue, searchValue)) {
-      globalSearchIndex = searchValue;
+      publishSearchIndex(searchValue);
       isInitialized = true;
       isSearchIndexReady = true;
     }
@@ -260,7 +287,7 @@ async function hydrateCachedDictionary() {
 }
 
 async function fetchJson(url: string): Promise<unknown> {
-  const response = await fetch(url, url.startsWith('/dict/kanji/') ? { cache: 'no-cache' } : undefined);
+  const response = await fetch(url, /^\/dict\/(kanji|search)\//.test(url) ? { cache: 'no-cache' } : undefined);
   if (!response.ok) throw new Error(`Không thể tải ${url} (${response.status})`);
   return response.json() as Promise<unknown>;
 }
@@ -306,6 +333,7 @@ async function syncStaticDictionary() {
     isStaticFallbackReady
     && globalManifest?.dataVersion === manifest.dataVersion
     && globalManifest?.kanjiRevision === manifest.kanjiRevision
+    && globalManifest?.searchRevision === manifest.searchRevision
     && globalSearchIndex.length === manifest.totals.terms
     && globalKanjiMap.size === manifest.totals.kanji
   ) {
@@ -357,7 +385,7 @@ async function syncStaticDictionary() {
 
   const previousVersion = globalManifest?.dataVersion;
   globalManifest = manifest;
-  globalSearchIndex = searchRecords;
+  publishSearchIndex(searchRecords);
   publishKanji(kanjiRecords);
   isInitialized = true;
   isSearchIndexReady = true;
@@ -538,8 +566,20 @@ export async function searchDictionary(
   if (!isSearchIndexReady) await hydrateCachedDictionary();
   setDictionarySource('offline');
   const results: DictionarySearchResult[] = [];
+  const exact = exactWrittenForms.get(trimmed.normalize('NFKC')) ?? [];
+  const exactEntries = new Set(exact);
+
+  for (const entry of exact) {
+    const match = classifyTermMatch(entry, trimmed);
+    const term = normalizeTermRecord(globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry));
+    results.push({ term, score: entry.score + match.bonus, matchType: match.matchType });
+  }
+
+  if (results.length >= limit) return results.sort(compareTermSearchResults).slice(0, limit);
 
   for (const entry of globalSearchIndex) {
+    if (results.length >= limit * 3) break;
+    if (exactEntries.has(entry)) continue;
     const match = classifyTermMatch(entry, trimmed);
     if (match.bonus > 0) {
       const rawTerm = globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry);
@@ -550,11 +590,9 @@ export async function searchDictionary(
         matchType: match.matchType,
       });
     }
-
-    if (results.length >= limit * 3) break;
   }
 
-  return results.sort((a, b) => b.score - a.score).slice(0, limit);
+  return results.sort(compareTermSearchResults).slice(0, limit);
 }
 
 export async function searchKanjiDictionary(
@@ -644,6 +682,7 @@ function termFromSearchEntry(entry: SearchIndexEntry): TermRecord {
     examples: [],
     related: [],
     searchAliases: [entry.surface, entry.reading, entry.romaji],
+    writtenForms: entry.writtenForms,
     source: { jmdict: true },
   };
 }

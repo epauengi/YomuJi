@@ -107,6 +107,7 @@ export interface SearchIndexEntry {
   isCommon: boolean;
   kanji: string[];
   tokens: string[];
+  writtenForms?: string[];
 }
 
 export interface KanjiSearchIndexEntry {
@@ -137,6 +138,7 @@ export interface DictionaryManifest {
   dataVersion: string;
   generatedAt: string;
   kanjiRevision?: string;
+  searchRevision?: string;
   basePath?: string;
   totals: {
     terms: number;
@@ -188,6 +190,7 @@ export interface DictionaryState {
 
 export type SearchMatchType =
   | 'exact-surface'
+  | 'exact-written-form'
   | 'exact-reading'
   | 'exact-romaji'
   | 'exact-meaning'

@@ -73,6 +73,7 @@ const POS_LABELS: Record<string, string> = {
 
 const MATCH_LABELS: Record<SearchMatchType, string> = {
   'exact-surface': 'Khớp chính xác',
+  'exact-written-form': 'Khớp cách viết khác',
   'exact-reading': 'Khớp cách đọc',
   'exact-romaji': 'Khớp romaji',
   'exact-meaning': 'Khớp nghĩa',
@@ -194,28 +195,31 @@ export function classifyTermMatch(
     romaji: string;
     meaningsVi?: string[];
     meaningsPreview?: string[];
+    writtenForms?: string[];
     searchAliases?: string[];
     tokens?: string[];
   },
   query: string,
 ): TermMatch {
   const normalized = normalizeQuery(query);
+  const exactQuery = query.trim().normalize('NFKC');
   const surface = normalizeQuery(term.surface);
   const reading = normalizeQuery(term.reading);
   const romaji = normalizeQuery(term.romaji);
-  const rawMeanings = term.meaningsVi || term.meaningsPreview || [];
-  const meanings = normalizeDisplayList(rawMeanings).map(normalizeQuery);
-  const rawAliases = [...(term.searchAliases || []), ...(term.tokens || [])];
-  const aliases = normalizeDisplayList(rawAliases).map(normalizeQuery);
-
   if (!normalized) return { matchType: 'partial', bonus: 0 };
+  if (term.surface.normalize('NFKC') === exactQuery) return { matchType: 'exact-surface', bonus: 20000 };
+  if (term.writtenForms?.some((form) => form.normalize('NFKC') === exactQuery)) {
+    return { matchType: 'exact-written-form', bonus: 19000 };
+  }
   if (surface === normalized) return { matchType: 'exact-surface', bonus: 20000 };
   if (reading === normalized) return { matchType: 'exact-reading', bonus: 15000 };
   if (romaji === normalized) return { matchType: 'exact-romaji', bonus: 12000 };
+  const meanings = normalizeDisplayList(term.meaningsVi || term.meaningsPreview || []).map(normalizeQuery);
   if (meanings.some((meaning) => meaning === normalized)) return { matchType: 'exact-meaning', bonus: 10000 };
   if (surface.startsWith(normalized) || reading.startsWith(normalized) || romaji.startsWith(normalized)) {
     return { matchType: 'prefix', bonus: 8000 };
   }
+  const aliases = normalizeDisplayList([...(term.searchAliases || []), ...(term.tokens || [])]).map(normalizeQuery);
   if (meanings.some((meaning) => meaning.includes(normalized)) || aliases.some((alias) => alias.includes(normalized))) {
     return { matchType: 'partial', bonus: 2000 };
   }
@@ -241,4 +245,12 @@ export { POS_LABELS };
 // Keep the classifier's return type useful to callers that need to exclude non-matches.
 export function isTermMatch(match: TermMatch): boolean {
   return match.bonus > 0;
+}
+
+export function compareTermSearchResults(
+  a: Pick<DictionarySearchResult, 'matchType' | 'score'>,
+  b: Pick<DictionarySearchResult, 'matchType' | 'score'>,
+): number {
+  const tier = (type: SearchMatchType) => type === 'exact-surface' ? 2 : type === 'exact-written-form' ? 1 : 0;
+  return tier(b.matchType) - tier(a.matchType) || b.score - a.score;
 }

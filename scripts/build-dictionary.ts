@@ -25,6 +25,8 @@ const KANJIVG_DIR = path.join(RAW_DATA_BASE, 'kanjivg-master', 'kanjivg-master')
 // Output target path
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'dict');
 const BUMP_DATA_VERSION = SENSE_DATA_VERSION;
+const SEARCH_REVISION = '2';
+const INDEX_PER_SHARD = 5000;
 
 // Kana to Romaji converter
 const KANA_ROMAJI_MAP: Record<string, string> = {
@@ -97,6 +99,72 @@ function extractKanji(str: string): string[] {
 
 function computeSha256(content: string): string {
   return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+function toSearchIndexEntry(term: TermRecord): SearchIndexEntry {
+  const writtenForms = Array.from(new Set((term.writtenForms || []).filter((form) => form !== term.surface)));
+  return {
+    termId: term.id,
+    sequence: term.sequence,
+    surface: term.surface,
+    reading: term.reading,
+    romaji: term.romaji,
+    meaningsPreview: term.meaningsVi.slice(0, 2),
+    partOfSpeech: term.partOfSpeech,
+    tags: term.tags,
+    score: term.score,
+    isCommon: term.isCommon,
+    kanji: term.kanji,
+    tokens: Array.from(new Set([term.surface, term.reading, term.romaji, ...term.meaningsVi])),
+    ...(writtenForms.length ? { writtenForms } : {}),
+  };
+}
+
+function rebuildSearchIndexFromTermShards(): void {
+  const manifestPath = path.join(OUTPUT_DIR, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as DictionaryManifest;
+  const terms = manifest.shards.filter((shard) => shard.type === 'terms').flatMap((shard) => {
+    const filePath = path.join(OUTPUT_DIR, shard.url.replace(/^\/dict\//, ''));
+    const payload = fs.readFileSync(filePath, 'utf-8');
+    if (Buffer.byteLength(payload) !== shard.bytes || computeSha256(payload) !== shard.sha256) {
+      throw new Error(`Term shard integrity check failed: ${shard.url}`);
+    }
+    const parsed = JSON.parse(payload) as DictionaryShard & { dataVersion: string; records: TermRecord[] };
+    if (parsed.type !== 'terms' || parsed.dataVersion !== manifest.dataVersion || !Array.isArray(parsed.records)) {
+      throw new Error(`Invalid term shard: ${shard.url}`);
+    }
+    return parsed.records;
+  });
+  const entries = terms.map(toSearchIndexEntry);
+  const searchDir = path.join(OUTPUT_DIR, 'search');
+  const shardCount = Math.ceil(entries.length / INDEX_PER_SHARD);
+  const searchShards: DictionaryShard[] = [];
+
+  for (let i = 0; i < shardCount; i++) {
+    const fileName = `index-${String(i + 1).padStart(4, '0')}.json`;
+    const chunk = entries.slice(i * INDEX_PER_SHARD, (i + 1) * INDEX_PER_SHARD);
+    const payload = JSON.stringify({ schemaVersion: 1, dataVersion: manifest.dataVersion, type: 'search', records: chunk });
+    fs.writeFileSync(path.join(searchDir, fileName), payload);
+    searchShards.push({
+      id: `search-${String(i + 1).padStart(4, '0')}`,
+      type: 'search',
+      url: `/dict/search/${fileName}`,
+      bytes: Buffer.byteLength(payload),
+      sha256: computeSha256(payload),
+      recordCount: chunk.length,
+    });
+  }
+
+  for (const file of fs.readdirSync(searchDir)) {
+    if (/^index-\d{4}\.json$/.test(file) && !searchShards.some((shard) => shard.url.endsWith(`/${file}`))) {
+      fs.unlinkSync(path.join(searchDir, file));
+    }
+  }
+  manifest.shards = [...manifest.shards.filter((shard) => shard.type !== 'search'), ...searchShards];
+  manifest.totals.searchShards = shardCount;
+  manifest.searchRevision = SEARCH_REVISION;
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`✅ Rebuilt ${entries.length} search entries across ${shardCount} shards from checked-in term shards.`);
 }
 
 // Global KanjiDictVN per-kanji Hán Việt map (loaded once in main)
@@ -417,7 +485,6 @@ async function main() {
   const manifestShards: DictionaryShard[] = [];
   const TERMS_PER_SHARD = 2000;
   const KANJI_PER_SHARD = 500;
-  const INDEX_PER_SHARD = 5000;
 
   // Shard Terms
   const termShardCount = Math.ceil(allTerms.length / TERMS_PER_SHARD);
@@ -481,20 +548,7 @@ async function main() {
 
   // Build & Shard Search Index
   console.log('\n🔍 Generating Search Index Shards...');
-  const searchIndexEntries: SearchIndexEntry[] = allTerms.map((t) => ({
-    termId: t.id,
-    sequence: t.sequence,
-    surface: t.surface,
-    reading: t.reading,
-    romaji: t.romaji,
-    meaningsPreview: t.meaningsVi.slice(0, 2),
-    partOfSpeech: t.partOfSpeech,
-    tags: t.tags,
-    score: t.score,
-    isCommon: t.isCommon,
-    kanji: t.kanji,
-    tokens: Array.from(new Set([t.surface, t.reading, t.romaji, ...t.meaningsVi])),
-  }));
+  const searchIndexEntries: SearchIndexEntry[] = allTerms.map(toSearchIndexEntry);
 
   const searchShardCount = Math.ceil(searchIndexEntries.length / INDEX_PER_SHARD);
   for (let i = 0; i < searchShardCount; i++) {
@@ -520,6 +574,7 @@ async function main() {
   const manifest: DictionaryManifest = {
     schemaVersion: 1,
     dataVersion: BUMP_DATA_VERSION,
+    searchRevision: SEARCH_REVISION,
     generatedAt: new Date().toISOString(),
     kanjiRevision: computeSha256(JSON.stringify(reviewed)),
     basePath: '/dict',
@@ -575,7 +630,14 @@ async function main() {
   console.log(`📄 Manifest written to: ${path.join(OUTPUT_DIR, 'manifest.json')}`);
 }
 
-main().catch((err) => {
+if (process.argv.includes('--search-from-shards')) {
+  try {
+    rebuildSearchIndexFromTermShards();
+  } catch (err) {
+    console.error('❌ Search index regeneration failed:', err);
+    process.exit(1);
+  }
+} else main().catch((err) => {
   console.error('❌ Data pipeline failed:', err);
   process.exit(1);
 });

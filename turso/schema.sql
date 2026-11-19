@@ -28,6 +28,16 @@ CREATE INDEX IF NOT EXISTS idx_terms_romaji ON terms(romaji);
 CREATE INDEX IF NOT EXISTS idx_terms_score ON terms(score DESC);
 CREATE INDEX IF NOT EXISTS idx_terms_is_common ON terms(is_common);
 
+-- Alternate spellings are indexed separately so term/search rows stay unchanged.
+CREATE TABLE IF NOT EXISTS term_written_forms (
+  term_id TEXT NOT NULL REFERENCES terms(id) ON DELETE CASCADE,
+  written_form TEXT NOT NULL,
+  search_key TEXT NOT NULL,
+  PRIMARY KEY (term_id, written_form)
+);
+
+CREATE INDEX IF NOT EXISTS idx_term_written_forms_form ON term_written_forms(search_key);
+
 -- Omoha grouped details; additive so existing term rows and indexes stay intact.
 CREATE TABLE IF NOT EXISTS term_senses (
   term_id TEXT PRIMARY KEY NOT NULL REFERENCES terms(id) ON DELETE CASCADE,

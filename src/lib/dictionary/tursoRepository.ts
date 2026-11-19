@@ -3,6 +3,7 @@ import { selectDailyOffset } from './randomTerm';
 import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 import {
   classifyTermMatch,
+  compareTermSearchResults,
   normalizeKanjiRecord,
   normalizeTermRecord,
 } from '@/lib/dictionary/formatters';
@@ -18,6 +19,9 @@ function parseJson<T>(value: unknown, fallback: T): T {
 }
 
 function rowToTerm(row: any): TermRecord {
+  const matchedWrittenForm = typeof row.matched_written_form === 'string'
+    ? row.matched_written_form
+    : undefined;
   return normalizeTermRecord({
     id: String(row.id),
     sequence: Number(row.sequence || 0),
@@ -35,6 +39,7 @@ function rowToTerm(row: any): TermRecord {
     examples: [],
     related: [],
     searchAliases: parseJson<string[]>(row.search_aliases, []),
+    ...(matchedWrittenForm ? { writtenForms: [matchedWrittenForm] } : {}),
     source: { jmdict: true },
   });
 }
@@ -66,6 +71,11 @@ const TERM_COLS = `id, sequence, surface, reading, romaji, meanings_vi, glosses_
 const KANJI_COLS = `literal, on_readings, kun_readings, han_viet, meanings, meanings_raw,
   radical, pen_strokes, stroke_count, jlpt, grade, frequency, unicode,
   tags, components, stroke_paths`;
+
+function isMissingWrittenFormsTable(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /no such table:\s*(?:main\.)?term_written_forms\b/i.test(message);
+}
 
 export class TursoDictionaryRepository implements DictionaryRepository {
   async getRandomTerm(dayKey: string): Promise<TermRecord | null> {
@@ -99,23 +109,54 @@ export class TursoDictionaryRepository implements DictionaryRepository {
     if (!q) return { terms: [] };
 
     const normalizedQ = q.toLowerCase();
-    const res = await this.client.execute({
-      sql: `
-        SELECT ${TERM_COLS} FROM terms
-        WHERE surface = ? OR reading = ? OR romaji = ?
-           OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
-           OR meanings_vi LIKE '%' || ? || '%'
-           OR search_aliases LIKE '%' || ? || '%'
-        ORDER BY
-          CASE
-            WHEN surface = ? THEN 1 WHEN reading = ? THEN 2 WHEN romaji = ? THEN 3
-            WHEN surface LIKE ? || '%' THEN 4 WHEN reading LIKE ? || '%' THEN 5
-            ELSE 6
-          END, score DESC
-        LIMIT ?`,
-      args: [q, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ,
-             q, q, normalizedQ, q, q, limit * 2],
-    });
+    const writtenFormKey = q.normalize('NFKC');
+    let res;
+    try {
+      res = await this.client.execute({
+        sql: `
+          SELECT ${TERM_COLS},
+            (SELECT written_form FROM term_written_forms AS wf
+             WHERE wf.term_id = terms.id AND wf.search_key = ? LIMIT 1) AS matched_written_form
+          FROM terms
+          WHERE surface = ? OR reading = ? OR romaji = ?
+             OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
+             OR meanings_vi LIKE '%' || ? || '%'
+             OR search_aliases LIKE '%' || ? || '%'
+             OR id IN (SELECT term_id FROM term_written_forms WHERE search_key = ?)
+          ORDER BY
+            CASE
+              WHEN surface = ? THEN 1
+              WHEN EXISTS (SELECT 1 FROM term_written_forms AS wf
+                           WHERE wf.term_id = terms.id AND wf.search_key = ?) THEN 2
+              WHEN reading = ? THEN 3 WHEN romaji = ? THEN 4
+              WHEN surface LIKE ? || '%' THEN 5 WHEN reading LIKE ? || '%' THEN 6
+              ELSE 7
+            END, score DESC, sequence ASC, id ASC
+          LIMIT ?`,
+        args: [writtenFormKey, writtenFormKey, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ, writtenFormKey,
+               writtenFormKey, writtenFormKey, q, normalizedQ, q, q, limit * 2],
+      });
+    } catch (error) {
+      if (!isMissingWrittenFormsTable(error)) throw error;
+      // Existing databases remain searchable until the additive form table is applied.
+      res = await this.client.execute({
+        sql: `
+          SELECT ${TERM_COLS} FROM terms
+          WHERE surface = ? OR reading = ? OR romaji = ?
+             OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
+             OR meanings_vi LIKE '%' || ? || '%'
+             OR search_aliases LIKE '%' || ? || '%'
+          ORDER BY
+            CASE
+              WHEN surface = ? THEN 1 WHEN reading = ? THEN 2 WHEN romaji = ? THEN 3
+              WHEN surface LIKE ? || '%' THEN 4 WHEN reading LIKE ? || '%' THEN 5
+              ELSE 6
+            END, score DESC, sequence ASC, id ASC
+          LIMIT ?`,
+        args: [q, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ,
+               q, q, normalizedQ, q, q, limit * 2],
+      });
+    }
 
     const seen = new Set<string>();
     const results: DictionarySearchResult[] = [];
@@ -125,12 +166,11 @@ export class TursoDictionaryRepository implements DictionaryRepository {
       if (seen.has(term.id)) continue;
       seen.add(term.id);
 
-      const match = classifyTermMatch(term, q);
+      const match = classifyTermMatch(term, writtenFormKey);
       results.push({ term, score: term.score + match.bonus, matchType: match.matchType });
-      if (results.length >= limit) break;
     }
 
-    return { terms: results.sort((a, b) => b.score - a.score) };
+    return { terms: results.sort(compareTermSearchResults).slice(0, limit) };
   }
 
   async searchKanji(input: SearchKanjiInput): Promise<SearchKanjiResult> {
