@@ -19,7 +19,12 @@ interface SearchInputProps {
   variant?: 'default' | 'compact';
   onNavigate?: () => void;
   onClear?: () => void;
+  inputRef?: React.Ref<HTMLInputElement>;
+  describedBy?: string;
 }
+
+const noTerms: DictionarySearchResult[] = [];
+const noKanji: KanjiDictionarySearchResult[] = [];
 
 type CommandItem =
   | { kind: 'search'; id: string }
@@ -34,18 +39,26 @@ export function SearchInput({
   variant = 'default',
   onNavigate,
   onClear,
+  inputRef,
+  describedBy,
 }: SearchInputProps) {
   const router = useRouter();
   const { progress } = useDictionary();
   const listboxId = useId();
-  const statusId = useId();
   const [query, setQuery] = useState(initialValue);
-  const [termSuggestions, setTermSuggestions] = useState<DictionarySearchResult[]>([]);
-  const [kanjiSuggestions, setKanjiSuggestions] = useState<KanjiDictionarySearchResult[]>([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [isResolving, setIsResolving] = useState(false);
-  const [searchFailed, setSearchFailed] = useState(false);
+  const [settledSuggestions, setSettledSuggestions] = useState<{
+    query: string;
+    results: [DictionarySearchResult[], KanjiDictionarySearchResult[]] | null;
+  } | null>(null);
+  const suggestionQuery = isFocused && !isComposing ? query.trim() : '';
+  const suggestions = settledSuggestions?.query === suggestionQuery ? settledSuggestions : null;
+  const isResolving = Boolean(suggestionQuery) && !suggestions;
+  const searchFailed = suggestions?.results === null;
+  const termSuggestions = suggestions?.results?.[0] ?? noTerms;
+  const kanjiSuggestions = suggestions?.results?.[1] ?? noKanji;
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -53,61 +66,57 @@ export function SearchInput({
   }, [initialValue]);
 
   useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      setTermSuggestions([]);
-      setKanjiSuggestions([]);
-      setActiveIndex(-1);
-      setSearchFailed(false);
-      return;
-    }
+    setSettledSuggestions(null);
+    setActiveIndex(-1);
+    if (!suggestionQuery) return;
 
-    let cancelled = false;
-    const timer = setTimeout(async () => {
-      setIsResolving(true);
-      setSearchFailed(false);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      controller.abort();
+      setSettledSuggestions({ query: suggestionQuery, results: null });
+    }, 12_000);
+    const timer = window.setTimeout(async () => {
       try {
-        const [terms, kanji] = await Promise.all([
-          searchDictionary(trimmed, variant === 'compact' ? 4 : 7),
-          searchKanjiDictionary(trimmed, variant === 'compact' ? 3 : 5),
+        const results = await Promise.all([
+          searchDictionary(suggestionQuery, variant === 'compact' ? 4 : 7, controller.signal),
+          searchKanjiDictionary(suggestionQuery, variant === 'compact' ? 3 : 5, controller.signal),
         ]);
-        if (!cancelled) {
-          setTermSuggestions(terms || []);
-          setKanjiSuggestions(kanji || []);
-          setActiveIndex(terms.length + kanji.length ? 0 : -1);
-        }
-      } catch (err) {
-        console.error('Search error:', err);
-        if (!cancelled) {
-          setTermSuggestions([]);
-          setKanjiSuggestions([]);
-          setActiveIndex(-1);
-          setSearchFailed(true);
-        }
+        if (controller.signal.aborted) return;
+        setSettledSuggestions({ query: suggestionQuery, results });
+        setActiveIndex(results[0].length + results[1].length ? 0 : -1);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        controller.abort();
+        console.error('Search suggestions error:', error);
+        setSettledSuggestions({ query: suggestionQuery, results: null });
       } finally {
-        if (!cancelled) setIsResolving(false);
+        window.clearTimeout(timeout);
       }
     }, 90);
 
     return () => {
-      cancelled = true;
-      setIsResolving(false);
-      clearTimeout(timer);
+      controller.abort();
+      window.clearTimeout(timer);
+      window.clearTimeout(timeout);
     };
-  }, [query, variant]);
+  }, [suggestionQuery, variant]);
+
+  useEffect(() => () => {
+    if (blurTimer.current) clearTimeout(blurTimer.current);
+  }, []);
 
   const suggestionCount = termSuggestions.length + kanjiSuggestions.length;
   const commandItems = useMemo<CommandItem[]>(() => [
     ...(suggestionCount ? [{ kind: 'search' as const, id: `${listboxId}-search-all` }] : []),
     ...termSuggestions.map((result) => ({
       kind: 'term' as const,
-      id: `term-${result.term.id}`,
+      id: `${listboxId}-term-${result.term.id}`,
       href: wordHref(result.term),
       result,
     })),
     ...kanjiSuggestions.map((result) => ({
       kind: 'kanji' as const,
-      id: `kanji-${result.kanji.literal}`,
+      id: `${listboxId}-kanji-${result.kanji.literal}`,
       href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
       result,
     })),
@@ -115,24 +124,23 @@ export function SearchInput({
 
   const activeItem = activeIndex >= 0 ? commandItems[activeIndex] : commandItems[0];
   const hasQuery = query.trim().length >= 1;
-  const showPanel = isFocused && hasQuery && !isResolving;
-  const showSuggestions = showPanel && commandItems.length > 0;
-  const resultStatus = !hasQuery
+  const showPanel = Boolean(suggestions);
+  const showSuggestions = commandItems.length > 0;
+
+  const resultStatus = !suggestionQuery
     ? ''
     : isResolving
-      ? 'Đang tìm trong từ điển'
+      ? 'Đang tìm gợi ý…'
       : searchFailed
-        ? 'Chưa thể tải gợi ý tìm kiếm'
+        ? 'Chưa thể tải gợi ý'
         : suggestionCount
-          ? progress.source === 'offline'
-            ? `${suggestionCount} kết quả từ điển (dữ liệu offline trên thiết bị)`
-            : `${suggestionCount} kết quả từ điển`
-          : 'Không có kết quả phù hợp';
+          ? `${suggestionCount} gợi ý${progress.source === 'offline' ? ' (offline)' : ''}`
+          : 'Không có gợi ý phù hợp';
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
     const trimmed = query.trim();
-    if (!trimmed) return;
+    if (!trimmed || isComposing) return;
     onSearch(trimmed);
     setIsFocused(false);
     onNavigate?.();
@@ -140,10 +148,8 @@ export function SearchInput({
 
   const handleClear = () => {
     setQuery('');
-    setTermSuggestions([]);
-    setKanjiSuggestions([]);
+    setSettledSuggestions(null);
     setActiveIndex(-1);
-    setSearchFailed(false);
     setIsFocused(false);
     onSearch('');
     onClear?.();
@@ -192,8 +198,17 @@ export function SearchInput({
       {/* Main Input Element */}
       <div className="relative flex min-w-0 flex-1 items-center">
         <input
+          ref={inputRef}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsFocused(true);
+          }}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={(e) => {
+            setQuery(e.currentTarget.value);
+            setIsComposing(false);
+          }}
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
@@ -201,12 +216,13 @@ export function SearchInput({
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
-          aria-expanded={showPanel}
-          aria-controls={showPanel ? listboxId : undefined}
-          aria-describedby={statusId}
+          aria-expanded={showSuggestions}
+          aria-controls={showSuggestions ? listboxId : undefined}
+          aria-describedby={describedBy}
           aria-autocomplete="list"
           aria-activedescendant={showPanel && activeItem ? activeItem.id : undefined}
           onKeyDown={(e) => {
+            if (isComposing || e.nativeEvent.isComposing || e.keyCode === 229) return;
             if (e.key === 'Escape') {
               setIsFocused(false);
               return;
@@ -264,7 +280,7 @@ export function SearchInput({
         <MagnifyingGlass aria-hidden="true" size={18} className={compact ? '' : 'sm:hidden'} />
       </button>
 
-      <span id={statusId} role="status" aria-live="polite" className="sr-only">
+      <span role="status" className="sr-only">
         {resultStatus}
       </span>
 
@@ -274,17 +290,13 @@ export function SearchInput({
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2 text-xs text-[var(--color-text-secondary)]">
             <span className="inline-flex items-center gap-1.5 font-semibold">
               <Sparkle aria-hidden="true" size={13} weight="duotone" />
-              {searchFailed
-                ? 'Chưa thể tải gợi ý'
-                : suggestionCount
-                  ? progress.source === 'offline'
-                    ? `${suggestionCount} kết quả (offline)`
-                    : `${suggestionCount} kết quả từ điển`
-                  : 'Không có kết quả'}
+              {resultStatus}
             </span>
-            <span className="hidden items-center gap-1 sm:inline-flex">
-              <KeyReturn aria-hidden="true" size={13} /> để tra · mũi tên để chọn
-            </span>
+            {showSuggestions && (
+              <span className="hidden items-center gap-1 sm:inline-flex">
+                <KeyReturn aria-hidden="true" size={13} /> để tra · mũi tên để chọn
+              </span>
+            )}
           </div>
           {progress.source === 'offline' && (
             <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 text-[11px] text-[var(--color-text-muted)]">
@@ -325,8 +337,8 @@ export function SearchInput({
                   title="Từ vựng"
                   emptyLabel="Không có từ phù hợp"
                   items={termSuggestions.map((result) => ({
-                    key: `term-${result.term.id}`,
-                    item: commandItems.findIndex((entry) => entry.kind === 'term' && entry.id === `term-${result.term.id}`),
+                    key: `${listboxId}-term-${result.term.id}`,
+                    item: commandItems.findIndex((entry) => entry.id === `${listboxId}-term-${result.term.id}`),
                     href: wordHref(result.term),
                     content: <TermSuggestion result={result} query={query} />,
                   }))}
@@ -343,8 +355,8 @@ export function SearchInput({
                   title="Hán tự"
                   emptyLabel="Không có Hán tự phù hợp"
                   items={kanjiSuggestions.map((result) => ({
-                    key: `kanji-${result.kanji.literal}`,
-                    item: commandItems.findIndex((entry) => entry.kind === 'kanji' && entry.id === `kanji-${result.kanji.literal}`),
+                    key: `${listboxId}-kanji-${result.kanji.literal}`,
+                    item: commandItems.findIndex((entry) => entry.id === `${listboxId}-kanji-${result.kanji.literal}`),
                     href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
                     content: <KanjiSuggestion result={result} query={query} />,
                   }))}
@@ -361,8 +373,8 @@ export function SearchInput({
               {!compact && <SuggestionPreview item={activeItem} query={query} />}
             </div>
           ) : (
-            <div id={listboxId} role="listbox" aria-label="Gợi ý tìm kiếm" className="px-4 py-5 text-sm text-[var(--color-text-secondary)]">
-              {searchFailed ? 'Chưa thể tải gợi ý. Nhấn Tìm kiếm để thử tra cứu đầy đủ.' : 'Không có kết quả phù hợp.'}
+            <div className="px-4 py-5 text-sm text-[var(--color-text-secondary)]">
+              {searchFailed ? 'Nhấn Tìm kiếm để thử tra cứu đầy đủ.' : 'Nhấn Tìm kiếm để tra cứu đầy đủ.'}
             </div>
           )}
         </div>

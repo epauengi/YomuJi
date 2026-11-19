@@ -54,6 +54,7 @@ const home = load('src/components/HomePage.tsx', {
   '@/components/dictionary/ConjugationAnalysis': {},
   '@/components/ui/TiltCard': {},
   '@/components/ui/BookmarkButton': {},
+  '@/components/ui/Button': {},
   '@/components/AudioButton': {},
   '@/components/dictionary/InteractiveJapaneseReader': {},
   '@/lib/mockDictionary': {},

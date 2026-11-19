@@ -65,7 +65,7 @@ export function Navbar({ children }: { children: ReactNode }) {
       <header className="shell-header no-print">
         <button ref={menuButton} type="button" className="shell-icon-button shell-menu" aria-label="Mở điều hướng" aria-haspopup="dialog" aria-controls="navigation-drawer" onClick={() => drawer.current?.showModal()}><List size={23} aria-hidden="true" /></button>
         <div className="shell-mobile-brand"><Brand /></div>
-        {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ vựng, Kanji…" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
+        {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ hoặc Kanji" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
         <Link href="/settings" className="shell-icon-button shell-header-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={pathname === '/settings' ? 'page' : undefined}><Gear size={22} aria-hidden="true" /></Link>
       </header>
       {children}
@@ -82,5 +82,5 @@ export function Navbar({ children }: { children: ReactNode }) {
 function NavbarSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  return <SearchInput variant="compact" initialValue={searchParams?.get('q') || ''} placeholder="Tra từ vựng, Kanji, Hán Việt…" onSearch={(query) => router.push(searchHref(query))} />;
+  return <SearchInput variant="compact" initialValue={searchParams?.get('q') || ''} placeholder="Tra từ hoặc Kanji" onSearch={(query) => router.push(searchHref(query))} />;
 }

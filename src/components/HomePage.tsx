@@ -18,7 +18,8 @@ import { TiltCard } from '@/components/ui/TiltCard';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
 import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
-import { useDictionary, getPopularTerms, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import { useDictionary, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import { Button } from '@/components/ui/Button';
 import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
 import { wordHref } from '@/lib/wordRoutes';
@@ -134,11 +135,19 @@ function readStoredRecentSearches(): string[] {
 export function HomePage({ initialQuery }: { initialQuery: string }) {
   const router = useRouter();
   const { progress } = useDictionary();
-  const query = initialQuery;
-  const hasQuery = !!query.trim();
-  const [results, setResults] = useState<DictionarySearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
+  const query = initialQuery.trim();
+  const hasQuery = Boolean(query);
+  const [searchAttempt, setSearchAttempt] = useState(0);
+  const [settledSearch, setSettledSearch] = useState<{
+    query: string;
+    attempt: number;
+    results: DictionarySearchResult[] | null;
+  } | null>(null);
+  const search = settledSearch?.query === query && settledSearch.attempt === searchAttempt ? settledSearch : null;
+  const loading = !search;
+  const results = search?.results;
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
@@ -151,7 +160,11 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   const articleRequestRef = useRef<AbortController | null>(null);
 
   const commitSearch = (value: string) => {
-    router.push(searchHref(value));
+    if (value === query && value) {
+      setSearchAttempt((attempt) => attempt + 1);
+    } else {
+      router.push(searchHref(value));
+    }
   };
 
   const loadNewRandomArticle = useCallback(async () => {
@@ -274,41 +287,37 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   };
 
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-    const currentQuery = query.trim();
-
-    async function run() {
-      setLoading(true);
-      setSearchError(null);
-      try {
-        const next = currentQuery
-          ? await searchDictionary(currentQuery, 12, controller.signal)
-          : await getPopularTerms(12);
-
-        if (!cancelled) {
-          setResults(next);
-          setLoading(false);
-          if (currentQuery) {
-            addRecentSearch(currentQuery);
-          }
-        }
-      } catch (err) {
-        if (!cancelled && !controller.signal.aborted) {
-          console.error('Home search error:', err);
-          setSearchError(err instanceof Error ? err.message : 'Chưa thể tra cứu. Vui lòng thử lại.');
-          setResults([]);
-          setLoading(false);
-        }
-      }
+    if (!query) {
+      setSettledSearch(null);
+      return;
     }
 
-    run();
+    let cancelled = false;
+    const controller = new AbortController();
+    setSettledSearch(null);
+    const timeout = window.setTimeout(() => {
+      controller.abort();
+      setSettledSearch({ query, attempt: searchAttempt, results: null });
+    }, 15_000);
+    searchDictionary(query, 12, controller.signal)
+      .then((next) => {
+        if (cancelled || controller.signal.aborted) return;
+        setSettledSearch({ query, attempt: searchAttempt, results: next });
+        addRecentSearch(query);
+      })
+      .catch((error: unknown) => {
+        if (cancelled || controller.signal.aborted) return;
+        console.error('Home search error:', error);
+        setSettledSearch({ query, attempt: searchAttempt, results: null });
+      })
+      .finally(() => window.clearTimeout(timeout));
+
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [query]);
+  }, [query, searchAttempt]);
 
   return (
     <div className="pb-16">
@@ -338,16 +347,23 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
             Tra nhanh, hiểu sâu <span className="text-teal-200">tiếng Nhật</span>
           </h1>
 
-          {!hasQuery && <p className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
-            Tra từ vựng, Kanji, romaji hoặc tiếng Việt trong một ô tìm kiếm.
+          {!hasQuery && <p id="dictionary-search-intro" className="mt-3 max-w-xl text-sm leading-6 text-teal-50/85 sm:text-base">
+            Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt.
           </p>}
 
           <div className={`${hasQuery ? '' : 'mt-6 '}w-full max-w-[800px] text-left`}>
             <SearchInput
               onSearch={commitSearch}
               initialValue={query}
-              placeholder="Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt..."
+              inputRef={searchInputRef}
+              describedBy={hasQuery ? 'dictionary-search-hint' : 'dictionary-search-intro'}
+              placeholder="Tra từ hoặc Kanji"
             />
+            {hasQuery && (
+              <p id="dictionary-search-hint" className="mt-2 px-1 text-sm text-[var(--color-text-secondary)]">
+                Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt.
+              </p>
+            )}
 
             {!hasQuery && <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
               <span className="text-teal-100">Thử tìm:</span>
@@ -368,21 +384,19 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
 
       <div className={`mx-auto max-w-[1120px] px-4 ${hasQuery ? 'py-6' : 'py-8'}`}>
         {hasQuery ? (
-          <section aria-label="Kết quả tìm kiếm">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
-                  Kết quả tra cứu cho &ldquo;{query}&rdquo;
-                </h2>
-                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                  Tìm thấy {results.length} từ phù hợp trong dữ liệu
-                </p>
-              </div>
+          <section aria-labelledby="dictionary-results-heading">
+            <div className="mb-6">
+              <h2 id="dictionary-results-heading" ref={resultsHeadingRef} tabIndex={-1} className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
+                Kết quả tra cứu cho &ldquo;{query}&rdquo;
+              </h2>
+              <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
+              </p>
             </div>
 
-            {!loading && <ConjugationAnalysis key={query} query={query} results={results} />}
-            <div aria-live="polite">
-              {progress.source === 'offline' && (
+            {results && <ConjugationAnalysis key={query} query={query} results={results} />}
+            <div aria-busy={loading}>
+              {results && progress.source === 'offline' && (
                 <div className="mb-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
                   Máy chủ chưa sẵn sàng — đang hiển thị kết quả từ dữ liệu offline trên thiết bị.
                 </div>
@@ -393,14 +407,20 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                     <div key={index} className="skeleton-quiet h-36 rounded-[var(--radius-lg)] bg-[var(--color-surface-subtle)]" />
                   ))}
                 </div>
-              ) : searchError ? (
-                <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                  <p role="alert">{searchError}</p>
-                  {progress.status !== 'downloading' && progress.status !== 'indexing' && (
-                    <Link href="/settings" className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--color-primary-700)]">
-                      Tải dữ liệu offline trong Cài đặt
-                    </Link>
-                  )}
+              ) : !results ? (
+                <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-[var(--color-text-secondary)] sm:p-8">
+                  <p className="text-sm">Kiểm tra kết nối rồi thử lại. Truy vấn của bạn vẫn được giữ.</p>
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                    <Button type="button" variant="secondary" onClick={() => {
+                      resultsHeadingRef.current?.focus({ preventScroll: true });
+                      setSearchAttempt((attempt) => attempt + 1);
+                    }}>Thử lại</Button>
+                    {progress.status !== 'downloading' && progress.status !== 'indexing' && (
+                      <Link href="/settings" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] hover:underline">
+                        Tải dữ liệu offline
+                      </Link>
+                    )}
+                  </div>
                 </div>
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -416,12 +436,12 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
                 </div>
               ) : (
                 <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
-                  <p className="font-semibold text-[var(--color-text-primary)]">
-                    Không tìm thấy kết quả nào phù hợp với từ khóa &ldquo;{query}&rdquo;.
+                  <p className="text-sm">
+                    Kiểm tra chính tả hoặc thử lại bằng kana, romaji hay nghĩa tiếng Việt.
                   </p>
-                  <p className="mt-1.5 text-xs text-[var(--color-text-secondary)]">
-                    Kiểm tra lại chính tả hoặc thử tìm bằng Kanji, Hiragana, Katakana, Romaji hoặc nghĩa tiếng Việt.
-                  </p>
+                  <Button type="button" variant="secondary" className="mt-4" onClick={() => searchInputRef.current?.focus()}>
+                    Sửa truy vấn
+                  </Button>
                 </div>
               )}
             </div>
