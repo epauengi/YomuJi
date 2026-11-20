@@ -66,16 +66,22 @@ test('alternate forms normalize, rank, deduplicate, and remain SQL-limited', asy
   addTerm(db, 'variant', 'かみ', '', 0);
   addTerm(db, 'loose', '神社', '', 100);
   db.run('INSERT INTO term_written_forms (term_id, written_form, search_key) VALUES (?, ?, ?)', ['variant', '神', '神']);
+  db.run('INSERT INTO term_written_forms (term_id, written_form, search_key) VALUES (?, ?, ?)', ['variant', 'カミ', 'カミ']);
 
   const fixture = fixtureClient(db);
   const repository = new TursoDictionaryRepository(fixture as unknown as Client);
   const result = await repository.searchTerms({ query: '神', limit: 2 });
   assert.deepEqual(result.terms.map(({ term }) => term.id), ['canonical', 'variant']);
   assert.equal(result.terms[1].matchType, 'exact-written-form');
-  assert.deepEqual(result.terms[1].term.writtenForms, ['神']);
+  assert.deepEqual(new Set(result.terms[1].term.writtenForms), new Set(['神', 'カミ']));
+
   assert.equal(new Set(result.terms.map(({ term }) => term.id)).size, result.terms.length);
   assert.match(fixture.queries.at(-1)!.sql, /ORDER BY[\s\S]*score DESC, sequence ASC, id ASC\s+LIMIT\s+\?/i);
   assert.equal(fixture.queries.at(-1)!.args.at(-1), 4);
+
+  const bySurface = await repository.searchTerms({ query: 'かみ', limit: 1 });
+  assert.deepEqual(new Set(bySurface.terms[0].term.writtenForms), new Set(['神', 'カミ']));
+  assert.equal(bySurface.terms[0].term.surface, 'かみ');
 
   const normalizedForm = await repository.searchTerms({ query: '神', limit: 2 });
   assert.deepEqual(normalizedForm.terms.map(({ term }) => term.id), ['canonical', 'variant']);

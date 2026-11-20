@@ -424,7 +424,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {results.map(({ term, matchType }) => (
-                    <TermCard key={term.id} term={term} matchType={matchType} />
+                    <TermCard key={term.id} term={term} matchType={matchType} query={query} />
                   ))}
                 </div>
               ) : (

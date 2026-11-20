@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { lookupWordRoute } from '@/lib/dictionaryService';
 import { KeyReturn, MagnifyingGlass, PencilSimple, Sparkle, X } from '@phosphor-icons/react';
 import { HandwritingSearch } from './HandwritingSearch';
+import { TermWrittenForms } from './dictionary/TermWrittenForms';
 import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
 import { exactWordHref, wordHref, wordSlug } from '@/lib/wordRoutes';
 import { recordRecentSearch } from '@/lib/recentSearches';
@@ -513,7 +514,7 @@ function TermSuggestion({ result, query }: { result: DictionarySearchResult; que
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span lang="ja" className="jp-text text-lg font-semibold leading-6 text-[var(--color-text-primary)]">
-            <Highlight text={term.surface} query={query} />
+            <TermWrittenForms term={term} query={query} />
           </span>
           <span lang="ja" className="jp-text text-sm leading-5 text-[var(--color-text-muted)]">
             <Highlight text={term.reading} query={query} />
@@ -610,7 +611,9 @@ function SuggestionPreview({ item, query }: { item?: CommandItem; query: string 
   const term = item.result.term;
   return (
     <aside className="hidden border-l border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 lg:block">
-      <div lang="ja" className="jp-text text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">{term.surface}</div>
+      <div lang="ja" className="jp-text text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">
+        <TermWrittenForms term={term} query={query} />
+      </div>
       <div lang="ja" className="jp-text mt-2 text-sm text-[var(--color-text-muted)]">{term.reading}</div>
       <p className="mt-4 text-sm leading-6 text-[var(--color-text-secondary)]">
         <Highlight text={term.meaningsVi.slice(0, 3).join('; ') || 'Chưa có nghĩa hiển thị'} query={query} />

@@ -19,9 +19,7 @@ function parseJson<T>(value: unknown, fallback: T): T {
 }
 
 function rowToTerm(row: any): TermRecord {
-  const matchedWrittenForm = typeof row.matched_written_form === 'string'
-    ? row.matched_written_form
-    : undefined;
+  const writtenForms = parseJson<string[]>(row.written_forms, []);
   return normalizeTermRecord({
     id: String(row.id),
     sequence: Number(row.sequence || 0),
@@ -39,7 +37,7 @@ function rowToTerm(row: any): TermRecord {
     examples: [],
     related: [],
     searchAliases: parseJson<string[]>(row.search_aliases, []),
-    ...(matchedWrittenForm ? { writtenForms: [matchedWrittenForm] } : {}),
+    ...(writtenForms.length ? { writtenForms } : {}),
     source: { jmdict: true },
   });
 }
@@ -115,8 +113,8 @@ export class TursoDictionaryRepository implements DictionaryRepository {
       res = await this.client.execute({
         sql: `
           SELECT ${TERM_COLS},
-            (SELECT written_form FROM term_written_forms AS wf
-             WHERE wf.term_id = terms.id AND wf.search_key = ? LIMIT 1) AS matched_written_form
+            (SELECT json_group_array(wf.written_form) FROM term_written_forms AS wf
+             WHERE wf.term_id = terms.id) AS written_forms
           FROM terms
           WHERE surface = ? OR reading = ? OR romaji = ?
              OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
@@ -133,7 +131,7 @@ export class TursoDictionaryRepository implements DictionaryRepository {
               ELSE 7
             END, score DESC, sequence ASC, id ASC
           LIMIT ?`,
-        args: [writtenFormKey, writtenFormKey, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ, writtenFormKey,
+        args: [writtenFormKey, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ, writtenFormKey,
                writtenFormKey, writtenFormKey, q, normalizedQ, q, q, limit * 2],
       });
     } catch (error) {

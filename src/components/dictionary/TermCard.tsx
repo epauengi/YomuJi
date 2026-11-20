@@ -13,13 +13,16 @@ import {
   formatPartOfSpeech,
 } from '@/lib/dictionary/formatters';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
+import { TermWrittenForms } from './TermWrittenForms';
 
 export function TermCard({
   term,
   matchType,
+  query,
 }: {
   term: TermRecord;
   matchType?: DictionarySearchResult['matchType'];
+  query?: string;
 }) {
   return (
     <Card
@@ -33,7 +36,7 @@ export function TermCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span lang="ja" className="jp-text text-xl font-semibold leading-7 text-[var(--color-text-primary)]">
-              {term.surface}
+              <TermWrittenForms term={term} query={query} />
             </span>
             {term.reading && term.reading !== term.surface && (
               <span lang="ja" className="jp-text text-sm leading-5 text-[var(--color-text-secondary)]">{term.reading}</span>
