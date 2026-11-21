@@ -39,6 +39,7 @@ const STRING_LIMITS = {
 };
 const CARD_KEYS = ['id', 'word', 'reading', 'meaning', 'dueAt', 'reviewedAt', 'known'];
 const READER_DECK = { id: 'reader-words', name: 'Từ trong truyện', description: 'Từ lưu khi đọc truyện, kèm câu gốc.' };
+const DICTIONARY_DECK = { id: 'dictionary-words', name: 'Từ điển của tôi', description: 'Từ vựng thêm từ từ điển và mục đã lưu.' };
 
 function invalid(message = 'Dữ liệu flashcard không hợp lệ') : never {
   throw new Error(message);
@@ -127,21 +128,23 @@ function validateData(value: unknown): FlashcardData {
 export function initialFlashcards(): FlashcardData {
   return {
     version: 1,
-    decks: demoDecks.map((deck) => ({
-      id: deck.id,
-      name: deck.name,
-      description: deck.description,
-      sample: true,
-      cards: demoWords.filter((word) => word.deck === deck.id).map((word) => ({
-        id: word.id,
-        word: word.word,
-        reading: word.reading,
-        meaning: word.meaning,
-        dueAt: 0,
-        reviewedAt: null,
-        known: null,
-      })),
-    })),
+    decks: demoDecks
+      .map((deck) => ({
+        id: deck.id,
+        name: deck.name,
+        description: deck.description,
+        sample: true,
+        cards: demoWords.filter((word) => word.deck === deck.id).map((word) => ({
+          id: word.id,
+          word: word.word,
+          reading: word.reading,
+          meaning: word.meaning,
+          dueAt: 0,
+          reviewedAt: null,
+          known: null,
+        })),
+      }))
+      .filter((deck) => deck.cards.length > 0),
   };
 }
 
@@ -226,6 +229,50 @@ export async function saveReaderCard(input: ReaderCardInput): Promise<boolean> {
     : [...data.decks, { ...READER_DECK, sample: false, cards: [card] }];
   await saveFlashcards({ ...data, decks }, raw);
   return true;
+}
+
+export type DictionaryCardInput = { word: string; reading: string; meaning: string };
+
+const normalizeCardField = (value: string) => value.trim().replace(/\s+/gu, ' ').normalize('NFKC').toLocaleLowerCase('vi');
+
+/** Adds a card to the "Từ điển của tôi" deck, creating it if needed. Deduplicates by normalized word+reading or word+meaning. */
+export async function saveDictionaryCard(input: DictionaryCardInput): Promise<{ added: boolean; deckId: string; deckName: string }> {
+  const word = input.word.trim().slice(0, STRING_LIMITS.word);
+  const reading = input.reading.trim().slice(0, STRING_LIMITS.reading);
+  const meaning = input.meaning.trim().slice(0, STRING_LIMITS.meaning);
+  if (!word || !meaning) invalid('Từ vựng hoặc nghĩa không được để trống.');
+
+  const { data, raw } = loadFlashcards();
+  const deck = data.decks.find((item) => item.id === DICTIONARY_DECK.id);
+  const deckName = deck?.name ?? DICTIONARY_DECK.name;
+
+  const normWord = normalizeCardField(word);
+  const normReading = normalizeCardField(reading);
+  const normMeaning = normalizeCardField(meaning);
+  const exists = deck?.cards.some((card) =>
+    normalizeCardField(card.word) === normWord
+    && ((Boolean(normReading) && normalizeCardField(card.reading) === normReading)
+      || normalizeCardField(card.meaning) === normMeaning)
+  );
+  if (exists) return { added: false, deckId: DICTIONARY_DECK.id, deckName };
+
+  if ((!deck && data.decks.length >= MAX_DECKS) || data.decks.reduce((count, item) => count + item.cards.length, 0) >= MAX_CARDS) {
+    invalid('Đã đạt giới hạn 100 bộ thẻ hoặc 10.000 thẻ trên thiết bị. Hãy xóa bớt dữ liệu trước.');
+  }
+  const card: Flashcard = {
+    id: crypto.randomUUID(),
+    word,
+    reading,
+    meaning,
+    dueAt: 0,
+    reviewedAt: null,
+    known: null,
+  };
+  const decks = deck
+    ? data.decks.map((item) => item === deck ? { ...item, cards: [...item.cards, card] } : item)
+    : [...data.decks, { ...DICTIONARY_DECK, sample: false, cards: [card] }];
+  await saveFlashcards({ ...data, decks }, raw);
+  return { added: true, deckId: DICTIONARY_DECK.id, deckName };
 }
 
 const tsvField = (value: string) => {

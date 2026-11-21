@@ -57,7 +57,7 @@ export function TermCard({
           {term.romaji && (
             <p className="mt-1 text-xs font-medium text-[var(--color-text-muted)]">{term.romaji}</p>
           )}
-          <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--color-text-secondary)]">
+          <p className="mt-3 line-clamp-2 text-pretty text-sm leading-6 text-[var(--color-text-secondary)]">
             {term.meaningsVi.slice(0, 3).join('; ') || 'Chưa có nghĩa hiển thị'}
           </p>
           {!!term.partOfSpeech.length && (

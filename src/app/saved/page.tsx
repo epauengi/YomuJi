@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BookmarkSimple, MagnifyingGlass } from '@phosphor-icons/react';
+import { AddToFlashcardButton } from '@/components/ui/AddToFlashcardButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { reviewWords } from '@/lib/reviewSession';
 import {
@@ -16,7 +17,7 @@ const filters = [
   { label: 'Tất cả', value: 'all' },
   { label: 'Từ vựng', value: 'term' },
   { label: 'Kanji', value: 'kanji' },
-  { label: 'Mục cũ', value: 'legacy' },
+  { label: 'Lưu trước đây', value: 'legacy' },
 ] as const;
 
 function previewMeaning(value: string) {
@@ -36,14 +37,20 @@ export default function SavedPage() {
 
   useEffect(() => {
     const update = () => {
-      setEntries(readBookmarks());
+      const nextEntries = readBookmarks();
+      setEntries(nextEntries);
       setStorageAvailable(readBookmarkStorageAvailable());
       setIsHydrated(true);
+      setFilter((current) =>
+        current === 'legacy' && !nextEntries.some((entry) => entry.kind === 'legacy') ? 'all' : current
+      );
     };
     update();
     return subscribeToBookmarks(update);
   }, []);
 
+  const hasLegacy = entries.some((entry) => entry.kind === 'legacy');
+  const visibleFilters = hasLegacy ? filters : filters.filter((item) => item.value !== 'legacy');
   const reviewCount = Math.min(reviewWords(entries).length, 10);
   const normalizedQuery = normalizeSearchText(query.trim());
   const visibleEntries = entries.filter((entry) => {
@@ -64,7 +71,7 @@ export default function SavedPage() {
           </div>
           <p className="mt-2 text-[var(--color-text-secondary)]">Lưu trên trình duyệt này, chưa đồng bộ giữa thiết bị.</p>
           <p className="mt-2 max-w-prose text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            “Ôn từ đã lưu” dùng từ vựng bạn đánh dấu trong từ điển. Flashcards dùng các bộ thẻ riêng.
+            “Ôn từ đã lưu” dùng từ vựng bạn đánh dấu trong từ điển; bạn cũng có thể gửi từng từ sang bộ thẻ Flashcards riêng để ôn theo lịch.
           </p>
           {!storageAvailable && (
             <p role="status" className="mt-3 text-sm text-[var(--color-warning-700)]">
@@ -103,7 +110,7 @@ export default function SavedPage() {
             </div>
 
             <div role="group" aria-label="Lọc theo loại mục" className="mb-5 flex flex-wrap gap-2">
-              {filters.map((item) => (
+              {visibleFilters.map((item) => (
                 <button
                   key={item.value}
                   type="button"
@@ -151,7 +158,17 @@ export default function SavedPage() {
                         </span>
                       )}
                     </Link>
-                    <BookmarkButton item={entry} title="Lưu mục này" size="sm" />
+                    <div className="flex shrink-0 items-center gap-2">
+                      {entry.kind === 'term' && (
+                        <AddToFlashcardButton
+                          word={entry.surface}
+                          reading={entry.reading === entry.surface ? '' : entry.reading}
+                          meaning={entry.meanings.map(previewMeaning).filter(Boolean).join('; ') || 'Chưa có nghĩa tiếng Việt'}
+                          size="sm"
+                        />
+                      )}
+                      <BookmarkButton item={entry} title="Lưu mục này" size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>

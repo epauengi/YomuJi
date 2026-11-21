@@ -4,12 +4,12 @@ import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, PencilSimpleLine, SidebarSimple, X } from '@phosphor-icons/react';
+import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, PencilSimpleLine, SidebarSimple, SquaresFour, TextAlignLeft, X } from '@phosphor-icons/react';
 import { SearchInput } from '@/components/SearchInput';
 import { isRouteActive, navItems, searchHref } from '@/lib/navigation';
 import './navigation.css';
 
-const icons = { '/': BookOpenText, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/handwriting': PencilSimpleLine, '/saved': BookmarkSimple };
+const icons = { '/': BookOpenText, '/analyze': TextAlignLeft, '/kanji-components': SquaresFour, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/handwriting': PencilSimpleLine, '/saved': BookmarkSimple };
 const groups = ['Tra cứu & đọc', 'Luyện tập', 'Cá nhân'];
 
 function Brand() {
@@ -65,7 +65,7 @@ export function Navbar({ children }: { children: ReactNode }) {
       <header className={`shell-header no-print${pathname.startsWith('/word/') ? ' shell-header-word' : ''}`}>
         <button ref={menuButton} type="button" className="shell-icon-button shell-menu" aria-label="Mở điều hướng" aria-haspopup="dialog" aria-controls="navigation-drawer" onClick={() => drawer.current?.showModal()}><List size={23} aria-hidden="true" /></button>
         <div className="shell-mobile-brand"><Brand /></div>
-        {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ hoặc Kanji" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
+        {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ, Kanji…" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
         <Link href="/settings" className="shell-icon-button shell-header-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={pathname === '/settings' ? 'page' : undefined}><Gear size={22} aria-hidden="true" /></Link>
       </header>
       {children}
@@ -82,5 +82,5 @@ export function Navbar({ children }: { children: ReactNode }) {
 function NavbarSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  return <SearchInput variant="compact" initialValue={searchParams?.get('q') || ''} placeholder="Tra từ hoặc Kanji" onSearch={(query) => router.push(searchHref(query))} />;
+  return <SearchInput variant="compact" initialValue={searchParams?.get('q') || ''} placeholder="Tra từ, Kanji…" onSearch={(query) => router.push(searchHref(query))} />;
 }

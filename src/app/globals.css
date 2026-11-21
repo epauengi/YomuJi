@@ -407,6 +407,7 @@ html {
   --color-action-primary: #0f766e;
   --color-action-primary-hover: #115e59;
   --color-primary-700: #0f766e;
+  color-scheme: light;
   background: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
@@ -425,11 +426,12 @@ html {
   --color-action-primary: #0f766e;
   --color-action-primary-hover: #115e59;
   --color-primary-700: #99f6e4;
+  color-scheme: dark;
 }
 
-.books-page h1,
-.books-page h2 {
-  font-family: var(--font-book-heading);
+.books-page input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 1;
 }
 
 .books-page > section:first-child {

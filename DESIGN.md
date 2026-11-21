@@ -14,6 +14,9 @@ typography:
   body:
     fontFamily: '"Noto Sans", "Segoe UI", Arial, sans-serif'
     fontWeight: 400
+  serif:
+    fontFamily: '"Lora", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP", Georgia, serif'
+    fontWeight: 400
   japanese:
     fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif'
   worksheet-japanese:
@@ -21,6 +24,9 @@ typography:
     fontWeight: 400
   worksheet-latin:
     fontFamily: '"Worksheet Latin"'
+    fontWeight: 400
+  worksheet-readings:
+    fontFamily: '"Worksheet Readings"'
     fontWeight: 400
 rounded:
   sm: "8px"
@@ -50,7 +56,7 @@ Dùng biến semantic `--color-bg`, `--color-surface`, `--color-text-primary`, `
 
 ## Typography
 
-Tiếng Việt dùng `--font-sans`; tiếng Nhật dùng `lang="ja"` và `.jp-text` / `--font-jp`. `--font-serif` và `--font-book-heading` dành cho nội dung đọc hiện hữu, không tự chuyển tiêu đề JLPT sang serif.
+Tiếng Việt (gồm tiêu đề danh mục `/books`) dùng `--font-sans`; tiếng Nhật dùng `lang="ja"` và `.jp-text` / `--font-jp`. `--font-serif` (`Lora`) và `--font-book-heading` chỉ dành cho trang chi tiết sách và nội dung đọc hiện hữu, không tự chuyển tiêu đề danh mục `/books` hay JLPT sang serif.
 
 JLPT: h1 `clamp(1.75rem, 3vw, 2.4rem)`, weight 720, line-height 1.2, tracking -0.03em. Đoạn đọc 16px desktop / 15px mobile, weight 400, line-height 2.15 / 2.1. Câu hỏi 21px / 19px; lựa chọn 17px / 16px. Đồng hồ, điểm, số câu dùng tabular numerals.
 
@@ -72,9 +78,9 @@ Global: radius 8/12/16/20px và pill 9999px. JLPT: panel 16px desktop / 14px mob
 
 ## Global navigation
 
-- Desktop từ 1200px: sidebar 224px, thu gọn còn 72px; nhóm “Tra cứu & đọc”, “Luyện tập”, “Cá nhân”; Thiết lập ở cuối. Giữ nhận diện và tokens hiện hữu.
+- Desktop từ 1200px: sidebar 224px, thu gọn còn 72px; nhóm “Tra cứu & đọc” (Từ điển `/`, Đếm `/counters`, Thư viện `/books`, cùng `/analyze` và `/kanji-components`), “Luyện tập”, “Cá nhân”; Thiết lập ở cuối. Giữ nhận diện và tokens hiện hữu.
 - Tablet 768–1199px: nút menu mở native modal dialog; khóa cuộn nền, Escape đóng, trả focus về nút mở.
-- Mobile dưới 768px: bottom bar bốn mục Từ điển, Thư viện, Luyện tập, Đã lưu. `/practice` chọn Flashcards hoặc JLPT; Thiết lập trên header.
+- Mobile dưới 768px: bottom bar bốn mục Từ điển, Thư viện, Luyện tập, Đã lưu. `/practice` mở `/analyze`, `/kanji-components`, `/counters`, Flashcards, JLPT hoặc Giấy luyện viết; Thiết lập trên header.
 - Header cao 64px, tìm kiếm trên các trang ngoài trang chủ. Không lặp navbar ngang trên desktop.
 - Đọc sách, phiên Flashcards và phiên JLPT tự thu gọn sidebar; người dùng vẫn mở rộng thủ công được. Đổi trang khôi phục trạng thái tự động.
 - Giữ nguyên `/flashcards`, `/jlpt`, `/saved`, `/review` và URL chi tiết; ôn bookmark vẫn thuộc Đã lưu, không tự chuyển dữ liệu sang Flashcards.

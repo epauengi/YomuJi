@@ -79,6 +79,7 @@ export function JlptPractice() {
   const questionRef = useRef<HTMLElement>(null);
   const answerSheetHeadingRef = useRef<HTMLHeadingElement>(null);
   const focusQuestion = useRef(false);
+  const prevViewRef = useRef<readonly [Paper | undefined, number | undefined, boolean] | null>(null);
   const sessionRef = useRef(session);
   const gradeRef = useRef(grade);
   gradeRef.current = grade;
@@ -137,6 +138,13 @@ export function JlptPractice() {
   }, [session?.deadline, !!grade]);
 
   useEffect(() => {
+    const prev = prevViewRef.current;
+    const next = [session?.paper, session?.index, !!grade] as const;
+    prevViewRef.current = next;
+    if (!prev || (prev[0] === next[0] && prev[1] === next[1] && prev[2] === next[2])) {
+      focusQuestion.current = false;
+      return;
+    }
     const target = focusQuestion.current ? questionRef.current : headingRef.current;
     target?.focus({ preventScroll: true });
     (focusQuestion.current ? target : document.getElementById('jlpt-workspace'))?.scrollIntoView({ block: 'start', behavior: 'instant' });

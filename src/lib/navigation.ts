@@ -1,10 +1,12 @@
 export const navItems = [
   { name: 'Từ điển', href: '/', group: 'Tra cứu & đọc' },
+  { name: 'Dán đoạn để tra', href: '/analyze', group: 'Tra cứu & đọc' },
+  { name: 'Tra Kanji theo bộ', href: '/kanji-components', group: 'Tra cứu & đọc' },
   { name: 'Đếm tiếng Nhật', href: '/counters', group: 'Tra cứu & đọc' },
   { name: 'Thư viện', href: '/books', group: 'Tra cứu & đọc' },
   { name: 'Flashcards', href: '/flashcards', group: 'Luyện tập' },
   { name: 'Luyện JLPT', href: '/jlpt', group: 'Luyện tập' },
-{ name: 'Giấy luyện viết', href: '/handwriting', group: 'Luyện tập' },
+  { name: 'Giấy luyện viết', href: '/handwriting', group: 'Luyện tập' },
   { name: 'Đã lưu', href: '/saved', group: 'Cá nhân' },
 ] as const;
 
@@ -25,7 +27,7 @@ export function isRouteActive(pathname: string, href: string) {
     return pathname === '/' || pathname.startsWith('/word/') || pathname.startsWith('/kanji/');
   }
   if (href === '/practice') {
-    return ['/practice', '/flashcards', '/jlpt', '/handwriting'].some((route) => pathname === route || pathname.startsWith(`${route}/`));
+    return ['/practice', '/analyze', '/kanji-components', '/counters', '/flashcards', '/jlpt', '/handwriting'].some((route) => pathname === route || pathname.startsWith(`${route}/`));
   }
   if (href === '/saved' && pathname === '/review') return true;
   return pathname === href || pathname.startsWith(`${href}/`);

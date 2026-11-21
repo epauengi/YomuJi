@@ -244,8 +244,8 @@ export function SearchInput({
       } ${className}`}
     >
       {/* Left Search Icon */}
-      <div className="pl-4 flex shrink-0 items-center justify-center text-[var(--color-primary-700)]">
-        <MagnifyingGlass aria-hidden="true" size={22} weight="bold" />
+      <div className={`${compact ? 'pl-2.5 sm:pl-4' : 'pl-4'} flex shrink-0 items-center justify-center text-[var(--color-primary-700)]`}>
+        <MagnifyingGlass aria-hidden="true" size={compact ? 18 : 22} weight="bold" />
       </div>
 
       {/* Main Input Element */}
@@ -269,7 +269,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className={`${compact ? 'h-11' : 'h-13'} text-base w-full min-w-0 border-0 bg-transparent px-3 text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
+          className={`${compact ? 'h-11 px-2 sm:px-3' : 'h-13 px-3'} text-base w-full min-w-0 border-0 bg-transparent text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
@@ -305,23 +305,25 @@ export function SearchInput({
         />
 
         {/* Status indicator or Clear button inside input */}
-        <div className="mr-3 flex shrink-0 items-center gap-1.5">
-          {isResolving && (
-            <span aria-hidden="true" className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary-600)]">
-              <span className="size-1.5 rounded-full bg-[var(--color-primary-600)]" />
-            </span>
-          )}
-          {query && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] focus-visible:outline-offset-0"
-              aria-label="Xóa nội dung tìm kiếm"
-            >
-              <X aria-hidden="true" size={15} />
-            </button>
-          )}
-        </div>
+        {(isResolving || query) && (
+          <div className={`${compact ? 'mr-1 sm:mr-2' : 'mr-3'} flex shrink-0 items-center gap-1.5`}>
+            {isResolving && (
+              <span aria-hidden="true" className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary-600)]">
+                <span className="size-1.5 rounded-full bg-[var(--color-primary-600)]" />
+              </span>
+            )}
+            {query && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)] focus-visible:outline-offset-0"
+                aria-label="Xóa nội dung tìm kiếm"
+              >
+                <X aria-hidden="true" size={15} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <button
@@ -347,7 +349,7 @@ export function SearchInput({
         type="submit"
         disabled={!hasQuery}
         aria-label="Tìm kiếm"
-        className={`${compact ? 'h-11 rounded-r-[var(--radius-md)] px-3' : 'h-13 rounded-r-[var(--radius-lg)] px-5 sm:px-7'} shrink-0 border-0 bg-[var(--color-action-primary)] font-semibold text-white transition-colors duration-[var(--duration-fast)] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${compact ? 'flex h-11 min-w-11 items-center justify-center rounded-r-[var(--radius-md)] px-2.5 sm:px-3' : 'h-13 rounded-r-[var(--radius-lg)] px-5 sm:px-7'} shrink-0 border-0 bg-[var(--color-action-primary)] font-semibold text-white transition-colors duration-[var(--duration-fast)] hover:bg-[var(--color-action-primary-hover)] active:bg-[var(--color-action-primary-active)] focus-visible:outline-offset-[-4px] focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50`}
       >
         <span className={compact ? 'sr-only' : 'hidden sm:inline'}>Tìm kiếm</span>
         <MagnifyingGlass aria-hidden="true" size={18} className={compact ? '' : 'sm:hidden'} />

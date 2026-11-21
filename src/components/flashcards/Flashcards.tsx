@@ -85,7 +85,8 @@ export function Flashcards({ deckId }: { deckId?: string }) {
   }
 
   const deck = data?.decks.find((item) => item.id === deckId);
-  const cards = data?.decks.flatMap((item) => item.cards) ?? [];
+  const visibleDecks = data?.decks.filter((item) => !(item.sample && item.cards.length === 0)) ?? [];
+  const cards = visibleDecks.flatMap((item) => item.cards);
   const due = (items: Flashcard[]) => items.filter((card) => card.dueAt <= now);
 
   async function createDeck(event: FormEvent<HTMLFormElement>) {
@@ -172,10 +173,15 @@ export function Flashcards({ deckId }: { deckId?: string }) {
         <header className="fc-header">
           {deckId && !session && <Link className="fc-back" href="/flashcards"><ArrowLeft aria-hidden="true" size={18} /> Tất cả bộ thẻ</Link>}
           <div className="fc-heading-row">
-            <h1>{session ? 'Ôn thẻ từ' : deckId ? deck?.name ?? 'Bộ thẻ' : 'Thẻ từ'}</h1>
+            <h1>{session ? 'Ôn thẻ từ' : deckId ? deck?.name ?? 'Bộ thẻ' : 'Flashcards'}</h1>
             {!deckId && data && <div className="fc-actions"><button className="fc-button" disabled={blocked || pending} onClick={() => { setImporting(!importing); setCreating(false); }} aria-expanded={importing} aria-controls="fc-import">Nhập Anki (.apkg)</button><button className="fc-button fc-primary" disabled={pending} onClick={() => { setCreating(!creating); setImporting(false); }} aria-expanded={creating} aria-controls="fc-create"><Plus size={18} aria-hidden="true" /> Tạo bộ thẻ</button></div>}
           </div>
           <p className="fc-muted">{session ? deck?.name : 'Bộ thẻ và tiến độ chỉ lưu trên trình duyệt này, không đồng bộ tài khoản.'}</p>
+          {!session && !deckId && (
+            <p className="fc-muted">
+              Nhớ → ôn lại sau 24 giờ; chưa nhớ → lặp lại sau 10 phút. Bạn cũng có thể thêm từ từ trang <Link href="/saved" className="underline underline-offset-4 hover:text-[var(--color-text-primary)]">Đã lưu</Link> vào bộ thẻ riêng.
+            </p>
+          )}
         </header>
 
         {error && <div role="alert" className="fc-error"><p>{error}</p><button className="fc-button" onClick={() => window.location.reload()}>Tải lại trang</button></div>}
@@ -200,8 +206,8 @@ export function Flashcards({ deckId }: { deckId?: string }) {
               <label>Mô tả <span className="fc-muted">(không bắt buộc)</span><textarea name="description" maxLength={300} rows={2} /></label>
               <div className="fc-actions"><button className="fc-button fc-primary" disabled={blocked || pending}>Tạo bộ thẻ</button><button type="button" className="fc-button" onClick={() => setCreating(false)}>Hủy</button></div>
             </form>}
-            <div className="fc-list-heading"><h2>Bộ thẻ của bạn</h2><span className="fc-muted">{data.decks.length} bộ · {cards.length} thẻ · {due(cards).length} đến hạn</span></div>
-            {data.decks.length ? <ul className="fc-decks">{data.decks.map((item) => <li key={item.id}>
+            <div className="fc-list-heading"><h2>Bộ thẻ của bạn</h2><span className="fc-muted">{visibleDecks.length} bộ · {cards.length} thẻ · {due(cards).length} đến hạn</span></div>
+            {visibleDecks.length ? <ul className="fc-decks">{visibleDecks.map((item) => <li key={item.id}>
               <Link className="fc-deck" href={`/flashcards/deck/${encodeURIComponent(item.id)}`}>
                 <BookBookmark size={26} className="fc-deck-icon" aria-hidden="true" />
                 <div className="fc-deck-copy"><div className="fc-deck-title"><h3>{item.name}</h3>{item.sample && <span className="fc-badge">Bộ mẫu</span>}</div><p className="fc-muted">{item.description || 'Bộ thẻ cá nhân'}</p><p className="fc-deck-count">{item.cards.length} thẻ <span className={due(item.cards).length ? 'fc-due' : 'fc-muted'}>· {due(item.cards).length} đến hạn</span></p></div>

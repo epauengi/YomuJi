@@ -19,6 +19,33 @@ export function CounterTool() {
         <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">Chọn một hình và số lượng. YomuJi ghép số đếm tiếng Nhật giúp bạn.</p>
       </header>
 
+      {result && (
+        <div className="sticky top-16 z-[9] -mx-4 mb-5 flex items-center justify-between gap-3 border-y border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 sm:hidden">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-[var(--color-text-secondary)]">
+              {quantity} {item.label.toLocaleLowerCase()}
+            </p>
+            <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2" lang="ja">
+              <strong className="jp-text text-lg font-bold text-[var(--color-text-primary)]">{result.written}</strong>
+              <span className="jp-text text-xs font-medium text-[var(--color-primary-700)]">({result.reading})</span>
+            </p>
+          </div>
+          <a
+            href="#quantity-heading"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('quantity-heading')?.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                block: 'start',
+              });
+            }}
+            className="inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-3 text-xs font-semibold text-[var(--color-primary-700)] transition-colors hover:bg-[var(--color-primary-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
+          >
+            Đổi số lượng
+          </a>
+        </div>
+      )}
+
       <section aria-labelledby="object-heading">
         <h2 id="object-heading" className="text-lg font-semibold text-[var(--color-text-primary)]">Bạn muốn đếm gì?</h2>
         <div className="mt-4 grid grid-cols-2 gap-x-3 sm:grid-cols-3 sm:gap-x-5">
@@ -44,7 +71,7 @@ export function CounterTool() {
       </section>
 
       <section aria-labelledby="quantity-heading" className="mt-8">
-        <h2 id="quantity-heading" className="text-lg font-semibold text-[var(--color-text-primary)]">Số lượng</h2>
+        <h2 id="quantity-heading" className="scroll-mt-32 text-lg font-semibold text-[var(--color-text-primary)]">Số lượng</h2>
         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Chọn số lượng">
           {numbers.map((number, index) => {
             const value = index + 1;
@@ -60,7 +87,7 @@ export function CounterTool() {
       </section>
 
       {result && (
-        <section aria-live="polite" aria-atomic="true" aria-label="Cách đếm" className="mt-8 border-t border-[var(--color-border)] pt-6 sm:mt-10 sm:pt-8">
+        <section id="counter-result" aria-live="polite" aria-atomic="true" aria-label="Cách đếm" className="mt-8 scroll-mt-32 border-t border-[var(--color-border)] pt-6 sm:mt-10 sm:pt-8">
           <p className="text-sm font-medium text-[var(--color-text-secondary)]">{quantity} {item.label.toLocaleLowerCase()} trong tiếng Nhật</p>
           <p className="jp-text mt-2 text-4xl font-semibold tracking-wide text-[var(--color-text-primary)] sm:text-5xl" lang="ja">{result.written}</p>
           <p className="jp-text mt-1 text-lg text-[var(--color-primary-700)]" lang="ja">{result.reading}</p>

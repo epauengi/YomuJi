@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { ConjugationAnalysis } from '@/components/dictionary/ConjugationAnalysis';
+import { SentenceAnalysis } from '@/components/dictionary/SentenceAnalysis';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
@@ -416,6 +417,7 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               </p>
             </div>
 
+            {results && <SentenceAnalysis query={query} results={results} />}
             {results && <ConjugationAnalysis key={query} query={query} results={results} onSettled={setSettledAnalysisQuery} />}
             <div aria-busy={loading}>
               {results && progress.source === 'offline' && (
@@ -537,10 +539,10 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                       </div>
                     ) : (
                       <>
-                        <div className="mt-5 flex items-start justify-between gap-4">
-                          <div>
-                            <div className="flex items-baseline gap-3">
-                              <h3 lang="ja" className="jp-text text-4xl font-extrabold text-[var(--color-primary-600)]">
+                        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                              <h3 lang="ja" className="jp-text break-keep [overflow-wrap:anywhere] text-3xl sm:text-4xl font-extrabold text-[var(--color-primary-600)]">
                                 {wordOfTheDay.surface}
                               </h3>
                               <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">

@@ -10,6 +10,7 @@ import { BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
 import { DictionaryReturnLink } from '@/components/dictionary/DictionaryReturnLink';
 import { withSearchOrigin, type SearchOrigin } from '@/lib/dictionary/searchReturn';
 import { AudioButton } from '@/components/AudioButton';
+import { AddToFlashcardButton } from '@/components/ui/AddToFlashcardButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -158,6 +159,12 @@ export default function WordDetailPage({ slug, sequence, initial, origin }: {
 
           <div role="group" aria-label="Thao tác mục từ" className="flex shrink-0 items-center gap-2 pt-1">
             <AudioButton text={audioText} variant="icon-only" />
+            <AddToFlashcardButton
+              word={term.surface}
+              reading={term.reading === term.surface ? '' : term.reading}
+              meaning={term.meaningsVi.slice(0, 3).join('; ').trim() || term.hanVietStr || 'Chưa có nghĩa tiếng Việt'}
+              size="md"
+            />
             <BookmarkButton item={termBookmark(term)} size="md" />
           </div>
         </div>

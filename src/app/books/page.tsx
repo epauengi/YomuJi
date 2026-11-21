@@ -50,25 +50,25 @@ export default function BooksPage() {
     <div className="books-page pb-20">
       <section className="mx-auto grid max-w-[84rem] items-center gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pb-14 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
         <div>
-          <h1 className="font-serif text-[2.8rem] font-medium italic leading-[1.03] tracking-tight sm:text-4xl lg:text-5xl">Đọc truyện Nhật hiểu tiếng Nhật</h1>
+          <h1 className="font-sans text-3xl font-bold leading-[1.15] tracking-[-0.03em] sm:text-4xl lg:text-[2.75rem]">Đọc truyện Nhật hiểu tiếng Nhật</h1>
           <p className="mt-4 max-w-lg text-sm text-[var(--color-text-secondary)] sm:text-base">Những tác phẩm tiếng Nhật để đọc chậm, tra sâu và làm quen với ngôn ngữ trong ngữ cảnh.</p>
- <div className="mt-6 flex flex-wrap gap-2">
- <a href="#shelves" className="tactile inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-5 font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Chọn truyện để đọc <ArrowRight aria-hidden="true" size={17} /></a>
- <Link href="/books/saved" className="tactile inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 font-semibold hover:bg-[var(--color-surface-subtle)]">Sách của tôi</Link>
- <a href="#catalogue" className="tactile inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 font-semibold hover:bg-[var(--color-surface-subtle)]">Xem toàn bộ danh mục</a>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a href="#shelves" className="tactile inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-action-primary)] px-5 font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Chọn truyện để đọc <ArrowRight aria-hidden="true" size={17} /></a>
+            <Link href="/books/saved" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] underline-offset-4 hover:underline">Sách của tôi</Link>
+            <a href="#catalogue" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-primary-700)] underline-offset-4 hover:underline">Kho lưu trữ Aozora</a>
           </div>
           <div className="mt-7 max-w-lg">
             <label htmlFor="book-search" className="sr-only">Tìm truyện hoặc tác giả</label>
             <div className="relative">
               <MagnifyingGlass aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={19} />
-              <input id="book-search" value={query} maxLength={120} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Tìm truyện, tên Nhật hoặc tác giả" className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] pl-11 pr-11 text-base placeholder:text-[var(--color-text-secondary)] placeholder:opacity-100 outline-none transition focus:border-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-100)]" />
+              <input id="book-search" value={query} maxLength={120} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Tìm truyện, tên Nhật hoặc tác giả" className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] pl-11 pr-11 text-base text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] placeholder:opacity-100 outline-none transition-[border-color,box-shadow] focus:border-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-100)]" />
               {query && <button type="button" onClick={() => { setQuery(''); setPage(1); }} className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-[var(--color-surface-subtle)]" aria-label="Xóa từ khóa"><X size={17} /></button>}
             </div>
           </div>
         </div>
-        <div role="group" aria-label="Một vài truyện trong thư viện" className="mx-auto flex w-full max-w-[40rem] items-end justify-center gap-3 sm:gap-5 lg:pt-4">
-          {featured.map((book, index) => <Link key={book.slug} href={`/books/${book.slug}`} className={`group w-[31%] max-w-[13rem] text-center ${index === 1 ? 'mb-8 sm:mb-12' : index === 2 ? 'mb-2' : ''}`}>
-            <Jacket book={book} index={index} coverUrl={covers?.[book.slug]} className="aspect-[2/3] rounded-[5px_10px_10px_5px]" />
+        <div role="group" aria-label="Một vài truyện trong thư viện" className="mx-auto grid w-full max-w-[40rem] grid-cols-3 items-start gap-3 sm:gap-5 lg:pt-4">
+          {featured.map((book, index) => <Link key={book.slug} href={`/books/${book.slug}`} className="group min-w-0 text-center">
+            <Jacket book={book} index={index} coverUrl={covers?.[book.slug]} className="aspect-[2/3] w-full rounded-[5px_10px_10px_5px]" />
             <p className="mt-3 line-clamp-2 min-h-10 break-words text-sm font-semibold leading-5">{book.title}</p>
             <p lang="ja" className="jp-text mt-1 text-[13px] leading-5 text-[var(--color-text-secondary)]">{book.author}</p>
           </Link>)}
@@ -119,7 +119,7 @@ export default function BooksPage() {
             <div><h2 id="catalogue-heading" className="font-sans text-3xl font-semibold tracking-tight sm:text-4xl">{browsing ? 'Kết quả tìm kiếm' : 'Kho lưu trữ Aozora'}</h2><p className="mt-2 text-sm text-[var(--color-text-muted)]" role="status">{loading ? 'Đang tải danh mục truyện…' : error ? 'Danh mục tạm thời chưa sẵn sàng' : `${catalogue?.total.toLocaleString('vi-VN') ?? 0} tác phẩm · Nguyên tác tiếng Nhật`}</p></div>
             <div className="flex flex-wrap items-center gap-3">
               <label className="text-sm text-[var(--color-text-secondary)]" htmlFor="book-category">Phân loại lưu trữ</label>
-              <select id="book-category" value={category} onChange={(event) => { setCategory(event.target.value); setPage(1); }} className="min-h-11 max-w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-base">
+              <select id="book-category" value={category} onChange={(event) => { setCategory(event.target.value); setPage(1); }} className="min-h-11 max-w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-base text-[var(--color-text-primary)]">
                 <option value="">Tất cả</option>{catalogue?.categories.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.count.toLocaleString('vi-VN')})</option>)}
               </select>
               {browsing && <button type="button" onClick={resetFilters} className="min-h-11 text-sm font-semibold text-[var(--color-primary-700)] hover:underline">Xóa bộ lọc</button>}
@@ -165,9 +165,10 @@ function BookRail({ entries, covers }: { entries: typeof books; covers?: Record<
 
 function Jacket({ book, index, coverUrl, className }: { book: (typeof books)[number]; index: number; coverUrl?: string; className: string }) {
   const palette = jacketColors[index % jacketColors.length];
-  return <div style={{ background: `linear-gradient(90deg, rgb(16 39 31 / 0.18), transparent 8%, transparent 94%, rgb(16 39 31 / 0.16)), ${palette}` }} className={`relative isolate flex flex-col items-center justify-between overflow-hidden rounded-[5px_10px_10px_5px] border border-[#26372f]/15 p-3 text-center shadow-[0_18px_26px_-16px_rgba(23,32,42,0.52)] transition duration-300 group-hover:-translate-y-1.5 group-focus-visible:-translate-y-1.5 ${className}`}>
+  return <div style={{ background: `linear-gradient(90deg, rgb(16 39 31 / 0.18), transparent 8%, transparent 94%, rgb(16 39 31 / 0.16)), ${palette}` }} className={`relative isolate flex flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[5px_10px_10px_5px] border border-[#26372f]/15 p-2.5 text-center shadow-[0_18px_26px_-16px_rgba(23,32,42,0.52)] transition duration-300 group-hover:-translate-y-1.5 group-focus-visible:-translate-y-1.5 sm:gap-2 sm:p-3.5 ${className}`}>
     <BookCoverImage src={coverUrl} alt={`Bìa ${book.title}`} className="absolute inset-0 size-full object-cover">
-      <span lang="ja" className="jp-text relative z-10 line-clamp-3 break-words font-serif text-lg font-semibold leading-snug tracking-[0.01em] text-[#1d2923] sm:text-2xl">{book.japaneseTitle}</span>
+      <span lang="ja" className="jp-text relative z-10 line-clamp-3 break-words font-serif text-sm font-semibold leading-snug tracking-[0.01em] text-[#1d2923] sm:text-xl">{book.japaneseTitle}</span>
+      <span lang="ja" className="jp-text relative z-10 line-clamp-1 break-words text-[11px] font-medium leading-tight text-[#26372f] sm:text-xs">{book.author}</span>
     </BookCoverImage>
   </div>;
 }

@@ -245,7 +245,7 @@ export default function SettingsPage() {
                   className={`${isChecking ? 'status-dot' : ''} h-2 w-2 rounded-full ${hasError ? 'bg-[var(--color-error)]' : isChecking ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-success)]'}`}
                 />
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {manifest?.dataVersion || (progress.source === 'api' ? 'Trực tuyến' : progress.source === 'offline' ? 'Offline cục bộ' : 'Chưa xác nhận')}
+                  {manifest?.dataVersion || (progress.source === 'offline' ? 'Offline cục bộ' : !manifest ? 'Đang dùng trực tuyến' : 'Chưa tải offline')}
                 </span>
               </div>
             </div>
