@@ -160,6 +160,7 @@ export function useWordDetail(slug: string, sequence?: string, initial?: TermLoo
   return {
     term: currentState.status === 'found' ? currentState.value.term : undefined,
     alternatives: currentState.status === 'found' ? currentState.value.alternatives : undefined,
+    homophones: currentState.status === 'found' ? currentState.value.homophones : undefined,
     status: currentState.status,
     error: currentState.error,
     retry: () => setAttempt((value) => value + 1),

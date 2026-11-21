@@ -1,12 +1,15 @@
 import { createClient, type Client } from '@libsql/client';
 import { selectDailyOffset } from './randomTerm';
-import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult, HomophoneTerm } from '@/types/dictionary';
 import {
   classifyTermMatch,
   compareTermSearchResults,
+  normalizeDisplayList,
+  normalizeDisplayString,
   normalizeKanjiRecord,
   normalizeTermRecord,
 } from '@/lib/dictionary/formatters';
+import { normalizePitchAccents } from '@/lib/pitchAccent';
 import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
 
 function parseJson<T>(value: unknown, fallback: T): T {
@@ -20,6 +23,7 @@ function parseJson<T>(value: unknown, fallback: T): T {
 
 function rowToTerm(row: any): TermRecord {
   const writtenForms = parseJson<string[]>(row.written_forms, []);
+  const pitchAccents = normalizePitchAccents(parseJson<number[]>(row.pitch_accents, []));
   return normalizeTermRecord({
     id: String(row.id),
     sequence: Number(row.sequence || 0),
@@ -38,8 +42,22 @@ function rowToTerm(row: any): TermRecord {
     related: [],
     searchAliases: parseJson<string[]>(row.search_aliases, []),
     ...(writtenForms.length ? { writtenForms } : {}),
+    ...(pitchAccents.length ? { pitchAccents } : {}),
     source: { jmdict: true },
   });
+}
+
+function rowToHomophone(row: any): HomophoneTerm {
+  const pitchAccents = normalizePitchAccents(parseJson<number[]>(row.pitch_accents, []));
+  return {
+    id: normalizeDisplayString(String(row.id)),
+    sequence: Number(row.sequence || 0),
+    surface: normalizeDisplayString(String(row.surface || '')),
+    reading: normalizeDisplayString(String(row.reading || '')),
+    meaningsVi: normalizeDisplayList(parseJson<string[]>(row.meanings_vi, [])).slice(0, 3),
+    isCommon: Boolean(row.is_common),
+    ...(pitchAccents.length ? { pitchAccents } : {}),
+  };
 }
 
 function rowToKanji(row: any): KanjiRecord {
@@ -75,7 +93,17 @@ function isMissingWrittenFormsTable(error: unknown): boolean {
   return /no such table:\s*(?:main\.)?term_written_forms\b/i.test(message);
 }
 
+function isMissingPitchAccentsTable(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /no such table:\s*(?:main\.)?term_pitch_accents\b/i.test(message);
+}
+
+const PITCH_SUBQUERY = `(SELECT pa.pitches FROM term_pitch_accents AS pa WHERE pa.term_id = terms.id) AS pitch_accents`;
+
 export class TursoDictionaryRepository implements DictionaryRepository {
+  private pitchTableAvailable = true;
+  private writtenFormsTableAvailable = true;
+
   async getRandomTerm(dayKey: string): Promise<TermRecord | null> {
     const total = await this.client.execute('SELECT COUNT(*) AS count FROM terms');
     const count = Number(total.rows[0]?.count ?? 0);
@@ -108,18 +136,28 @@ export class TursoDictionaryRepository implements DictionaryRepository {
 
     const normalizedQ = q.toLowerCase();
     const writtenFormKey = q.normalize('NFKC');
-    let res;
-    try {
-      res = await this.client.execute({
-        sql: `
-          SELECT ${TERM_COLS},
-            (SELECT json_group_array(wf.written_form) FROM term_written_forms AS wf
-             WHERE wf.term_id = terms.id) AS written_forms
-          FROM terms
-          WHERE surface = ? OR reading = ? OR romaji = ?
+    // Japanese queries use indexed B-tree range scans; LIKE '%...%' on meanings_vi/search_aliases forces a full table scan.
+    const isJapanese = /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}]/u.test(writtenFormKey);
+    const prefixEnd = `${writtenFormKey}\uffff`;
+    const whereSql = isJapanese
+      ? '(surface >= ? AND surface < ?) OR (reading >= ? AND reading < ?)'
+      : `surface = ? OR reading = ? OR romaji = ?
              OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
              OR meanings_vi LIKE '%' || ? || '%'
-             OR search_aliases LIKE '%' || ? || '%'
+             OR search_aliases LIKE '%' || ? || '%'`;
+    const whereArgs = isJapanese
+      ? [writtenFormKey, prefixEnd, writtenFormKey, prefixEnd]
+      : [writtenFormKey, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ];
+    const runSearch = async () => {
+      const pitchSelect = this.pitchTableAvailable ? `,\n            ${PITCH_SUBQUERY}` : '';
+      if (this.writtenFormsTableAvailable) {
+        return this.client.execute({
+          sql: `
+          SELECT ${TERM_COLS},
+            (SELECT json_group_array(wf.written_form) FROM term_written_forms AS wf
+             WHERE wf.term_id = terms.id) AS written_forms${pitchSelect}
+          FROM terms
+          WHERE ${whereSql}
              OR id IN (SELECT term_id FROM term_written_forms WHERE search_key = ?)
           ORDER BY
             CASE
@@ -131,19 +169,14 @@ export class TursoDictionaryRepository implements DictionaryRepository {
               ELSE 7
             END, score DESC, sequence ASC, id ASC
           LIMIT ?`,
-        args: [writtenFormKey, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ, writtenFormKey,
-               writtenFormKey, writtenFormKey, q, normalizedQ, q, q, limit * 2],
-      });
-    } catch (error) {
-      if (!isMissingWrittenFormsTable(error)) throw error;
-      // Existing databases remain searchable until the additive form table is applied.
-      res = await this.client.execute({
+          args: [...whereArgs, writtenFormKey,
+                 writtenFormKey, writtenFormKey, q, normalizedQ, writtenFormKey, writtenFormKey, limit * 2],
+        });
+      }
+      return this.client.execute({
         sql: `
-          SELECT ${TERM_COLS} FROM terms
-          WHERE surface = ? OR reading = ? OR romaji = ?
-             OR surface LIKE ? || '%' OR reading LIKE ? || '%' OR romaji LIKE ? || '%'
-             OR meanings_vi LIKE '%' || ? || '%'
-             OR search_aliases LIKE '%' || ? || '%'
+          SELECT ${TERM_COLS}${pitchSelect} FROM terms
+          WHERE ${whereSql}
           ORDER BY
             CASE
               WHEN surface = ? THEN 1 WHEN reading = ? THEN 2 WHEN romaji = ? THEN 3
@@ -151,9 +184,27 @@ export class TursoDictionaryRepository implements DictionaryRepository {
               ELSE 6
             END, score DESC, sequence ASC, id ASC
           LIMIT ?`,
-        args: [q, q, normalizedQ, q, q, normalizedQ, normalizedQ, normalizedQ,
-               q, q, normalizedQ, q, q, limit * 2],
+        args: [...whereArgs,
+               writtenFormKey, q, normalizedQ, writtenFormKey, writtenFormKey, limit * 2],
       });
+    };
+
+    let res;
+    for (;;) {
+      try {
+        res = await runSearch();
+        break;
+      } catch (error) {
+        if (this.pitchTableAvailable && isMissingPitchAccentsTable(error)) {
+          this.pitchTableAvailable = false;
+          continue;
+        }
+        if (this.writtenFormsTableAvailable && isMissingWrittenFormsTable(error)) {
+          this.writtenFormsTableAvailable = false;
+          continue;
+        }
+        throw error;
+      }
     }
 
     const seen = new Set<string>();
@@ -199,11 +250,26 @@ export class TursoDictionaryRepository implements DictionaryRepository {
     const decoded = slug.trim();
     if (!decoded) return null;
 
-    const res = await this.client.execute({
-      sql: `SELECT ${TERM_COLS} FROM terms WHERE id = ? OR surface = ? OR reading = ?
+    const runLookup = () => {
+      const pitchSelect = this.pitchTableAvailable ? `, ${PITCH_SUBQUERY}` : '';
+      return this.client.execute({
+        sql: `SELECT ${TERM_COLS}${pitchSelect} FROM terms WHERE id = ? OR surface = ? OR reading = ?
         ORDER BY CASE WHEN id = ? THEN 0 WHEN surface = ? THEN 1 ELSE 2 END, score DESC, sequence ASC LIMIT 1`,
-      args: [decoded, decoded, decoded, decoded, decoded],
-    });
+        args: [decoded, decoded, decoded, decoded, decoded],
+      });
+    };
+
+    let res;
+    try {
+      res = await runLookup();
+    } catch (error) {
+      if (this.pitchTableAvailable && isMissingPitchAccentsTable(error)) {
+        this.pitchTableAvailable = false;
+        res = await runLookup();
+      } else {
+        throw error;
+      }
+    }
     if (res.rows.length === 0) return null;
 
     const term = rowToTerm(res.rows[0]);
@@ -213,6 +279,50 @@ export class TursoDictionaryRepository implements DictionaryRepository {
       term.hanVietStr = hvParts.join(' ').toUpperCase();
     }
     return term;
+  }
+
+  async findHomophonesByReading(reading: string, excludeId: string, limit = 12): Promise<HomophoneTerm[]> {
+    const cleanReading = reading.trim();
+    if (!cleanReading) return [];
+    const capped = Math.max(1, Math.min(limit, 24));
+
+    const runQuery = () => {
+      if (this.pitchTableAvailable) {
+        return this.client.execute({
+          sql: `SELECT t.id, t.sequence, t.surface, t.reading, t.meanings_vi, t.is_common,
+                  pa.pitches AS pitch_accents
+                FROM terms AS t
+                LEFT JOIN term_pitch_accents AS pa ON pa.term_id = t.id
+                WHERE t.reading = ? AND t.id != ?
+                ORDER BY t.is_common DESC,
+                  CASE WHEN pa.pitches IS NOT NULL THEN 0 ELSE 1 END,
+                  t.score DESC, t.sequence ASC
+                LIMIT ?`,
+          args: [cleanReading, excludeId, capped],
+        });
+      }
+      return this.client.execute({
+        sql: `SELECT id, sequence, surface, reading, meanings_vi, is_common
+              FROM terms
+              WHERE reading = ? AND id != ?
+              ORDER BY is_common DESC, score DESC, sequence ASC
+              LIMIT ?`,
+        args: [cleanReading, excludeId, capped],
+      });
+    };
+
+    let res;
+    try {
+      res = await runQuery();
+    } catch (error) {
+      if (this.pitchTableAvailable && isMissingPitchAccentsTable(error)) {
+        this.pitchTableAvailable = false;
+        res = await runQuery();
+      } else {
+        throw error;
+      }
+    }
+    return res.rows.map(rowToHomophone);
   }
 
   async getKanjiByLiteral(literal: string): Promise<KanjiRecord | null> {

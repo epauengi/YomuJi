@@ -48,6 +48,12 @@ CREATE TABLE IF NOT EXISTS term_senses (
   senses TEXT NOT NULL DEFAULT '[]'
 );
 
+-- Pitch accent downstep positions (Kanjium); additive so existing term rows stay intact.
+CREATE TABLE IF NOT EXISTS term_pitch_accents (
+  term_id TEXT PRIMARY KEY NOT NULL REFERENCES terms(id) ON DELETE CASCADE,
+  pitches TEXT NOT NULL DEFAULT '[]'
+);
+
 -- Full-Text Search (FTS5) for Terms
 CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
   id UNINDEXED,

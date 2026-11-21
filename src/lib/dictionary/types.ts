@@ -1,4 +1,4 @@
-import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult, HomophoneTerm } from '@/types/dictionary';
 
 export interface SearchTermsInput {
   query: string;
@@ -40,4 +40,9 @@ export interface DictionaryRepository {
    * Retrieve a kanji record by its literal character
    */
   getKanjiByLiteral(literal: string): Promise<KanjiRecord | null>;
+
+  /**
+   * Find other terms sharing the same kana reading (homophones)
+   */
+  findHomophonesByReading(reading: string, excludeId: string, limit?: number): Promise<HomophoneTerm[]>;
 }

@@ -13,7 +13,7 @@ function loadTs(filePath, mocks = {}) {
   return exports;
 }
 
-const { chunkJapanese } = loadTs('src/components/books/PasteLookup.tsx');
+const { chunkJapanese } = loadTs('src/lib/japaneseChunks.ts');
 const { intersectComponents } = loadTs('src/components/dictionary/KanjiComponentSearch.tsx');
 
 // P1 paste chunking keeps inflected verbs together while separating particles.

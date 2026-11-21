@@ -1,8 +1,10 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { selectDailyOffset } from './randomTerm';
-import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
+import type { TermRecord, KanjiRecord, DictionarySearchResult, KanjiDictionarySearchResult, HomophoneTerm } from '@/types/dictionary';
 import {
   classifyTermMatch,
+  normalizeDisplayList,
+  normalizeDisplayString,
   normalizeKanjiRecord,
   normalizeTermRecord,
 } from '@/lib/dictionary/formatters';
@@ -197,5 +199,29 @@ export class SupabaseDictionaryRepository implements DictionaryRepository {
     if (error) throw new Error(`Supabase getKanjiByLiteral: ${error.message}`);
     if (!data) return null;
     return mapKanjiRow(data, decoded).kanji;
+  }
+
+  async findHomophonesByReading(reading: string, excludeId: string, limit = 12): Promise<HomophoneTerm[]> {
+    const cleanReading = reading.trim();
+    if (!cleanReading || !isSupabaseConfigured || !supabase) return [];
+
+    const { data, error } = await supabase
+      .from('terms')
+      .select('id, sequence, surface, reading, meanings_vi, is_common')
+      .eq('reading', cleanReading)
+      .neq('id', excludeId)
+      .order('is_common', { ascending: false })
+      .order('score', { ascending: false })
+      .limit(Math.max(1, Math.min(limit, 24)));
+
+    if (error) throw new Error(`Supabase findHomophonesByReading: ${error.message}`);
+    return (data || []).map((row: any) => ({
+      id: normalizeDisplayString(String(row.id)),
+      sequence: Number(row.sequence || 0),
+      surface: normalizeDisplayString(String(row.surface || '')),
+      reading: normalizeDisplayString(String(row.reading || '')),
+      meaningsVi: normalizeDisplayList(row.meanings_vi || []).slice(0, 3),
+      isCommon: Boolean(row.is_common),
+    }));
   }
 }

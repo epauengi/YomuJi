@@ -18,6 +18,8 @@ import { Furigana } from '@/components/ui/Furigana';
 import { useWordDetail } from '@/hooks/useDictionary';
 import { TatoebaExamples } from './TatoebaExamples';
 import { ConjugationTable } from '@/components/dictionary/ConjugationTable';
+import { PitchAccentBadge } from '@/components/dictionary/PitchAccentBadge';
+import { HomophoneStrip } from '@/components/dictionary/HomophoneStrip';
 import {
   getCleanSenseLabels,
   formatSenseRestrictions,
@@ -30,7 +32,7 @@ export default function WordDetailPage({ slug, sequence, initial, origin }: {
   origin?: SearchOrigin;
 }) {
   const router = useRouter();
-  const { term, alternatives, status, error, retry } = useWordDetail(slug, sequence, initial);
+  const { term, alternatives, homophones, status, error, retry } = useWordDetail(slug, sequence, initial);
   const canonical = term ? wordHref(term) : null;
   useEffect(() => {
     const current = `/word/${encodeURIComponent(slug)}${sequence ? `?id=${sequence}` : ''}`;
@@ -145,6 +147,16 @@ export default function WordDetailPage({ slug, sequence, initial, origin }: {
               {term.romaji && <span className="text-sm text-[var(--color-text-muted)]">[{term.romaji}]</span>}
             </div>
 
+            {term.pitchAccents && term.pitchAccents.length > 0 && (
+              <div className="mt-3">
+                <PitchAccentBadge
+                  reading={term.reading || term.surface}
+                  pitches={term.pitchAccents}
+                  variant="detail"
+                />
+              </div>
+            )}
+
             {alternateWrittenForms.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-[var(--color-text-secondary)]">
                 <span className="text-[var(--color-text-muted)]">Dạng viết khác:</span>
@@ -194,6 +206,13 @@ export default function WordDetailPage({ slug, sequence, initial, origin }: {
             })}
           </div>
         )}
+
+        <HomophoneStrip
+          reading={term.reading}
+          currentPitches={term.pitchAccents}
+          homophones={homophones}
+          origin={origin}
+        />
       </header>
 
       {/* === CONTENT === */}

@@ -6,6 +6,7 @@ import type {
   DictionaryManifest,
   DictionaryProgress,
   DictionarySearchResult,
+  HomophoneTerm,
   KanjiDictionarySearchResult,
   KanjiLookupResponse,
   KanjiRecord,
@@ -75,6 +76,35 @@ function publishSearchIndex(entries: SearchIndexEntry[]) {
 }
 const globalTermsMap = new Map<string, TermRecord>();
 const globalKanjiMap = new Map<string, KanjiRecord>();
+// ponytail: in-memory pitch accent sidecar map for offline fallback; upgrade to IndexedDB shard if offline bundle expands
+let globalPitchAccentsMap: Record<string, number[]> | null = null;
+let pitchAccentsPromise: Promise<Record<string, number[]>> | null = null;
+
+async function loadPitchAccentsMap(signal?: AbortSignal): Promise<Record<string, number[]>> {
+  if (globalPitchAccentsMap) return globalPitchAccentsMap;
+  if (!pitchAccentsPromise) {
+    pitchAccentsPromise = fetch('/dict/meta/pitch-accents.json')
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: unknown) => {
+        const map = isRecord(data) ? (data as Record<string, number[]>) : {};
+        globalPitchAccentsMap = map;
+        return map;
+      })
+      .catch(() => ({}))
+      .finally(() => {
+        pitchAccentsPromise = null;
+      });
+  }
+  const map = await pitchAccentsPromise;
+  if (signal?.aborted) return {};
+  return map;
+}
+
+function withOfflinePitch(term: TermRecord, pitchMap: Record<string, number[]>): TermRecord {
+  if (term.pitchAccents?.length) return term;
+  const pitches = pitchMap[term.id];
+  return Array.isArray(pitches) && pitches.length ? normalizeTermRecord({ ...term, pitchAccents: pitches }) : term;
+}
 const loadedTermShards = new Set<string>();
 const termShardPromises = new Map<string, Promise<void>>();
 let isInitialized = false;
@@ -177,9 +207,20 @@ function isKanjiRecord(value: unknown): value is KanjiRecord {
     && Array.isArray(value.strokePaths);
 }
 
+function isHomophoneTerm(value: unknown): value is HomophoneTerm {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.sequence === 'number'
+    && typeof value.surface === 'string'
+    && typeof value.reading === 'string'
+    && Array.isArray(value.meaningsVi)
+    && typeof value.isCommon === 'boolean';
+}
+
 function isTermLookupResponse(value: unknown): value is TermLookupResponse {
   return isRecord(value) && (value.term === null || isTermRecord(value.term))
-    && (value.alternatives === undefined || (Array.isArray(value.alternatives) && value.alternatives.every(isTermRecord)));
+    && (value.alternatives === undefined || (Array.isArray(value.alternatives) && value.alternatives.every(isTermRecord)))
+    && (value.homophones === undefined || (Array.isArray(value.homophones) && value.homophones.every(isHomophoneTerm)));
 }
 
 function isKanjiLookupResponse(value: unknown): value is KanjiLookupResponse {
@@ -565,13 +606,14 @@ export async function searchDictionary(
 
   if (!isSearchIndexReady) await hydrateCachedDictionary();
   setDictionarySource('offline');
+  const pitchMap = await loadPitchAccentsMap(signal);
   const results: DictionarySearchResult[] = [];
   const exact = exactWrittenForms.get(trimmed.normalize('NFKC')) ?? [];
   const exactEntries = new Set(exact);
 
   for (const entry of exact) {
     const match = classifyTermMatch(entry, trimmed);
-    const term = normalizeTermRecord(globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry));
+    const term = withOfflinePitch(normalizeTermRecord(globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry)), pitchMap);
     results.push({ term, score: entry.score + match.bonus, matchType: match.matchType });
   }
 
@@ -583,7 +625,7 @@ export async function searchDictionary(
     const match = classifyTermMatch(entry, trimmed);
     if (match.bonus > 0) {
       const rawTerm = globalTermsMap.get(entry.termId) ?? termFromSearchEntry(entry);
-      const term = normalizeTermRecord(rawTerm);
+      const term = withOfflinePitch(normalizeTermRecord(rawTerm), pitchMap);
       results.push({
         term,
         score: entry.score + match.bonus,
@@ -793,7 +835,32 @@ export async function lookupWordRoute(slug: string, signal?: AbortSignal, sequen
   if (sequence) entries = entries.filter((entry) => String(entry.sequence) === sequence);
   if (entries.length > 1) return { term: null, alternatives: entries.map(termFromSearchEntry) };
   if (!entries.length) return { term: null };
-  return { term: await findLocalTerm(entries[0].termId) ?? null };
+  const [rawTerm, pitchMap] = await Promise.all([findLocalTerm(entries[0].termId), loadPitchAccentsMap(signal)]);
+  if (!rawTerm) return { term: null };
+  const term = withOfflinePitch(rawTerm, pitchMap);
+  const homophones: HomophoneTerm[] = term.reading
+    ? globalSearchIndex
+        .filter((entry) => entry.reading === term.reading && entry.termId !== term.id)
+        .sort((a, b) => {
+          if (a.isCommon !== b.isCommon) return a.isCommon ? -1 : 1;
+          const aHasPitch = Array.isArray(pitchMap[a.termId]) && pitchMap[a.termId].length > 0;
+          const bHasPitch = Array.isArray(pitchMap[b.termId]) && pitchMap[b.termId].length > 0;
+          if (aHasPitch !== bHasPitch) return aHasPitch ? -1 : 1;
+          if (b.score !== a.score) return b.score - a.score;
+          return a.sequence - b.sequence;
+        })
+        .slice(0, 12)
+        .map((entry) => ({
+          id: entry.termId,
+          sequence: entry.sequence,
+          surface: entry.surface,
+          reading: entry.reading,
+          meaningsVi: entry.meaningsPreview.slice(0, 3),
+          isCommon: entry.isCommon,
+          ...(Array.isArray(pitchMap[entry.termId]) && pitchMap[entry.termId].length ? { pitchAccents: pitchMap[entry.termId] } : {}),
+        }))
+    : [];
+  return homophones.length > 0 ? { term, homophones } : { term };
 }
 
 export async function findTerm(id: string, signal?: AbortSignal): Promise<TermRecord | undefined> {

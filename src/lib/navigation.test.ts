@@ -13,7 +13,6 @@ test('searchHref creates canonical committed search URLs', () => {
 test('sidebar groups lookup and learning routes without mobile tabs', () => {
   assert.deepEqual(navItems.map(({ href }) => href), [
     '/',
-    '/analyze',
     '/kanji-components',
     '/counters',
     '/books',
@@ -35,7 +34,6 @@ test('nested routes activate right destination', () => {
   assert.equal(isRouteActive('/flashcards/deck/example', '/flashcards'), true);
   for (const path of [
     '/practice',
-    '/analyze',
     '/kanji-components',
     '/counters',
     '/flashcards',

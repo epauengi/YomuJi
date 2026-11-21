@@ -78,9 +78,9 @@ Global: radius 8/12/16/20px và pill 9999px. JLPT: panel 16px desktop / 14px mob
 
 ## Global navigation
 
-- Desktop từ 1200px: sidebar 224px, thu gọn còn 72px; nhóm “Tra cứu & đọc” (Từ điển `/`, Đếm `/counters`, Thư viện `/books`, cùng `/analyze` và `/kanji-components`), “Luyện tập”, “Cá nhân”; Thiết lập ở cuối. Giữ nhận diện và tokens hiện hữu.
+- Desktop từ 1200px: sidebar 224px, thu gọn còn 72px; nhóm “Tra cứu & đọc” (Từ điển `/`, Tra Kanji theo bộ `/kanji-components`, Đếm `/counters`, Thư viện `/books`), “Luyện tập”, “Cá nhân”; Thiết lập ở cuối. Giữ nhận diện và tokens hiện hữu.
 - Tablet 768–1199px: nút menu mở native modal dialog; khóa cuộn nền, Escape đóng, trả focus về nút mở.
-- Mobile dưới 768px: bottom bar bốn mục Từ điển, Thư viện, Luyện tập, Đã lưu. `/practice` mở `/analyze`, `/kanji-components`, `/counters`, Flashcards, JLPT hoặc Giấy luyện viết; Thiết lập trên header.
+- Mobile dưới 768px: bottom bar bốn mục Từ điển, Thư viện, Luyện tập, Đã lưu. `/practice` mở `/kanji-components`, `/counters`, Flashcards, JLPT hoặc Giấy luyện viết; Thiết lập trên header.
 - Header cao 64px, tìm kiếm trên các trang ngoài trang chủ. Không lặp navbar ngang trên desktop.
 - Đọc sách, phiên Flashcards và phiên JLPT tự thu gọn sidebar; người dùng vẫn mở rộng thủ công được. Đổi trang khôi phục trạng thái tự động.
 - Giữ nguyên `/flashcards`, `/jlpt`, `/saved`, `/review` và URL chi tiết; ôn bookmark vẫn thuộc Đã lưu, không tự chuyển dữ liệu sang Flashcards.

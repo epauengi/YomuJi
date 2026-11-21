@@ -150,6 +150,7 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const restoredFocus = useRef<string | null>(null);
   const [settledAnalysisQuery, setSettledAnalysisQuery] = useState<string | null>(null);
+  const [sentenceShown, setSentenceShown] = useState(false);
 
   useEffect(() => {
     if (!query || !returnFocus) {
@@ -410,14 +411,14 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
           <section aria-labelledby="dictionary-results-heading">
             <div className="mb-6">
               <h2 id="dictionary-results-heading" ref={resultsHeadingRef} tabIndex={-1} className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
-                Kết quả tra cứu cho &ldquo;{query}&rdquo;
+                {sentenceShown ? 'Phân tích câu' : <>Kết quả tra cứu cho &ldquo;{query}&rdquo;</>}
               </h2>
               <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
+                {loading ? 'Đang tra trong từ điển…' : sentenceShown ? 'Câu được tách thành từng cụm, kèm vai trò và nghĩa của từng từ.' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
               </p>
             </div>
 
-            {results && <SentenceAnalysis query={query} results={results} />}
+            {results && <SentenceAnalysis query={query} results={results} onShown={setSentenceShown} />}
             {results && <ConjugationAnalysis key={query} query={query} results={results} onSettled={setSettledAnalysisQuery} />}
             <div aria-busy={loading}>
               {results && progress.source === 'offline' && (
@@ -447,12 +448,15 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                   </div>
                 </div>
               ) : results.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {results.map(({ term, matchType }) => (
-                    <TermCard key={term.id} term={term} matchType={matchType} query={query} origin={{ query }} />
-                  ))}
-                </div>
-              ) : (
+                <>
+                  {sentenceShown && <h3 className="mb-3 text-sm font-bold text-[var(--color-text-secondary)]">Mục từ khớp với cả câu</h3>}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {results.map(({ term, matchType }) => (
+                      <TermCard key={term.id} term={term} matchType={matchType} query={query} origin={{ query }} />
+                    ))}
+                  </div>
+                </>
+              ) : sentenceShown ? null : (
                 <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
                   <p className="text-sm">
                     Kiểm tra chính tả hoặc thử lại bằng kana, romaji hay nghĩa tiếng Việt.

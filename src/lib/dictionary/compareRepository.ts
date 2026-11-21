@@ -1,4 +1,4 @@
-import type { TermRecord, KanjiRecord } from '@/types/dictionary';
+import type { TermRecord, KanjiRecord, HomophoneTerm } from '@/types/dictionary';
 import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
 import { SupabaseDictionaryRepository } from './supabaseRepository';
 import { TursoDictionaryRepository } from './tursoRepository';
@@ -81,5 +81,9 @@ export class CompareDictionaryRepository implements DictionaryRepository {
     }).catch(() => {});
 
     return primaryRes;
+  }
+
+  async findHomophonesByReading(reading: string, excludeId: string, limit = 12): Promise<HomophoneTerm[]> {
+    return this.primaryRepo.findHomophonesByReading(reading, excludeId, limit);
   }
 }

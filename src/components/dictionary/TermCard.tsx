@@ -15,6 +15,7 @@ import {
 } from '@/lib/dictionary/formatters';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 import { TermWrittenForms } from './TermWrittenForms';
+import { PitchAccentBadge } from './PitchAccentBadge';
 
 export function TermCard({
   term,
@@ -47,6 +48,11 @@ export function TermCard({
             {term.reading && term.reading !== term.surface && (
               <span lang="ja" className="jp-text text-sm leading-5 text-[var(--color-text-secondary)]">{term.reading}</span>
             )}
+            <PitchAccentBadge
+              reading={term.reading || term.surface}
+              pitches={term.pitchAccents}
+              variant="compact"
+            />
             {term.isCommon && <Badge variant="success" size="sm">Phổ biến</Badge>}
             {matchType && (
               <span className="rounded-full bg-[var(--color-surface-subtle)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]">

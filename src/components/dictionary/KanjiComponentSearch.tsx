@@ -82,11 +82,10 @@ export function KanjiComponentSearch() {
   return (
     <div className="mx-auto max-w-4xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
       <h1 className="text-3xl font-bold">Tra Kanji theo thành phần</h1>
-      <p className="mt-3 text-[var(--color-text-secondary)]">Chọn một hoặc nhiều thành phần (ví dụ <span lang="ja" className="jp-text font-medium">氵</span> và <span lang="ja" className="jp-text font-medium">青</span> để tìm <span lang="ja" className="jp-text font-medium">清</span>). Dữ liệu phân tách từ KanjiVG (không phải mọi thành phần đều là bộ thủ chính).</p>
+      <p className="mt-3 text-[var(--color-text-secondary)]">Chọn một hoặc nhiều thành phần (ví dụ <span lang="ja" className="jp-text font-medium">氵</span> và <span lang="ja" className="jp-text font-medium">青</span> để tìm <span lang="ja" className="jp-text font-medium">清</span>).</p>
       {error && <p role="alert" className="mt-6 text-sm text-[var(--color-danger)]">{error}</p>}
       {!data && !error && <p role="status" className="mt-6 text-sm text-[var(--color-text-secondary)]">Đang tải danh sách thành phần…</p>}
       {data && <>
-        <p className="mt-2 text-xs text-[var(--color-text-secondary)]">Độ phủ hiện tại: {data.coverage.withComponents.toLocaleString('vi-VN')} / {data.coverage.totalDictKanji.toLocaleString('vi-VN')} Kanji trong từ điển có dữ liệu thành phần KanjiVG.</p>
         <div className="mt-6 flex flex-wrap items-end gap-3 border-y border-[var(--color-border-subtle)] py-4">
           <label className="text-sm font-medium">Số nét từ
             <input type="number" min={1} max={34} value={minStrokes} onChange={(event) => setMinStrokes(event.target.value)}

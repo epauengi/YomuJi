@@ -11,7 +11,8 @@ const schema = fs.readFileSync(path.join(root, 'turso/schema.sql'), 'utf8');
 const termsDdl = schema.match(/CREATE TABLE IF NOT EXISTS terms\s*\([\s\S]*?\);/i)?.[0];
 const formsDdl = schema.match(/CREATE TABLE IF NOT EXISTS term_written_forms\s*\([\s\S]*?\);/i)?.[0];
 const formsIndexDdl = schema.match(/CREATE INDEX IF NOT EXISTS idx_term_written_forms_form\s+ON\s+term_written_forms\s*\([^;]+;/i)?.[0];
-assert(termsDdl && formsDdl && formsIndexDdl, 'Turso term/form DDL missing');
+const pitchDdl = schema.match(/CREATE TABLE IF NOT EXISTS term_pitch_accents\s*\([\s\S]*?\);/i)?.[0];
+assert(termsDdl && formsDdl && formsIndexDdl && pitchDdl, 'Turso term/form/pitch DDL missing');
 
 function fixtureClient(db: Database) {
   const queries: Array<{ sql: string; args: unknown[] }> = [];
@@ -90,5 +91,66 @@ test('alternate forms normalize, rank, deduplicate, and remain SQL-limited', asy
   const limited = await repository.searchTerms({ query: '神', limit: 1 });
   assert.deepEqual(limited.terms.map(({ term }) => term.id), ['canonical']);
   assert.equal(fixture.queries.at(-1)!.args.at(-1), 2);
+  db.close();
+});
+
+test('pitch accents and homophones attach cleanly and rank common entries first', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database();
+  db.run(termsDdl);
+  db.run(formsDdl);
+  db.run(formsIndexDdl);
+  db.run(pitchDdl);
+
+  db.run(
+    'INSERT INTO terms (id, sequence, surface, reading, romaji, meanings_vi, is_common, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ['term-bridge', 1, '橋', 'はし', 'hashi', '["cây cầu"]', 1, 900]
+  );
+  db.run(
+    'INSERT INTO terms (id, sequence, surface, reading, romaji, meanings_vi, is_common, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ['term-chopsticks', 2, '箸', 'はし', 'hashi', '["đôi đũa"]', 1, 800]
+  );
+  db.run(
+    'INSERT INTO terms (id, sequence, surface, reading, romaji, meanings_vi, is_common, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ['term-edge', 3, '端', 'はし', 'hashi', '["mép, rìa"]', 1, 700]
+  );
+  db.run(
+    'INSERT INTO terms (id, sequence, surface, reading, romaji, meanings_vi, is_common, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ['term-rare', 4, '嘴', 'はし', 'hashi', '["mỏ chim"]', 0, 100]
+  );
+  db.run('INSERT INTO term_pitch_accents (term_id, pitches) VALUES (?, ?)', ['term-bridge', '[2]']);
+  db.run('INSERT INTO term_pitch_accents (term_id, pitches) VALUES (?, ?)', ['term-chopsticks', '[1]']);
+  db.run('INSERT INTO term_pitch_accents (term_id, pitches) VALUES (?, ?)', ['term-edge', '[0]']);
+
+  const fixture = fixtureClient(db);
+  const repository = new TursoDictionaryRepository(fixture as unknown as Client);
+
+  const searchRes = await repository.searchTerms({ query: 'はし', limit: 10 });
+  const bridgeFromSearch = searchRes.terms.find(({ term }) => term.id === 'term-bridge');
+  assert.deepEqual(bridgeFromSearch?.term.pitchAccents, [2]);
+
+  const detail = await repository.getTermByIdOrSlug('橋');
+  assert.deepEqual(detail?.pitchAccents, [2]);
+
+  const homophones = await repository.findHomophonesByReading('はし', 'term-bridge', 10);
+  assert.deepEqual(homophones.map((h) => h.id), ['term-chopsticks', 'term-edge', 'term-rare']);
+  assert.deepEqual(homophones[0].pitchAccents, [1]);
+  assert.deepEqual(homophones[1].pitchAccents, [0]);
+  assert.equal(homophones[2].pitchAccents, undefined);
+  db.close();
+});
+
+test('findHomophonesByReading works gracefully before term_pitch_accents migration', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database();
+  db.run(termsDdl);
+  addTerm(db, 'term-a', '雨', 'あめ', 900);
+  addTerm(db, 'term-b', '飴', 'あめ', 800);
+
+  const fixture = fixtureClient(db);
+  const repository = new TursoDictionaryRepository(fixture as unknown as Client);
+  const homophones = await repository.findHomophonesByReading('あめ', 'term-a', 5);
+  assert.deepEqual(homophones.map((h) => h.id), ['term-b']);
+  assert.equal(homophones[0].pitchAccents, undefined);
   db.close();
 });

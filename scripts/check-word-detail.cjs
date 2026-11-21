@@ -46,6 +46,9 @@ function load(file, imports) {
     if (id === '@/hooks/useDictionary') return { useWordDetail: () => ({ term, status: 'ready' }) };
     if (id === './TatoebaExamples') return { TatoebaExamples: () => null };
     if (id === '@/components/dictionary/ConjugationTable') return { ConjugationTable: () => null };
+    if (id === '@/components/dictionary/PitchAccentBadge') return { PitchAccentBadge: () => null };
+    if (id === '@/components/dictionary/HomophoneStrip') return { HomophoneStrip: () => null };
+    if (id === '@/components/ui/AddToFlashcardButton') return { AddToFlashcardButton: () => null };
     if (id === '@/lib/dictionary/sensePresenter') return {
       getCleanSenseLabels: () => [],
       formatSenseRestrictions: () => [],
@@ -64,6 +67,7 @@ function load(file, imports) {
 const example = (textJa) => ({ id: textJa, textJa, textVi: `dịch ${textJa}`, termSequence: 1 });
 const term = {
   id: 'test', surface: '読む', reading: 'よむ', romaji: 'yomu', hanVietStr: 'ĐỘC',
+  meaningsVi: ['đọc'], pitchAccents: [1],
   isCommon: false, related: [], senses: [
     { meaningsVi: ['meaning alpha', 'meaning beta'], partOfSpeech: [], misc: [], appliesToKanji: [], appliesToReadings: [], examples: [example('読む例一'), example('読む例二')] },
     { meaningsVi: ['meaning gamma'], partOfSpeech: [], misc: [], appliesToKanji: [], appliesToReadings: [], examples: [] },

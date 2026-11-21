@@ -4,6 +4,7 @@ import type {
   SearchMatchType,
   TermRecord,
 } from '@/types/dictionary';
+import { normalizePitchAccents } from '@/lib/pitchAccent';
 
 export type TermMatch = {
   matchType: DictionarySearchResult['matchType'];
@@ -120,6 +121,7 @@ function normalizeRomaji(value: unknown): string {
 }
 
 export function normalizeTermRecord(term: TermRecord): TermRecord {
+  const pitchAccents = normalizePitchAccents(term.pitchAccents);
   return {
     ...term,
     id: normalizeDisplayString(term.id),
@@ -133,6 +135,7 @@ export function normalizeTermRecord(term: TermRecord): TermRecord {
     tags: normalizeDisplayList(term.tags),
     kanji: normalizeDisplayList(term.kanji),
     searchAliases: normalizeDisplayList(term.searchAliases),
+    ...(pitchAccents.length ? { pitchAccents } : { pitchAccents: undefined }),
     kanjiReadings: Array.isArray(term.kanjiReadings)
       ? term.kanjiReadings
         .map((reading) => ({

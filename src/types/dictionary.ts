@@ -39,6 +39,7 @@ export interface TermRecord {
   writtenForms?: string[];
   readingForms?: string[];
   senses?: TermSense[];
+  pitchAccents?: number[];
   tags: string[];
   score: number;
   isCommon: boolean;
@@ -85,9 +86,20 @@ export interface KanjiRecord {
   };
 }
 
+export interface HomophoneTerm {
+  id: string;
+  sequence: number;
+  surface: string;
+  reading: string;
+  meaningsVi: string[];
+  isCommon: boolean;
+  pitchAccents?: number[];
+}
+
 export interface TermLookupResponse {
   term: TermRecord | null;
   alternatives?: TermRecord[];
+  homophones?: HomophoneTerm[];
 }
 
 export interface KanjiLookupResponse {
