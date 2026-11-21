@@ -413,9 +413,9 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               <h2 id="dictionary-results-heading" ref={resultsHeadingRef} tabIndex={-1} className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
                 {sentenceShown ? 'Phân tích câu' : <>Kết quả tra cứu cho &ldquo;{query}&rdquo;</>}
               </h2>
-              <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                {loading ? 'Đang tra trong từ điển…' : sentenceShown ? 'Câu được tách thành từng cụm, kèm vai trò và nghĩa của từng từ.' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
-              </p>
+              {!sentenceShown && <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
+              </p>}
             </div>
 
             {results && <SentenceAnalysis query={query} results={results} onShown={setSentenceShown} />}

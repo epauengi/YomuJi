@@ -54,6 +54,41 @@ CREATE TABLE IF NOT EXISTS term_pitch_accents (
   pitches TEXT NOT NULL DEFAULT '[]'
 );
 
+-- JLPT Grammar Points (N5-N1); additive so existing dictionary tables stay intact.
+CREATE TABLE IF NOT EXISTS grammar_points (
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  pattern TEXT NOT NULL,
+  reading TEXT NOT NULL DEFAULT '',
+  romaji TEXT NOT NULL DEFAULT '',
+  level TEXT NOT NULL,
+  meaning_vi TEXT NOT NULL,
+  meaning_en TEXT NOT NULL DEFAULT '',
+  formation TEXT NOT NULL DEFAULT '',
+  nuance_vi TEXT NOT NULL DEFAULT '',
+  tags TEXT NOT NULL DEFAULT '[]',
+  examples TEXT NOT NULL DEFAULT '[]',
+  match_patterns TEXT NOT NULL DEFAULT '[]',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_grammar_points_level ON grammar_points(level, sort_order);
+
+-- Full-Text Search (FTS5) for Grammar Points
+CREATE VIRTUAL TABLE IF NOT EXISTS grammar_points_fts USING fts5(
+  id UNINDEXED,
+  pattern,
+  reading,
+  romaji,
+  meaning_vi,
+  meaning_en,
+  formation,
+  nuance_vi,
+  tags,
+  tokenize='unicode61 remove_diacritics 2'
+);
+
 -- Full-Text Search (FTS5) for Terms
 CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
   id UNINDEXED,
