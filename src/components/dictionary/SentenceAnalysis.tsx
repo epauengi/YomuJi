@@ -10,6 +10,7 @@ import type { Phrase, Role, Token } from '@/lib/sentenceParse';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 import type { SentenceGrammarMatch } from '@/types/grammar';
 import { GrammarDetailCard } from '@/components/grammar/GrammarDetailCard';
+import { GrammarText } from '@/components/grammar/GrammarText';
 import styles from './SentenceAnalysis.module.css';
 
 // ponytail: cap lookups per query; raise or batch server-side if long paragraphs become common.
@@ -224,7 +225,7 @@ export function SentenceAnalysis({ query, results, onShown }: {
             <button type="button" id={triggerId} aria-expanded={open} aria-controls={`${uid}-grammar-detail-${index}`}
               onClick={() => setActiveGrammarKey(open ? null : key)} className={styles.grammarRow}>
               <span className={styles.level}>{match.grammar.level}</span>
-              <span lang="ja" className="jp-text font-semibold">{match.grammar.pattern}</span>
+              <GrammarText text={match.grammar.pattern} className="font-semibold" />
               <span className={styles.grammarMeaning}>{match.grammar.meaningVi}</span>
               <CaretDown size={16} aria-hidden="true" className={styles.caret} />
             </button>

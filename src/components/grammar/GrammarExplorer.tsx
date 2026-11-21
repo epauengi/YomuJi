@@ -11,6 +11,7 @@ import {
 } from '@/types/grammar';
 import { FEATURED_GRAMMAR_TAGS, formatGrammarTagVi } from '@/lib/grammar/tags';
 import { GrammarDetailCard, GrammarLevelPill } from './GrammarDetailCard';
+import { GrammarText } from './GrammarText';
 
 interface GrammarExplorerProps {
   initialData: GrammarListResponse;
@@ -290,20 +291,18 @@ export function GrammarExplorer({
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              lang="ja"
-                              className="jp-text text-lg font-bold leading-snug text-[var(--color-text-primary)]"
-                            >
-                              {item.pattern}
-                            </span>
+                            <GrammarText
+                              text={item.pattern}
+                              className="text-lg font-bold leading-snug text-[var(--color-text-primary)]"
+                            />
                             <GrammarLevelPill level={item.level} />
                           </div>
                           <p className="mt-1 line-clamp-1 text-sm text-[var(--color-text-secondary)]">
                             {item.meaningVi}
                           </p>
                           {item.formation && (
-                            <p className="jp-text mt-1 line-clamp-1 text-xs text-[var(--color-text-muted)]">
-                              {item.formation}
+                            <p className="mt-1 line-clamp-1 text-xs text-[var(--color-text-muted)]">
+                              <GrammarText text={item.formation} />
                             </p>
                           )}
                         </div>

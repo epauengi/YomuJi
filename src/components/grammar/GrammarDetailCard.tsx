@@ -6,6 +6,7 @@ import { playJapaneseAudio } from '@/lib/tts';
 import { parseFurigana } from '@/lib/grammar/furigana';
 import { formatGrammarTagVi } from '@/lib/grammar/tags';
 import type { GrammarLevel, GrammarPoint } from '@/types/grammar';
+import { GrammarText } from './GrammarText';
 
 export const LEVEL_INK: Record<GrammarLevel, string> = {
   N5: 'var(--color-success)',
@@ -104,19 +105,14 @@ export function GrammarDetailCard({
             )}
           </div>
 
-          <h2
-            lang="ja"
-            className="jp-text mt-2.5 text-2xl font-bold leading-snug tracking-[-0.02em] text-[var(--color-text-primary)]"
-          >
-            {grammar.pattern}
+          <h2 className="mt-2.5 text-2xl font-bold leading-snug tracking-[-0.02em] text-[var(--color-text-primary)]">
+            <GrammarText text={grammar.pattern} />
           </h2>
 
           {(showReading || grammar.romaji) && (
             <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-[var(--color-text-muted)]">
               {showReading && (
-                <span lang="ja" className="jp-text font-medium text-[var(--color-text-secondary)]">
-                  {grammar.reading}
-                </span>
+                <GrammarText text={grammar.reading} className="font-medium text-[var(--color-text-secondary)]" />
               )}
               {grammar.romaji && <span>[{grammar.romaji}]</span>}
             </p>
@@ -168,9 +164,9 @@ export function GrammarDetailCard({
             {formationVariants.map((variant, idx) => (
               <p
                 key={idx}
-                className="jp-text text-sm font-medium leading-relaxed text-[var(--color-text-primary)]"
+                className="text-sm font-medium leading-relaxed text-[var(--color-text-primary)]"
               >
-                {variant}
+                <GrammarText text={variant} />
               </p>
             ))}
           </div>
