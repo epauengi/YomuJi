@@ -43,6 +43,8 @@ export default function BookReader({ book }: { book: Book }) {
   const [progress, setProgress] = useState(0);
   const [selectedWord, setSelectedWord] = useState('');
   const [lookupWord, setLookupWord] = useState('');
+  const sentenceRef = useRef('');
+  const [lookupSentence, setLookupSentence] = useState('');
   const [supportsSpeech, setSupportsSpeech] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [speechError, setSpeechError] = useState('');
@@ -185,7 +187,19 @@ export default function BookReader({ book }: { book: Book }) {
       const fragment = range.cloneContents();
       fragment.querySelectorAll('rt, rp').forEach((node) => node.remove());
       const text = (fragment.textContent ?? '').normalize('NFKC').trim().replace(/^\p{P}+|\p{P}+$/gu, '').trim();
-      setSelectedWord(text.length <= 80 && /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}]/u.test(text) ? text : '');
+      const word = text.length <= 80 && /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}]/u.test(text) ? text : '';
+      setSelectedWord(word);
+      const block = (range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement)?.closest('p, h2');
+      if (!word || !block) { sentenceRef.current = ''; return; }
+      const plain = (part: Range) => { const copy = part.cloneContents(); copy.querySelectorAll('rt, rp').forEach((node) => node.remove()); return copy.textContent ?? ''; };
+      const before = document.createRange();
+      before.setStart(block, 0);
+      before.setEnd(range.startContainer, range.startOffset);
+      const after = document.createRange();
+      after.setStart(range.endContainer, range.endOffset);
+      after.setEnd(block, block.childNodes.length);
+      // ponytail: sentence = text between 。！？ around the selection; quotes spanning sentences get cut. Use a segmenter if that matters.
+      sentenceRef.current = `${plain(before).split(/(?<=[。！？!?])/u).at(-1)}${plain(range)}${plain(after).match(/^[^。！？!?]*[。！？!?」』]*/u)?.[0] ?? ''}`.trim().slice(0, 500);
     };
     document.addEventListener('selectionchange', captureSelection);
     return () => document.removeEventListener('selectionchange', captureSelection);
@@ -272,10 +286,11 @@ export default function BookReader({ book }: { book: Book }) {
       {loading ? <div role="status" className="space-y-5 py-4"><p className="text-sm text-[var(--color-text-secondary)]">Đang tải nội dung truyện… Tác phẩm dài có thể cần khoảng một phút.</p><div aria-hidden="true" className="space-y-5">{[100, 92, 96, 72].map((width) => <div key={width} className="h-4 rounded-sm bg-[var(--color-surface-subtle)]" style={{ width: `${width}%` }} />)}</div></div>
         : error ? <div role="alert" className="border-y border-[var(--color-border-subtle)] py-8"><h2 className="font-serif text-2xl font-semibold">Nội dung chưa sẵn sàng</h2><p className="mt-3 text-sm text-[var(--color-text-secondary)]">{error}</p><button type="button" onClick={() => setAttempt((value) => value + 1)} className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[var(--color-action-primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">Thử lại</button></div>
           : <article ref={bodyRef} tabIndex={-1} data-furigana={furigana} className="reader-copy jp-text space-y-5" lang="ja" aria-label={book.japaneseTitle}>{paragraphs}</article>}
-      {lookupWord ? <ReaderLookup key={lookupWord} query={lookupWord} onClose={closeLookup} /> : selectedWord && (
+      {lookupWord ? <ReaderLookup key={lookupWord} query={lookupWord} onClose={closeLookup}
+        context={lookupSentence ? { sentence: lookupSentence, source: { title: book.japaneseTitle.slice(0, 200), href: `/books/${book.slug}/read` } } : undefined} /> : selectedWord && (
         <aside className="reader-lookup flex items-center gap-2 px-3 py-2" aria-label="Tra từ đã chọn">
           <p className="jp-text min-w-0 flex-1 truncate font-semibold" lang="ja">{selectedWord}</p>
-          <button type="button" onPointerDown={(event) => event.preventDefault()} onClick={() => setLookupWord(selectedWord)}
+          <button type="button" onPointerDown={(event) => event.preventDefault()} onClick={() => { setLookupSentence(sentenceRef.current); setLookupWord(selectedWord); }}
             className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] bg-[var(--color-action-primary)] px-3 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
             <MagnifyingGlass size={16} aria-hidden="true" /> Tra nghĩa
           </button>

@@ -83,6 +83,8 @@
 .fc-reading { font-size: 20px; color: var(--color-text-secondary); line-height: 1.7; }
 .fc-meaning { font-size: 22px; margin-top: 12px; line-height: 1.7; white-space: pre-line; }
 .fc-answer { max-width: 100%; animation: fc-answer-in 180ms ease-out; }
+.fc-sentence { margin: 16px auto 0; max-width: 36rem; border-left: 3px solid var(--color-border); padding-left: 12px; text-align: left; font-size: 17px; line-height: 1.8; }
+.fc-source { display: inline-flex; min-height: 44px; align-items: center; font-size: 14px; color: var(--color-primary-700); text-decoration: underline; text-underline-offset: 3px; }
 .fc-audio { margin-top: 28px; }
 .fc-reveal { width: 100%; margin-top: 20px; }
 .fc-grades { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }

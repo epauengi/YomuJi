@@ -8,6 +8,8 @@ export type Flashcard = {
   dueAt: number;
   reviewedAt: number | null;
   known: boolean | null;
+  sentence?: string;
+  source?: { title: string; href: string };
 };
 
 export type Deck = {
@@ -31,7 +33,12 @@ const STRING_LIMITS = {
   word: 100,
   reading: 200,
   meaning: 1000,
+  sentence: 500,
+  sourceTitle: 200,
+  sourceHref: 300,
 };
+const CARD_KEYS = ['id', 'word', 'reading', 'meaning', 'dueAt', 'reviewedAt', 'known'];
+const READER_DECK = { id: 'reader-words', name: 'Từ trong truyện', description: 'Từ lưu khi đọc truyện, kèm câu gốc.' };
 
 function invalid(message = 'Dữ liệu flashcard không hợp lệ') : never {
   throw new Error(message);
@@ -56,11 +63,22 @@ function timestamp(value: unknown) {
 
 function validateCard(value: unknown): Flashcard {
   if (!value || typeof value !== 'object' || Array.isArray(value)
-    || !exactKeys(value, ['id', 'word', 'reading', 'meaning', 'dueAt', 'reviewedAt', 'known'])) invalid();
+    || !exactKeys(value, [...CARD_KEYS, ...['sentence', 'source'].filter((key) => Object.hasOwn(value, key))])) invalid();
   const card = value as Record<string, unknown>;
   if (card.known !== null && typeof card.known !== 'boolean') invalid();
   if (card.reviewedAt !== null) timestamp(card.reviewedAt);
+  let source: Flashcard['source'];
+  if (card.source !== undefined) {
+    const value = card.source;
+    if (!value || typeof value !== 'object' || Array.isArray(value) || !exactKeys(value, ['title', 'href'])) invalid();
+    const { title, href } = value as Record<string, unknown>;
+    source = { title: text(title, STRING_LIMITS.sourceTitle, true), href: text(href, STRING_LIMITS.sourceHref, true) };
+    // Same-origin reader links only; stored data must never become an open redirect or javascript: URL.
+    if (!/^\/books\/[\w-]+(?:\/read)?$/u.test(source.href)) invalid();
+  }
   return {
+    ...(card.sentence !== undefined ? { sentence: text(card.sentence, STRING_LIMITS.sentence, true) } : {}),
+    ...(source ? { source } : {}),
     id: text(card.id, STRING_LIMITS.id, true),
     word: text(card.word, STRING_LIMITS.word, true),
     reading: text(card.reading, STRING_LIMITS.reading, false),
@@ -182,6 +200,45 @@ export function saveFlashcards(data: FlashcardData, previousRaw: string | null):
     }
     return raw;
   });
+}
+
+export type ReaderCardInput = { word: string; reading: string; meaning: string; sentence: string; source: { title: string; href: string } };
+
+/** Adds a card to the "Từ trong truyện" deck, creating it if needed. Returns false when the same word+sentence exists. */
+export async function saveReaderCard(input: ReaderCardInput): Promise<boolean> {
+  const { data, raw } = loadFlashcards();
+  const deck = data.decks.find((item) => item.id === READER_DECK.id);
+  if (deck?.cards.some((card) => card.word === input.word && card.sentence === input.sentence)) return false;
+  if ((!deck && data.decks.length >= MAX_DECKS) || data.decks.reduce((count, item) => count + item.cards.length, 0) >= MAX_CARDS) {
+    invalid('Đã đạt giới hạn 100 bộ thẻ hoặc 10.000 thẻ trên thiết bị. Hãy xóa bớt dữ liệu trước.');
+  }
+  const card: Flashcard = {
+    id: crypto.randomUUID(),
+    word: input.word.slice(0, STRING_LIMITS.word),
+    reading: input.reading.slice(0, STRING_LIMITS.reading),
+    meaning: input.meaning.slice(0, STRING_LIMITS.meaning),
+    dueAt: 0, reviewedAt: null, known: null,
+    sentence: input.sentence.slice(0, STRING_LIMITS.sentence),
+    source: input.source,
+  };
+  const decks = deck
+    ? data.decks.map((item) => item === deck ? { ...item, cards: [...item.cards, card] } : item)
+    : [...data.decks, { ...READER_DECK, sample: false, cards: [card] }];
+  await saveFlashcards({ ...data, decks }, raw);
+  return true;
+}
+
+const tsvField = (value: string) => {
+  const flat = value.replace(/[\t\r\n]+/gu, ' ').trim();
+  return flat.includes('"') ? `"${flat.replaceAll('"', '""')}"` : flat;
+};
+
+/** Anki "Import File" text format: https://docs.ankiweb.net/importing/text-files.html
+ * Reader cards copy their meaning from Omoha, whose translation licence is unverified, so it is opt-in. */
+export function toAnkiTsv(deck: Deck, origin: string, dictionaryMeanings = false): string {
+  const rows = deck.cards.map((card) => [card.word, card.reading, !card.source || dictionaryMeanings ? card.meaning : '', card.sentence ?? '',
+    card.source ? `${card.source.title} ${origin}${card.source.href}` : ''].map(tsvField).join('\t'));
+  return ['#separator:tab', '#html:false', '#columns:Từ\tCách đọc\tNghĩa\tCâu\tNguồn', ...rows].join('\n') + '\n';
 }
 
 export function gradeCard(card: Flashcard, known: boolean, now: number): Flashcard {

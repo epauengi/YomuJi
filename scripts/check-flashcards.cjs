@@ -135,11 +135,35 @@ await assert.rejects(flashcards.saveFlashcards(valid, raw), /Không thể truy c
   assert.equal(raw, winner.value);
   assert(['First tab', 'Second tab'].includes(flashcards.parseFlashcards(raw).decks[0].name));
 
+  global.window = { localStorage };
+  raw = null;
+  const source = { title: '羅生門', href: '/books/rashomon/read' };
+  const readerInput = { word: '下人', reading: 'げにん', meaning: 'người hầu', sentence: '下人が雨やみを待っていた。', source };
+  assert.equal(await flashcards.saveReaderCard(readerInput), true);
+  assert.equal(await flashcards.saveReaderCard(readerInput), false, 'same word+sentence is not duplicated');
+  const readerDeck = flashcards.loadFlashcards().data.decks.find((deck) => deck.id === 'reader-words');
+  assert.equal(readerDeck.cards.length, 1);
+  assert.deepEqual(readerDeck.cards[0].source, source);
+  assert.equal(readerDeck.cards[0].sentence, readerInput.sentence);
+  const withCard = (patch) => JSON.stringify({ version: 1, decks: [{ ...readerDeck, cards: [{ ...readerDeck.cards[0], ...patch }] }] });
+  for (const href of ['https://evil.example/', 'javascript:alert(1)', '//evil.example', '/books/../x'])
+    assert.throws(() => flashcards.parseFlashcards(withCard({ source: { ...source, href } })), /Dữ liệu/u);
+  assert.throws(() => flashcards.parseFlashcards(withCard({ source: { ...source, extra: 1 } })), /Dữ liệu/u);
+  assert.throws(() => flashcards.parseFlashcards(withCard({ sentence: 's'.repeat(501) })), /Dữ liệu/u);
+  const tsvDeck = { ...readerDeck, cards: [...readerDeck.cards, { ...valid.decks[0].cards[0], word: 'a\tb', meaning: 'say "hi"\nok' }] };
+  const tsv = flashcards.toAnkiTsv(tsvDeck, 'https://yomuji.test');
+  const lines = tsv.trimEnd().split('\n');
+  assert.deepEqual(lines.slice(0, 3), ['#separator:tab', '#html:false', '#columns:Từ\tCách đọc\tNghĩa\tCâu\tNguồn']);
+  assert.equal(lines[3], '下人\tげにん\t\t下人が雨やみを待っていた。\t羅生門 https://yomuji.test/books/rashomon/read', 'dictionary meaning is opt-in');
+  assert.equal(lines[4].split('\t')[0], 'a b');
+  assert.equal(lines[4].split('\t')[2], '"say ""hi"" ok"');
+  assert.equal(flashcards.toAnkiTsv(tsvDeck, '', true).split('\n')[3].split('\t')[2], 'người hầu');
+
   Object.defineProperty(global, 'navigator', { configurable: true, value: {} });
   await assert.rejects(flashcards.saveFlashcards(valid, raw), /không hỗ trợ khóa/u);
-  assert.equal(writes, beforeRaceWrites + 1, 'missing Web Locks must not write');
+  assert.equal(writes, beforeRaceWrites + 2, 'missing Web Locks must not write');
 
-  console.log('PASS schema, bounds, sample load, storage failures, locked conflict detection, grading schedule');
+  console.log('PASS schema, bounds, sample load, storage failures, locked conflict detection, grading schedule, reader cards, Anki TSV');
 }
 
 main().catch((error) => {

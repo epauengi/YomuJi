@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 const AnkiImport = dynamic(() => import('./AnkiImport').then((module) => module.AnkiImport), { loading: () => <p role="status">Đang mở trình nhập Anki…</p> });
 import { ArrowLeft, ArrowRight, BookBookmark, Check, Plus, SpeakerHigh, Trash, X } from '@phosphor-icons/react';
-import { loadFlashcards, saveFlashcards, gradeCard, STORAGE_KEY, type Deck, type Flashcard, type FlashcardData } from '@/lib/flashcards';
+import { loadFlashcards, saveFlashcards, gradeCard, toAnkiTsv, STORAGE_KEY, type Deck, type Flashcard, type FlashcardData } from '@/lib/flashcards';
 import { playJapaneseAudio, stopCurrentAudio } from '@/lib/tts';
 import { wordHref } from '@/lib/wordRoutes';
 
@@ -28,6 +28,7 @@ export function Flashcards({ deckId }: { deckId?: string }) {
   const [now, setNow] = useState(0);
   const [session, setSession] = useState<Session | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [exportMeanings, setExportMeanings] = useState(false);
   const focusRef = useRef<HTMLButtonElement>(null);
   const summaryRef = useRef<HTMLHeadingElement>(null);
 
@@ -155,6 +156,16 @@ export function Flashcards({ deckId }: { deckId?: string }) {
     setRevealed(false);
   }
 
+  function exportAnki(target: Deck) {
+    const url = URL.createObjectURL(new Blob([toAnkiTsv(target, window.location.origin, exportMeanings)], { type: 'text/tab-separated-values;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${target.name.replace(/[\\/:*?"<>|]+/gu, '_')}.tsv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    setNotice(`Đã xuất ${target.cards.length} thẻ. Trong Anki chọn File › Import và chọn tệp .tsv.`);
+  }
+
   return (
     <div className="flashcards-page">
       <div className={`fc-container ${session ? 'fc-focused' : ''}`}>
@@ -214,7 +225,7 @@ export function Flashcards({ deckId }: { deckId?: string }) {
             <div className="fc-study-card">
               <p className="fc-muted">{revealed ? 'Đối chiếu với câu trả lời của bạn' : 'Bạn còn nhớ nghĩa của từ này?'}</p>
               <h2 lang="ja" className="jp-text fc-word">{session.cards[session.index].word}</h2>
-              {revealed && <div className="fc-answer"><p lang="ja" className="jp-text fc-reading">{session.cards[session.index].reading}</p><p className="fc-meaning">{session.cards[session.index].meaning}</p></div>}
+              {revealed && <div className="fc-answer"><p lang="ja" className="jp-text fc-reading">{session.cards[session.index].reading}</p><p className="fc-meaning">{session.cards[session.index].meaning}</p>{session.cards[session.index].sentence && <blockquote className="fc-sentence"><p lang="ja" className="jp-text">{session.cards[session.index].sentence}</p>{session.cards[session.index].source && <Link href={session.cards[session.index].source!.href} className="fc-source">Nguồn: <span lang="ja">{session.cards[session.index].source!.title}</span></Link>}</blockquote>}</div>}
               <button type="button" className="fc-button fc-audio" onClick={() => void playJapaneseAudio(session.cards[session.index].word, { onError: () => setError('Không phát được âm thanh. Kiểm tra kết nối hoặc giọng đọc trên thiết bị rồi thử lại.') })}><SpeakerHigh size={20} aria-hidden="true" /> Nghe phát âm</button>
             </div>
             {revealed ? <div className="fc-grades"><button ref={focusRef} className="fc-button" disabled={blocked || pending} onClick={() => answer(false)}><X size={20} aria-hidden="true" /> Chưa nhớ <small>Ôn sau 10 phút</small></button><button className="fc-button fc-primary" disabled={blocked || pending} onClick={() => answer(true)}><Check size={20} aria-hidden="true" /> Đã nhớ <small>Ôn sau 1 ngày</small></button></div> : <button ref={focusRef} className="fc-button fc-primary fc-reveal" onClick={() => setRevealed(true)}>Xem đáp án</button>}
@@ -224,12 +235,13 @@ export function Flashcards({ deckId }: { deckId?: string }) {
           <>
             {deck.sample && <p className="fc-sample">Bộ mẫu minh họa. Tiến độ học của bạn vẫn được lưu trên thiết bị.</p>}
             {deck.description && <p className="fc-description">{deck.description}</p>}
-            <div className="fc-deck-toolbar"><div><strong>{deck.cards.length} thẻ</strong><span className="fc-due"> · {due(deck.cards).length} đến hạn</span></div><div className="fc-actions"><button className="fc-button fc-primary" disabled={!due(deck.cards).length || blocked || pending} onClick={() => start(due(deck.cards))}>Ôn thẻ đến hạn ({due(deck.cards).length})</button><button className="fc-button" disabled={!deck.cards.length || blocked || pending} onClick={() => start(deck.cards)}>Học tất cả</button></div></div>
+            <div className="fc-deck-toolbar"><div><strong>{deck.cards.length} thẻ</strong><span className="fc-due"> · {due(deck.cards).length} đến hạn</span></div><div className="fc-actions"><button className="fc-button fc-primary" disabled={!due(deck.cards).length || blocked || pending} onClick={() => start(due(deck.cards))}>Ôn thẻ đến hạn ({due(deck.cards).length})</button><button className="fc-button" disabled={!deck.cards.length || blocked || pending} onClick={() => start(deck.cards)}>Học tất cả</button><button className="fc-button" disabled={!deck.cards.length} onClick={() => exportAnki(deck)}>Xuất Anki (TSV)</button></div></div>
+            {deck.cards.some((card) => card.source) && <label className="fc-muted"><input type="checkbox" checked={exportMeanings} onChange={(event) => setExportMeanings(event.target.checked)} /> Xuất cả nghĩa lấy từ từ điển. Bản dịch Omoha chưa xác minh giấy phép; chỉ dùng cho học cá nhân, không chia sẻ lại.</label>}
             {deck.cards.length > 0 && due(deck.cards).length === 0 && <p className="fc-muted">Đã ôn hết thẻ đến hạn. Bạn có thể học lại toàn bộ bất cứ lúc nào.</p>}
             <div className="fc-list-heading"><h2>Danh sách từ</h2><button className="fc-button" onClick={() => setAdding(!adding)} aria-expanded={adding} aria-controls="fc-add"><Plus size={18} aria-hidden="true" /> Thêm thẻ</button></div>
             {adding && <form id="fc-add" className="fc-form" onSubmit={addCard}><h3>Thêm từ mới</h3><div className="fc-form-columns"><label>Từ tiếng Nhật<input name="word" lang="ja" required maxLength={100} autoFocus /></label><label>Cách đọc <span className="fc-muted">(không bắt buộc)</span><input name="reading" lang="ja" maxLength={200} /></label></div><label>Nghĩa tiếng Việt<textarea name="meaning" required maxLength={1000} rows={2} /></label><div className="fc-actions"><button className="fc-button fc-primary" disabled={blocked || pending}>Lưu thẻ</button><button type="button" className="fc-button" onClick={() => setAdding(false)}>Đóng</button></div></form>}
             {deck.cards.length > 0 && <label className="fc-search">Tìm trong bộ thẻ<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Từ, cách đọc hoặc nghĩa…" /></label>}
-            {deck.cards.length ? <ul className="fc-words">{deck.cards.filter((card) => [card.word, card.reading, card.meaning].join(' ').toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'))).map((card) => <li key={card.id}><div className="fc-word-copy"><Link href={wordHref(card.word)} lang="ja" className="jp-text fc-list-word">{card.word}</Link><span lang="ja" className="jp-text fc-muted">{card.reading}</span><p>{card.meaning}</p><small className={card.dueAt <= now ? 'fc-due' : 'fc-muted'}>{card.dueAt <= now ? 'Đến hạn ôn' : `Ôn tiếp: ${new Date(card.dueAt).toLocaleString('vi-VN')}`}</small></div><button className="fc-button fc-icon-button" disabled={blocked || pending} onClick={() => removeCard(card)} aria-label={`Xóa thẻ ${card.word}`}><Trash size={18} aria-hidden="true" /></button></li>)}{query.trim() && !deck.cards.some((card) => [card.word, card.reading, card.meaning].join(' ').toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'))) && <li className="fc-muted">Không tìm thấy từ phù hợp. Thử từ khóa khác.</li>}</ul> : <div className="fc-empty"><h3>Bộ thẻ chưa có từ nào</h3><p>Thêm từ tiếng Nhật và nghĩa tiếng Việt để bắt đầu học.</p><button className="fc-button fc-primary" onClick={() => setAdding(true)}>Thêm thẻ đầu tiên</button></div>}
+            {deck.cards.length ? <ul className="fc-words">{deck.cards.filter((card) => [card.word, card.reading, card.meaning].join(' ').toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'))).map((card) => <li key={card.id}><div className="fc-word-copy"><Link href={wordHref(card.word)} lang="ja" className="jp-text fc-list-word">{card.word}</Link><span lang="ja" className="jp-text fc-muted">{card.reading}</span><p>{card.meaning}</p>{card.sentence && <p lang="ja" className="jp-text fc-muted">{card.sentence}{card.source && <> · <Link href={card.source.href} className="fc-source"><span lang="ja">{card.source.title}</span></Link></>}</p>}<small className={card.dueAt <= now ? 'fc-due' : 'fc-muted'}>{card.dueAt <= now ? 'Đến hạn ôn' : `Ôn tiếp: ${new Date(card.dueAt).toLocaleString('vi-VN')}`}</small></div><button className="fc-button fc-icon-button" disabled={blocked || pending} onClick={() => removeCard(card)} aria-label={`Xóa thẻ ${card.word}`}><Trash size={18} aria-hidden="true" /></button></li>)}{query.trim() && !deck.cards.some((card) => [card.word, card.reading, card.meaning].join(' ').toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'))) && <li className="fc-muted">Không tìm thấy từ phù hợp. Thử từ khóa khác.</li>}</ul> : <div className="fc-empty"><h3>Bộ thẻ chưa có từ nào</h3><p>Thêm từ tiếng Nhật và nghĩa tiếng Việt để bắt đầu học.</p><button className="fc-button fc-primary" onClick={() => setAdding(true)}>Thêm thẻ đầu tiên</button></div>}
             <div className="fc-delete-deck"><button className="fc-button fc-danger" disabled={blocked || pending} onClick={async () => {
               if (!window.confirm(`Xóa bộ thẻ “${deck.name}” và toàn bộ ${deck.cards.length} thẻ? Không thể hoàn tác.`)) return;
               if (await commit({ ...data, decks: data.decks.filter((item) => item.id !== deck.id) })) window.location.assign('/flashcards');

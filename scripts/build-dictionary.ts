@@ -467,6 +467,18 @@ async function main() {
     const kanjivgSvgPath = path.join(KANJIVG_DIR, 'kanji', `${hexCode}.svg`);
     const destPath = path.join(strokesDir, `${hexCode}.svg`);
 
+    if (fs.existsSync(kanjivgSvgPath)) {
+      const svg = fs.readFileSync(kanjivgSvgPath, 'utf-8');
+      const parts = new Set<string>();
+      for (const match of svg.matchAll(/<g\b[^>]*>/gu)) {
+        for (const attr of [/kvg:element="([^"]+)"/u, /kvg:original="([^"]+)"/u]) {
+          const value = match[0].match(attr)?.[1];
+          if (value && value !== kanji.literal && [...value].length === 1) parts.add(value);
+        }
+      }
+      kanji.components = [...parts];
+    }
+
     if (fs.existsSync(animSvgPath)) {
       fs.copyFileSync(animSvgPath, destPath);
       copiedStrokes++;
