@@ -321,6 +321,111 @@ async function runTests() {
   assert.equal(practiceRes.status, 200);
   assert.equal(practiceRes.data.questions.length, 22);
 
+  console.log('--- Checking all JLPT levels ---');
+  const getLevel = (params) => route.GET(new NextRequest(`http://localhost:3000/api/jlpt?${params}`));
+  const postLevel = (body) => route.POST(new NextRequest('http://localhost:3000/api/jlpt', { body: JSON.stringify(body) }));
+  const questionIds = new Set(independentKeyMap.keys());
+  for (const [level, minutes, counts] of [
+    ['N5', 60, [21, 15, 6]], ['N4', 80, [28, 18, 8]],
+    ['N3', 100, [35, 23, 16]], ['N1', 110, [25, 20, 25]],
+  ]) {
+    const total = counts.reduce((sum, count) => sum + count, 0);
+    const catalog = await getLevel(`level=${level}`);
+    assert.equal(catalog.status, 200, `${level} catalog`);
+    assert.equal(catalog.data.exams.length, 10);
+    assert.equal(catalog.data.totalQuestions, 10 * total);
+    assert.equal(catalog.data.durationMinutes, minutes);
+    assert.equal((await getLevel(`level=${level}&mode=mock&exam=11`)).status, 400);
+
+    const raw = JSON.parse(fs.readFileSync(`data/jlpt/${level.toLowerCase()}-exams.json`, 'utf8'));
+    const keys = JSON.parse(fs.readFileSync(`data/jlpt/${level.toLowerCase()}-answer-key.json`, 'utf8'));
+    assert.equal(raw.answer_keys, undefined);
+    assert.equal(raw.metadata.official_exam_reproduction, false);
+    assert.equal(keys.metadata.total_exams, 10);
+    assert.equal(keys.metadata.total_questions, 10 * total);
+    assert.equal(Object.keys(keys.answer_keys).length, 30);
+    const seenPassages = new Set();
+    const seenItems = new Set();
+    let firstQuestionId;
+    for (let exam = 1; exam <= 10; exam++) {
+      const mock = await getLevel(`level=${level}&mode=mock&exam=${exam}`);
+      assert.equal(mock.status, 200, `${level} đề ${exam}`);
+      assert.equal(mock.data.level, level);
+      assert.equal(mock.data.number, exam);
+      assert.equal(mock.data.durationMinutes, minutes);
+      assert.equal(mock.data.questions.length, total);
+      const answers = {};
+      for (const [index, category] of ids.entries()) {
+        const practice = await getLevel(`level=${level}&mode=practice&exam=${exam}&category=${category}`);
+        assert.equal(practice.status, 200);
+        assert.equal(practice.data.durationMinutes, null);
+        assert.equal(practice.data.questions.length, counts[index]);
+        assert.deepEqual(practice.data.questions, mock.data.questions.filter((q) => q.category === category));
+        const [reference] = raw.exam_groups[category];
+        const part = raw.exam_groups[category][exam - 1];
+        const shape = (p) => p.problems.map((problem) => [problem.problem_number, problem.subtype, problem.questions.length, problem.passages?.length]);
+        assert.deepEqual(shape(part), shape(reference), part.id);
+        const key = new Map(keys.answer_keys[part.id].map((item) => [item.id, item]));
+        assert.equal(key.size, counts[index]);
+        for (const problem of part.problems) {
+          for (const passage of problem.passages ?? []) {
+            const text = (passage.text ?? passage.texts.map((t) => t.text).join('\n')).replace(/\s+/g, '');
+            assert.ok(text && !seenPassages.has(text), passage.id);
+            seenPassages.add(text);
+          }
+        }
+        const partAnswers = {};
+        for (const q of practice.data.questions) {
+          assert.equal(q.category, category);
+          assert.ok(q.id.startsWith(`${level}-`) && !questionIds.has(q.id), q.id);
+          questionIds.add(q.id);
+          firstQuestionId ??= q.id;
+          const item = key.get(q.id);
+          assert.ok(item, q.id);
+          const choices = q.choices.map((c) => c.text.trim());
+          assert.equal(new Set(choices).size, 4, q.id);
+          for (const field of ['answer', 'full_order', 'completed_sentence', 'explanation']) assert.equal(q[field], undefined, q.id);
+          if (category === 'reading' || q.format === 'text_grammar') {
+            assert.ok(q.passage_id, q.id);
+            assert.equal(q.passage?.id, q.passage_id, q.id);
+          } else {
+            const sig = JSON.stringify([q.question.replace(/\s+/g, ''), choices.sort()]);
+            assert.ok(!seenItems.has(sig), q.id);
+            seenItems.add(sig);
+          }
+          if (q.format === 'sentence_order_star') {
+            assert.deepEqual([...item.full_order].sort(), [1, 2, 3, 4], q.id);
+            assert.equal(item.full_order[q.star_blank_index - 1], item.answer, q.id);
+            if (exam > 1) {
+              const marks = q.question.match(/____|★/g);
+              assert.equal(marks?.length, 4, q.id);
+              assert.equal(marks.filter((mark) => mark === '★').length, 1, q.id);
+              assert.equal(marks[q.star_blank_index - 1], '★', q.id);
+              const fragments = item.full_order.map((id) => q.choices.find((c) => c.id === id).text);
+              const completed = q.question.replace(/(?:____|★)(?:\s+(?:____|★)){3}/, fragments.join(''));
+              assert.equal(completed.replace(/\s+/g, ''), item.completed_sentence.replace(/\s+/g, ''), q.id);
+            }
+          }
+          partAnswers[q.id] = item.answer;
+        }
+        const grade = await postLevel({ level, mode: 'practice', exam, category, answers: partAnswers });
+        assert.equal(grade.status, 200);
+        assert.equal(grade.data.correct, counts[index]);
+        Object.assign(answers, partAnswers);
+      }
+      const grade = await postLevel({ level, mode: 'mock', exam, answers });
+      assert.equal(grade.status, 200);
+      assert.equal(grade.data.correct, total);
+      assert.equal(grade.data.unanswered, 0);
+    }
+    for (const id of [firstQuestionId, q1.id]) {
+      assert.equal((await postLevel({ level, mode: 'mock', exam: 10, answers: { [id]: 1 } })).status, 400);
+    }
+    assert.equal((await postLevel({ level, mode: 'mock', exam: 1, answers: { [q1.id]: 1 } })).status, 400);
+  }
+  for (const params of ['level=', 'level=N6', 'level=N1&level=N5']) assert.equal((await getLevel(params)).status, 400);
+  for (const level of [null, 'N6', ['N5']]) assert.equal((await postLevel({ level, mode: 'mock', exam: 1, answers: {} })).status, 400);
+
   // GET invalid mode -> 400
   const getBadModeReq = new NextRequest('http://localhost:3000/api/jlpt?mode=unknown&exam=1');
   const badModeRes = await route.GET(getBadModeReq);

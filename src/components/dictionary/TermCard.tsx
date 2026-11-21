@@ -8,6 +8,7 @@ import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { termBookmark } from '@/lib/browserState';
 import { playJapaneseAudio } from '@/lib/tts';
 import { wordHref } from '@/lib/wordRoutes';
+import { searchResultId, withSearchOrigin } from '@/lib/dictionary/searchReturn';
 import {
   formatMatchType,
   formatPartOfSpeech,
@@ -19,18 +20,23 @@ export function TermCard({
   term,
   matchType,
   query,
+  origin,
 }: {
   term: TermRecord;
   matchType?: DictionarySearchResult['matchType'];
   query?: string;
+  origin?: { query: string; group?: 'base' };
 }) {
+  const href = wordHref(term);
+  const result = origin && searchResultId(href, origin.group);
   return (
     <Card
       variant="default"
       className="surface-lift group relative h-full border-[var(--color-border)] p-0 shadow-none hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface)]"
     >
       <Link
-        href={wordHref(term)}
+        href={origin ? withSearchOrigin(href, { query: origin.query, result }) : href}
+        id={result}
         className="block h-full rounded-[var(--radius-lg)] p-4 pr-16"
       >
         <div className="min-w-0">

@@ -131,7 +131,7 @@ function readStoredRecentSearches(): string[] {
   return [];
 }
 
-export function HomePage({ initialQuery }: { initialQuery: string }) {
+export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; returnFocus?: string }) {
   const router = useRouter();
   const { progress } = useDictionary();
   const query = initialQuery.trim();
@@ -147,6 +147,29 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
   const results = search?.results;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const restoredFocus = useRef<string | null>(null);
+  const [settledAnalysisQuery, setSettledAnalysisQuery] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!query || !returnFocus) {
+      restoredFocus.current = null;
+      return;
+    }
+    if (loading) return;
+    const key = JSON.stringify([query, returnFocus]);
+    if (restoredFocus.current === key) return;
+    const heading = resultsHeadingRef.current;
+    const candidate = document.getElementById(returnFocus);
+    const result = candidate instanceof HTMLAnchorElement && heading?.closest('section')?.contains(candidate) ? candidate : null;
+    // Wait for conjugation results above the grid so they cannot shift the restored card.
+    if (results && returnFocus.includes('-result-') && settledAnalysisQuery !== query) return;
+    const target = result ?? heading;
+    if (!target) return;
+    restoredFocus.current = key;
+    if (document.activeElement && document.activeElement !== document.body) return;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: result ? 'center' : 'start', behavior: 'instant' });
+  }, [query, returnFocus, loading, results, settledAnalysisQuery]);
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [wordOfTheDay, setWordOfTheDay] = useState<TermRecord | null>(null);
@@ -393,7 +416,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
               </p>
             </div>
 
-            {results && <ConjugationAnalysis key={query} query={query} results={results} />}
+            {results && <ConjugationAnalysis key={query} query={query} results={results} onSettled={setSettledAnalysisQuery} />}
             <div aria-busy={loading}>
               {results && progress.source === 'offline' && (
                 <div className="mb-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
@@ -424,7 +447,7 @@ export function HomePage({ initialQuery }: { initialQuery: string }) {
               ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {results.map(({ term, matchType }) => (
-                    <TermCard key={term.id} term={term} matchType={matchType} query={query} />
+                    <TermCard key={term.id} term={term} matchType={matchType} query={query} origin={{ query }} />
                   ))}
                 </div>
               ) : (

@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   CATEGORIES,
+  DEFAULT_LEVEL,
+  type Level,
   type Category,
   type Mode,
   type PaperQuestion,
@@ -78,6 +80,7 @@ interface RawExamsFile {
     level: string;
     total_exams: number;
     total_questions: number;
+    duration_minutes?: number;
     n2_joint_time_minutes?: number;
   };
   exam_groups: Record<Category, RawPart[]>;
@@ -94,23 +97,25 @@ interface LoadedData {
   answersMap: Map<string, RawAnswerItem>;
 }
 
-let cached: LoadedData | null = null;
+const cache = new Map<Level, LoadedData>();
 
 const CATEGORY_LABEL_MAP: Record<Category, string> = Object.fromEntries(
   CATEGORIES.map((c) => [c.id, c.label])
 ) as Record<Category, string>;
 
-const EXPECTED_COUNTS: Record<Category, number> = {
-  vocabulary_kanji: 32,
-  grammar: 22,
-  reading: 21,
-};
+const PART_CODES: Record<Category, string> = { vocabulary_kanji: 'VOCAB', grammar: 'GRAMMAR', reading: 'READING' };
 
-function loadData(): LoadedData {
+function partId(level: Level, category: Category, exam: number) {
+  return `${level}-${PART_CODES[category]}-${String(exam).padStart(2, '0')}`;
+}
+
+function loadData(level: Level): LoadedData {
+  const cached = cache.get(level);
   if (cached) return cached;
 
-  const examsPath = path.join(process.cwd(), 'data', 'jlpt', 'n2-exams.json');
-  const answerKeyPath = path.join(process.cwd(), 'data', 'jlpt', 'n2-answer-key.json');
+  const prefix = level.toLowerCase();
+  const examsPath = path.join(process.cwd(), 'data', 'jlpt', `${prefix}-exams.json`);
+  const answerKeyPath = path.join(process.cwd(), 'data', 'jlpt', `${prefix}-answer-key.json`);
 
   if (!fs.existsSync(examsPath)) {
     throw new Error('Dữ liệu đề thi không tồn tại');
@@ -121,6 +126,15 @@ function loadData(): LoadedData {
 
   const examsRaw = fs.readFileSync(examsPath, 'utf8');
   const examsData: RawExamsFile = JSON.parse(examsRaw);
+  const { metadata } = examsData;
+  const examCount = metadata?.total_exams;
+  const totalQuestions = metadata?.total_questions;
+  const durationMinutes = metadata?.duration_minutes ?? metadata?.n2_joint_time_minutes ?? 0;
+  if (metadata?.level !== level || !Number.isInteger(examCount) || examCount < 1
+      || !Number.isInteger(totalQuestions) || totalQuestions < 1
+      || !Number.isInteger(durationMinutes) || durationMinutes < 1) {
+    throw new Error(`Thông tin bộ đề ${level} không hợp lệ`);
+  }
 
   const keyRaw = fs.readFileSync(answerKeyPath, 'utf8');
   const keyParsed: RawAnswerKeyFile = JSON.parse(keyRaw);
@@ -151,32 +165,29 @@ function loadData(): LoadedData {
     }
   }
 
-  if (seenAnswerIds.size !== 750) {
-    throw new Error(`Số lượng đáp án không khớp: kỳ vọng 750, thực tế ${seenAnswerIds.size}`);
+  if (seenAnswerIds.size !== totalQuestions) {
+    throw new Error(`Số lượng đáp án không khớp: kỳ vọng ${totalQuestions}, thực tế ${seenAnswerIds.size}`);
   }
 
   const partsMap = new Map<string, RawPart>();
   const seenQuestionIds = new Set<string>();
   const exams = [];
-  const durationMinutes = examsData.metadata?.n2_joint_time_minutes ?? 105;
-
   if (!examsData.exam_groups || typeof examsData.exam_groups !== 'object') {
     throw new Error('Cấu trúc đề thi không hợp lệ');
   }
 
-  for (let examNum = 1; examNum <= 10; examNum++) {
-    const suffix = String(examNum).padStart(2, '0');
+  for (let examNum = 1; examNum <= examCount; examNum++) {
     const examParts: { category: Category; label: string; questionCount: number }[] = [];
     let examQuestionCount = 0;
 
     for (const cat of CATEGORIES) {
       const parts = examsData.exam_groups[cat.id];
-      if (!Array.isArray(parts)) {
-        throw new Error(`Thiếu nhóm đề cho danh mục ${cat.id}`);
+      if (!Array.isArray(parts) || parts.length !== examCount) {
+        throw new Error(`Nhóm đề ${cat.id} không có đủ ${examCount} phần`);
       }
 
-      const part = parts.find((p) => p.id.endsWith(`-${suffix}`));
-      if (!part) {
+      const part = parts.find((p) => p.id === partId(level, cat.id, examNum));
+      if (!part || part.category !== cat.id || part.level !== level) {
         throw new Error(`Thiếu phần thi ${cat.id} cho đề ${examNum}`);
       }
       partsMap.set(part.id, part);
@@ -243,8 +254,8 @@ function loadData(): LoadedData {
         }
       }
 
-      const expected = EXPECTED_COUNTS[cat.id];
-      if (qCount !== expected) {
+      const expected = part.total_questions;
+      if (qCount === 0 || qCount !== expected) {
         throw new Error(`Số lượng câu hỏi phần ${part.id} không khớp: kỳ vọng ${expected}, thực tế ${qCount}`);
       }
 
@@ -256,10 +267,6 @@ function loadData(): LoadedData {
       });
     }
 
-    if (examQuestionCount !== 75) {
-      throw new Error(`Tổng số câu hỏi đề thi thử số ${examNum} không khớp: kỳ vọng 75, thực tế ${examQuestionCount}`);
-    }
-
     exams.push({
       number: examNum,
       questionCount: examQuestionCount,
@@ -267,18 +274,14 @@ function loadData(): LoadedData {
     });
   }
 
-  if (seenQuestionIds.size !== 750) {
-    throw new Error(`Tổng số câu hỏi toàn bộ không khớp 750: thực tế ${seenQuestionIds.size}`);
+  if (seenQuestionIds.size !== totalQuestions) {
+    throw new Error(`Tổng số câu hỏi toàn bộ không khớp ${totalQuestions}: thực tế ${seenQuestionIds.size}`);
   }
 
-  const catalog: Catalog = {
-    exams,
-    durationMinutes,
-    totalQuestions: exams.reduce((sum, e) => sum + e.questionCount, 0),
-  };
-
-  cached = { catalog, partsMap, answersMap };
-  return cached;
+  const catalog: Catalog = { exams, durationMinutes, totalQuestions };
+  const loaded = { catalog, partsMap, answersMap };
+  cache.set(level, loaded);
+  return loaded;
 }
 
 function buildPaperQuestions(part: RawPart): PaperQuestion[] {
@@ -329,30 +332,31 @@ function buildPaperQuestions(part: RawPart): PaperQuestion[] {
   return result;
 }
 
-export function getJlptCatalog(): Catalog {
-  return loadData().catalog;
+export function getJlptCatalog(level: Level = DEFAULT_LEVEL): Catalog {
+  return loadData(level).catalog;
 }
 
-export function getJlptPaper(mode: Mode, examNumber: number, category?: Category): Paper {
-  if (typeof examNumber !== 'number' || !Number.isInteger(examNumber) || examNumber < 1 || examNumber > 10) {
+export function getJlptPaper(mode: Mode, examNumber: number, category?: Category, level: Level = DEFAULT_LEVEL): Paper {
+  if (!Number.isInteger(examNumber) || examNumber < 1) {
     throw new JlptInputError(`Số đề không hợp lệ: ${examNumber}`);
   }
 
-  const { partsMap, catalog } = loadData();
-  const suffix = String(examNumber).padStart(2, '0');
+  const { partsMap, catalog } = loadData(level);
+  if (examNumber > catalog.exams.length) {
+    throw new JlptInputError(`Không tìm thấy đề số ${examNumber} ở cấp ${level}`);
+  }
 
   if (mode === 'practice') {
-    if (!category || !CATEGORY_LABEL_MAP[category]) {
+    if (!category || !Object.hasOwn(PART_CODES, category)) {
       throw new JlptInputError('Chế độ luyện tập yêu cầu chỉ định phần thi hợp lệ');
     }
-    const catPrefix = category === 'vocabulary_kanji' ? 'N2-VOCAB' : category === 'grammar' ? 'N2-GRAMMAR' : 'N2-READING';
-    const partId = `${catPrefix}-${suffix}`;
-    const part = partsMap.get(partId);
+    const part = partsMap.get(partId(level, category, examNumber));
     if (!part) {
       throw new JlptInputError(`Không tìm thấy đề ${examNumber} phần ${category}`);
     }
     const questions = buildPaperQuestions(part);
     return {
+      level,
       title: `Đề ${examNumber} – ${CATEGORY_LABEL_MAP[category]}`,
       number: examNumber,
       mode: 'practice',
@@ -367,9 +371,7 @@ export function getJlptPaper(mode: Mode, examNumber: number, category?: Category
 
   const questions: PaperQuestion[] = [];
   for (const cat of CATEGORIES) {
-    const catPrefix = cat.id === 'vocabulary_kanji' ? 'N2-VOCAB' : cat.id === 'grammar' ? 'N2-GRAMMAR' : 'N2-READING';
-    const partId = `${catPrefix}-${suffix}`;
-    const part = partsMap.get(partId);
+    const part = partsMap.get(partId(level, cat.id, examNumber));
     if (!part) {
       throw new JlptInputError(`Không tìm thấy đề thi thử số ${examNumber}`);
     }
@@ -377,7 +379,8 @@ export function getJlptPaper(mode: Mode, examNumber: number, category?: Category
   }
 
   return {
-    title: `Đề thi thử N2 số ${examNumber}`,
+    level,
+    title: `Đề thi thử ${level} số ${examNumber}`,
     number: examNumber,
     mode: 'mock',
     durationMinutes: catalog.durationMinutes,
@@ -389,10 +392,11 @@ export function gradeJlptSubmission(
   mode: Mode,
   examNumber: number,
   category: Category | undefined,
-  answers: Record<string, number>
+  answers: Record<string, number>,
+  level: Level = DEFAULT_LEVEL,
 ): Grade {
-  const { answersMap } = loadData();
-  const paper = getJlptPaper(mode, examNumber, category);
+  const paper = getJlptPaper(mode, examNumber, category, level);
+  const { answersMap } = loadData(level);
   const validQuestionIds = new Set(paper.questions.map((q) => q.id));
 
   // Whitelist question IDs: reject if foreign IDs present (including __proto__)

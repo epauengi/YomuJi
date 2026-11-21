@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { wordHref } from '@/lib/wordRoutes';
+import { withSearchOrigin, type SearchOrigin } from '@/lib/dictionary/searchReturn';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 
 interface KanjiAiExplanationBoxProps {
@@ -25,6 +26,7 @@ interface KanjiAiExplanationBoxProps {
   error: string | null;
   onClose: () => void;
   onRetry: () => void;
+  origin?: SearchOrigin;
 }
 
 export function KanjiAiExplanationBox({
@@ -34,6 +36,7 @@ export function KanjiAiExplanationBox({
   error,
   onClose,
   onRetry,
+  origin,
 }: KanjiAiExplanationBoxProps) {
   return (
     <motion.div
@@ -155,7 +158,7 @@ export function KanjiAiExplanationBox({
                   {explanation.compounds.map((c, idx) => (
                     <Link
                       key={`${c.word}-${idx}`}
-                      href={wordHref(c.word)}
+                      href={withSearchOrigin(wordHref(c.word), origin)}
                       className="group flex flex-col justify-between rounded-[--radius-md] border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5 transition-all hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)]/30"
                     >
                       <div className="flex items-baseline justify-between gap-1">

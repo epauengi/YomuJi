@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { type Category, type Mode } from '@/lib/jlpt';
+import { DEFAULT_LEVEL, isJlptLevel, type Category, type Mode } from '@/lib/jlpt';
 import { getJlptCatalog, getJlptPaper, gradeJlptSubmission, JlptInputError } from '@/lib/jlptData';
 
 export const runtime = 'nodejs';
@@ -15,10 +15,13 @@ export async function GET(req: NextRequest) {
     const mode = searchParams.get('mode');
     const examParam = searchParams.get('exam');
     const category = searchParams.get('category');
+    const level = searchParams.get('level') ?? DEFAULT_LEVEL;
+    if (!isJlptLevel(level) || searchParams.getAll('level').length > 1) {
+      return NextResponse.json({ error: 'Cấp độ JLPT không hợp lệ' }, { status: 400 });
+    }
 
-    // No query params -> return catalog
-    if (!mode && !examParam && !category) {
-      const catalog = getJlptCatalog();
+    if (mode === null && examParam === null && category === null) {
+      const catalog = getJlptCatalog(level);
       return NextResponse.json(catalog, { status: 200 });
     }
 
@@ -32,9 +35,9 @@ export async function GET(req: NextRequest) {
 
     // Validate exam
     const examNum = Number(examParam);
-    if (!examParam || !Number.isInteger(examNum) || examNum < 1 || examNum > 10) {
+    if (!examParam || !Number.isInteger(examNum) || examNum < 1) {
       return NextResponse.json(
-        { error: 'Số đề không hợp lệ. Phải là số nguyên từ 1 đến 10' },
+        { error: 'Số đề phải là số nguyên dương' },
         { status: 400 }
       );
     }
@@ -57,7 +60,8 @@ export async function GET(req: NextRequest) {
     const paper = getJlptPaper(
       mode as Mode,
       examNum,
-      category ? (category as Category) : undefined
+      category ? (category as Category) : undefined,
+      level
     );
 
     return NextResponse.json(paper, { status: 200 });
@@ -106,12 +110,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Thân yêu cầu không hợp lệ' }, { status: 400 });
     }
 
-    const { mode, exam, category, answers } = body as {
-      mode?: unknown;
-      exam?: unknown;
-      category?: unknown;
-      answers?: unknown;
-    };
+    const { level = DEFAULT_LEVEL, mode, exam, category, answers } = body;
+    if (!isJlptLevel(level)) {
+      return NextResponse.json({ error: 'Cấp độ JLPT không hợp lệ' }, { status: 400 });
+    }
 
     if (typeof mode !== 'string' || !VALID_MODES.has(mode)) {
       return NextResponse.json(
@@ -121,9 +123,9 @@ export async function POST(req: NextRequest) {
     }
 
     const examNum = Number(exam);
-    if (typeof exam !== 'number' || !Number.isInteger(examNum) || examNum < 1 || examNum > 10) {
+    if (typeof exam !== 'number' || !Number.isInteger(examNum) || examNum < 1) {
       return NextResponse.json(
-        { error: 'Số đề không hợp lệ. Phải là số nguyên từ 1 đến 10' },
+        { error: 'Số đề phải là số nguyên dương' },
         { status: 400 }
       );
     }
@@ -165,7 +167,8 @@ export async function POST(req: NextRequest) {
       mode as Mode,
       examNum,
       category ? (category as Category) : undefined,
-      answersMap
+      answersMap,
+      level
     );
     return NextResponse.json(result, { status: 200 });
   } catch (err: unknown) {

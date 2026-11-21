@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { DictionaryReturnLink } from '@/components/dictionary/DictionaryReturnLink';
+import { readSearchOrigin, withSearchOrigin, type SearchOrigin } from '@/lib/dictionary/searchReturn';
 import Link from 'next/link';
 import { AnimatePresence } from 'motion/react';
-import { ArrowLeft, ShareNetwork, Sparkle } from '@phosphor-icons/react';
+import { ShareNetwork, Sparkle } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useKanjiDetail } from '@/hooks/useDictionary';
@@ -19,6 +21,16 @@ import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 import { attachKanjiMeaningExamples, formatKanjiHanViet, getVietnameseKanjiMeanings } from '@/lib/dictionary/kanjiMeanings';
 
 export default function KanjiDetailPage() {
+  return (
+    <Suspense fallback={<Centered loading title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />}>
+      <KanjiDetail />
+    </Suspense>
+  );
+}
+
+function KanjiDetail() {
+  const searchParams = useSearchParams();
+  const origin = readSearchOrigin(searchParams.getAll('from').length === 1 ? searchParams.get('from') : null, searchParams.get('result'));
   const params = useParams();
   const rawSlug = params.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
@@ -104,7 +116,7 @@ export default function KanjiDetailPage() {
   const analysisLabel = kanji?.components.length ? kanji.components.join(' + ') : `${literal} (bộ thủ)`;
 
   if (status === 'loading') {
-    return <Centered title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
+    return <Centered loading origin={origin} title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
   }
   if (status === 'error') {
     return (
@@ -113,17 +125,15 @@ export default function KanjiDetailPage() {
         message={error || 'Không thể đọc dữ liệu từ điển.'}
         actionLabel="Thử lại"
         onAction={retry}
+        origin={origin}
       />
     );
   }
-  if (!kanji) return <Centered title="Không tìm thấy Kanji" message="Kanji này chưa có trong dữ liệu hiện tại." />;
+  if (!kanji) return <Centered title="Không tìm thấy Kanji" message="Kanji này chưa có trong dữ liệu hiện tại." origin={origin} />;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 md:py-7">
-      <Link href="/" className="mb-4 flex w-fit items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]">
-        <ArrowLeft size={16} />
-        Quay lại trang chủ
-      </Link>
+      <DictionaryReturnLink origin={origin} className="mb-4" />
 
       <div className="mb-6 text-lg text-[var(--color-text-secondary)]">
         1 kết quả của Hán tự <span lang="ja" className="jp-text font-semibold text-[var(--color-primary-700)]">{kanji.literal}</span>
@@ -200,7 +210,7 @@ export default function KanjiDetailPage() {
               {compounds.length ? (
                 <div className="flex flex-wrap gap-x-2 gap-y-2">
                   {compounds.slice(0, 6).map((term: TermRecord, index: number) => (
-                    <Link key={term.id} href={wordHref(term)} className="group inline-flex flex-col leading-tight">
+                    <Link key={term.id} href={withSearchOrigin(wordHref(term), origin)} className="group inline-flex flex-col leading-tight">
                       <span lang="ja" className="jp-text text-[11px] text-[var(--color-primary-700)]">{term.reading}</span>
                       <span lang="ja" className="jp-text text-xl font-medium text-[var(--color-primary-700)] group-hover:underline">
                         {term.surface}{index < Math.min(compounds.length, 6) - 1 ? '、' : ''}
@@ -242,13 +252,14 @@ export default function KanjiDetailPage() {
                 size="sm"
                 className="gap-1.5"
                 onClick={() => {
+                  const url = new URL(window.location.pathname, window.location.origin).href;
                   if (typeof navigator !== 'undefined' && navigator.share) {
                     navigator.share({
                       title: `Chữ Hán: ${kanji.literal} (${hanVietReadings.join(', ')})`,
-                      url: window.location.href,
+                      url,
                     }).catch(() => {});
                   } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                    navigator.clipboard.writeText(window.location.href);
+                    navigator.clipboard.writeText(url);
                     toast.success('Đã sao chép liên kết Hán tự vào bộ nhớ tạm!');
                   }
                 }}
@@ -269,6 +280,7 @@ export default function KanjiDetailPage() {
                     error={aiError}
                     onClose={() => setShowAiBox(false)}
                     onRetry={fetchAiExplanation}
+                    origin={origin}
                   />
                 </div>
               )}
@@ -327,11 +339,15 @@ function Centered({
   message,
   actionLabel,
   onAction,
+  origin,
+  loading = false,
 }: {
+  loading?: boolean;
   title: string;
   message: string;
   actionLabel?: string;
   onAction?: () => void;
+  origin?: SearchOrigin;
 }) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center" role="status" aria-live="polite">
@@ -341,6 +357,9 @@ function Centered({
         <Button variant="primary" onClick={onAction}>
           {actionLabel || 'Thử lại'}
         </Button>
+      )}
+      {(!loading || origin) && (
+        <div className="mt-2"><DictionaryReturnLink origin={origin} /></div>
       )}
     </div>
   );

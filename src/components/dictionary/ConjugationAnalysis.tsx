@@ -9,7 +9,7 @@ import { isConjugationQuery, type ConjugationData } from '@/types/kotoba';
 import type { DictionarySearchResult } from '@/types/dictionary';
 import { TermCard } from './TermCard';
 
-export function ConjugationAnalysis({ query, results }: { query: string; results: DictionarySearchResult[] }) {
+export function ConjugationAnalysis({ query, results, onSettled }: { query: string; results: DictionarySearchResult[]; onSettled: (query: string) => void }) {
   const [analysis, setAnalysis] = useState<ConjugationData | null>(null);
   const [baseResults, setBaseResults] = useState<DictionarySearchResult[]>([]);
   const [status, setStatus] = useState<'loading' | 'done' | 'error'>('loading');
@@ -18,7 +18,10 @@ export function ConjugationAnalysis({ query, results }: { query: string; results
     [term.surface, term.reading, ...term.searchAliases].some((value) => value.normalize('NFKC') === normalized));
 
   useEffect(() => {
-    if (!needed) return;
+    if (!needed) {
+      onSettled(query);
+      return;
+    }
     let active = true;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
@@ -39,10 +42,12 @@ export function ConjugationAnalysis({ query, results }: { query: string; results
         if (active) setStatus('done');
       } catch {
         if (active) setStatus('error');
+      } finally {
+        if (active) onSettled(query);
       }
     }, 300);
     return () => { active = false; clearTimeout(timer); controller.abort(); };
-  }, [needed, normalized]);
+  }, [needed, normalized, onSettled, query]);
 
   if (!needed || (status === 'done' && !analysis)) return null;
   return <section aria-label="Phân tích dạng chia" className="mb-6 space-y-3 border-b border-[var(--color-border)] pb-6">
@@ -58,7 +63,7 @@ export function ConjugationAnalysis({ query, results }: { query: string; results
         <Link href={searchHref(analysis.baseForm)} lang="ja" className="jp-text inline-flex min-h-11 items-center font-bold text-[var(--color-primary-700)] underline underline-offset-4">{analysis.baseForm}</Link>
       </p>
       {analysis.rules.length ? <p className="text-sm text-[var(--color-text-secondary)]">Dạng nhận diện: {analysis.rules.map((rule) => conjugationLabels[rule] || rule).join(' · ')}</p> : null}
-      {baseResults.length ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{baseResults.map((result) => <TermCard key={result.term.id} term={result.term} matchType={result.matchType} />)}</div> :
+      {baseResults.length ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{baseResults.map((result) => <TermCard key={result.term.id} term={result.term} matchType={result.matchType} origin={{ query, group: 'base' }} />)}</div> :
         <p className="text-sm text-[var(--color-text-secondary)]">Chọn dạng gốc để tra nghĩa Nhật–Việt. Một dạng chia có thể tương ứng nhiều từ.</p>}
     </> : null}
   </section>;

@@ -63,6 +63,9 @@ export default function SavedPage() {
             <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">Đã lưu</h1>
           </div>
           <p className="mt-2 text-[var(--color-text-secondary)]">Lưu trên trình duyệt này, chưa đồng bộ giữa thiết bị.</p>
+          <p className="mt-2 max-w-prose text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            “Ôn từ đã lưu” dùng từ vựng bạn đánh dấu trong từ điển. Flashcards dùng các bộ thẻ riêng.
+          </p>
           {!storageAvailable && (
             <p role="status" className="mt-3 text-sm text-[var(--color-warning-700)]">
               Bộ nhớ trình duyệt hiện không khả dụng. Danh sách có thể chưa được lưu bền vững; dữ liệu không bị xóa.

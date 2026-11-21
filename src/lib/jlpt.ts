@@ -1,6 +1,14 @@
 export type Category = 'vocabulary_kanji' | 'grammar' | 'reading';
 export type Mode = 'mock' | 'practice';
 
+export const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
+export type Level = (typeof LEVELS)[number];
+export const DEFAULT_LEVEL: Level = 'N2';
+
+export function isJlptLevel(value: unknown): value is Level {
+  return LEVELS.some((level) => level === value);
+}
+
 export const CATEGORIES = [
   { id: 'vocabulary_kanji', label: 'Từ vựng / Kanji' },
   { id: 'grammar', label: 'Ngữ pháp' },
@@ -42,6 +50,7 @@ export interface PaperQuestion {
 }
 
 export interface Paper {
+  level: Level;
   title: string;
   number: number;
   mode: Mode;

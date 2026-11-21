@@ -9,6 +9,7 @@ import { TermWrittenForms } from './dictionary/TermWrittenForms';
 import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
 import { exactWordHref, wordHref, wordSlug } from '@/lib/wordRoutes';
 import { recordRecentSearch } from '@/lib/recentSearches';
+import { searchResultId, withSearchOrigin } from '@/lib/dictionary/searchReturn';
 import {
   formatKanjiMatchType,
   formatMatchType,
@@ -160,10 +161,15 @@ export function SearchInput({
           ? `${suggestionCount} gợi ý${progress.source === 'offline' ? ' (offline)' : ''}`
           : 'Không có gợi ý phù hợp';
 
+  const detailHref = (href: string, value: string) => withSearchOrigin(href, {
+    query: value,
+    result: href.startsWith('/word/') ? searchResultId(href) : undefined,
+  });
+
   const finishSearch = (value: string, href?: string) => {
     if (href) {
       try { recordRecentSearch(value); } catch { /* Storage may be blocked. */ }
-      router.push(href);
+      router.push(detailHref(href, value));
     } else {
       onSearch(value);
     }
@@ -218,7 +224,7 @@ export function SearchInput({
 
   const openSuggestion = (href: string) => {
     cancelExactLookup();
-    router.push(href);
+    router.push(detailHref(href, query.trim()));
     setIsFocused(false);
     onNavigate?.();
   };

@@ -1,14 +1,16 @@
-import { permanentRedirect } from 'next/navigation';
+import { permanentRedirect, redirect } from 'next/navigation';
 import { resolveWordRoute } from '@/lib/dictionary/resolveWordRoute';
 import { wordHref } from '@/lib/wordRoutes';
+import { readSearchOrigin, withSearchOrigin } from '@/lib/dictionary/searchReturn';
 import type { TermLookupResponse } from '@/types/dictionary';
 import WordDetailPage from './WordDetailPage';
 
 export default async function Page({ params, searchParams }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ id?: string | string[] }>;
+  searchParams: Promise<{ id?: string | string[]; from?: string | string[]; result?: string | string[] }>;
 }) {
-  const [{ slug: rawSlug }, { id }] = await Promise.all([params, searchParams]);
+  const [{ slug: rawSlug }, { id, from, result }] = await Promise.all([params, searchParams]);
+  const origin = readSearchOrigin(from, result);
   let slug: string;
   try { slug = decodeURIComponent(rawSlug); } catch { slug = ''; }
   const sequence = typeof id === 'string' ? id : undefined;
@@ -27,8 +29,11 @@ export default async function Page({ params, searchParams }: {
   if (initial?.term) {
     const canonical = wordHref(initial.term);
     const current = `/word/${encodeURIComponent(slug)}${sequence ? `?id=${sequence}` : ''}`;
-    if (current !== canonical) permanentRedirect(canonical);
+    if (current !== canonical) {
+      if (origin) redirect(withSearchOrigin(canonical, origin));
+      permanentRedirect(canonical);
+    }
   }
 
-  return <WordDetailPage slug={slug} sequence={sequence} initial={initial} />;
+  return <WordDetailPage slug={slug} sequence={sequence} initial={initial} origin={origin} />;
 }

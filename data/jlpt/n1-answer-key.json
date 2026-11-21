@@ -1,0 +1,3227 @@
+{
+  "metadata": {
+    "level": "N1",
+    "total_exams": 10,
+    "total_questions": 700,
+    "duration_minutes": 110,
+    "authoring": "original_practice_questions",
+    "answer_type": "choice_number_from_1_to_4",
+    "star_order": "full_order maps positions shuffled choices",
+    "use_with": "n1-exams.json",
+    "title": "Đáp án JLPT N1 cho 10 đề thi thử và 30 phần luyện đề",
+    "complete_exams_count": 10,
+    "total_parts": 30
+  },
+  "answer_keys": {
+    "N1-VOCAB-01": [
+      {
+        "id": "N1-V01-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q02",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-V01-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-V01-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-V01-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-V01-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-V01-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V01-Q12",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q16",
+        "answer": 3
+      },
+      {
+        "id": "N1-V01-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-V01-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-V01-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-V01-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-V01-Q24",
+        "answer": 1
+      },
+      {
+        "id": "N1-V01-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-GRAMMAR-01": [
+      {
+        "id": "N1-G01-Q01",
+        "answer": 1
+      },
+      {
+        "id": "N1-G01-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-G01-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-G01-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-G01-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-G01-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-G01-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-G01-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G01-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-G01-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-G01-Q11",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "その政策は、短期的には一定の効果が見込まれる一方で、長期的な視点に欠けているのではないかと疑問視する声も少なくない。"
+      },
+      {
+        "id": "N1-G01-Q12",
+        "answer": 3,
+        "full_order": [
+          4,
+          1,
+          3,
+          2
+        ],
+        "completed_sentence": "どれほど綿密な調査を行ったとしても人間の心理のすべてを読み切ることはできない。"
+      },
+      {
+        "id": "N1-G01-Q13",
+        "answer": 4,
+        "full_order": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "completed_sentence": "技術がどれほど進歩しようと、人と人が直接対話する価値がなくなることはないだろう。"
+      },
+      {
+        "id": "N1-G01-Q14",
+        "answer": 2,
+        "full_order": [
+          3,
+          4,
+          1,
+          2
+        ],
+        "completed_sentence": "この文学作品が時代を超えて読み継がれているのは、人間存在の本質に関わる普遍的な問いを投げかけているからにほかならない。"
+      },
+      {
+        "id": "N1-G01-Q15",
+        "answer": 1,
+        "full_order": [
+          3,
+          1,
+          4,
+          2
+        ],
+        "completed_sentence": "地域社会が抱える問題を解決するには、行政の支援もさることながら、住民一人ひとりの主体的な取り組みとの連携が欠かせない。"
+      },
+      {
+        "id": "N1-G01-Q16",
+        "answer": 2
+      },
+      {
+        "id": "N1-G01-Q17",
+        "answer": 1
+      },
+      {
+        "id": "N1-G01-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-G01-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-G01-Q20",
+        "answer": 4
+      }
+    ],
+    "N1-READING-01": [
+      {
+        "id": "N1-R01-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-R01-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-R01-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-R01-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-R01-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q13",
+        "answer": 4
+      },
+      {
+        "id": "N1-R01-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q15",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R01-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-R01-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-R01-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-R01-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-R01-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-R01-Q24",
+        "answer": 2
+      },
+      {
+        "id": "N1-R01-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-VOCAB-02": [
+      {
+        "id": "N1-V02-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-V02-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-V02-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-V02-Q13",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q15",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q17",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-V02-Q20",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-V02-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-V02-Q24",
+        "answer": 1
+      },
+      {
+        "id": "N1-V02-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-VOCAB-03": [
+      {
+        "id": "N1-V03-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-V03-Q02",
+        "answer": 1
+      },
+      {
+        "id": "N1-V03-Q03",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-V03-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q08",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-V03-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V03-Q12",
+        "answer": 1
+      },
+      {
+        "id": "N1-V03-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-V03-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q15",
+        "answer": 4
+      },
+      {
+        "id": "N1-V03-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-V03-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q20",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-V03-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-V03-Q25",
+        "answer": 4
+      }
+    ],
+    "N1-VOCAB-04": [
+      {
+        "id": "N1-V04-Q01",
+        "answer": 1
+      },
+      {
+        "id": "N1-V04-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-V04-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-V04-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q08",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V04-Q12",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-V04-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q15",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q16",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-V04-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-V04-Q20",
+        "answer": 4
+      },
+      {
+        "id": "N1-V04-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q22",
+        "answer": 3
+      },
+      {
+        "id": "N1-V04-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q24",
+        "answer": 2
+      },
+      {
+        "id": "N1-V04-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-VOCAB-05": [
+      {
+        "id": "N1-V05-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V05-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-V05-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q11",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q12",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q13",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q15",
+        "answer": 2
+      },
+      {
+        "id": "N1-V05-Q16",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-V05-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-V05-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-V05-Q22",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-V05-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-V05-Q25",
+        "answer": 4
+      }
+    ],
+    "N1-VOCAB-06": [
+      {
+        "id": "N1-V06-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-V06-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-V06-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q08",
+        "answer": 3
+      },
+      {
+        "id": "N1-V06-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-V06-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q12",
+        "answer": 1
+      },
+      {
+        "id": "N1-V06-Q13",
+        "answer": 3
+      },
+      {
+        "id": "N1-V06-Q14",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q15",
+        "answer": 3
+      },
+      {
+        "id": "N1-V06-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-V06-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-V06-Q22",
+        "answer": 3
+      },
+      {
+        "id": "N1-V06-Q23",
+        "answer": 1
+      },
+      {
+        "id": "N1-V06-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-V06-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-VOCAB-07": [
+      {
+        "id": "N1-V07-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V07-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-V07-Q03",
+        "answer": 2
+      },
+      {
+        "id": "N1-V07-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q05",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q08",
+        "answer": 3
+      },
+      {
+        "id": "N1-V07-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-V07-Q10",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q11",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-V07-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-V07-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q17",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-V07-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q22",
+        "answer": 4
+      },
+      {
+        "id": "N1-V07-Q23",
+        "answer": 1
+      },
+      {
+        "id": "N1-V07-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-V07-Q25",
+        "answer": 1
+      }
+    ],
+    "N1-VOCAB-08": [
+      {
+        "id": "N1-V08-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-V08-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-V08-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q12",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-V08-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q15",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-V08-Q17",
+        "answer": 1
+      },
+      {
+        "id": "N1-V08-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q20",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-V08-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-V08-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-V08-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-V08-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-VOCAB-09": [
+      {
+        "id": "N1-V09-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V09-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-V09-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-V09-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-V09-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-V09-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-V09-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-V09-Q10",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q11",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-V09-Q13",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-V09-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-V09-Q21",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q23",
+        "answer": 1
+      },
+      {
+        "id": "N1-V09-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-V09-Q25",
+        "answer": 4
+      }
+    ],
+    "N1-VOCAB-10": [
+      {
+        "id": "N1-V10-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q03",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q10",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q12",
+        "answer": 1
+      },
+      {
+        "id": "N1-V10-Q13",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q15",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q18",
+        "answer": 4
+      },
+      {
+        "id": "N1-V10-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-V10-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q24",
+        "answer": 2
+      },
+      {
+        "id": "N1-V10-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-GRAMMAR-02": [
+      {
+        "id": "N1-G02-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-G02-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-G02-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-G02-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-G02-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-G02-Q06",
+        "answer": 1
+      },
+      {
+        "id": "N1-G02-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-G02-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-G02-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-G02-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-G02-Q11",
+        "answer": 1,
+        "full_order": [
+          4,
+          3,
+          1,
+          2
+        ],
+        "completed_sentence": "ただでさえ人手が足りないところに遅れてくるとは困ったものだ。"
+      },
+      {
+        "id": "N1-G02-Q12",
+        "answer": 2,
+        "full_order": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "completed_sentence": "どれほど反対されようと自分で選んだ道なのだからやり抜くことに決めている。"
+      },
+      {
+        "id": "N1-G02-Q13",
+        "answer": 4,
+        "full_order": [
+          2,
+          3,
+          1,
+          4
+        ],
+        "completed_sentence": "新館の開館に先立って関係者向けの内覧会が行われた。"
+      },
+      {
+        "id": "N1-G02-Q14",
+        "answer": 4,
+        "full_order": [
+          4,
+          1,
+          3,
+          2
+        ],
+        "completed_sentence": "製品というのは、値段が高ければいいというものでもない。"
+      },
+      {
+        "id": "N1-G02-Q15",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "長年連れ添ったペットを失った彼の悲しみは察するにあまりある。"
+      },
+      {
+        "id": "N1-G02-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-G02-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-G02-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-G02-Q19",
+        "answer": 3
+      },
+      {
+        "id": "N1-G02-Q20",
+        "answer": 1
+      }
+    ],
+    "N1-GRAMMAR-03": [
+      {
+        "id": "N1-G03-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q02",
+        "answer": 1
+      },
+      {
+        "id": "N1-G03-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-G03-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-G03-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G03-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-G03-Q11",
+        "answer": 4,
+        "full_order": [
+          1,
+          3,
+          4,
+          2
+        ],
+        "completed_sentence": "親が子の将来を思えばこそ心を鬼にして厳しく叱ることもあるのだ。"
+      },
+      {
+        "id": "N1-G03-Q12",
+        "answer": 1,
+        "full_order": [
+          2,
+          1,
+          4,
+          3
+        ],
+        "completed_sentence": "いかに名門チームといえどもルール違反を見過ごすことは許されない。"
+      },
+      {
+        "id": "N1-G03-Q13",
+        "answer": 3,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "今回の不祥事は、企業の存続にかかわりかねない重大な問題だ。"
+      },
+      {
+        "id": "N1-G03-Q14",
+        "answer": 4,
+        "full_order": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "completed_sentence": "今さら後悔したところで失われた時間は二度と戻ってこない。"
+      },
+      {
+        "id": "N1-G03-Q15",
+        "answer": 1,
+        "full_order": [
+          2,
+          1,
+          3,
+          4
+        ],
+        "completed_sentence": "現場の実情に即した現実的な対応策を講じる必要がある。"
+      },
+      {
+        "id": "N1-G03-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q18",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-G03-Q20",
+        "answer": 2
+      }
+    ],
+    "N1-GRAMMAR-04": [
+      {
+        "id": "N1-G04-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-G04-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-G04-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-G04-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-G04-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-G04-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-G04-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-G04-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G04-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-G04-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-G04-Q11",
+        "answer": 4,
+        "full_order": [
+          3,
+          2,
+          4,
+          1
+        ],
+        "completed_sentence": "どんなに厳しい状況に置かれようともやり遂げようと決めた。"
+      },
+      {
+        "id": "N1-G04-Q12",
+        "answer": 2,
+        "full_order": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "completed_sentence": "その話が本当かどうか本人に直接確認する必要がある。"
+      },
+      {
+        "id": "N1-G04-Q13",
+        "answer": 1,
+        "full_order": [
+          3,
+          2,
+          4,
+          1
+        ],
+        "completed_sentence": "彼女は一瞬の迷いも見せることなく決断の言葉を発した。"
+      },
+      {
+        "id": "N1-G04-Q14",
+        "answer": 2,
+        "full_order": [
+          2,
+          4,
+          3,
+          1
+        ],
+        "completed_sentence": "規則を知らなかったからといってすべての違反が許されるわけではない。"
+      },
+      {
+        "id": "N1-G04-Q15",
+        "answer": 1,
+        "full_order": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "completed_sentence": "この地域は豊かな自然と歴史的建造物が共存する街として知られている。"
+      },
+      {
+        "id": "N1-G04-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-G04-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-G04-Q18",
+        "answer": 4
+      },
+      {
+        "id": "N1-G04-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-G04-Q20",
+        "answer": 1
+      }
+    ],
+    "N1-GRAMMAR-05": [
+      {
+        "id": "N1-G05-Q01",
+        "answer": 1
+      },
+      {
+        "id": "N1-G05-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-G05-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-G05-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-G05-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-G05-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-G05-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-G05-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G05-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-G05-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-G05-Q11",
+        "answer": 1,
+        "full_order": [
+          3,
+          2,
+          1,
+          4
+        ],
+        "completed_sentence": "どんなに時代が変わろうと基本の姿勢だけは忘れてはならない。"
+      },
+      {
+        "id": "N1-G05-Q12",
+        "answer": 1,
+        "full_order": [
+          2,
+          1,
+          3,
+          4
+        ],
+        "completed_sentence": "彼女の熱意には周囲の人も動かされずにはいられなかった。"
+      },
+      {
+        "id": "N1-G05-Q13",
+        "answer": 4,
+        "full_order": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "completed_sentence": "今回の調査は、これまでの定説を覆すきっかけとなった。"
+      },
+      {
+        "id": "N1-G05-Q14",
+        "answer": 2,
+        "full_order": [
+          2,
+          3,
+          4,
+          1
+        ],
+        "completed_sentence": "忙しいときほど自分の体調に目が向かなくなるものだ。"
+      },
+      {
+        "id": "N1-G05-Q15",
+        "answer": 4,
+        "full_order": [
+          1,
+          4,
+          3,
+          2
+        ],
+        "completed_sentence": "住民の反対意見を無視することなく丁寧な説明を重ねるべきだ。"
+      },
+      {
+        "id": "N1-G05-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-G05-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-G05-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-G05-Q19",
+        "answer": 3
+      },
+      {
+        "id": "N1-G05-Q20",
+        "answer": 1
+      }
+    ],
+    "N1-GRAMMAR-06": [
+      {
+        "id": "N1-G06-Q01",
+        "answer": 1
+      },
+      {
+        "id": "N1-G06-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-G06-Q03",
+        "answer": 2
+      },
+      {
+        "id": "N1-G06-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-G06-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-G06-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-G06-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-G06-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-G06-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-G06-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-G06-Q11",
+        "answer": 4,
+        "full_order": [
+          1,
+          3,
+          4,
+          2
+        ],
+        "completed_sentence": "どんなに優れた道具があったとしても基本が身についていなければ使いこなせない。"
+      },
+      {
+        "id": "N1-G06-Q12",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "completed_sentence": "この小説は、何度読み返しても新たな発見がある作品だ。"
+      },
+      {
+        "id": "N1-G06-Q13",
+        "answer": 2,
+        "full_order": [
+          4,
+          3,
+          1,
+          2
+        ],
+        "completed_sentence": "事態がここまで悪化した以上は対策の策定を急ぐべきだ。"
+      },
+      {
+        "id": "N1-G06-Q14",
+        "answer": 1,
+        "full_order": [
+          1,
+          3,
+          2,
+          4
+        ],
+        "completed_sentence": "子どもじゃあるまいしそんなことで感情をむき出しにすることはないだろう。"
+      },
+      {
+        "id": "N1-G06-Q15",
+        "answer": 3,
+        "full_order": [
+          4,
+          3,
+          2,
+          1
+        ],
+        "completed_sentence": "長年の努力の末に築き上げた信頼関係には何にも代えがたい価値がある。"
+      },
+      {
+        "id": "N1-G06-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-G06-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-G06-Q18",
+        "answer": 4
+      },
+      {
+        "id": "N1-G06-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-G06-Q20",
+        "answer": 4
+      }
+    ],
+    "N1-GRAMMAR-07": [
+      {
+        "id": "N1-G07-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-G07-Q03",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q06",
+        "answer": 1
+      },
+      {
+        "id": "N1-G07-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G07-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q11",
+        "answer": 2,
+        "full_order": [
+          1,
+          3,
+          2,
+          4
+        ],
+        "completed_sentence": "一度失った信頼を元通りに回復することは容易ではない。"
+      },
+      {
+        "id": "N1-G07-Q12",
+        "answer": 1,
+        "full_order": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "completed_sentence": "この法案は、将来世代に大きな負担を強いかねない問題を含んでいる。"
+      },
+      {
+        "id": "N1-G07-Q13",
+        "answer": 4,
+        "full_order": [
+          3,
+          2,
+          1,
+          4
+        ],
+        "completed_sentence": "彼ほど仕事に誠実な人物はほかにいないだろう。"
+      },
+      {
+        "id": "N1-G07-Q14",
+        "answer": 4,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "準備不足のため予定されていた発売は延期となった。"
+      },
+      {
+        "id": "N1-G07-Q15",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "たとえ反対意見が多くとも諦めるべきというわけではない。"
+      },
+      {
+        "id": "N1-G07-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-G07-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-G07-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-G07-Q19",
+        "answer": 3
+      },
+      {
+        "id": "N1-G07-Q20",
+        "answer": 2
+      }
+    ],
+    "N1-GRAMMAR-08": [
+      {
+        "id": "N1-G08-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-G08-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-G08-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-G08-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-G08-Q05",
+        "answer": 4
+      },
+      {
+        "id": "N1-G08-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-G08-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-G08-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-G08-Q09",
+        "answer": 3
+      },
+      {
+        "id": "N1-G08-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-G08-Q11",
+        "answer": 4,
+        "full_order": [
+          3,
+          2,
+          4,
+          1
+        ],
+        "completed_sentence": "どんな事情があろうとも約束を破ることは許されるものではない。"
+      },
+      {
+        "id": "N1-G08-Q12",
+        "answer": 2,
+        "full_order": [
+          1,
+          2,
+          4,
+          3
+        ],
+        "completed_sentence": "この法案が成立するとなれば生活に大きな影響が及ぶ恐れがある。"
+      },
+      {
+        "id": "N1-G08-Q13",
+        "answer": 1,
+        "full_order": [
+          3,
+          4,
+          2,
+          1
+        ],
+        "completed_sentence": "彼女は思いがけない合格通知を手にして喜びを隠せなかった。"
+      },
+      {
+        "id": "N1-G08-Q14",
+        "answer": 4,
+        "full_order": [
+          4,
+          1,
+          3,
+          2
+        ],
+        "completed_sentence": "誰もが、専門家でさえ見抜けないほどの精巧な仕上がりに驚いた。"
+      },
+      {
+        "id": "N1-G08-Q15",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "completed_sentence": "住民との対話を重ねた上で具体的な再開発計画を進めていく。"
+      },
+      {
+        "id": "N1-G08-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-G08-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-G08-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-G08-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-G08-Q20",
+        "answer": 4
+      }
+    ],
+    "N1-GRAMMAR-09": [
+      {
+        "id": "N1-G09-Q01",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q02",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-G09-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-G09-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-G09-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-G09-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-G09-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-G09-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q11",
+        "answer": 2,
+        "full_order": [
+          3,
+          4,
+          2,
+          1
+        ],
+        "completed_sentence": "相手の立場を考えずに一方的な批判をするべきではない。"
+      },
+      {
+        "id": "N1-G09-Q12",
+        "answer": 1,
+        "full_order": [
+          4,
+          1,
+          2,
+          3
+        ],
+        "completed_sentence": "どれほど技術が進歩しても人の心の機微を完全に再現することは難しい。"
+      },
+      {
+        "id": "N1-G09-Q13",
+        "answer": 4,
+        "full_order": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "completed_sentence": "事故の原因についてはいまだ解明されるに至っていない。"
+      },
+      {
+        "id": "N1-G09-Q14",
+        "answer": 1,
+        "full_order": [
+          1,
+          2,
+          4,
+          3
+        ],
+        "completed_sentence": "自分の失敗を人のせいにしてばかりでは成長できないものだ。"
+      },
+      {
+        "id": "N1-G09-Q15",
+        "answer": 3,
+        "full_order": [
+          4,
+          3,
+          2,
+          1
+        ],
+        "completed_sentence": "この制度は、利用者の利便性を高めることを目的としている。"
+      },
+      {
+        "id": "N1-G09-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-G09-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-G09-Q20",
+        "answer": 4
+      }
+    ],
+    "N1-GRAMMAR-10": [
+      {
+        "id": "N1-G10-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-G10-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-G10-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-G10-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-G10-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-G10-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-G10-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-G10-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-G10-Q09",
+        "answer": 3
+      },
+      {
+        "id": "N1-G10-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-G10-Q11",
+        "answer": 1,
+        "full_order": [
+          4,
+          3,
+          1,
+          2
+        ],
+        "completed_sentence": "いくら親しい間柄であっても礼儀には限度がある。"
+      },
+      {
+        "id": "N1-G10-Q12",
+        "answer": 4,
+        "full_order": [
+          3,
+          4,
+          1,
+          2
+        ],
+        "completed_sentence": "彼の説明を聞いたところで納得できるはずがない。"
+      },
+      {
+        "id": "N1-G10-Q13",
+        "answer": 2,
+        "full_order": [
+          3,
+          1,
+          4,
+          2
+        ],
+        "completed_sentence": "今回の改正は、国民の生活水準を引き上げるための重要な措置である。"
+      },
+      {
+        "id": "N1-G10-Q14",
+        "answer": 4,
+        "full_order": [
+          4,
+          2,
+          1,
+          3
+        ],
+        "completed_sentence": "長年の調査の結果として新たな事実が明らかになってきた。"
+      },
+      {
+        "id": "N1-G10-Q15",
+        "answer": 2,
+        "full_order": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "completed_sentence": "どんなに小さな一歩であっても積み重ねれば大きな力となろう。"
+      },
+      {
+        "id": "N1-G10-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-G10-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-G10-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-G10-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-G10-Q20",
+        "answer": 1
+      }
+    ],
+    "N1-READING-02": [
+      {
+        "id": "N1-R02-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-R02-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-R02-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-R02-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-R02-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-R02-Q13",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q14",
+        "answer": 4
+      },
+      {
+        "id": "N1-R02-Q15",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-R02-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q19",
+        "answer": 3
+      },
+      {
+        "id": "N1-R02-Q20",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-R02-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-R02-Q24",
+        "answer": 2
+      },
+      {
+        "id": "N1-R02-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-READING-03": [
+      {
+        "id": "N1-R03-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-R03-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-R03-Q05",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q06",
+        "answer": 1
+      },
+      {
+        "id": "N1-R03-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q10",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q12",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-R03-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-R03-Q15",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R03-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-R03-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q20",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-R03-Q24",
+        "answer": 2
+      },
+      {
+        "id": "N1-R03-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-READING-04": [
+      {
+        "id": "N1-R04-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-R04-Q02",
+        "answer": 2
+      },
+      {
+        "id": "N1-R04-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q06",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q07",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q08",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-R04-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q13",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q14",
+        "answer": 1
+      },
+      {
+        "id": "N1-R04-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-R04-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q21",
+        "answer": 3
+      },
+      {
+        "id": "N1-R04-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-R04-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-R04-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-R04-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-READING-05": [
+      {
+        "id": "N1-R05-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q09",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q13",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q14",
+        "answer": 1
+      },
+      {
+        "id": "N1-R05-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-R05-Q16",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q17",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q18",
+        "answer": 1
+      },
+      {
+        "id": "N1-R05-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-R05-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q22",
+        "answer": 3
+      },
+      {
+        "id": "N1-R05-Q23",
+        "answer": 2
+      },
+      {
+        "id": "N1-R05-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-R05-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-READING-06": [
+      {
+        "id": "N1-R06-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-R06-Q03",
+        "answer": 4
+      },
+      {
+        "id": "N1-R06-Q04",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q05",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-R06-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q08",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q09",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q10",
+        "answer": 4
+      },
+      {
+        "id": "N1-R06-Q11",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q12",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q13",
+        "answer": 2
+      },
+      {
+        "id": "N1-R06-Q14",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q15",
+        "answer": 2
+      },
+      {
+        "id": "N1-R06-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-R06-Q19",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q23",
+        "answer": 1
+      },
+      {
+        "id": "N1-R06-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-R06-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-READING-07": [
+      {
+        "id": "N1-R07-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q05",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q06",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q07",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q10",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q12",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q14",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q16",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q18",
+        "answer": 4
+      },
+      {
+        "id": "N1-R07-Q19",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q20",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q22",
+        "answer": 2
+      },
+      {
+        "id": "N1-R07-Q23",
+        "answer": 1
+      },
+      {
+        "id": "N1-R07-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-R07-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-READING-08": [
+      {
+        "id": "N1-R08-Q01",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q03",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q04",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q05",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q06",
+        "answer": 1
+      },
+      {
+        "id": "N1-R08-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-R08-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q09",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q11",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q12",
+        "answer": 1
+      },
+      {
+        "id": "N1-R08-Q13",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q14",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q15",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R08-Q17",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q18",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q20",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q21",
+        "answer": 2
+      },
+      {
+        "id": "N1-R08-Q22",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q23",
+        "answer": 3
+      },
+      {
+        "id": "N1-R08-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-R08-Q25",
+        "answer": 3
+      }
+    ],
+    "N1-READING-09": [
+      {
+        "id": "N1-R09-Q01",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q02",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-R09-Q04",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q05",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q06",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q07",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q08",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q09",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q10",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q12",
+        "answer": 4
+      },
+      {
+        "id": "N1-R09-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-R09-Q14",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-R09-Q16",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q17",
+        "answer": 1
+      },
+      {
+        "id": "N1-R09-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q19",
+        "answer": 4
+      },
+      {
+        "id": "N1-R09-Q20",
+        "answer": 2
+      },
+      {
+        "id": "N1-R09-Q21",
+        "answer": 1
+      },
+      {
+        "id": "N1-R09-Q22",
+        "answer": 4
+      },
+      {
+        "id": "N1-R09-Q23",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q24",
+        "answer": 3
+      },
+      {
+        "id": "N1-R09-Q25",
+        "answer": 2
+      }
+    ],
+    "N1-READING-10": [
+      {
+        "id": "N1-R10-Q01",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q02",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q03",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q04",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q05",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q06",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q07",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q08",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q09",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q10",
+        "answer": 2
+      },
+      {
+        "id": "N1-R10-Q11",
+        "answer": 2
+      },
+      {
+        "id": "N1-R10-Q12",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q13",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q14",
+        "answer": 3
+      },
+      {
+        "id": "N1-R10-Q15",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q16",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q17",
+        "answer": 2
+      },
+      {
+        "id": "N1-R10-Q18",
+        "answer": 3
+      },
+      {
+        "id": "N1-R10-Q19",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q20",
+        "answer": 3
+      },
+      {
+        "id": "N1-R10-Q21",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q22",
+        "answer": 1
+      },
+      {
+        "id": "N1-R10-Q23",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q24",
+        "answer": 4
+      },
+      {
+        "id": "N1-R10-Q25",
+        "answer": 1
+      }
+    ]
+  }
+}

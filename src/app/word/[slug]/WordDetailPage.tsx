@@ -6,7 +6,9 @@ import { wordHref } from '@/lib/wordRoutes';
 import { termBookmark } from '@/lib/browserState';
 import type { TermLookupResponse } from '@/types/dictionary';
 import Link from 'next/link';
-import { ArrowLeft, BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
+import { BookOpenText, LinkSimple, Repeat } from '@phosphor-icons/react';
+import { DictionaryReturnLink } from '@/components/dictionary/DictionaryReturnLink';
+import { withSearchOrigin, type SearchOrigin } from '@/lib/dictionary/searchReturn';
 import { AudioButton } from '@/components/AudioButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { Badge } from '@/components/ui/Badge';
@@ -20,21 +22,22 @@ import {
   formatSenseRestrictions,
 } from '@/lib/dictionary/sensePresenter';
 
-export default function WordDetailPage({ slug, sequence, initial }: {
+export default function WordDetailPage({ slug, sequence, initial, origin }: {
   slug: string;
   sequence?: string;
   initial?: TermLookupResponse;
+  origin?: SearchOrigin;
 }) {
   const router = useRouter();
   const { term, alternatives, status, error, retry } = useWordDetail(slug, sequence, initial);
   const canonical = term ? wordHref(term) : null;
   useEffect(() => {
     const current = `/word/${encodeURIComponent(slug)}${sequence ? `?id=${sequence}` : ''}`;
-    if (canonical && canonical !== current) router.replace(canonical);
-  }, [canonical, slug, sequence, router]);
+    if (canonical && canonical !== current) router.replace(withSearchOrigin(canonical, origin));
+  }, [canonical, slug, sequence, router, origin]);
 
   if (status === 'loading') {
-    return <CenteredMessage title="Đang tải mục từ" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
+    return <CenteredMessage origin={origin} title="Đang tải mục từ" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
   }
 
   if (status === 'error') {
@@ -44,6 +47,7 @@ export default function WordDetailPage({ slug, sequence, initial }: {
         message={error || 'Không thể đọc dữ liệu từ điển.'}
         actionLabel="Thử lại"
         onAction={retry}
+        origin={origin}
       />
     );
   }
@@ -51,12 +55,13 @@ export default function WordDetailPage({ slug, sequence, initial }: {
   if (alternatives?.length) {
     return (
       <section className="mx-auto max-w-4xl px-4 py-8" aria-labelledby="word-choices-title">
+        <DictionaryReturnLink origin={origin} className="mb-3" />
         <h1 id="word-choices-title" className="jp-text text-3xl font-bold">{slug}</h1>
         <p className="mt-3 text-[var(--color-text-secondary)]">Có nhiều mục từ cùng chữ. Chọn cách đọc hoặc nghĩa cần tra.</p>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2">
           {alternatives.map((choice) => (
             <li key={choice.id}>
-              <Link href={wordHref(choice)} className="block rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 hover:border-[var(--color-primary-500)]">
+              <Link href={withSearchOrigin(wordHref(choice), origin)} className="block rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 hover:border-[var(--color-primary-500)]">
                 <span lang="ja" className="jp-text text-xl font-bold">{choice.surface}</span>
                 <span lang="ja" className="jp-text ml-3 text-[var(--color-text-secondary)]">{choice.reading}</span>
                 <p className="mt-2">{choice.meaningsVi.slice(0, 3).join('; ')}</p>
@@ -69,7 +74,7 @@ export default function WordDetailPage({ slug, sequence, initial }: {
   }
 
   if (!term) {
-    return <CenteredMessage title="Không tìm thấy từ vựng" message="Mục từ này không tồn tại trong dữ liệu hiện tại." />;
+    return <CenteredMessage title="Không tìm thấy từ vựng" message="Mục từ này không tồn tại trong dữ liệu hiện tại." origin={origin} />;
   }
 
   const kanjiReadings = term.kanjiReadings || [];
@@ -118,10 +123,7 @@ export default function WordDetailPage({ slug, sequence, initial }: {
 
   return (
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8">
-      <Link href="/" className="flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary-600)]">
-        <ArrowLeft size={16} />
-        Quay lại trang chủ
-      </Link>
+      <DictionaryReturnLink origin={origin} />
 
       <header className="border-b border-[var(--color-border)] pb-8">
         <div className="flex items-start justify-between gap-3">
@@ -168,7 +170,7 @@ export default function WordDetailPage({ slug, sequence, initial }: {
               return (
                 <Link
                   key={`${ch}-${idx}`}
-                  href={`/kanji/${encodeURIComponent(ch)}`}
+                  href={withSearchOrigin(`/kanji/${encodeURIComponent(ch)}`, origin)}
                   className="tactile group inline-flex min-h-11 min-w-11 flex-col items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] px-2.5 py-1.5 hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
                   title={hvLabel ? `${ch} — ${hvLabel}` : ch}
                 >
@@ -371,11 +373,13 @@ function CenteredMessage({
   message,
   actionLabel,
   onAction,
+  origin,
 }: {
   title: string;
   message: string;
   actionLabel?: string;
   onAction?: () => void;
+  origin?: SearchOrigin;
 }) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center" role="status" aria-live="polite">
@@ -389,14 +393,8 @@ function CenteredMessage({
         >
           {actionLabel || 'Thử lại'}
         </button>
-      ) : (
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-action-primary-hover)]"
-        >
-          Về trang tìm kiếm
-        </Link>
-      )}
+      ) : null}
+      <DictionaryReturnLink origin={origin} className={onAction ? 'mx-auto mt-2 flex' : ''} />
     </div>
   );
 }

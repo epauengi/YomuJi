@@ -4,7 +4,7 @@ import './jlpt.css';
 
 export const metadata: Metadata = {
   title: 'Luyện đề JLPT',
-  description: 'Luyện 10 đề JLPT N2 theo từng phần hoặc thi thử Từ vựng, Ngữ pháp và Đọc hiểu trong 105 phút.',
+  description: 'Luyện đề JLPT từ N5 đến N1 theo từng phần hoặc thi thử có tính giờ: Từ vựng / Kanji, Ngữ pháp và Đọc hiểu.',
 };
 
 export default function JLPTPage() {

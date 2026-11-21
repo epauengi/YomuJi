@@ -35,6 +35,8 @@ function load(file, imports) {
     if (id === 'motion/react') return { motion: { h1: 'h1' } };
     if (id === '@phosphor-icons/react') return { ArrowLeft: icon, BookOpenText: icon, LinkSimple: icon, Repeat: icon };
     if (id === '@/lib/wordRoutes') return { wordHref: () => '/word/test' };
+    if (id === '@/lib/dictionary/searchReturn') return { withSearchOrigin: (href) => href };
+    if (id === '@/components/dictionary/DictionaryReturnLink') return { DictionaryReturnLink: 'a' };
     if (id === '@/lib/browserState') return { termBookmark: (term) => term };
     if (id === '@/components/AudioButton') return { AudioButton: audio };
     if (id === '@/components/ui/BookmarkButton') return { BookmarkButton: bookmark };

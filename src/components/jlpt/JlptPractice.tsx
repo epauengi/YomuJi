@@ -3,10 +3,10 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, ArrowRight, ArrowsClockwise, BookOpenText, CaretRight,
-  CheckCircle, Clock, Flag, GraduationCap,
+  CheckCircle, Clock, Flag,
   TextAa, Translate, WarningCircle, XCircle,
 } from '@phosphor-icons/react';
-import { CATEGORIES, remainingSeconds, type Category, type Mode, type Catalog, type Paper, type PaperQuestion, type Grade } from '@/lib/jlpt';
+import { CATEGORIES, DEFAULT_LEVEL, LEVELS, remainingSeconds, type Level, type Category, type Mode, type Catalog, type Paper, type PaperQuestion, type Grade } from '@/lib/jlpt';
 
 type Session = {
   paper: Paper;
@@ -17,7 +17,6 @@ type Session = {
   deadline: number | null;
 };
 
-const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
 const sectionIcons = { vocabulary_kanji: Translate, grammar: TextAa, reading: BookOpenText };
 
 function timeText(seconds: number) {
@@ -65,7 +64,7 @@ export function JlptPractice() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [catalogError, setCatalogError] = useState('');
   const [attempt, setAttempt] = useState(0);
-  const [level, setLevel] = useState('N2');
+  const [level, setLevel] = useState<Level>(DEFAULT_LEVEL);
   const [mode, setMode] = useState<Mode>('practice');
   const [category, setCategory] = useState<Category>('vocabulary_kanji');
   const [session, setSession] = useState<Session | null>(null);
@@ -91,11 +90,11 @@ export function JlptPractice() {
   useEffect(() => {
     const controller = new AbortController();
     setCatalogError('');
-    fetch('/api/jlpt', { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]) })
-      .then(jsonResponse<Catalog>).then(setCatalog)
+    fetch(`/api/jlpt?level=${level}`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]) })
+      .then(jsonResponse<Catalog>).then((data) => { if (!controller.signal.aborted) setCatalog(data); })
       .catch((e: unknown) => { if (!controller.signal.aborted) setCatalogError(e instanceof Error && e.name !== 'TimeoutError' && e.name !== 'TypeError' ? e.message : 'Chưa tải được danh sách đề. Kiểm tra kết nối rồi thử lại.'); });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, level]);
 
   useEffect(() => () => requestRef.current?.abort(), []);
 
@@ -172,7 +171,7 @@ export function JlptPractice() {
     const controller = new AbortController();
     requestRef.current?.abort(); requestRef.current = controller;
     try {
-      const params = new URLSearchParams({ mode: selectedMode, exam: String(number), ...(selectedMode === 'practice' ? { category: selectedCategory } : {}) });
+      const params = new URLSearchParams({ level, mode: selectedMode, exam: String(number), ...(selectedMode === 'practice' ? { category: selectedCategory } : {}) });
       const paper = await fetch(`/api/jlpt?${params}`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]) }).then(jsonResponse<Paper>);
       const now = Date.now();
       if (!sessionRef.current) window.history.pushState({ ...window.history.state, jlptSession: true }, '');
@@ -197,7 +196,7 @@ export function JlptPractice() {
     try {
       const result = await fetch('/api/jlpt', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]),
-        body: JSON.stringify({ mode: current.paper.mode, exam: current.paper.number, ...(current.paper.mode === 'practice' ? { category: current.paper.questions[0].category } : {}), answers: current.answers }),
+        body: JSON.stringify({ level: current.paper.level, mode: current.paper.mode, exam: current.paper.number, ...(current.paper.mode === 'practice' ? { category: current.paper.questions[0].category } : {}), answers: current.answers }),
       }).then(jsonResponse<Grade>);
       setGrade(result); setSession((previous) => previous ? { ...previous, index: 0 } : previous);
     } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error && e.name !== 'TimeoutError' && e.name !== 'TypeError' ? e.message : 'Chưa chấm được bài. Kiểm tra kết nối rồi nộp lại.'); }
@@ -234,18 +233,15 @@ export function JlptPractice() {
         </header>
 
         <div className="jlpt-levels" role="group" aria-label="Chọn cấp độ JLPT">
-          {levels.map((item) => <button key={item} type="button" className={`jlpt-level ${level === item ? 'is-selected' : ''} ${item !== 'N2' ? 'is-unavailable' : ''}`} aria-label={`${item}${item === 'N2' ? ', có đề' : ', chưa có đề'}`} aria-pressed={level === item} onClick={() => { setLevel(item); setError(''); }}>
+          {LEVELS.map((item) => <button key={item} type="button" className={`jlpt-level ${level === item ? 'is-selected' : ''}`} aria-pressed={level === item} disabled={busy !== null} onClick={() => {
+            if (item === level) return;
+            setLevel(item); setCatalog(null); setCatalogError(''); setError('');
+          }}>
             <span>{item}</span>
           </button>)}
         </div>
-        <p className="jlpt-level-note">Có đề: N2</p>
-
-        {level !== 'N2' ? <section className="jlpt-empty" aria-labelledby="jlpt-empty-heading">
-          <GraduationCap aria-hidden="true" size={36} weight="duotone" />
-          <h2 id="jlpt-empty-heading">Đề {level} đang được chuẩn bị</h2><p>Hiện có 10 đề N2, chia thành Từ vựng / Kanji, Ngữ pháp và Đọc hiểu.</p>
-          <button type="button" className="jlpt-button jlpt-primary" onClick={() => setLevel('N2')}>Luyện N2 <ArrowRight size={18} aria-hidden="true" /></button>
-        </section> : <div className="jlpt-catalog-layout">
-          <aside className="jlpt-categories" aria-label="Các phần của đề N2">
+        <div className="jlpt-catalog-layout">
+          <aside className="jlpt-categories" aria-label={`Các phần của đề ${level}`}>
             <div className="jlpt-category-list">
               {CATEGORIES.map((part) => {
                 const Icon = sectionIcons[part.id];
@@ -253,35 +249,35 @@ export function JlptPractice() {
                   <Icon size={22} aria-hidden="true" /><span><strong>{part.label}</strong></span><CaretRight size={16} aria-hidden="true" />
                 </button>;
               })}
-              {mode === 'mock' ? <p id="jlpt-mode-switch-hint" className="jlpt-mode-hint" role="status">Chọn một phần để chuyển sang luyện từng phần.</p> : null}
             </div>
+            {mode === 'mock' ? <p id="jlpt-mode-switch-hint" className="jlpt-mode-hint" role="status">Chọn một phần để chuyển sang luyện từng phần.</p> : null}
           </aside>
 
           <section className="jlpt-exams" aria-labelledby="jlpt-exams-heading" aria-busy={!catalog && !catalogError}>
             <div className="jlpt-mode-switch" id="jlpt-mode-switch" role="group" aria-label="Cách luyện">
               <button type="button" aria-pressed={mode === 'practice'} className={mode === 'practice' ? 'is-selected' : ''} onClick={() => { setMode('practice'); setError(''); }}><BookOpenText size={18} aria-hidden="true" />Luyện từng phần</button>
-              <button type="button" aria-pressed={mode === 'mock'} className={mode === 'mock' ? 'is-selected' : ''} onClick={() => { setMode('mock'); setError(''); }}><Clock size={18} aria-hidden="true" />Thi thử đủ đề</button>
+              <button type="button" aria-pressed={mode === 'mock'} className={mode === 'mock' ? 'is-selected' : ''} onClick={() => { setMode('mock'); setError(''); }}><Clock size={18} aria-hidden="true" />Thi thử có tính giờ</button>
             </div>
-            <div className="jlpt-exams-heading"><h2 id="jlpt-exams-heading">{mode === 'practice' ? currentCategory.label : 'Thi thử N2'}</h2></div>
-            <div className="jlpt-exams-meta"><span>10 đề</span><span><Clock size={17} aria-hidden="true" />{mode === 'practice' ? 'Không giới hạn giờ' : '75 câu · 105 phút'}</span></div>
-            {mode === 'mock' ? <p className="jlpt-mock-note">Gồm cả ba phần, không gồm nghe.</p> : null}
+            <div className="jlpt-exams-heading"><h2 id="jlpt-exams-heading">{mode === 'practice' ? `${currentCategory.label} · ${level}` : `Thi thử ${level}`}</h2></div>
+            {catalog && <div className="jlpt-exams-meta"><span>{catalog.exams.length} đề</span><span><Clock size={17} aria-hidden="true" />{mode === 'practice' ? 'Không giới hạn giờ' : `${catalog.durationMinutes} phút`}</span></div>}
+            {catalog && mode === 'mock' && <p className="jlpt-mock-note">Từ vựng / Kanji, Ngữ pháp và Đọc hiểu dùng chung thời gian. Không có phần nghe.</p>}
 
             {catalogError ? <div className="jlpt-message jlpt-error" role="alert"><WarningCircle size={22} aria-hidden="true" /><div><strong>Chưa tải được danh sách đề</strong><p>{catalogError}</p><button type="button" className="jlpt-text-button" onClick={() => setAttempt((value) => value + 1)}>Thử tải lại</button></div></div>
-              : !catalog ? <div className="jlpt-loading" role="status"><ArrowsClockwise aria-hidden="true" size={22} /><p>Đang tải danh sách đề N2…</p></div>
+              : !catalog ? <div className="jlpt-loading" role="status"><ArrowsClockwise aria-hidden="true" size={22} /><p>Đang tải danh sách đề {level}…</p></div>
               : <ol className="jlpt-exam-list">{catalog.exams.map((exam) => {
                 return <li key={exam.number} className={busy === exam.number ? 'is-loading' : ''}>
-                  <div className="jlpt-exam-title"><h3>Đề {String(exam.number).padStart(2, '0')}</h3></div>
+                  <div className="jlpt-exam-title"><h3>Đề {String(exam.number).padStart(2, '0')}</h3><p>{mode === 'mock' ? exam.questionCount : exam.parts.find((part) => part.category === category)?.questionCount} câu</p></div>
                   <button type="button" className="jlpt-button jlpt-row-button" disabled={busy !== null} onClick={() => void start(exam.number)} aria-label={`${mode === 'mock' ? 'Thi thử' : 'Luyện'} đề ${String(exam.number).padStart(2, '0')}${mode === 'practice' ? ` · ${currentCategory.label}` : ''}`}>
                     {busy === exam.number ? 'Đang mở…' : 'Làm bài'}<ArrowRight size={18} aria-hidden="true" />
                   </button>
                 </li>;
               })}</ol>}
             {error ? <div className="jlpt-message jlpt-error" role="alert"><WarningCircle size={21} aria-hidden="true" /><p>{error}</p></div> : null}
-            <p className="jlpt-source-note">Đề luyện tự biên soạn, không phải đề JLPT chính thức.</p>
+            <p className="jlpt-source-note">Đề luyện tự biên soạn. Tham khảo <a href="https://www.jlpt.jp/e/guideline/testsections.html">cấu trúc đề</a> và <a href="https://www.jlpt.jp/e/samples/sampleindex.html">đề mẫu, bài nghe trên trang JLPT chính thức</a>.</p>
           </section>
-        </div>}
+        </div>
       </> : <>
-        <div className="jlpt-session-top"><button type="button" className="jlpt-back" onClick={exit} disabled={busy === 'grading'}><ArrowLeft size={18} aria-hidden="true" />{grade ? 'Về danh sách đề' : 'Thoát bài luyện'}</button><span className="jlpt-n2-badge">N2</span></div>
+        <div className="jlpt-session-top"><button type="button" className="jlpt-back" onClick={exit} disabled={busy === 'grading'}><ArrowLeft size={18} aria-hidden="true" />{grade ? 'Về danh sách đề' : 'Thoát bài luyện'}</button><span className="jlpt-level-badge">{session.paper.level}</span></div>
         <header className="jlpt-session-heading"><div><h1 ref={headingRef} tabIndex={-1}>{grade ? 'Kết quả luyện đề' : session.paper.title}</h1><p>{grade ? session.paper.title : session.paper.mode === 'mock' ? 'Tự nộp khi hết giờ' : 'Xem đáp án sau khi nộp'}</p></div>{!grade && session.deadline ? <Countdown deadline={session.deadline} /> : null}</header>
         {grade ? <section className="jlpt-result" aria-label="Tổng kết bài làm">
           <div className="jlpt-result-score"><CheckCircle aria-hidden="true" size={32} /><div><strong>{grade.correct}<span> / {grade.total}</span></strong><p>câu trả lời đúng</p></div></div>
@@ -291,7 +287,7 @@ export function JlptPractice() {
           <button type="button" className="jlpt-button jlpt-secondary" disabled={busy !== null} onClick={() => void start(session.paper.number, session.paper.mode, session.paper.questions[0].category)}><ArrowsClockwise size={18} aria-hidden="true" />Làm lại đề này</button>
         </section> : <div className="jlpt-progress"><div><span><strong>{answered}</strong> / {total} câu đã trả lời</span>{session.flags.length ? <span>{session.flags.length} câu đánh dấu</span> : null}</div><progress value={answered} max={total} aria-label="Tiến độ trả lời" /></div>}
 
-        {expired && !grade ? <div role="status" className="jlpt-message jlpt-warning"><Clock size={22} aria-hidden="true" /><p>Đã hết 105 phút. Bài làm đã khóa; {busy === 'grading' ? 'đang chấm điểm…' : 'hãy thử nộp lại nếu có lỗi kết nối.'}</p></div> : null}
+        {expired && !grade ? <div role="status" className="jlpt-message jlpt-warning"><Clock size={22} aria-hidden="true" /><p>Đã hết {session.paper.durationMinutes} phút. Bài làm đã khóa; {busy === 'grading' ? 'đang chấm điểm…' : 'hãy thử nộp lại nếu có lỗi kết nối.'}</p></div> : null}
         {error ? <div role="alert" className="jlpt-message jlpt-error"><WarningCircle size={22} aria-hidden="true" /><div><p>{error}</p><p>{grade ? 'Kết quả bài trước vẫn được giữ.' : 'Các câu trả lời vẫn được giữ trong phiên này.'}</p><button type="button" className="jlpt-text-button" onClick={() => grade ? void start(session.paper.number, session.paper.mode, session.paper.questions[0].category) : void finish()} disabled={busy !== null}>{grade ? 'Thử mở lại đề' : 'Thử nộp lại'}</button></div></div> : null}
 
         <div className="jlpt-work-layout">
