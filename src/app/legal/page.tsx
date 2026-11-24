@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Nguồn dữ liệu và giấy phép | YomuJi' };
+export const metadata: Metadata = { title: 'Nguồn dữ liệu và giấy phép' };
 
 export default function LegalPage() {
   return <article className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-16">

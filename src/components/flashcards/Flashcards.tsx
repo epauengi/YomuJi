@@ -85,6 +85,15 @@ export function Flashcards({ deckId }: { deckId?: string }) {
   }
 
   const deck = data?.decks.find((item) => item.id === deckId);
+  const deckName = deck?.name;
+  useEffect(() => {
+    if (!deckName) return;
+    const previous = document.title;
+    const title = `${deckName} | YomuJi`;
+    document.title = title;
+    return () => { if (document.title === title) document.title = previous; };
+  }, [deckName]);
+
   const visibleDecks = data?.decks.filter((item) => !(item.sample && item.cards.length === 0)) ?? [];
   const cards = visibleDecks.flatMap((item) => item.cards);
   const due = (items: Flashcard[]) => items.filter((card) => card.dueAt <= now);

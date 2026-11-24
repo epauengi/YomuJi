@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Clock, BookOpenText } from '@phosphor-icons/react/dist/ssr';
 import { getBook, books } from '@/data/books';
@@ -10,9 +12,16 @@ export function generateStaticParams() {
   return books.map(({ slug }) => ({ slug }));
 }
 
+const resolveBook = cache(async (slug: string) => getBook(slug) || (await findCatalogueBook(slug))?.book);
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const book = await resolveBook((await params).slug);
+  return { title: book?.title ?? 'Không tìm thấy tác phẩm' };
+}
+
 export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const book = getBook(slug) || (await findCatalogueBook(slug))?.book;
+  const book = await resolveBook(slug);
   if (!book) notFound();
   const coverUrl = (await getBookCoverUrls([book]))[book.slug];
   const related = books.filter((item) => item.category === book.category && item.slug !== book.slug).slice(0, 3);
@@ -37,7 +46,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
         </div>
       </div>
     </div>
-    {book.excerpt && <section className="mx-auto mt-14 max-w-3xl border-t border-[var(--color-border)] pt-8">
+    {book.excerpt && <section id="excerpt" className="mx-auto mt-14 max-w-3xl border-t border-[var(--color-border)] pt-8">
       <h2 className="font-serif text-2xl font-semibold">Thử đọc một đoạn</h2><p lang="ja" className="jp-text mt-5 whitespace-pre-line text-xl leading-[2] text-[var(--color-text-primary)]">{book.excerpt}</p>
     </section>}
     {related.length > 0 && <section className="mt-16"><div className="mb-5 flex items-end justify-between"><h2 className="font-serif text-2xl font-semibold">Cùng chủ đề</h2><Link href="/books" className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-primary-700)]">Thư viện <ArrowRight size={16} /></Link></div><div className="grid gap-3 sm:grid-cols-3">{related.map((item) => <Link key={item.slug} href={`/books/${item.slug}`} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition hover:bg-[var(--color-surface-subtle)]"><p className="font-semibold">{item.title}</p><p lang="ja" className="jp-text mt-1 text-sm text-[var(--color-text-muted)]">{item.author}</p></Link>)}</div></section>}

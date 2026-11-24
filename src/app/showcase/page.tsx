@@ -34,11 +34,11 @@ export default function ShowcasePage() {
   return (
     <div className="min-h-screen bg-[var(--color-background)] pb-20">
       {/* Header */}
-      <div className="bg-[var(--color-surface)] border-b border-[var(--color-border)] sticky top-0 z-40">
+      <div className="bg-[var(--color-surface)] border-b border-[var(--color-border)] sticky top-16 z-10">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3 mb-2">
             <Palette className="w-6 h-6 text-[var(--color-primary-600)]" />
-            <h1 className="text-2xl font-bold">Component Showcase</h1>
+            <h1 className="text-2xl font-bold">Mẫu giao diện</h1>
           </div>
           <p className="text-[var(--color-text-secondary)]">
             Thư viện trạng thái component và hệ thống thiết kế của YomuJi

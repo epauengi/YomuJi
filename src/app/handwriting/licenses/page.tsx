@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = { title: 'Nguồn & giấy phép giấy luyện viết' };
 
 export default function HandwritingLicensesPage() {
-  return <main className="mx-auto max-w-3xl px-5 py-10 text-[var(--color-text-primary)] sm:px-8">
+  return <article className="mx-auto max-w-3xl px-5 py-10 text-[var(--color-text-primary)] sm:px-8">
     <Link href="/handwriting" className="underline underline-offset-4">Trở về tạo giấy luyện viết</Link>
     <h1 className="mt-6 text-3xl font-bold">Nguồn & giấy phép</h1>
     <div className="mt-6 space-y-6 text-sm leading-7 [&_a]:underline [&_a]:underline-offset-4">
@@ -13,5 +13,5 @@ export default function HandwritingLicensesPage() {
       <section><h2 className="text-lg font-semibold">Nghĩa và cách đọc</h2><p>Dùng dữ liệu từ điển hiện có của YomuJi. Một số nghĩa và cách đọc bắt nguồn từ KANJIDIC2 © James William Breen và Electronic Dictionary Research and Development Group, CC BY-SA 4.0. Xem <Link href="/legal">nguồn dữ liệu và điều khoản</Link>. Nghĩa Việt giữ nguyên nguồn hiện có; không tạo bằng AI trong tính năng này.</p></section>
       <section><h2 className="text-lg font-semibold">Sử dụng bản PDF</h2><p>Bạn có thể in và chia sẻ theo giấy phép tương ứng của từng phần dữ liệu. Khi chia sẻ hoặc chỉnh sửa, giữ thông báo nguồn, giấy phép và ghi rõ thay đổi. Giấy phép font, hình nét và dữ liệu không đồng nhất với giấy phép mã ứng dụng.</p></section>
     </div>
-  </main>;
+  </article>;
 }

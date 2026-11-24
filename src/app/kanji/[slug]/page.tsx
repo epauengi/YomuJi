@@ -20,6 +20,38 @@ import type { TermRecord } from '@/types/dictionary';
 import type { KanjiAiExplanation } from '@/app/api/ai/explain-kanji/route';
 import { attachKanjiMeaningExamples, formatKanjiHanViet, getVietnameseKanjiMeanings } from '@/lib/dictionary/kanjiMeanings';
 
+const KANJI_TAG_LABELS: Record<string, string> = {
+  jouyou: 'Thường dụng',
+  jinmeiyou: 'Tên riêng',
+  kyouiku: 'Giáo dục',
+  hyougai: 'Ngoài bảng thường dụng',
+};
+
+function formatKanjiUnicode(raw?: string): string | null {
+  const code = raw?.trim().replace(/^u\+/i, '').toUpperCase();
+  return code ? `U+${code}` : null;
+}
+
+function formatKanjiGrade(grade?: number | string): string | null {
+  if (grade === undefined || grade === null || grade === '') return null;
+  const num = Number(grade);
+  if (!Number.isInteger(num)) return null;
+  if (num >= 1 && num <= 6) return `Lớp ${num}`;
+  if (num === 8) return 'Thường dụng ngoài tiểu học';
+  if (num === 9) return 'Tên riêng';
+  if (num === 10) return 'Tên riêng (dị thể)';
+  return null;
+}
+
+function decodeKanjiSlug(slug?: string): string {
+  if (!slug) return '';
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return '';
+  }
+}
+
 export default function KanjiDetailPage() {
   return (
     <Suspense fallback={<Centered loading title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />}>
@@ -34,7 +66,7 @@ function KanjiDetail() {
   const params = useParams();
   const rawSlug = params.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
-  const literal = decodeURIComponent(slug || '');
+  const literal = decodeKanjiSlug(slug);
   const { kanji, compounds, status, error, retry } = useKanjiDetail(literal);
 
   // AI Explanation State
@@ -113,7 +145,34 @@ function KanjiDetail() {
     kanji?.literal ?? literal,
   ), [kanji, compounds, literal]);
   const hanVietReadings = useMemo(() => formatKanjiHanViet(kanji?.hanViet), [kanji]);
-  const analysisLabel = kanji?.components.length ? kanji.components.join(' + ') : `${literal} (bộ thủ)`;
+  const meaningfulComponents = useMemo(() => {
+    if (!kanji) return [];
+    const seen = new Set<string>();
+    return kanji.components
+      .map((item) => item.trim())
+      .filter((item) => {
+        if (!item || item === kanji.literal || seen.has(item)) return false;
+        seen.add(item);
+        return true;
+      });
+  }, [kanji]);
+  const unicodeLabel = formatKanjiUnicode(kanji?.unicode);
+  const metadataBadges = useMemo(() => {
+    if (!kanji) return [];
+    const labels: string[] = [];
+    const addLabel = (label: string | null) => {
+      if (label && !labels.includes(label)) labels.push(label);
+    };
+    addLabel(formatKanjiGrade(kanji.grade));
+    addLabel(unicodeLabel);
+    for (const tag of kanji.tags) {
+      const label = KANJI_TAG_LABELS[tag.trim().toLowerCase()] ?? null;
+      if (label === 'Thường dụng' && labels.includes('Thường dụng ngoài tiểu học')) continue;
+      addLabel(label);
+      if (labels.length >= 6) break;
+    }
+    return labels;
+  }, [kanji, unicodeLabel]);
 
   if (status === 'loading') {
     return <Centered loading origin={origin} title="Đang tải Kanji" message="Đang kiểm tra dữ liệu trực tuyến và dữ liệu dự phòng..." />;
@@ -223,17 +282,18 @@ function KanjiDetail() {
               )}
             </InfoBlock>
 
-            <InfoBlock label="Phân tích">
-              <span className="text-lg text-[var(--color-text-secondary)]">- </span>
-              <span lang="ja" className="jp-text text-xl font-semibold text-[var(--color-text-primary)]">{kanji.literal}</span>
-              <span className="ml-1 text-xl font-semibold text-[var(--color-primary-700)]">({analysisLabel})</span>
-            </InfoBlock>
+            {meaningfulComponents.length > 0 && (
+              <InfoBlock label="Phân tích">
+                <span lang="ja" className="jp-text text-xl font-semibold text-[var(--color-text-primary)]">{kanji.literal}</span>
+                <span lang="ja" className="jp-text ml-2 text-lg font-medium text-[var(--color-primary-700)]">
+                  = {meaningfulComponents.join(' + ')}
+                </span>
+              </InfoBlock>
+            )}
 
             <div className="flex flex-wrap gap-2 pt-2">
               {kanji.jlpt && <Badge variant="jlpt" jlptLevel={kanji.jlpt}>{kanji.jlpt}</Badge>}
-              {kanji.grade && <Badge>Lớp {kanji.grade}</Badge>}
-              {kanji.unicode && <Badge>U+{kanji.unicode.toUpperCase()}</Badge>}
-              {kanji.tags.slice(0, 4).map((tag: string) => <Badge key={tag}>{tag}</Badge>)}
+              {metadataBadges.map((label) => <Badge key={label}>{label}</Badge>)}
             </div>
 
             <div className="flex flex-wrap items-center gap-2 pt-3">

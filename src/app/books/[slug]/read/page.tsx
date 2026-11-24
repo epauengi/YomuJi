@@ -1,8 +1,10 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 import { getBook, type Book } from '@/data/books';
 import BookReader from '@/components/books/BookReader';
 
-async function resolveBook(slug: string): Promise<Book | undefined> {
+const resolveBook = cache(async (slug: string): Promise<Book | undefined> => {
   const local = getBook(slug);
   if (local) return local;
 
@@ -29,6 +31,11 @@ async function resolveBook(slug: string): Promise<Book | undefined> {
   // Errors from catalogue lookup propagate directly.
   const result = await findCatalogueBook(slug);
   return result?.book;
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const book = await resolveBook((await params).slug);
+  return { title: book ? `Đọc ${book.title}` : 'Không tìm thấy tác phẩm' };
 }
 
 export default async function BookReaderPage({ params }: { params: Promise<{ slug: string }> }) {

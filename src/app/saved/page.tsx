@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BookmarkSimple, MagnifyingGlass } from '@phosphor-icons/react';
+import { BookmarkSimple, BookOpen, Cards, ClockCounterClockwise, MagnifyingGlass } from '@phosphor-icons/react';
 import { AddToFlashcardButton } from '@/components/ui/AddToFlashcardButton';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { reviewWords } from '@/lib/reviewSession';
@@ -69,10 +69,33 @@ export default function SavedPage() {
             <BookmarkSimple aria-hidden="true" size={28} weight="duotone" className="text-[var(--color-primary-700)]" />
             <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">Đã lưu</h1>
           </div>
-          <p className="mt-2 text-[var(--color-text-secondary)]">Lưu trên trình duyệt này, chưa đồng bộ giữa thiết bị.</p>
+          <p className="mt-2 text-[var(--color-text-secondary)]">Từ vựng và Kanji đã lưu trên trình duyệt này, chưa đồng bộ giữa thiết bị.</p>
           <p className="mt-2 max-w-prose text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            “Ôn từ đã lưu” dùng từ vựng bạn đánh dấu trong từ điển; bạn cũng có thể gửi từng từ sang bộ thẻ Flashcards riêng để ôn theo lịch.
+            Ôn nhanh chỉ lưu trong phiên hiện tại; để ôn lặp ngắt quãng theo lịch, hãy mở Flashcards hoặc thêm từng từ bằng nút thẻ bên dưới.
           </p>
+          <nav aria-label="Lối tắt cá nhân" className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/books/saved"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
+            >
+              <BookOpen aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
+              Sách của tôi
+            </Link>
+            <Link
+              href="/flashcards"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
+            >
+              <Cards aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
+              Flashcards
+            </Link>
+            <Link
+              href="/history"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
+            >
+              <ClockCounterClockwise aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
+              Tìm kiếm gần đây
+            </Link>
+          </nav>
           {!storageAvailable && (
             <p role="status" className="mt-3 text-sm text-[var(--color-warning-700)]">
               Bộ nhớ trình duyệt hiện không khả dụng. Danh sách có thể chưa được lưu bền vững; dữ liệu không bị xóa.
@@ -92,7 +115,7 @@ export default function SavedPage() {
               </p>
               {reviewCount > 0 && (
                 <Link href="/review" className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
-                  Ôn từ đã lưu ({reviewCount} từ)
+                  Ôn nhanh từ đã lưu ({reviewCount} từ)
                 </Link>
               )}
             </div>
@@ -129,7 +152,7 @@ export default function SavedPage() {
             {entries.length === 0 ? (
               <div className="border-t border-[var(--color-border-subtle)] py-10 text-center">
                 <p className="text-[var(--color-text-primary)]">Chưa có mục nào được lưu.</p>
-                <Link href="/" className="mt-2 inline-block font-medium text-[var(--color-primary-700)] underline underline-offset-4 hover:text-[var(--color-primary-800)]">
+                <Link href="/" className="mt-2 inline-flex min-h-11 items-center font-medium text-[var(--color-primary-700)] underline underline-offset-4 hover:text-[var(--color-primary-800)]">
                   Tra từ điển
                 </Link>
               </div>
@@ -139,7 +162,7 @@ export default function SavedPage() {
                 <button
                   type="button"
                   onClick={() => { setQuery(''); setFilter('all'); }}
-                  className="mt-2 font-medium text-[var(--color-primary-700)] underline underline-offset-4 hover:text-[var(--color-primary-800)]"
+                  className="mt-2 inline-flex min-h-11 items-center font-medium text-[var(--color-primary-700)] underline underline-offset-4 hover:text-[var(--color-primary-800)]"
                 >
                   Xóa bộ lọc
                 </button>
@@ -150,7 +173,7 @@ export default function SavedPage() {
                   <li key={entry.id} className="flex items-center gap-3 py-4 sm:gap-5">
                     <Link href={entry.href} className="min-w-0 flex-1 rounded-[var(--radius-md)] py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]">
                       <span lang="ja" className="jp-text block break-words text-xl font-semibold text-[var(--color-text-primary)]">{entry.surface}</span>
-                      {entry.reading && <span className="mt-0.5 block text-sm text-[var(--color-primary-700)]">{entry.reading}</span>}
+                      {entry.reading && <span lang="ja" className="jp-text mt-0.5 block text-sm text-[var(--color-primary-700)]">{entry.reading}</span>}
                       {entry.meanings.length > 0 && <span className="mt-1 line-clamp-2 break-words text-sm text-[var(--color-text-secondary)]">{entry.meanings.map(previewMeaning).join(' · ')}</span>}
                       {entry.kind === 'legacy' && (
                         <span className="mt-1 block text-xs text-[var(--color-text-muted)]">

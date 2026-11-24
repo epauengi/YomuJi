@@ -41,29 +41,79 @@ global.window = Object.assign(events, {
 });
 
 const history = load('src/lib/recentSearches.ts');
-const home = load('src/components/HomePage.tsx', {
-  react: { useCallback() {}, useEffect() {}, useRef() {}, useState() {} },
-  'react/jsx-runtime': { jsx() {}, jsxs() {}, Fragment: Symbol('Fragment') },
-  'next/link': {},
-  'next/navigation': { useRouter() {} },
-  '@phosphor-icons/react': {},
-  'motion/react': { motion: new Proxy({}, { get: (_, key) => key }) },
-  sonner: { toast: { error() {}, success() {} } },
-  '@/components/SearchInput': {},
-  '@/components/dictionary/TermCard': {},
-  '@/components/dictionary/ConjugationAnalysis': {},
-  '@/components/ui/TiltCard': {},
-  '@/components/ui/BookmarkButton': {},
-  '@/components/ui/Button': {},
-  '@/components/AudioButton': {},
-  '@/components/dictionary/InteractiveJapaneseReader': {},
-  '@/lib/mockDictionary': {},
-  '@/lib/tts': {},
-  '@/lib/navigation': {},
-  '@/lib/wordRoutes': {},
-  '@/lib/browserState': {},
-  '@/lib/recentSearches': history,
-});
+const booksModule = load('src/data/books.ts');
+const booksPageSource = fs.readFileSync('src/app/books/[slug]/page.tsx', 'utf8');
+
+function createElement(type, props) {
+  return { type, props: props || {} };
+}
+
+function collectNodes(node, out = []) {
+  if (node == null || typeof node === 'boolean') return out;
+  if (Array.isArray(node)) {
+    for (const child of node) collectNodes(child, out);
+    return out;
+  }
+  if (typeof node === 'object') {
+    out.push(node);
+    collectNodes(node.props?.children, out);
+  }
+  return out;
+}
+
+function collectText(node, out = []) {
+  if (node == null || typeof node === 'boolean') return out;
+  if (typeof node === 'string' || typeof node === 'number') {
+    out.push(String(node));
+    return out;
+  }
+  if (Array.isArray(node)) {
+    for (const child of node) collectText(child, out);
+    return out;
+  }
+  if (typeof node === 'object') {
+    collectText(node.props?.children, out);
+  }
+  return out;
+}
+
+function renderHomeWithWotd(wordOfTheDay) {
+  let stateIndex = 0;
+  const stateOverrides = {
+    5: wordOfTheDay,
+    6: false,
+    7: null,
+  };
+  const home = load('src/components/HomePage.tsx', {
+    react: {
+      useEffect() {},
+      useRef: (initial) => ({ current: initial }),
+      useState: (initial) => {
+        const idx = stateIndex++;
+        return [Object.hasOwn(stateOverrides, idx) ? stateOverrides[idx] : initial, () => {}];
+      },
+    },
+    'react/jsx-runtime': { jsx: createElement, jsxs: createElement, Fragment: Symbol('Fragment') },
+    'next/link': { __esModule: true, default: 'Link' },
+    'next/navigation': { useRouter: () => ({ push() {} }) },
+    '@phosphor-icons/react': new Proxy({}, { get: (_, key) => String(key) }),
+    sonner: { toast: { error() {}, success() {} } },
+    '@/components/SearchInput': { SearchInput: 'SearchInput' },
+    '@/components/dictionary/TermCard': { TermCard: 'TermCard' },
+    '@/components/dictionary/ConjugationAnalysis': { ConjugationAnalysis: 'ConjugationAnalysis' },
+    '@/components/dictionary/SentenceAnalysis': { SentenceAnalysis: 'SentenceAnalysis' },
+    '@/components/ui/BookmarkButton': { BookmarkButton: 'BookmarkButton' },
+    '@/components/ui/Button': { Button: 'Button' },
+    '@/components/AudioButton': { AudioButton: 'AudioButton' },
+    '@/lib/mockDictionary': { useDictionary: () => ({ progress: {} }), searchDictionary() {}, getWordOfTheDay() {} },
+    '@/lib/navigation': { searchHref: (q) => `/?q=${q}` },
+    '@/lib/wordRoutes': { wordHref: (t) => `/word/${t.surface}` },
+    '@/lib/browserState': { termBookmark: (t) => t },
+    '@/lib/recentSearches': history,
+    '@/data/books': booksModule,
+  });
+  return home.HomePage({ initialQuery: '' });
+}
 
 async function check() {
   assert.deepEqual(history.removeRecentSearches('remove'), {
@@ -92,35 +142,47 @@ async function check() {
   assert.equal(stored, beforeFailure, 'failed read must not overwrite stored history');
   blockedOperation = null;
 
-  let timeoutCallback;
-  let fetchCount = 0;
-  const originalSetTimeout = global.setTimeout;
-  const originalClearTimeout = global.clearTimeout;
-  const originalFetch = global.fetch;
-  global.setTimeout = (callback) => { timeoutCallback = callback; return 1; };
-  global.clearTimeout = () => {};
-  global.fetch = (_url, options) => {
-    fetchCount += 1;
-    return new Promise((_, reject) => options.signal.addEventListener('abort', () => reject(new Error('aborted'))));
-  };
-  try {
-    const timedOut = home.fetchRandomWikiArticle(new AbortController().signal);
-    timeoutCallback();
-    const fallback = await timedOut;
-    assert(fallback && fallback.extract.length > 30, 'timeout should return existing fallback article');
-    assert.equal(fetchCount, 1, 'timeout should not retry');
+  // Duplicate kana reading must be hidden on Word of the Day when reading === surface
+  const kanaTree = renderHomeWithWotd({
+    id: 'kana-1',
+    surface: 'ありがとう',
+    reading: 'ありがとう',
+    meaningsVi: ['cảm ơn'],
+    isCommon: true,
+    examples: [],
+  });
+  const kanaText = collectText(kanaTree);
+  assert.equal(
+    kanaText.filter((text) => text === 'ありがとう').length,
+    1,
+    'Word of the day must hide duplicate reading when equal to surface'
+  );
 
-    const external = new AbortController();
-    const cancelled = home.fetchRandomWikiArticle(external.signal);
-    external.abort();
-    assert.equal(await cancelled, null, 'external cancellation should not use fallback');
-  } finally {
-    global.setTimeout = originalSetTimeout;
-    global.clearTimeout = originalClearTimeout;
-    global.fetch = originalFetch;
-  }
+  // Distinct reading must still render when reading !== surface
+  const kanjiTree = renderHomeWithWotd({
+    id: 'kanji-1',
+    surface: '勉強',
+    reading: 'べんきょう',
+    meaningsVi: ['học tập'],
+    isCommon: true,
+    examples: [],
+  });
+  const kanjiText = collectText(kanjiTree);
+  assert(kanjiText.includes('勉強') && kanjiText.includes('べんきょう'), 'Word of the day must display reading when distinct from surface');
 
-  console.log('PASS bounded Wikipedia timeout/cancellation and history delete/undo storage safety');
+  // Featured Aozora excerpt link must point to a real curated book with an excerpt and matching #excerpt anchor
+  const nodes = collectNodes(kanaTree);
+  const excerptLink = nodes.find(
+    (node) => node.type === 'Link' && typeof node.props?.href === 'string' && node.props.href.endsWith('#excerpt')
+  );
+  assert(excerptLink, 'HomePage must render curated book excerpt link ending with #excerpt');
+  const slugMatch = excerptLink.props.href.match(/^\/books\/([^/#]+)#excerpt$/);
+  assert(slugMatch, `Unexpected book excerpt href: ${excerptLink.props.href}`);
+  const referencedBook = booksModule.getBook(slugMatch[1]);
+  assert(referencedBook && referencedBook.excerpt.trim().length > 0, `Curated book ${slugMatch[1]} must exist with non-empty excerpt`);
+  assert(booksPageSource.includes('id="excerpt"'), 'Book detail page must expose id="excerpt" anchor');
+
+  console.log('PASS history delete/undo storage safety, duplicate WOTD suppression, and curated book excerpt anchor');
 }
 
 check().catch((error) => {

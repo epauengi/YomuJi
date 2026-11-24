@@ -186,7 +186,7 @@ export default function HandwritingStudio() {
 
   const exportDisabled = loading || loadedKey !== key || exporting || !glyphs.length || parsed.overflow || parsed.unsupported.length > 0;
 
-  return <main className="hw-studio">
+  return <div className="hw-studio">
     <header className="hw-heading"><div><Link href="/practice" className="hw-back"><ArrowLeft size={15} aria-hidden="true" /> Luyện tập</Link><h1>Giấy luyện viết</h1></div></header>
     <div className="hw-mobile-actions">
       <button type="button" className="hw-mobile-preview" onClick={() => document.getElementById('handwriting-preview')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })}><Printer size={17} aria-hidden="true" />Xem trước A4</button>
@@ -209,5 +209,5 @@ export default function HandwritingStudio() {
         <button type="button" className="hw-download" onClick={download} disabled={exportDisabled}>{exporting ? <SpinnerGap size={19} className="hw-spin" aria-hidden="true" /> : <DownloadSimple size={19} aria-hidden="true" />}{exporting ? 'Đang tạo PDF…' : 'Tải PDF A4'}</button>
       </section>
     </div>
-  </main>;
+  </div>;
 }

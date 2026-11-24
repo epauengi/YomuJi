@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  BookOpen,
   CaretRight,
   ClockCounterClockwise,
   Sparkle,
@@ -14,17 +15,15 @@ import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { ConjugationAnalysis } from '@/components/dictionary/ConjugationAnalysis';
 import { SentenceAnalysis } from '@/components/dictionary/SentenceAnalysis';
-import { TiltCard } from '@/components/ui/TiltCard';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
-import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
 import { useDictionary, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
 import { Button } from '@/components/ui/Button';
-import { playJapaneseAudio } from '@/lib/tts';
 import { searchHref } from '@/lib/navigation';
 import { wordHref } from '@/lib/wordRoutes';
 import { termBookmark } from '@/lib/browserState';
 import { readRecentSearches, removeRecentSearches, restoreRecentSearches } from '@/lib/recentSearches';
+import { books } from '@/data/books';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
 
 // ponytail: Keep the hero decoration static; add motion only if it improves the lookup experience.
@@ -37,90 +36,9 @@ const decorativeKanji = [
 
 const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
 
-interface ArticleItem {
-  title: string;
-  extract: string;
-  url: string;
-}
-
-const fallbackArticles: Record<string, ArticleItem> = {
-  '日本': {
-    title: '日本',
-    extract: '日本国（にほんこく、にっぽんこく）、または日本（にほん、にっぽん）は、東アジアに位置する島国である。首都は東京都。太平洋と日本海、東シナ海、オホーツク海に囲まれている。四方を海に囲まれた島国であり、独自の歴史と豊かな自然文化を育んできた。四季が明確であり、春の桜、夏の青空、秋の紅葉、冬の雪景色など、年間を通じて多様な自然の表情を楽しむことができる。',
-    url: 'https://ja.wikipedia.org/wiki/日本',
-  },
-  '富士山': {
-    title: '富士山',
-    extract: '富士山（ふじさん）は、山梨県と静岡県にまたがる独立峰であり、標高3,776 mの日本最高峰である。日本の象徴として古来より世界的に知られており、信仰の対象や芸術の源泉として2013年にユネスコの世界文化遺産に登録された。美しい円錐形の山容を誇り、新幹線や東京の高層ビル群からも望むことができる。',
-    url: 'https://ja.wikipedia.org/wiki/富士山',
-  },
-  '桜': {
-    title: '桜',
-    extract: 'サクラ（桜）は、バラ科サクラ属の植物の総称、またはその花である。春に咲くピンクや白の美しい花で広く親しまれており、日本の国花の一つとされる。春になると全国各地で「花見」の習慣が行われ、人々が集まって満開の桜を楽しむ伝統が古くから受け継がれている。',
-    url: 'https://ja.wikipedia.org/wiki/桜',
-  },
-  '東京': {
-    title: '東京',
-    extract: '東京（とうきょう）は、日本の首都であり、東京都の主要都市である。政治、経済、文化の中心地として世界最大級の都市圏を形成している。歴史ある神社仏閣と近代的な超高層ビル群が共存する世界有数の国際都市として、多くの観光客を魅了している。',
-    url: 'https://ja.wikipedia.org/wiki/東京',
-  },
-  '新幹線': {
-    title: '新幹線',
-    extract: '新幹線（しんかんせん）は、JRグループが運営する日本の高速鉄道システムである。1964年の東京オリンピックに合わせて東海道新幹線が開業して以来、高い安全性と世界トップレベルの定時運行率を維持しており、日本の高度経済成長を支えた技術の結晶として称えられている。',
-    url: 'https://ja.wikipedia.org/wiki/新幹線',
-  },
-};
-
-export async function fetchRandomWikiArticle(signal: AbortSignal): Promise<ArticleItem | null> {
-  const controller = new AbortController();
-  let timedOut = false;
-  const abortRequest = () => controller.abort();
-  if (signal.aborted) controller.abort();
-  else signal.addEventListener('abort', abortRequest, { once: true });
-  const timeoutId = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, 6_000);
-
-  try {
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (signal.aborted) return null;
-      try {
-        const res = await fetch('https://ja.wikipedia.org/api/rest_v1/page/random/summary', {
-          headers: { Accept: 'application/json' },
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-        if (signal.aborted) return null;
-        if (res.ok) {
-          const data = await res.json();
-          if (signal.aborted) return null;
-          if (data && data.extract && data.extract.trim().length > 30 && data.type === 'standard') {
-            return {
-              title: data.title || data.displaytitle || 'Wikipedia',
-              extract: data.extract,
-              url: data.content_urls?.desktop?.page || `https://ja.wikipedia.org/wiki/${encodeURIComponent(data.title)}`,
-            };
-          }
-        }
-      } catch (err) {
-        if (signal.aborted) return null;
-        if (!timedOut) console.error('Random Wiki fetch error:', err);
-      }
-
-      if (signal.aborted) return null;
-      if (controller.signal.aborted) break;
-    }
-
-    if (signal.aborted) return null;
-    const fallbackKeys = Object.keys(fallbackArticles);
-    const randomKey = fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
-    return fallbackArticles[randomKey];
-  } finally {
-    clearTimeout(timeoutId);
-    signal.removeEventListener('abort', abortRequest);
-  }
-}
+const featuredBook = Array.isArray(books)
+  ? (books.find((book) => book.slug === 'chumon-no-ooi-ryoriten') ?? books[0] ?? null)
+  : null;
 
 function readStoredRecentSearches(): string[] {
   if (typeof window === 'undefined') return [];
@@ -179,10 +97,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
   const [wordError, setWordError] = useState<string | null>(null);
   const [wordRetryKey, setWordRetryKey] = useState(0);
 
-  const [readingArticle, setReadingArticle] = useState<ArticleItem | null>(null);
-  const [readingLoading, setReadingLoading] = useState(false);
-  const articleRequestRef = useRef<AbortController | null>(null);
-
   const commitSearch = (value: string) => {
     if (value === query && value) {
       setSearchAttempt((attempt) => attempt + 1);
@@ -190,20 +104,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
       router.push(searchHref(value));
     }
   };
-
-  const loadNewRandomArticle = useCallback(async () => {
-    articleRequestRef.current?.abort();
-    const controller = new AbortController();
-    articleRequestRef.current = controller;
-    setReadingLoading(true);
-
-    const article = await fetchRandomWikiArticle(controller.signal);
-    if (articleRequestRef.current !== controller) return;
-
-    articleRequestRef.current = null;
-    if (article) setReadingArticle(article);
-    setReadingLoading(false);
-  }, []);
 
   // ponytail: Tiny retry counter triggers effect reload; upgrade to query client when server sync needed.
   useEffect(() => {
@@ -250,19 +150,12 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
       setRecentSearches(readStoredRecentSearches());
     };
     syncSearches();
-    loadNewRandomArticle();
 
     window.addEventListener('yomuji:recent_searches', syncSearches);
     return () => {
       window.removeEventListener('yomuji:recent_searches', syncSearches);
-      articleRequestRef.current?.abort();
-      articleRequestRef.current = null;
     };
-  }, [loadNewRandomArticle]);
-
-  const handleNextArticle = () => {
-    loadNewRandomArticle();
-  };
+  }, []);
 
   const addRecentSearch = (term: string) => {
     const trimmed = term.trim();
@@ -304,10 +197,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
       console.error('Failed to clear search history:', err);
       toast.error('Không thể xóa lịch sử trên thiết bị.');
     }
-  };
-
-  const playPronunciation = (text: string) => {
-    playJapaneseAudio(text);
   };
 
   useEffect(() => {
@@ -502,111 +391,153 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               </section>
             )}
 
-            {/* Bento Grid Dashboard: Row 1 (Word of the day + Wikipedia Interactive Reader) */}
+            {/* Word of the day + Featured Aozora excerpt */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2.2fr)] items-stretch">
-              <TiltCard className="p-6 sm:p-7 shadow-sm">
-                <div className="flex h-full flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
-                        <Sparkle aria-hidden="true" size={15} weight="fill" className="text-[var(--color-warning)]" />
-                        Từ vựng hôm nay
-                      </h2>
-                      {wordOfTheDay ? (
-                        <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
-                          {wordOfTheDay.isCommon ? 'Từ vựng phổ biến' : 'Từ vựng'}
-                        </div>
-                      ) : wordLoading ? (
-                        <div className="skeleton-quiet h-6 w-24 rounded-full bg-[var(--color-surface-subtle)]" />
-                      ) : null}
-                    </div>
-
-                    {wordLoading ? (
-                      <div className="mt-5 space-y-3" role="status" aria-label="Đang tải từ vựng hôm nay" aria-busy="true">
-                        <div className="skeleton-quiet h-10 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
-                        <div className="skeleton-quiet h-6 w-full rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
-                        <div className="skeleton-quiet h-16 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
-                        <span className="sr-only">Đang tải từ vựng hôm nay...</span>
+              <article className="flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-7">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-bg)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-warning)]">
+                      <Sparkle aria-hidden="true" size={15} weight="fill" className="text-[var(--color-warning)]" />
+                      Từ vựng hôm nay
+                    </h2>
+                    {wordOfTheDay ? (
+                      <div className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-bold text-[var(--color-text-secondary)]">
+                        {wordOfTheDay.isCommon ? 'Từ vựng phổ biến' : 'Từ vựng'}
                       </div>
-                    ) : wordError || !wordOfTheDay ? (
-                      <div className="mt-8 flex flex-col items-center justify-center py-6 text-center" role="alert">
-                        <p className="text-sm font-medium text-[var(--color-text-secondary)]">
-                          {wordError || 'Chưa thể tải từ vựng hôm nay.'}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={handleRetryWord}
-                          className="tactile mt-4 inline-flex min-h-11 min-w-[44px] items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-primary-700)] shadow-xs transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]"
-                        >
-                          Thử lại
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                              <h3 lang="ja" className="jp-text break-keep [overflow-wrap:anywhere] text-3xl sm:text-4xl font-extrabold text-[var(--color-primary-600)]">
-                                {wordOfTheDay.surface}
-                              </h3>
-                              <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
-                                {wordOfTheDay.reading}
-                              </span>
-                            </div>
-
-                            <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
-                              {wordOfTheDay.meaningsVi.join(', ')}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
-                            <BookmarkButton item={termBookmark(wordOfTheDay)} />
-                          </div>
-                        </div>
-
-                        {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
-                          <div className="mt-5 rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)] p-3.5 border border-[var(--color-border-subtle)]">
-                            <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
-                              {wordOfTheDay.examples[0].textJa}
-                            </p>
-                            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-                              {wordOfTheDay.examples[0].textVi}
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
+                    ) : wordLoading ? (
+                      <div className="skeleton-quiet h-6 w-24 rounded-full bg-[var(--color-surface-subtle)]" />
+                    ) : null}
                   </div>
 
                   {wordLoading ? (
-                    <div className="mt-6 flex justify-end border-t border-[var(--color-border-subtle)] pt-3">
-                      <div className="skeleton-quiet h-5 w-36 rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
+                    <div className="mt-5 space-y-3" role="status" aria-label="Đang tải từ vựng hôm nay" aria-busy="true">
+                      <div className="skeleton-quiet h-10 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
+                      <div className="skeleton-quiet h-6 w-full rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
+                      <div className="skeleton-quiet h-16 w-full rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)]" />
+                      <span className="sr-only">Đang tải từ vựng hôm nay...</span>
                     </div>
-                  ) : wordOfTheDay ? (
-                    <div className="mt-6 flex justify-end pt-3 border-t border-[var(--color-border-subtle)]">
-                      <Link
-                        href={wordHref(wordOfTheDay)}
-                        className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                  ) : wordError || !wordOfTheDay ? (
+                    <div className="mt-8 flex flex-col items-center justify-center py-6 text-center" role="alert">
+                      <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+                        {wordError || 'Chưa thể tải từ vựng hôm nay.'}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRetryWord}
+                        className="tactile mt-4 inline-flex min-h-11 min-w-[44px] items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]"
                       >
-                        Xem chi tiết từ vựng
-                        <CaretRight size={14} weight="bold" />
-                      </Link>
+                        Thử lại
+                      </button>
                     </div>
-                  ) : null}
-                </div>
-              </TiltCard>
+                  ) : (
+                    <>
+                      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <h3 lang="ja" className="jp-text break-keep [overflow-wrap:anywhere] text-3xl sm:text-4xl font-extrabold text-[var(--color-primary-600)]">
+                              {wordOfTheDay.surface}
+                            </h3>
+                            {wordOfTheDay.reading && wordOfTheDay.reading !== wordOfTheDay.surface && (
+                              <span lang="ja" className="jp-text text-base font-semibold text-[var(--color-text-secondary)]">
+                                {wordOfTheDay.reading}
+                              </span>
+                            )}
+                          </div>
 
-              {/* Interactive Japanese Reader Box */}
-              <TiltCard className="p-6 sm:p-7 shadow-sm">
-                <InteractiveJapaneseReader
-                  title={readingArticle?.title || 'Đang tải...'}
-                  extract={readingArticle?.extract || ''}
-                  url={readingArticle?.url || ''}
-                  onRefresh={handleNextArticle}
-                  isLoading={readingLoading}
-                />
-              </TiltCard>
+                          <p className="mt-2 text-lg font-bold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.meaningsVi.join(', ')}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <AudioButton text={wordOfTheDay.surface} label="Phát âm" variant="icon-only" />
+                          <BookmarkButton item={termBookmark(wordOfTheDay)} />
+                        </div>
+                      </div>
+
+                      {wordOfTheDay.examples && wordOfTheDay.examples.length > 0 && (
+                        <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-surface-subtle)] p-3.5">
+                          <p lang="ja" className="jp-text text-sm font-semibold text-[var(--color-text-primary)]">
+                            {wordOfTheDay.examples[0].textJa}
+                          </p>
+                          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                            {wordOfTheDay.examples[0].textVi}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {wordLoading ? (
+                  <div className="mt-6 flex justify-end border-t border-[var(--color-border-subtle)] pt-3">
+                    <div className="skeleton-quiet h-5 w-36 rounded-[--radius-sm] bg-[var(--color-surface-subtle)]" />
+                  </div>
+                ) : wordOfTheDay ? (
+                  <div className="mt-6 flex justify-end border-t border-[var(--color-border-subtle)] pt-3">
+                    <Link
+                      href={wordHref(wordOfTheDay)}
+                      className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                    >
+                      Xem chi tiết từ vựng
+                      <CaretRight aria-hidden="true" size={14} weight="bold" />
+                    </Link>
+                  </div>
+                ) : null}
+              </article>
+
+              {/* Featured Aozora Excerpt */}
+              {featuredBook && (
+                <article className="flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-7">
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-700)]">
+                        <BookOpen aria-hidden="true" size={15} weight="duotone" />
+                        Đọc thử từ tủ sách
+                      </h2>
+                      {featuredBook.minutes && (
+                        <span className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-semibold text-[var(--color-text-secondary)]">
+                          ~{featuredBook.minutes} phút
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 lang="ja" className="jp-text mt-5 text-xl font-extrabold leading-snug text-[var(--color-text-primary)]">
+                      {featuredBook.japaneseTitle}
+                    </h3>
+                    <p className="mt-1 text-sm font-medium text-[var(--color-text-secondary)]">
+                      {featuredBook.title} · <span lang="ja" className="jp-text">{featuredBook.author}</span> ({featuredBook.romanizedAuthor})
+                    </p>
+
+                    <blockquote
+                      lang="ja"
+                      className="jp-text mt-4 rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-surface-subtle)] p-4 text-[15px] leading-8 text-[var(--color-text-primary)]"
+                    >
+                      {featuredBook.excerpt}
+                    </blockquote>
+
+                    <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
+                      {featuredBook.intro}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border-subtle)] pt-3">
+                    <Link
+                      href="/books"
+                      className="inline-flex min-h-11 items-center text-xs font-semibold text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]"
+                    >
+                      Tủ sách Aozora
+                    </Link>
+                    <Link
+                      href={`/books/${featuredBook.slug}#excerpt`}
+                      className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
+                    >
+                      Đọc đoạn trích
+                      <CaretRight aria-hidden="true" size={14} weight="bold" />
+                    </Link>
+                  </div>
+                </article>
+              )}
             </div>
           </div>
         )}

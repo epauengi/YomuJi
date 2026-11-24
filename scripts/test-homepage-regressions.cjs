@@ -26,9 +26,8 @@ assert(
   'Settings UI must retain offline download action'
 );
 
-// 3. Headings hierarchy and semantic tags across homepage & reader
+// 3. Headings hierarchy and semantic tags across homepage
 const homePage = read('src/components/HomePage.tsx');
-const reader = read('src/components/dictionary/InteractiveJapaneseReader.tsx');
 
 assert(
   /<h1\b/i.test(homePage),
@@ -38,34 +37,36 @@ assert(
   /<h2\b[^>]*>[^<]*<Sparkle\b[^>]*\/>\s*T\u1EEB v\u1EF1ng h\u00F4m nay\s*<\/h2>/i.test(homePage),
   'Word-of-the-day section label must be an h2'
 );
-assert(/<motion\.h3\b/i.test(homePage), 'Word of the day must remain an h3');
+assert(/<h3\b[^>]*>\s*\{wordOfTheDay\.surface\}\s*<\/h3>/i.test(homePage), 'Word of the day must remain an h3');
 assert(
-  /<h2\b[^>]*>[\s\S]*?B\u00E0i \u0111\u1ECDc ng\u1EABu nhi\u00EAn[\s\S]*?<\/h2>/i.test(reader) && /<h3\b/i.test(reader),
-  'Random article section and article title must use h2 and h3'
+  /<h2\b[^>]*>[\s\S]*?Đọc thử từ tủ sách[\s\S]*?<\/h2>/i.test(homePage)
+    && /<h3\b[^>]*>\s*\{featuredBook\.japaneseTitle\}\s*<\/h3>/i.test(homePage),
+  'Featured Aozora excerpt section and title must use h2 and h3'
 );
 
-// 4. Random article reader badge/label must not be labeled as today-only
+// 4. Flat Home surfaces, curated local Aozora excerpt, and no random Wikipedia fetch
+assert(!homePage.includes('TiltCard'), 'HomePage must use flat surfaces without TiltCard');
 assert(
-  !reader.includes('B\u00E0i \u0111\u1ECDc h\u00F4m nay'),
-  'Reader badge must not use misleading "B\u00E0i \u0111\u1ECDc h\u00F4m nay" label for random articles'
+  !homePage.includes('InteractiveJapaneseReader') && !homePage.includes('wikipedia.org'),
+  'HomePage must replace random Wikipedia reader with local Aozora excerpt'
 );
 assert(
-  /ng\u1EABu nhi\u00EAn|random/i.test(reader),
-  'Reader must indicate random article source in badge/label'
+  homePage.includes("from '@/data/books'") && homePage.includes('#excerpt'),
+  'HomePage must reference local curated book data and link to #excerpt'
 );
 assert(
-  /aria-label="\u0110\u1ECDc b\u00E0i kh\u00E1c[^\"]*ng\u1EABu nhi\u00EAn/i.test(reader),
-  'Refresh button accessible name must include its visible label and indicate randomness'
+  /wordOfTheDay\.reading\s*!==\s*wordOfTheDay\.surface/.test(homePage),
+  'HomePage must hide duplicate kana reading when equal to surface'
 );
 
 // 5. Minimum 44px touch target on interactive links
 const minHitPattern = /\b(min-h-11|min-h-\[44px\]|h-11|h-\[44px\])\b/;
 
-// 5a. Wikipedia external link in reader
-const wikiLinkMatch = reader.match(/<a\b[^>]*href=\{url\}[^>]*>/) || reader.match(/<a\b[^>]*wikipedia[^>]*>/i);
+// 5a. Featured book excerpt link in HomePage
+const excerptLinkMatch = homePage.match(/<Link\b[^>]*href=\{`\/books\/\$\{featuredBook\.slug\}#excerpt`\}[^>]*>/);
 assert(
-  wikiLinkMatch && minHitPattern.test(wikiLinkMatch[0]),
-  'Reader Wikipedia link must provide at least 44px hit size (e.g. min-h-11)'
+  excerptLinkMatch && minHitPattern.test(excerptLinkMatch[0]),
+  'HomePage curated book excerpt link must provide at least 44px hit size (e.g. min-h-11)'
 );
 
 // 5b. Word of the day detail link in HomePage
@@ -156,7 +157,7 @@ require('node:child_process').execFileSync(process.execPath, ['scripts/check-hom
   assert.equal(retried.error, null);
   assert.equal(retried.term?.surface, '\u72AC');
 
-  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, random reader label, hero motion removed, entry hero preserved and active query compact, daily-word states & retry, sonner history undo merge (8 cap)');
+  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, flat surfaces & curated Aozora excerpt, duplicate WOTD suppression, hero motion removed, entry hero preserved and active query compact, daily-word states & retry, sonner history undo merge (8 cap)');
 })().catch((err) => {
   console.error(err);
   process.exit(1);

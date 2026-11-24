@@ -1,9 +1,19 @@
+import type { Metadata } from 'next';
 import { permanentRedirect, redirect } from 'next/navigation';
 import { resolveWordRoute } from '@/lib/dictionary/resolveWordRoute';
 import { wordHref } from '@/lib/wordRoutes';
 import { readSearchOrigin, withSearchOrigin } from '@/lib/dictionary/searchReturn';
 import type { TermLookupResponse } from '@/types/dictionary';
 import WordDetailPage from './WordDetailPage';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    return { title: `Tra từ ${decodeURIComponent(slug)}` };
+  } catch {
+    return { title: 'Chi tiết từ vựng' };
+  }
+}
 
 export default async function Page({ params, searchParams }: {
   params: Promise<{ slug: string }>;

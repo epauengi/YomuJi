@@ -216,16 +216,24 @@ export default function SavedBooksPage() {
   }, []);
 
   return (
-    <main className="mx-auto min-h-[60vh] max-w-4xl px-4 py-8 sm:px-6">
-      <Link
-        href="/books"
-        className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"
-      >
-        <ArrowLeft size={18} aria-hidden="true" /> Thư viện
-      </Link>
-      <div className="mt-8 flex items-center gap-3">
+    <div className="mx-auto min-h-[60vh] max-w-4xl px-4 py-8 sm:px-6">
+      <nav aria-label="Điều hướng sách đã lưu" className="flex flex-wrap items-center gap-x-5 gap-y-1">
+        <Link
+          href="/books"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"
+        >
+          <ArrowLeft size={18} aria-hidden="true" /> Thư viện
+        </Link>
+        <Link
+          href="/saved"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)]"
+        >
+          Đã lưu
+        </Link>
+      </nav>
+      <div className="mt-6 flex items-center gap-3">
         <BookmarkSimple size={25} className="text-[var(--color-primary-700)]" aria-hidden="true" />
-        <h1 className="font-serif text-3xl font-semibold">Sách của tôi</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">Sách của tôi</h1>
       </div>
       <p className="mt-2 text-sm text-[var(--color-text-muted)]">Đã lưu trên thiết bị này.</p>
 
@@ -254,7 +262,7 @@ export default function SavedBooksPage() {
               <button
                 type="button"
                 onClick={() => setAttempt((a) => a + 1)}
-                className="inline-flex min-h-9 items-center gap-1 font-semibold text-[var(--color-primary-700)] hover:underline"
+                className="inline-flex min-h-11 items-center gap-1 font-semibold text-[var(--color-primary-700)] hover:underline"
               >
                 <ArrowsClockwise size={15} aria-hidden="true" /> Thử lại
               </button>
@@ -268,13 +276,13 @@ export default function SavedBooksPage() {
                   href={`/books/${book.slug}`}
                   className="flex min-h-16 items-center justify-between gap-4 py-3 hover:text-[var(--color-primary-700)]"
                 >
-                  <span>
-                    <span className="block font-semibold">{book.title}</span>
+                  <span className="min-w-0">
+                    <span className="block break-words font-semibold">{book.title}</span>
                     <span lang="ja" className="jp-text text-sm text-[var(--color-text-muted)]">
                       {book.author}
                     </span>
                   </span>
-                  <span className="text-sm">Mở truyện →</span>
+                  <span className="shrink-0 text-sm">Mở truyện →</span>
                 </Link>
               </li>
             ))}
@@ -286,7 +294,7 @@ export default function SavedBooksPage() {
               <button
                 type="button"
                 onClick={removeUnavailable}
-                className="font-medium underline hover:text-[var(--color-text-primary)]"
+                className="inline-flex min-h-11 items-center font-medium underline hover:text-[var(--color-text-primary)]"
               >
                 Xóa khỏi danh sách
               </button>
@@ -305,6 +313,6 @@ export default function SavedBooksPage() {
           </Link>
         </div>
       )}
-    </main>
+    </div>
   );
 }
