@@ -244,7 +244,7 @@ export function SearchInput({
       } ${className}`}
     >
       {/* Left Search Icon */}
-      <div className={`${compact ? 'pl-2.5 sm:pl-4' : 'pl-4'} flex shrink-0 items-center justify-center text-[var(--color-primary-700)]`}>
+      <div className={`${compact ? 'pl-2.5 sm:pl-4' : 'pl-4'} flex shrink-0 items-center justify-center text-[var(--color-primary-700)] max-[359px]:hidden`}>
         <MagnifyingGlass aria-hidden="true" size={compact ? 18 : 22} weight="bold" />
       </div>
 
@@ -269,7 +269,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder || 'Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt...'}
-          className={`${compact ? 'h-11 px-2 sm:px-3' : 'h-13 px-3'} text-base w-full min-w-0 border-0 bg-transparent text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
+          className={`${compact ? 'h-11 px-2 max-[359px]:px-1 sm:px-3' : 'h-13 px-3'} text-base w-full min-w-0 border-0 bg-transparent text-[var(--color-text-primary)] shadow-none outline-none focus-visible:outline-none placeholder:text-[var(--color-text-muted)]`}
           role="combobox"
           aria-label="Tra từ vựng hoặc Kanji"
           autoComplete="off"
@@ -533,7 +533,7 @@ function TermSuggestion({ result, query }: { result: DictionarySearchResult; que
             </span>
           )}
         </div>
-        <p className="mt-1 line-clamp-1 text-sm leading-5 text-[var(--color-text-secondary)]">
+        <p className="mt-1 wrap-anywhere text-sm leading-5 text-[var(--color-text-secondary)] sm:line-clamp-1">
           <Highlight text={term.meaningsVi.slice(0, 2).join('; ') || 'Chưa có nghĩa hiển thị'} query={query} />
         </p>
       </div>
@@ -567,7 +567,7 @@ function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResul
           </span>
           {kanji.jlpt && <span className="text-xs font-medium text-[var(--color-primary-700)]">{kanji.jlpt}</span>}
         </div>
-        <p className="mt-1 line-clamp-1 text-sm leading-5 text-[var(--color-text-secondary)]">
+        <p className="mt-1 wrap-anywhere text-sm leading-5 text-[var(--color-text-secondary)] sm:line-clamp-1">
           <Highlight text={kanji.meanings.slice(0, 3).join(', ')} query={query} />
         </p>
       </div>

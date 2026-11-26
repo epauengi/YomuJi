@@ -1,0 +1,14 @@
+JMnedict / ENAMDICT — Japanese Proper Names Dictionary
+Source: Electronic Dictionary Research and Development Group (EDRDG)
+URL: https://www.edrdg.org/enamdict/enamdict_doc.html
+Download: https://www.edrdg.org/pub/Nihongo/JMnedict.xml.gz
+
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+License URL: https://creativecommons.org/licenses/by-sa/4.0/
+EDRDG Licence Statement: https://www.edrdg.org/edrdg/licence.html
+
+Attribution:
+This dataset includes Japanese proper name entries (surname, given, fem, masc,
+person, place, station) derived from JMnedict/ENAMDICT, which is the property
+of the Electronic Dictionary Research and Development Group (EDRDG), used in
+conformance with the Group's licence.

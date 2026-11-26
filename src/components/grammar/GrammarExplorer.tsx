@@ -289,7 +289,7 @@ export function GrammarExplorer({
               type="button"
               aria-pressed={level === 'ALL'}
               onClick={() => handleLevelChange('ALL')}
-              className={`min-h-9 rounded-[var(--radius-sm)] px-3 text-xs font-semibold tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-action-primary)] ${
+              className={`min-h-11 min-w-11 rounded-[var(--radius-sm)] sm:min-h-9 sm:min-w-0 px-3 text-xs font-semibold tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-action-primary)] ${
                 level === 'ALL'
                   ? 'bg-[var(--color-surface)] text-[var(--color-primary-700)] shadow-[var(--shadow-xs)]'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
@@ -306,7 +306,7 @@ export function GrammarExplorer({
                   type="button"
                   aria-pressed={active}
                   onClick={() => handleLevelChange(lvl)}
-                  className={`min-h-9 rounded-[var(--radius-sm)] px-2.5 text-xs font-semibold tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-action-primary)] ${
+                  className={`min-h-11 min-w-11 rounded-[var(--radius-sm)] sm:min-h-9 sm:min-w-0 px-2.5 text-xs font-semibold tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-action-primary)] ${
                     active
                       ? 'bg-[var(--color-surface)] text-[var(--color-primary-700)] shadow-[var(--shadow-xs)]'
                       : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'

@@ -23,6 +23,7 @@ For online dictionary search or AI explanations, create an ignored `.env.local` 
 - **Turso dictionary:** `DICTIONARY_BACKEND=turso`, `TURSO_DATABASE_URL`, and `TURSO_AUTH_TOKEN`. Schema and validation tooling are in [`turso/`](../turso/); operational notes are in the existing [migration handbook](./turso-migration.md).
 - **Backend comparison:** `DICTIONARY_BACKEND=compare` needs both backends and is intended for development checks.
 - **AI kanji explanations:** `NVIDIA_API_KEY` for NVIDIA NIM (`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`), with `GEMINI_API_KEY` as fallback. Either provider can be configured alone. Keys are server-only. NVIDIA API reference: https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-nano-omni-30b-a3b-reasoning-infer.
+- **Image OCR:** See [setup and privacy notes](./image-lookup.md) for Google Cloud Vision and the production quota limiter.
 - **Administrative scripts:** `SUPABASE_SERVICE_ROLE_KEY` is for server-side administrative access, not browser use or basic local startup.
 
 Never commit credentials. Keep service-role keys, database tokens, and AI keys server-side; do not give them a `NEXT_PUBLIC_` prefix. Restart the development server after changing service configuration.
@@ -46,6 +47,12 @@ npm run turso:validate
 There is no test script. The current `npm run lint` calls `next lint`, which is unavailable in Next.js 16; no ESLint flat configuration is checked in.
 
 Routine setup does not require rebuilding or migrating dictionary data. `npm run build:dict` reads local source files from `YOMUJI_DATA_DIR` (or the default path in [`scripts/build-dictionary.ts`](../scripts/build-dictionary.ts)) and generates versioned sense sidecars alongside dictionary shards. Publish the sidecars with the app; online details fall back to flat meanings if they are unavailable. Existing offline users can select **Thiết lập → Cập nhật dữ liệu offline**. `npm run turso:migrate` drops and recreates tables in the configured database; review the migration handbook and script before running it. **Do not run `npm run supabase:clear` for setup: it deletes dictionary data.**
+
+## Offline Proper Names
+
+The homepage's **Tên riêng offline** panel downloads the checked-in JMnedict data separately from the main dictionary. Keep the tab open to run new lookups after disconnecting. Search results and the Aozora reader display matching names below regular dictionary results.
+
+To refresh the extract, run `node scripts/build-name-index.cjs --input <JMnedict.xml.gz>` with the official source from the [data manifest](../public/names/manifest.json). This regenerates `public/names/`. Run `npx tsx --test src/lib/nameDictionary.test.ts` to check real shards and offline lookups.
 
 ## Handwriting Search
 

@@ -91,11 +91,10 @@ export default function ReviewPage() {
           <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">Ôn nhanh từ đã lưu</h1>
           <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">Tự nhớ cách đọc và nghĩa trước khi mở đáp án.</p>
           <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
-            Kết quả chỉ trong phiên này; tải lại hoặc rời trang sẽ mất kết quả và không thay đổi mục đã lưu. Muốn ôn lặp ngắt quãng theo lịch, dùng{' '}
+            Kết quả chỉ giữ trong phiên này. Tải lại hoặc rời trang sẽ mất kết quả, nhưng các từ đã lưu không thay đổi.{' '}
             <Link href="/flashcards" className="font-medium text-[var(--color-primary-700)] underline underline-offset-4 hover:text-[var(--color-primary-800)]">
-              Flashcards
-            </Link>
-            .
+              Ôn theo lịch bằng Flashcards
+            </Link>.
           </p>
         </header>
 

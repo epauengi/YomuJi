@@ -1,9 +1,10 @@
 import { PDFDocument, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { Glyph, WorksheetOptions } from './handwriting';
-import { buildLayout } from './handwriting';
+import { buildLayout, READING_METRICS } from './handwriting';
 
 const mm = (value: number) => value * 72 / 25.4;
+const topForBaseline = (baselineMm: number, sizePt: number) => baselineMm - sizePt * 0.8 * 25.4 / 72;
 const safeText = (value: string, max: number) => [...value.replace(/[\r\n\t]+/g, ' ').trim()].slice(0, max).join('');
 type FontInfo = ReturnType<typeof fontkit.create>;
 type FontRun = { character: string; font: PDFFont; width: number };
@@ -88,10 +89,12 @@ function drawText(page: PDFPage, content: string, x: number, top: number, size: 
   }
 }
 
-function drawReadingLine(page: PDFPage, value: string, x: number, y: number, size: number, ink: ReturnType<typeof rgb>, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, readingsFont: PDFFont, readingsInfo: FontInfo, label: 'On' | 'Kun') {
+function drawReadingLine(page: PDFPage, value: string, x: number, baselineY: number, size: number, maxWidth: number, ink: ReturnType<typeof rgb>, japanese: PDFFont, latin: PDFFont, japaneseInfo: FontInfo, latinInfo: FontInfo, readingsFont: PDFFont, readingsInfo: FontInfo, label: 'On' | 'Kun') {
+  const top = topForBaseline(baselineY, size);
   const labelWidth = readingsFont.widthOfTextAtSize(`${label}:`, size);
-  drawText(page, `${label}:`, x, y, size, ink, 0, 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', true, { font: readingsFont, info: readingsInfo });
-  drawText(page, value.slice(label.length + 1), x + labelWidth * 25.4 / 72 + 1, y, size, ink, 0, 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', false, { font: readingsFont, info: readingsInfo });
+  const labelOffset = labelWidth * 25.4 / 72 + 1;
+  drawText(page, `${label}:`, x, top, size, ink, maxWidth, 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', true, { font: readingsFont, info: readingsInfo });
+  drawText(page, value.slice(label.length + 1), x + labelOffset, top, size, ink, Math.max(20, maxWidth - labelOffset), 1, japanese, latin, japaneseInfo, latinInfo, 1, 'left', false, { font: readingsFont, info: readingsInfo });
 }
 
 function drawGlyph(page: PDFPage, glyph: Glyph, x: number, y: number, size: number, font: PDFFont, ink: ReturnType<typeof rgb>, opacity = 1) {
@@ -150,7 +153,8 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
   // ponytail: Klee's composite glyph subsets lose Japanese text in PDF renderers; keep the full ~5 MB font until fontkit subsets composite glyphs correctly.
   const japaneseFont = await doc.embedFont(japaneseBytes, { subset: false });
   const latinFont = await doc.embedFont(latinBytes, { subset: true });
-  const readingsFont = await doc.embedFont(readingsBytes, { subset: true });
+  // Keep the full font: the subset can drop kana and Latin glyph outlines in PDF viewers.
+  const readingsFont = await doc.embedFont(readingsBytes, { subset: false });
   const columns = layout.columns;
   const gridX = layout.margin + 2 * layout.cellSize;
   const gridWidth = columns * layout.cellSize;
@@ -161,7 +165,7 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
     page.drawRectangle({ x: 0, y: 0, width: mm(layout.width), height: mm(layout.height), color: paper });
     drawText(page, 'YomuJi', 105, 15, 12, ink, 0, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 1, 'center', true);
     drawText(page, options.title.slice(0, 60) || 'Giấy luyện viết', 105, 21, 7, ink, 0, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 0.8, 'center');
-    drawText(page, `${pageIndex + 1} / ${pageCount}`, 180, 21, 7, ink, 18, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo);
+    drawText(page, `${pageIndex + 1} / ${pageCount}`, 198, topForBaseline(20, 6.5), 6.5, ink, 0, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 1, 'right');
     for (let row = 0; row < layout.rowsPerPage; row++) {
       const glyphIndex = pageIndex * layout.rowsPerPage + row;
       if (glyphIndex >= glyphs.length) break;
@@ -169,9 +173,14 @@ export async function createHandwritingPdf(glyphs: Glyph[], options: WorksheetOp
       const y = layout.top + row * (layout.blockHeight + layout.gap);
       const body = y + layout.headerHeight;
       if (options.showReadings) {
-        drawText(page, glyph.hanViet, layout.margin + 2.5, y + 3, 7.5, ink, layout.width - layout.margin * 2 - 5, 1, japaneseFont, readingsFont, japaneseFontInfo, readingsFontInfo, 1, 'left', true, { font: readingsFont, info: readingsFontInfo });
-        drawReadingLine(page, `On: ${glyph.on}`, layout.margin + 2.5, y + 7, 7.5, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'On');
-        drawReadingLine(page, `Kun: ${glyph.kun}`, layout.margin + 2.5, y + 11, 7.5, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'Kun');
+        const boxWidth = 2 * layout.cellSize + gridWidth;
+        const readingX = layout.margin + READING_METRICS.leftInsetMm;
+        const readingMaxWidth = boxWidth - READING_METRICS.leftInsetMm * 2;
+        const hanVietSize = mm(READING_METRICS.hanVietSizeMm);
+        const readingSize = mm(READING_METRICS.readingSizeMm);
+        drawText(page, glyph.hanViet, readingX, topForBaseline(y + READING_METRICS.hanVietBaselineMm, hanVietSize), hanVietSize, ink, readingMaxWidth, 1, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, 1, 'left', true);
+        drawReadingLine(page, `On: ${glyph.on}`, readingX, y + READING_METRICS.onBaselineMm, readingSize, readingMaxWidth, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'On');
+        drawReadingLine(page, `Kun: ${glyph.kun}`, readingX, y + READING_METRICS.kunBaselineMm, readingSize, readingMaxWidth, ink, japaneseFont, latinFont, japaneseFontInfo, latinFontInfo, readingsFont, readingsFontInfo, 'Kun');
       }
       const gridTop = mm(297 - body - 2 * layout.cellSize);
       page.drawRectangle({ x: mm(layout.margin), y: gridTop, width: mm(2 * layout.cellSize + gridWidth), height: mm(layout.blockHeight), borderColor: grid, borderWidth: 0.6 });

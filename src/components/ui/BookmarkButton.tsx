@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { BookmarkSimple, Star } from '@phosphor-icons/react';
+import { BookmarkSimple } from '@phosphor-icons/react';
 import { motion, useReducedMotion } from 'motion/react';
 import { toast } from 'sonner';
 import {
@@ -19,7 +19,6 @@ interface BookmarkButtonProps {
   item?: SavedBookmark;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
-  variant?: 'bookmark' | 'star';
 }
 
 export function BookmarkButton({
@@ -29,7 +28,6 @@ export function BookmarkButton({
   item,
   className = '',
   size = 'md',
-  variant = 'bookmark',
 }: BookmarkButtonProps) {
   const [saved, setSaved] = useState(isSaved);
   const [iconPulseId, setIconPulseId] = useState(0);
@@ -107,11 +105,7 @@ export function BookmarkButton({
     lg: 'h-12 w-12',
   }[size];
   const iconSize = size === 'sm' ? 16 : size === 'lg' ? 20 : 18;
-  const icon = variant === 'star' ? (
-    <Star aria-hidden="true" size={iconSize} weight={saved ? 'fill' : 'duotone'} />
-  ) : (
-    <BookmarkSimple aria-hidden="true" size={iconSize} weight={saved ? 'fill' : 'duotone'} />
-  );
+  const icon = <BookmarkSimple aria-hidden="true" size={iconSize} weight={saved ? 'fill' : 'duotone'} />;
 
   return (
     <div className="relative inline-flex items-center justify-center">

@@ -212,7 +212,7 @@ function KanjiDetail() {
             </p>
           </div>
         </div>
-        <BookmarkButton item={kanjiBookmark(kanji)} variant="star" size="lg" title="Lưu Hán tự" />
+        <BookmarkButton item={kanjiBookmark(kanji)} size="lg" title="Lưu Hán tự" />
       </header>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">

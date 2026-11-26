@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "dataVersion": "jmnedict-2026-11-24-aefaf3146161",
+  "source": "EDRDG JMnedict / ENAMDICT",
+  "sourceUrl": "https://www.edrdg.org/pub/Nihongo/JMnedict.xml.gz",
+  "sourceDate": "2026-11-24",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://www.edrdg.org/edrdg/licence.html",
+  "attribution": "Japanese proper names from JMnedict/ENAMDICT, property of the Electronic Dictionary Research and Development Group (EDRDG), licensed under CC BY-SA 4.0.",
+  "basePath": "/names",
+  "shardCount": 32,
+  "totalEntries": 605960,
+  "totalBytes": 8332242,
+  "categories": {
+    "surname": 147269,
+    "given": 61811,
+    "fem": 109492,
+    "masc": 21672,
+    "person": 54096,
+    "place": 228027,
+    "station": 8268
+  },
+  "shards": [
+    {
+      "id": "s-00",
+      "kind": "s",
+      "bucket": 0,
+      "url": "/names/shards/s-00.tsv.gz",
+      "bytes": 122786,
+      "entries": 17880,
+      "sha256": "66b95337071af166194b63cf0e3db041988acf14d3a5ee5d556ebadf614bb70e"
+    },
+    {
+      "id": "s-01",
+      "kind": "s",
+      "bucket": 1,
+      "url": "/names/shards/s-01.tsv.gz",
+      "bytes": 96192,
+      "entries": 13035,
+      "sha256": "54e1e6c5b8486f075c0eaa51c9a0c6fb36d9ace5d915ab8e3b61f6c52b5cf78a"
+    },
+    {
+      "id": "s-02",
+      "kind": "s",
+      "bucket": 2,
+      "url": "/names/shards/s-02.tsv.gz",
+      "bytes": 95219,
+      "entries": 12771,
+      "sha256": "b9f4ef82debd3fc6738690c775df50186fcc6346feea652780b009b43f15501f"
+    },
+    {
+      "id": "s-03",
+      "kind": "s",
+      "bucket": 3,
+      "url": "/names/shards/s-03.tsv.gz",
+      "bytes": 109706,
+      "entries": 16411,
+      "sha256": "ecfea2202ccba670a805a39586439ddebf5c8dd0397906b615fc65a46c22e316"
+    },
+    {
+      "id": "s-04",
+      "kind": "s",
+      "bucket": 4,
+      "url": "/names/shards/s-04.tsv.gz",
+      "bytes": 98014,
+      "entries": 12963,
+      "sha256": "54fe3af6abc6b5edb8cd893936a895f6d06e034a9e0d6d42a5fdbf7835dd9ef0"
+    },
+    {
+      "id": "s-05",
+      "kind": "s",
+      "bucket": 5,
+      "url": "/names/shards/s-05.tsv.gz",
+      "bytes": 176614,
+      "entries": 24375,
+      "sha256": "8603ba9774118ac67a5e5b43b3acbefdc7d8bfac884e412bbfb37fe15e1ce2e7"
+    },
+    {
+      "id": "s-06",
+      "kind": "s",
+      "bucket": 6,
+      "url": "/names/shards/s-06.tsv.gz",
+      "bytes": 70915,
+      "entries": 10011,
+      "sha256": "5488b21d12402633de55d13437c1cc8bb26f0bb2f019e174e06b2d5329a53856"
+    },
+    {
+      "id": "s-07",
+      "kind": "s",
+      "bucket": 7,
+      "url": "/names/shards/s-07.tsv.gz",
+      "bytes": 164941,
+      "entries": 21536,
+      "sha256": "26d171fcdac3238e83795c6665b38753507010715ad61057f042229675c5f091"
+    },
+    {
+      "id": "s-08",
+      "kind": "s",
+      "bucket": 8,
+      "url": "/names/shards/s-08.tsv.gz",
+      "bytes": 93463,
+      "entries": 12989,
+      "sha256": "d88a931bae44e8249437a070e49940ed73c699bb5753fb97bd191c1142f84107"
+    },
+    {
+      "id": "s-09",
+      "kind": "s",
+      "bucket": 9,
+      "url": "/names/shards/s-09.tsv.gz",
+      "bytes": 242352,
+      "entries": 34292,
+      "sha256": "a8bf53f3052496618632ebc01bdee0f11f3ead90f8c09d276c2d004a3a159945"
+    },
+    {
+      "id": "s-10",
+      "kind": "s",
+      "bucket": 10,
+      "url": "/names/shards/s-10.tsv.gz",
+      "bytes": 208665,
+      "entries": 27317,
+      "sha256": "1d1c83fd464b55d007a42aa492b0535e2aae49cdb6f01c28d8328c96599364ab"
+    },
+    {
+      "id": "s-11",
+      "kind": "s",
+      "bucket": 11,
+      "url": "/names/shards/s-11.tsv.gz",
+      "bytes": 177853,
+      "entries": 23965,
+      "sha256": "ccf269f10e035126a612a1022eff8b83ea0509d80bcdd3e0a3bb437b30436756"
+    },
+    {
+      "id": "s-12",
+      "kind": "s",
+      "bucket": 12,
+      "url": "/names/shards/s-12.tsv.gz",
+      "bytes": 133601,
+      "entries": 18773,
+      "sha256": "56fac625e6ffd048ae7becc2b31ffdc46c501f5ffef99dd66a9149d10f183f4f"
+    },
+    {
+      "id": "s-13",
+      "kind": "s",
+      "bucket": 13,
+      "url": "/names/shards/s-13.tsv.gz",
+      "bytes": 138013,
+      "entries": 17984,
+      "sha256": "bbc241548a7b5069ae014ad60848b6b04b37bb3d93a84d666023b5aaa8e13e93"
+    },
+    {
+      "id": "s-14",
+      "kind": "s",
+      "bucket": 14,
+      "url": "/names/shards/s-14.tsv.gz",
+      "bytes": 129540,
+      "entries": 18665,
+      "sha256": "9d963c2c9a04601bf6d9893ea7c80b1ce60d76af3c1bbafcdb642b3867f01051"
+    },
+    {
+      "id": "s-15",
+      "kind": "s",
+      "bucket": 15,
+      "url": "/names/shards/s-15.tsv.gz",
+      "bytes": 173119,
+      "entries": 23420,
+      "sha256": "d873d1c33d8b380843b00828ee19c037355c0d2d541880621299ab611d6f7cfc"
+    },
+    {
+      "id": "s-16",
+      "kind": "s",
+      "bucket": 16,
+      "url": "/names/shards/s-16.tsv.gz",
+      "bytes": 145761,
+      "entries": 19524,
+      "sha256": "0758f9de55a6347af0112d9cfd5bbcb3ffa4b9f3ef9ad0a3be5901d5466f4fd8"
+    },
+    {
+      "id": "s-17",
+      "kind": "s",
+      "bucket": 17,
+      "url": "/names/shards/s-17.tsv.gz",
+      "bytes": 198548,
+      "entries": 26004,
+      "sha256": "40ac4d5b75fdc793d0f5341f9ff6f05e0519a1f3aae556710a1c80d2f039b578"
+    },
+    {
+      "id": "s-18",
+      "kind": "s",
+      "bucket": 18,
+      "url": "/names/shards/s-18.tsv.gz",
+      "bytes": 98460,
+      "entries": 13677,
+      "sha256": "4d2843268c14cc88a90684c6ab56f6a5d77d7707ab76493b4a9297c5d9bfcf29"
+    },
+    {
+      "id": "s-19",
+      "kind": "s",
+      "bucket": 19,
+      "url": "/names/shards/s-19.tsv.gz",
+      "bytes": 139008,
+      "entries": 18920,
+      "sha256": "4a7a0b28b106b2b4c3518753fba132f9241cb33525db5e0da19515ef3e6b3076"
+    },
+    {
+      "id": "s-20",
+      "kind": "s",
+      "bucket": 20,
+      "url": "/names/shards/s-20.tsv.gz",
+      "bytes": 92993,
+      "entries": 13140,
+      "sha256": "b5b1e5e73542a8511fbd4cd34801eac740edb50774fd8f558615081488bb2ae5"
+    },
+    {
+      "id": "s-21",
+      "kind": "s",
+      "bucket": 21,
+      "url": "/names/shards/s-21.tsv.gz",
+      "bytes": 67998,
+      "entries": 9667,
+      "sha256": "3233ce8ce75638228671fe4504dcd207eb429991d162cd1037f43d8baf3c7fd9"
+    },
+    {
+      "id": "s-22",
+      "kind": "s",
+      "bucket": 22,
+      "url": "/names/shards/s-22.tsv.gz",
+      "bytes": 62128,
+      "entries": 8658,
+      "sha256": "5abae8e76618de4736642608f67640bfedda035d1005dd26f27c0031cad16aed"
+    },
+    {
+      "id": "s-23",
+      "kind": "s",
+      "bucket": 23,
+      "url": "/names/shards/s-23.tsv.gz",
+      "bytes": 178966,
+      "entries": 23096,
+      "sha256": "bd3d1650b5dff57a70f21d22f10a085800cfd741d13dff145b412f6a8ea1da77"
+    },
+    {
+      "id": "s-24",
+      "kind": "s",
+      "bucket": 24,
+      "url": "/names/shards/s-24.tsv.gz",
+      "bytes": 121679,
+      "entries": 16272,
+      "sha256": "42ac5e10ed0e2900b98431781685d8ae9e8c33f821199e6fc9f999bc4305a182"
+    },
+    {
+      "id": "s-25",
+      "kind": "s",
+      "bucket": 25,
+      "url": "/names/shards/s-25.tsv.gz",
+      "bytes": 94029,
+      "entries": 13116,
+      "sha256": "e2ccf9d2d39da02c49aadf816cc042b0cceb9d57d055a06aac7698f691f6be0c"
+    },
+    {
+      "id": "s-26",
+      "kind": "s",
+      "bucket": 26,
+      "url": "/names/shards/s-26.tsv.gz",
+      "bytes": 82988,
+      "entries": 12050,
+      "sha256": "7a00fd20ae6afa00699625101731e27740fbb779d36d22097899cf1883b1d122"
+    },
+    {
+      "id": "s-27",
+      "kind": "s",
+      "bucket": 27,
+      "url": "/names/shards/s-27.tsv.gz",
+      "bytes": 93371,
+      "entries": 14015,
+      "sha256": "415a82a9fe07e713adff6721ae8f0c0d5ff3662f00caba31e1f8b842697dafc7"
+    },
+    {
+      "id": "s-28",
+      "kind": "s",
+      "bucket": 28,
+      "url": "/names/shards/s-28.tsv.gz",
+      "bytes": 90397,
+      "entries": 13634,
+      "sha256": "efc81e8da972080fe248ac5a1d40c10a7af7f0f824830fd25696d6b45b4ee087"
+    },
+    {
+      "id": "s-29",
+      "kind": "s",
+      "bucket": 29,
+      "url": "/names/shards/s-29.tsv.gz",
+      "bytes": 146003,
+      "entries": 20244,
+      "sha256": "5b5fd5f7e142613bc2c0bce5a850cc27e41e473397f1f721cc7800b8b4a9caff"
+    },
+    {
+      "id": "s-30",
+      "kind": "s",
+      "bucket": 30,
+      "url": "/names/shards/s-30.tsv.gz",
+      "bytes": 96675,
+      "entries": 12886,
+      "sha256": "b1f70a17f37c415d37ba3423d1e4a6f5c200f655a2d71e044ad402602c70d82d"
+    },
+    {
+      "id": "s-31",
+      "kind": "s",
+      "bucket": 31,
+      "url": "/names/shards/s-31.tsv.gz",
+      "bytes": 201120,
+      "entries": 27817,
+      "sha256": "80c2b5f1ea29a4b5782f013f51086eda24dfffbe57aae9832e6ad10497dde8cc"
+    },
+    {
+      "id": "r-00",
+      "kind": "r",
+      "bucket": 0,
+      "url": "/names/shards/r-00.tsv.gz",
+      "bytes": 58002,
+      "entries": 7461,
+      "sha256": "19cf06a3f8309734468458674550c46ba9d5adda2d2118ca82dd9e7efe4f731d"
+    },
+    {
+      "id": "r-01",
+      "kind": "r",
+      "bucket": 1,
+      "url": "/names/shards/r-01.tsv.gz",
+      "bytes": 77609,
+      "entries": 11398,
+      "sha256": "81bfc6a0053c8060372221bc6779a7d744e5dca310d7db029b6809efb9d1f266"
+    },
+    {
+      "id": "r-02",
+      "kind": "r",
+      "bucket": 2,
+      "url": "/names/shards/r-02.tsv.gz",
+      "bytes": 277434,
+      "entries": 43779,
+      "sha256": "b973f133c4dad564c547f7a08c21f1871e38d36f8a7ab9f701090ee724a4f612"
+    },
+    {
+      "id": "r-03",
+      "kind": "r",
+      "bucket": 3,
+      "url": "/names/shards/r-03.tsv.gz",
+      "bytes": 70,
+      "entries": 2,
+      "sha256": "73510f7f5505cf17112a6a981fd1a099d1447f2a2c936c06ce1ddf707f5da47d"
+    },
+    {
+      "id": "r-04",
+      "kind": "r",
+      "bucket": 4,
+      "url": "/names/shards/r-04.tsv.gz",
+      "bytes": 347011,
+      "entries": 48247,
+      "sha256": "3ff3e47b6245ac310a0a9063240728bddc8425d18ab38f1ff9eaa587a212feac"
+    },
+    {
+      "id": "r-05",
+      "kind": "r",
+      "bucket": 5,
+      "url": "/names/shards/r-05.tsv.gz",
+      "bytes": 323,
+      "entries": 24,
+      "sha256": "37c4fec3ad8640e404a94d457d322be9d2f18dcc7815d6dc9dbbaf492c2d6edc"
+    },
+    {
+      "id": "r-06",
+      "kind": "r",
+      "bucket": 6,
+      "url": "/names/shards/r-06.tsv.gz",
+      "bytes": 188379,
+      "entries": 29504,
+      "sha256": "ec4a3cd88335da4526c863fd6ddd0dc5fcf6e623c554af86269163d4828f31c2"
+    },
+    {
+      "id": "r-07",
+      "kind": "r",
+      "bucket": 7,
+      "url": "/names/shards/r-07.tsv.gz",
+      "bytes": 10214,
+      "entries": 1330,
+      "sha256": "49a9993c5cae33287700cdc3917150e3b2960642c7498c28d3c87d6f93ac923a"
+    },
+    {
+      "id": "r-08",
+      "kind": "r",
+      "bucket": 8,
+      "url": "/names/shards/r-08.tsv.gz",
+      "bytes": 252814,
+      "entries": 39197,
+      "sha256": "1c80327dceb4bf04a4b2beb8bc116b0dee4f9e59d00415f07c3b28bcabd934c4"
+    },
+    {
+      "id": "r-09",
+      "kind": "r",
+      "bucket": 9,
+      "url": "/names/shards/r-09.tsv.gz",
+      "bytes": 30587,
+      "entries": 4382,
+      "sha256": "8bfda9087663e925675c4bda587ef3ce435e4f3f352d4e1f00780410376ae27e"
+    },
+    {
+      "id": "r-10",
+      "kind": "r",
+      "bucket": 10,
+      "url": "/names/shards/r-10.tsv.gz",
+      "bytes": 377526,
+      "entries": 51341,
+      "sha256": "26bc475a430d89528d6f153a41da41ca2031a0c85296fe525eaf77ffd2ba8ef0"
+    },
+    {
+      "id": "r-11",
+      "kind": "r",
+      "bucket": 11,
+      "url": "/names/shards/r-11.tsv.gz",
+      "bytes": 378396,
+      "entries": 52282,
+      "sha256": "718d9afb260ef38263fadb4776dcfb55245df040aba7697d86cb0748dc60b710"
+    },
+    {
+      "id": "r-12",
+      "kind": "r",
+      "bucket": 12,
+      "url": "/names/shards/r-12.tsv.gz",
+      "bytes": 33945,
+      "entries": 4972,
+      "sha256": "e8c4be38b569ebe9a60d622d8d6c740f7c7fdde5bbc52e5b132f2040316acab0"
+    },
+    {
+      "id": "r-13",
+      "kind": "r",
+      "bucket": 13,
+      "url": "/names/shards/r-13.tsv.gz",
+      "bytes": 163243,
+      "entries": 23249,
+      "sha256": "0de224d0360b48210060d4b0a1cb5d419382af41e059bfa4abc13f2515a33432"
+    },
+    {
+      "id": "r-14",
+      "kind": "r",
+      "bucket": 14,
+      "url": "/names/shards/r-14.tsv.gz",
+      "bytes": 52863,
+      "entries": 8314,
+      "sha256": "9e0260c0ae561539608254f5e8f3ec1a77de46d06f1f1e4bd457a10c6bc09b08"
+    },
+    {
+      "id": "r-15",
+      "kind": "r",
+      "bucket": 15,
+      "url": "/names/shards/r-15.tsv.gz",
+      "bytes": 242926,
+      "entries": 33506,
+      "sha256": "a1e3bd20632f8ca04d34df889a09448e7bcc0bcefd6e8424dc0f8480fcaab6a6"
+    },
+    {
+      "id": "r-16",
+      "kind": "r",
+      "bucket": 16,
+      "url": "/names/shards/r-16.tsv.gz",
+      "bytes": 25530,
+      "entries": 3486,
+      "sha256": "076134c0b35322a2b23e5ec55e28c7252809b382e82b2878fc7f5a6aacbee095"
+    },
+    {
+      "id": "r-17",
+      "kind": "r",
+      "bucket": 17,
+      "url": "/names/shards/r-17.tsv.gz",
+      "bytes": 33579,
+      "entries": 5429,
+      "sha256": "adb3b8b9d915b3c691a1eae90fb4110de57ce0a4eab232a5138b36264ad01146"
+    },
+    {
+      "id": "r-18",
+      "kind": "r",
+      "bucket": 18,
+      "url": "/names/shards/r-18.tsv.gz",
+      "bytes": 150811,
+      "entries": 22159,
+      "sha256": "e4c4976be9bd30ed37d0b0aeaf32ab19f299178ed59e827671cd771a2b8a571e"
+    },
+    {
+      "id": "r-19",
+      "kind": "r",
+      "bucket": 19,
+      "url": "/names/shards/r-19.tsv.gz",
+      "bytes": 155030,
+      "entries": 21819,
+      "sha256": "c1b65483b8c0caa9f16eb68d9c4041e146176cf6ba985bf69e540865ecd61bad"
+    },
+    {
+      "id": "r-20",
+      "kind": "r",
+      "bucket": 20,
+      "url": "/names/shards/r-20.tsv.gz",
+      "bytes": 31013,
+      "entries": 4104,
+      "sha256": "c20cbbda146473db48befe21aeb1bb0cda1d1912963e27526152b9fa30bf4f91"
+    },
+    {
+      "id": "r-21",
+      "kind": "r",
+      "bucket": 21,
+      "url": "/names/shards/r-21.tsv.gz",
+      "bytes": 242270,
+      "entries": 34881,
+      "sha256": "b988a60f991fd044b75b404b54c2800bafb645709c367a038a944666934a09f4"
+    },
+    {
+      "id": "r-22",
+      "kind": "r",
+      "bucket": 22,
+      "url": "/names/shards/r-22.tsv.gz",
+      "bytes": 15993,
+      "entries": 2157,
+      "sha256": "16e29544c20df0612f34d6d02845936da294d429f6783f748dd275c665861f1e"
+    },
+    {
+      "id": "r-23",
+      "kind": "r",
+      "bucket": 23,
+      "url": "/names/shards/r-23.tsv.gz",
+      "bytes": 245573,
+      "entries": 34149,
+      "sha256": "8ab1330d764067caf27cc07c15733d162dc6d96bfdabd641181030d9d524f205"
+    },
+    {
+      "id": "r-24",
+      "kind": "r",
+      "bucket": 24,
+      "url": "/names/shards/r-24.tsv.gz",
+      "bytes": 62235,
+      "entries": 8738,
+      "sha256": "1ea84bbf0d39e646376d79b497dc047192533f308f265df8f2a92c5abf995727"
+    },
+    {
+      "id": "r-25",
+      "kind": "r",
+      "bucket": 25,
+      "url": "/names/shards/r-25.tsv.gz",
+      "bytes": 75783,
+      "entries": 10673,
+      "sha256": "b4dfeab1da5358ff1defead930d640fa1c52ea306349c6d916a02f1406d1b6c3"
+    },
+    {
+      "id": "r-26",
+      "kind": "r",
+      "bucket": 26,
+      "url": "/names/shards/r-26.tsv.gz",
+      "bytes": 6110,
+      "entries": 760,
+      "sha256": "2e807a71e656742f9d3a3032d96023ceebaf1a59ba4d41baa339ad777b5f997c"
+    },
+    {
+      "id": "r-27",
+      "kind": "r",
+      "bucket": 27,
+      "url": "/names/shards/r-27.tsv.gz",
+      "bytes": 113989,
+      "entries": 16098,
+      "sha256": "941f4efcfa5f43ffd993344bfd1ca50dced7ba867b5f6346105124896c333ab2"
+    },
+    {
+      "id": "r-28",
+      "kind": "r",
+      "bucket": 28,
+      "url": "/names/shards/r-28.tsv.gz",
+      "bytes": 14677,
+      "entries": 2011,
+      "sha256": "acb1ae05ac1e3eaadc68b73ba54c239177eb93731eeae71b52abbfb415e43eda"
+    },
+    {
+      "id": "r-29",
+      "kind": "r",
+      "bucket": 29,
+      "url": "/names/shards/r-29.tsv.gz",
+      "bytes": 42459,
+      "entries": 6144,
+      "sha256": "e4c4379473293bd39650e9f7335c80c1ec6eea785c50a514a986fb5f9132b86d"
+    },
+    {
+      "id": "r-30",
+      "kind": "r",
+      "bucket": 30,
+      "url": "/names/shards/r-30.tsv.gz",
+      "bytes": 140125,
+      "entries": 22871,
+      "sha256": "604ada03c4e925c12daece0c406e4ca6b1ff20e48bc297ad88c6b48b35859ba5"
+    },
+    {
+      "id": "r-31",
+      "kind": "r",
+      "bucket": 31,
+      "url": "/names/shards/r-31.tsv.gz",
+      "bytes": 344606,
+      "entries": 51493,
+      "sha256": "1d26abbb2f454097137b2621ec7ad5298d0cff9dcca018210ddb16d65e180b08"
+    }
+  ]
+}

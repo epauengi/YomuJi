@@ -102,6 +102,7 @@ function renderHomeWithWotd(wordOfTheDay) {
     '@/components/dictionary/TermCard': { TermCard: 'TermCard' },
     '@/components/dictionary/ConjugationAnalysis': { ConjugationAnalysis: 'ConjugationAnalysis' },
     '@/components/dictionary/SentenceAnalysis': { SentenceAnalysis: 'SentenceAnalysis' },
+    '@/components/dictionary/NameResults': { NameDictionaryBanner: 'NameDictionaryBanner', NameResults: 'NameResults' },
     '@/components/ui/BookmarkButton': { BookmarkButton: 'BookmarkButton' },
     '@/components/ui/Button': { Button: 'Button' },
     '@/components/AudioButton': { AudioButton: 'AudioButton' },

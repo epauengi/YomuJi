@@ -7,6 +7,7 @@ import {
   BookOpen,
   CaretRight,
   ClockCounterClockwise,
+  Scan,
   Sparkle,
   Trash,
 } from '@phosphor-icons/react';
@@ -14,6 +15,7 @@ import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { ConjugationAnalysis } from '@/components/dictionary/ConjugationAnalysis';
+import { NameDictionaryBanner, NameResults } from '@/components/dictionary/NameResults';
 import { SentenceAnalysis } from '@/components/dictionary/SentenceAnalysis';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
@@ -273,38 +275,65 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               placeholder="Tra từ hoặc Kanji"
             />
             {hasQuery && (
-              <p id="dictionary-search-hint" className="mt-2 px-1 text-sm text-[var(--color-text-secondary)]">
-                Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt.
-              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-1">
+                <p id="dictionary-search-hint" className="text-sm text-[var(--color-text-secondary)]">
+                  Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt.
+                </p>
+                <Link
+                  href="/ocr"
+                  className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)] hover:underline"
+                >
+                  <Scan size={16} aria-hidden="true" />
+                  Tra từ bằng ảnh
+                </Link>
+              </div>
             )}
 
-            {!hasQuery && <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
-              <span className="text-teal-100">Thử tìm:</span>
-              {suggestionChips.map((word) => (
-                <button
-                  key={word}
-                  type="button"
-                  onClick={() => commitSearch(word)}
-                  className="tactile min-h-11 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
+            {!hasQuery && (
+              <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-teal-50/80">
+                <span className="text-teal-100">Thử tìm:</span>
+                {suggestionChips.map((word) => (
+                  <button
+                    key={word}
+                    type="button"
+                    onClick={() => commitSearch(word)}
+                    className="tactile min-h-11 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-teal-50 hover:border-teal-200/60 hover:bg-white/20 focus-visible:outline-white"
+                  >
+                    {word}
+                  </button>
+                ))}
+                <Link
+                  href="/ocr"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-teal-100 transition-colors hover:border-teal-200/50 hover:bg-white/10 hover:text-white focus-visible:outline-white"
                 >
-                  {word}
-                </button>
-              ))}
-            </div>}
+                  <Scan size={15} aria-hidden="true" />
+                  Tra từ bằng ảnh
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       <div className={`mx-auto max-w-[1120px] px-4 ${hasQuery ? 'py-6' : 'py-8'}`}>
         {hasQuery ? (
+          <div>
           <section aria-labelledby="dictionary-results-heading">
-            <div className="mb-6">
-              <h2 id="dictionary-results-heading" ref={resultsHeadingRef} tabIndex={-1} className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
-                {sentenceShown ? 'Phân tích câu' : <>Kết quả tra cứu cho &ldquo;{query}&rdquo;</>}
-              </h2>
-              {!sentenceShown && <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
-              </p>}
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-0">
+                <h2 id="dictionary-results-heading" ref={resultsHeadingRef} tabIndex={-1} className="break-words text-xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-2xl">
+                  {sentenceShown ? 'Phân tích câu' : <>Kết quả tra cứu cho &ldquo;{query}&rdquo;</>}
+                </h2>
+                {!sentenceShown && <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                  {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
+                </p>}
+              </div>
+              <a
+                href="#name-results-heading"
+                className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-xs font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-400)] hover:text-[var(--color-primary-700)]"
+              >
+                Tên riêng
+              </a>
             </div>
 
             {results && <SentenceAnalysis query={query} results={results} onShown={setSentenceShown} />}
@@ -357,6 +386,8 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               )}
             </div>
           </section>
+          <NameResults query={query} attempt={searchAttempt} showOfflineDownload />
+          </div>
         ) : (
           <div className="space-y-10">
             {recentSearches.length > 0 && (
@@ -539,6 +570,8 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                 </article>
               )}
             </div>
+
+            <NameDictionaryBanner onSelectQuery={commitSearch} />
           </div>
         )}
       </div>

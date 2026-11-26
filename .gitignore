@@ -17,4 +17,5 @@ PRODUCT.md
 .impeccable/
 /docs/*
 !/docs/development.md
+!/docs/image-lookup.md
 !/docs/anki-import.md

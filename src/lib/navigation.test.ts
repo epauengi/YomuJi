@@ -13,6 +13,7 @@ test('searchHref creates canonical committed search URLs', () => {
 test('sidebar groups lookup and learning routes without mobile tabs', () => {
   assert.deepEqual(navItems.map(({ href }) => href), [
     '/',
+    '/ocr',
     '/grammar',
     '/kanji-components',
     '/counters',
@@ -32,6 +33,8 @@ test('sidebar groups lookup and learning routes without mobile tabs', () => {
 test('nested routes activate right destination', () => {
   for (const path of ['/', '/word/example', '/kanji/字']) assert.equal(isRouteActive(path, '/'), true);
   assert.equal(isRouteActive('/books/example/read', '/books'), true);
+  assert.equal(isRouteActive('/ocr', '/ocr'), true);
+  assert.equal(isRouteActive('/ocr', '/'), false);
   assert.equal(isRouteActive('/flashcards/deck/example', '/flashcards'), true);
   for (const path of [
     '/practice',

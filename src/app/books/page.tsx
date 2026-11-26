@@ -78,7 +78,7 @@ export default function BooksPage() {
       <div id="shelves" className="mx-auto max-w-[84rem] scroll-mt-24 px-4 pb-16 sm:px-6">
         {!browsing && <nav aria-label="Chủ đề tuyển chọn" className="mb-8 flex flex-wrap items-center gap-2 border-b border-[var(--color-border-subtle)] pb-6 sm:mb-12 sm:pb-8">
           <span className="mr-1 text-sm font-semibold text-[var(--color-text-secondary)]">Tuyển chọn</span>
- {curatedCategories.slice(0, 3).map(({ category, index }) => <a key={category} href={`#shelf-${index}`} className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]">{category}</a>)}
+ {curatedCategories.slice(0, 3).map(({ category, index }) => <a key={category} href={`#shelf-${index}`} className="inline-flex min-h-11 shrink-0 items-center rounded-full sm:min-h-10 border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]">{category}</a>)}
         </nav>}
 
 

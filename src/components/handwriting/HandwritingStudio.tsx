@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, DownloadSimple, SpinnerGap, Printer } from '@phosphor-icons/react';
-import { DEFAULT_OPTIONS, buildLayout, parseCharacters, parseGlyphSvg, type Glyph, type PaperStyle, type WorksheetOptions } from '@/lib/handwriting';
+import { DEFAULT_OPTIONS, READING_METRICS, buildLayout, getContrastWarnings, parseCharacters, parseGlyphSvg, type Glyph, type PaperStyle, type WorksheetOptions } from '@/lib/handwriting';
 
 const HIRAGANA = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
 const KATAKANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
@@ -58,10 +58,11 @@ function Guide({ x, y, size, style, color }: { x: number; y: number; size: numbe
 }
 
 function SheetPreview({ glyphs, options, page, pages }: { glyphs: Glyph[]; options: WorksheetOptions; page: number; pages: number }) {
+  const clipPrefix = useId();
   const layout = buildLayout(options);
   const { margin, top, cellSize: s, columns, headerHeight, blockHeight, gap, rowsPerPage } = layout;
   const width = (columns + 2) * s;
-  return <svg className="hw-sheet" viewBox="0 0 210 297" role="img" aria-label={`Bản xem trước giấy luyện viết, trang ${page + 1} trên ${pages}`} lang="ja">
+  return <svg className="hw-sheet" viewBox="0 0 210 297" role="img" aria-label={`Bản xem trước giấy luyện viết, trang ${page + 1} trên ${pages}`} lang="ja" style={{ backgroundColor: options.paperColor, color: options.inkColor }}>
     <rect width="210" height="297" fill={options.paperColor} />
     <g fill={options.inkColor} fontFamily="Worksheet Latin, sans-serif">
       <text x="105" y="15" textAnchor="middle" fontSize="5.2" fontWeight="700">YomuJi</text>
@@ -71,8 +72,16 @@ function SheetPreview({ glyphs, options, page, pages }: { glyphs: Glyph[]; optio
     {glyphs.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((glyph, index) => {
       const y = top + index * (blockHeight + gap);
       const body = y + headerHeight;
+      const clipId = `${clipPrefix}-${index}`;
       return <g key={glyph.literal}>
-        {options.showReadings ? <g className="hw-readings" fill={options.inkColor} fontFamily="Worksheet Readings, Worksheet Latin, Worksheet Japanese, sans-serif" fontSize="2.7"><text x={margin + 2.5} y={y + 3} fontWeight="700">{glyph.hanViet}</text><text x={margin + 2.5} y={y + 7}><tspan fontWeight="700">On:</tspan> {glyph.on}</text><text x={margin + 2.5} y={y + 11}><tspan fontWeight="700">Kun:</tspan> {glyph.kun}</text></g> : null}
+        {options.showReadings ? <>
+          <defs><clipPath id={clipId}><rect x={margin} y={y} width={width - READING_METRICS.leftInsetMm} height={headerHeight} /></clipPath></defs>
+          <g className="hw-readings" fill={options.inkColor} style={{ color: options.inkColor }} clipPath={`url(#${clipId})`}>
+            <text x={margin + READING_METRICS.leftInsetMm} y={y + READING_METRICS.hanVietBaselineMm} fontFamily="Worksheet Latin, Worksheet Readings, Worksheet Japanese, sans-serif" fontSize={READING_METRICS.hanVietSizeMm} fontWeight="700">{glyph.hanViet}</text>
+            <text x={margin + READING_METRICS.leftInsetMm} y={y + READING_METRICS.onBaselineMm} fontFamily="Worksheet Readings, Worksheet Latin, Worksheet Japanese, sans-serif" fontSize={READING_METRICS.readingSizeMm}><tspan fontWeight="700">On:</tspan> {glyph.on}</text>
+            <text x={margin + READING_METRICS.leftInsetMm} y={y + READING_METRICS.kunBaselineMm} fontFamily="Worksheet Readings, Worksheet Latin, Worksheet Japanese, sans-serif" fontSize={READING_METRICS.readingSizeMm}><tspan fontWeight="700">Kun:</tspan> {glyph.kun}</text>
+          </g>
+        </> : null}
         <g stroke={options.gridColor} strokeWidth=".23" fill="none">
           <rect x={margin} y={y} width={width} height={blockHeight} />
           <path d={`M${margin} ${body}h${width}M${margin + 2 * s} ${body}v${2 * s}`} />
@@ -108,19 +117,7 @@ export default function HandwritingStudio() {
   const pages = Math.max(1, Math.ceil(glyphs.length / layout.rowsPerPage));
   const currentPage = Math.min(page, pages - 1);
   const fallback = glyphs.filter(g => g.source === 'font').map(g => g.literal);
-  const contrastWarnings = (() => {
-    const luminance = (hex: string) => {
-      const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
-      return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
-    };
-    const a = luminance(options.inkColor), b = luminance(options.paperColor);
-    const contrast = (a: number, b: number) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
-    const trace = options.inkColor.replace(/[0-9a-f]{2}/gi, (channel, offset) => {
-      const background = parseInt(options.paperColor.slice(offset, offset + 2), 16);
-      return Math.round(parseInt(channel, 16) * .19 + background * .81).toString(16).padStart(2, '0');
-    });
-    return { ink: contrast(a, b) < 4.5, trace: contrast(luminance(trace), b) < 1.12, grid: contrast(luminance(options.gridColor), b) < 1.15 };
-  })();
+  const contrastWarnings = getContrastWarnings(options);
 
   useEffect(() => {
     const controller = new AbortController();

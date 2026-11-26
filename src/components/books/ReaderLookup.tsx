@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Plus, X } from '@phosphor-icons/react';
+import { NameResults } from '@/components/dictionary/NameResults';
 import type { TermRecord } from '@/types/dictionary';
 
 export type ReaderContext = { sentence: string; source: { title: string; href: string } };
@@ -100,6 +101,7 @@ export function ReaderLookup({ query, onClose, context }: { query: string; onClo
         </div>
         {result === 'error' && <button type="button" className="mt-1 min-h-11 text-sm font-semibold text-[var(--color-primary-700)] hover:underline"
           onClick={() => { closeRef.current?.focus({ preventScroll: true }); setResult(null); setAttempt((value) => value + 1); }}>Thử lại</button>}
+        <NameResults query={query} variant="reader" attempt={attempt} />
       </div>
     </aside>
   );

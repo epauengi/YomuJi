@@ -120,7 +120,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">
-              Cài đặt hệ thống
+              Cài đặt
             </h1>
             <p className="mt-1 text-base text-[var(--color-text-secondary)]">
               Giao diện và trạng thái dữ liệu từ điển

@@ -64,7 +64,7 @@ export function HomophoneStrip({
             <Link
               key={item.id}
               href={href}
-              className="group inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1 text-sm transition-colors hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
+              className="group inline-flex min-h-11 min-w-11 max-w-full sm:min-h-9 sm:min-w-0 items-center gap-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1 text-sm transition-colors hover:border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]"
               title={`${item.surface} (${item.reading})${itemPrimary !== undefined ? ` [${itemPrimary}]` : ''}${shortGloss ? ` — ${shortGloss}` : ''}`}
             >
               <span lang="ja" className="jp-text shrink-0 font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-700)]">

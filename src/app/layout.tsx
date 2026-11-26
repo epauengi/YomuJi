@@ -38,6 +38,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/* Keep the storage key and preference rules in sync with browserState.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: `(() => {
+          let preference;
+          try { preference = localStorage.getItem('yomuji_theme'); } catch {}
+          document.documentElement.dataset.theme = preference === 'light' || preference === 'dark'
+            ? preference
+            : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        })();` }} />
+      </head>
       <body className="font-sans antialiased">
         <RootShell>{children}</RootShell>
       </body>

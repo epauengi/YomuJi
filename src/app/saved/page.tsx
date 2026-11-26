@@ -70,9 +70,20 @@ export default function SavedPage() {
             <h1 className="text-3xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-4xl">Đã lưu</h1>
           </div>
           <p className="mt-2 text-[var(--color-text-secondary)]">Từ vựng và Kanji đã lưu trên trình duyệt này, chưa đồng bộ giữa thiết bị.</p>
-          <p className="mt-2 max-w-prose text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            Ôn nhanh chỉ lưu trong phiên hiện tại; để ôn lặp ngắt quãng theo lịch, hãy mở Flashcards hoặc thêm từng từ bằng nút thẻ bên dưới.
-          </p>
+          <div role="group" aria-label="Cách ôn tập" className="mt-4 flex flex-wrap gap-2">
+            {isHydrated && reviewCount > 0 && (
+              <Link href="/review" className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
+                Ôn nhanh phiên này ({reviewCount} từ)
+              </Link>
+            )}
+            <Link
+              href="/flashcards"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
+            >
+              <Cards aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
+              Ôn theo lịch (Flashcards)
+            </Link>
+          </div>
           <nav aria-label="Lối tắt cá nhân" className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/books/saved"
@@ -80,13 +91,6 @@ export default function SavedPage() {
             >
               <BookOpen aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
               Sách của tôi
-            </Link>
-            <Link
-              href="/flashcards"
-              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-600)]"
-            >
-              <Cards aria-hidden="true" size={18} className="text-[var(--color-primary-700)]" />
-              Flashcards
             </Link>
             <Link
               href="/history"
@@ -107,18 +111,11 @@ export default function SavedPage() {
           <p role="status" className="py-8 text-sm text-[var(--color-text-secondary)]">Đang tải mục đã lưu…</p>
         ) : (
           <>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-[var(--color-text-secondary)]" aria-live="polite">
-                {hasActiveCriteria
-                  ? `Đang hiển thị ${visibleEntries.length} / ${entries.length} mục đã lưu`
-                  : `${entries.length} mục đã lưu`}
-              </p>
-              {reviewCount > 0 && (
-                <Link href="/review" className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-action-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-action-primary-hover)]">
-                  Ôn nhanh từ đã lưu ({reviewCount} từ)
-                </Link>
-              )}
-            </div>
+            <p className="mb-5 text-sm text-[var(--color-text-secondary)]" aria-live="polite">
+              {hasActiveCriteria
+                ? `Đang hiển thị ${visibleEntries.length} / ${entries.length} mục đã lưu`
+                : `${entries.length} mục đã lưu`}
+            </p>
 
             <div className="relative mb-4">
               <MagnifyingGlass aria-hidden="true" size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />

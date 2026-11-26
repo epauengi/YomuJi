@@ -4,12 +4,12 @@ import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, Notebook, PencilSimpleLine, SidebarSimple, SquaresFour, X } from '@phosphor-icons/react';
+import { BookOpenText, BookmarkSimple, Books, Cards, Gear, GraduationCap, Hash, List, Notebook, PencilSimpleLine, Scan, SidebarSimple, SquaresFour, X } from '@phosphor-icons/react';
 import { SearchInput } from '@/components/SearchInput';
 import { isRouteActive, navItems, searchHref } from '@/lib/navigation';
 import './navigation.css';
 
-const icons = { '/': BookOpenText, '/grammar': Notebook, '/kanji-components': SquaresFour, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/handwriting': PencilSimpleLine, '/saved': BookmarkSimple };
+const icons = { '/': BookOpenText, '/ocr': Scan, '/grammar': Notebook, '/kanji-components': SquaresFour, '/counters': Hash, '/books': Books, '/flashcards': Cards, '/jlpt': GraduationCap, '/handwriting': PencilSimpleLine, '/saved': BookmarkSimple };
 const groups = ['Tra cứu & đọc', 'Luyện tập', 'Cá nhân'];
 
 function Brand() {
@@ -31,7 +31,7 @@ function NavigationLinks({ close }: { close?: () => void }) {
         })}
       </div>)}
     </nav>
-    <Link href="/settings" className="shell-link shell-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={isRouteActive(pathname, '/settings') ? 'page' : undefined} onClick={close}><Gear size={21} aria-hidden="true" /><span className="shell-label">Thiết lập</span></Link>
+    <Link href="/settings" className="shell-link shell-settings" aria-label="Cài đặt" title="Cài đặt" aria-current={isRouteActive(pathname, '/settings') ? 'page' : undefined} onClick={close}><Gear size={21} aria-hidden="true" /><span className="shell-label">Cài đặt</span></Link>
   </>;
 }
 
@@ -66,7 +66,7 @@ export function Navbar({ children }: { children: ReactNode }) {
         <button ref={menuButton} type="button" className="shell-icon-button shell-menu" aria-label="Mở điều hướng" aria-haspopup="dialog" aria-controls="navigation-drawer" onClick={() => drawer.current?.showModal()}><List size={23} aria-hidden="true" /></button>
         <div className="shell-mobile-brand"><Brand /></div>
         {pathname !== '/' ? <div className="shell-search"><Suspense fallback={<input disabled aria-label="Tra từ vựng hoặc Kanji" placeholder="Tra từ, Kanji…" className="shell-search-fallback" />}><NavbarSearchInput /></Suspense></div> : <span className="shell-header-title">Từ điển Nhật–Việt</span>}
-        <Link href="/settings" className="shell-icon-button shell-header-settings" aria-label="Thiết lập" title="Thiết lập" aria-current={pathname === '/settings' ? 'page' : undefined}><Gear size={22} aria-hidden="true" /></Link>
+        <Link href="/settings" className="shell-icon-button shell-header-settings" aria-label="Cài đặt" title="Cài đặt" aria-current={pathname === '/settings' ? 'page' : undefined}><Gear size={22} aria-hidden="true" /></Link>
       </header>
       {children}
     </div>

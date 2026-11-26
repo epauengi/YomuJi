@@ -43,7 +43,7 @@ function FuriganaText({ text, furigana }: { text: string; furigana?: string }) {
         seg.reading ? (
           <ruby key={i}>
             {seg.text}
-            <rt className="select-none text-[0.62em] font-normal text-[var(--color-text-muted)]">
+            <rt className="select-none text-[0.75em] font-normal text-[var(--color-text-secondary)]">
               {seg.reading}
             </rt>
           </ruby>
@@ -126,7 +126,7 @@ export function GrammarDetailCard({
               onClick={() => playJapaneseAudio(speakPattern)}
               title="Nghe phát âm mẫu câu"
               aria-label={`Nghe phát âm ${grammar.pattern}`}
-              className="tactile inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
+              className="tactile inline-flex size-11 items-center justify-center rounded-full sm:size-10 border border-[var(--color-border)] text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
             >
               <SpeakerHigh size={18} aria-hidden="true" />
             </button>
@@ -136,7 +136,7 @@ export function GrammarDetailCard({
               type="button"
               onClick={onClose}
               aria-label="Đóng thẻ giải thích ngữ pháp"
-              className="tactile inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
+              className="tactile inline-flex size-11 items-center justify-center rounded-full sm:size-10 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text-primary)]"
             >
               <X size={18} aria-hidden="true" />
             </button>
@@ -210,7 +210,7 @@ export function GrammarDetailCard({
                   onClick={() => playJapaneseAudio(ex.ja)}
                   title="Nghe câu ví dụ"
                   aria-label={`Nghe ví dụ ${idx + 1}`}
-                  className="tactile mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
+                  className="tactile mt-0.5 inline-flex size-11 shrink-0 items-center justify-center rounded-full sm:size-9 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
                 >
                   <SpeakerHigh size={16} aria-hidden="true" />
                 </button>

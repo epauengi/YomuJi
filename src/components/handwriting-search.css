@@ -111,9 +111,14 @@ body:has(.handwriting-dialog[open]) { overflow: hidden; }
 .handwriting-query button { flex: none; padding-inline: 12px; background: var(--color-action-primary); color: white; }
 .handwriting-query button:enabled:hover { background: var(--color-action-primary-hover); }
 
+@media (max-width: 359px) {
+  .search-handwriting-trigger { padding-inline: 0; }
+  .search-handwriting-trigger span { display: none; }
+}
+
 @media (max-width: 599px) {
   .search-handwriting-trigger-compact { padding-inline: 0; }
-  .search-handwriting-trigger-compact span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .search-handwriting-trigger-compact span { display: none; }
   .handwriting-dialog { margin-block: 12px auto; padding: 16px; }
   .handwriting-workspace { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .handwriting-pad { width: min(100%, clamp(156px, 34dvh, 264px)); }
