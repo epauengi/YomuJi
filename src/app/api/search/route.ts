@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDictionaryRepository, isDictionaryBackendConfigured } from '@/lib/dictionary';
+import { getDictionaryRepository, getProperNamesRepository, isDictionaryBackendConfigured } from '@/lib/dictionary';
 import {
   normalizeKanjiSearchResult,
   normalizeSearchResult,
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 50;
 
   if (!q) {
-    return NextResponse.json({ source: 'api', terms: [], kanji: [] });
+    return NextResponse.json({ source: 'api', terms: [], kanji: [], names: [], namesSupported: false });
   }
 
   if (!isDictionaryBackendConfigured()) {
@@ -45,16 +45,20 @@ export async function GET(request: Request) {
 
   try {
     const repository = getDictionaryRepository();
+    const namesRepository = getProperNamesRepository() ?? repository;
 
-    const [{ terms }, { kanji }] = await Promise.all([
+    const [{ terms }, { kanji }, { names, supported: namesSupported }] = await Promise.all([
       repository.searchTerms({ query: q, limit }),
       repository.searchKanji({ query: q, limit: 8 }),
+      namesRepository.searchNames({ query: q, limit: Math.min(limit, 30) }),
     ]);
 
     return NextResponse.json({
       source: 'api',
       terms: (terms || []).map(normalizeSearchResult),
       kanji: (kanji || []).map(normalizeKanjiSearchResult),
+      names: names || [],
+      namesSupported: Boolean(namesSupported),
     });
   } catch (err: any) {
     console.error('API /api/search error:', err);

@@ -18,6 +18,39 @@ export interface SearchKanjiResult {
   kanji: KanjiDictionarySearchResult[];
 }
 
+export type NameCategory =
+  | 'surname'
+  | 'given'
+  | 'fem'
+  | 'masc'
+  | 'person'
+  | 'place'
+  | 'station';
+
+export type NameMatchType =
+  | 'exact-surface'
+  | 'exact-reading'
+  | 'prefix-surface'
+  | 'prefix-reading';
+
+export interface ProperNameSearchResult {
+  surface: string;
+  reading: string;
+  categories: NameCategory[];
+  categoryLabels: string[];
+  matchType: NameMatchType;
+}
+
+export interface SearchNamesInput {
+  query: string;
+  limit?: number;
+}
+
+export interface SearchNamesResult {
+  names: ProperNameSearchResult[];
+  supported: boolean;
+}
+
 export interface DictionaryRepository {
   getRandomTerm(dayKey: string): Promise<TermRecord | null>;
 
@@ -30,6 +63,11 @@ export interface DictionaryRepository {
    * Search kanji by literal, Han Viet, readings, or Vietnamese meanings
    */
   searchKanji(input: SearchKanjiInput): Promise<SearchKanjiResult>;
+
+  /**
+   * Search proper names by normalized surface or reading
+   */
+  searchNames(input: SearchNamesInput): Promise<SearchNamesResult>;
 
   /**
    * Retrieve a term by its ID, surface, or reading

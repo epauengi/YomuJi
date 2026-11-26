@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { Check, Database, DownloadSimple, SpeakerHigh } from '@phosphor-icons/react';
+import { useEffect, useState } from 'react';
+import { SpeakerHigh } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { searchNameDictionary, type NameEntry } from '@/lib/dictionaryService';
 import { playJapaneseAudio } from '@/lib/tts';
-import type { NameEntry } from '@/lib/nameDictionary';
 
 const SEARCH_PREVIEW_LIMIT = 12;
 const READER_PREVIEW_LIMIT = 6;
 const LOOKUP_TIMEOUT_MS = 12_000;
-const LANDING_SAMPLES = ['佐藤', '渋谷', '新宿', '京都'] as const;
 
 export const NAME_CATEGORY_LABELS: Record<string, string> = {
   surname: 'Họ',
@@ -53,249 +52,10 @@ export function formatNameCategories(category: unknown): string[] {
   return labels.length ? labels : ['Tên riêng'];
 }
 
-interface DownloadState {
-  status: 'idle' | 'downloading' | 'done' | 'error';
-  done: number;
-  total: number;
-  error: string | null;
-}
-
-const INITIAL_DOWNLOAD_STATE: DownloadState = {
-  status: 'idle',
-  done: 0,
-  total: 0,
-  error: null,
-};
-
-let downloadState: DownloadState = INITIAL_DOWNLOAD_STATE;
-const downloadListeners = new Set<() => void>();
-
-function setDownloadState(next: DownloadState) {
-  downloadState = next;
-  downloadListeners.forEach((listener) => listener());
-}
-
-function subscribeDownload(listener: () => void) {
-  downloadListeners.add(listener);
-  return () => {
-    downloadListeners.delete(listener);
-  };
-}
-
-function getDownloadSnapshot() {
-  return downloadState;
-}
-
-function getServerDownloadSnapshot() {
-  return INITIAL_DOWNLOAD_STATE;
-}
-
-let nameDictionaryModule: typeof import('@/lib/nameDictionary') | null = null;
-
-async function loadNameDictionary() {
-  if (nameDictionaryModule) return nameDictionaryModule;
-  const loaded = await import('@/lib/nameDictionary');
-  nameDictionaryModule = loaded;
-  return loaded;
-}
-
-// ponytail: Shared module state keeps landing/search download progress in sync; upgrade if data layer exposes reactive offline status.
-async function startNameDictionaryDownload() {
-  if (downloadState.status === 'downloading') return;
-  setDownloadState({ status: 'downloading', done: 0, total: 0, error: null });
-  try {
-    const { downloadNameDictionary } = await loadNameDictionary();
-    await downloadNameDictionary((done, total) => {
-      setDownloadState({ status: 'downloading', done, total, error: null });
-    });
-    setDownloadState({
-      status: 'done',
-      done: downloadState.total || downloadState.done,
-      total: downloadState.total,
-      error: null,
-    });
-  } catch {
-    setDownloadState({
-      status: 'error',
-      done: 0,
-      total: 0,
-      error: 'Chưa thể tải dữ liệu tên riêng offline. Kiểm tra kết nối hoặc bộ nhớ trình duyệt rồi thử lại.',
-    });
-  }
-}
-
-export function NameDictionaryDownloadControl({ compact = false }: { compact?: boolean }) {
-  const state = useSyncExternalStore(subscribeDownload, getDownloadSnapshot, getServerDownloadSnapshot);
-  const percent = state.total > 0 ? Math.min(100, Math.round((state.done / state.total) * 100)) : 0;
-
-  return (
-    <div className={compact ? 'flex flex-col items-start gap-2 sm:items-end' : 'flex flex-col gap-2'}>
-      <div className="flex flex-wrap items-center gap-2">
-        {state.status === 'done' && (
-          <span
-            role="status"
-            className="inline-flex items-center gap-1 rounded-full bg-[var(--color-success-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--color-success)]"
-          >
-            <Check size={14} weight="bold" aria-hidden="true" />
-            Đã tải offline
-          </span>
-        )}
-        <Button
-          type="button"
-          variant={state.status === 'done' ? 'secondary' : compact ? 'secondary' : 'primary'}
-          size="sm"
-          loading={state.status === 'downloading'}
-          disabled={state.status === 'downloading'}
-          onClick={() => void startNameDictionaryDownload()}
-        >
-          {state.status !== 'downloading' && <DownloadSimple size={16} aria-hidden="true" />}
-          {state.status === 'downloading'
-            ? state.total > 0
-              ? `Đang tải (${percent}%)…`
-              : 'Đang tải…'
-            : state.status === 'error'
-              ? 'Thử tải lại'
-              : state.status === 'done'
-                ? 'Cập nhật offline'
-                : compact
-                  ? 'Tải tên riêng offline'
-                  : 'Tải dữ liệu tên riêng offline'}
-        </Button>
-      </div>
-      {state.status === 'downloading' && state.total > 0 && (
-        <div className="w-full max-w-xs">
-          <div className="mb-1 flex justify-between text-xs text-[var(--color-text-secondary)]">
-            <span>{state.done}/{state.total} phân đoạn</span>
-            <span>{percent}%</span>
-          </div>
-          <progress
-            className="h-1.5 w-full accent-[var(--color-primary-600)]"
-            value={state.done}
-            max={state.total}
-            aria-label="Tiến độ tải dữ liệu tên riêng offline"
-          />
-        </div>
-      )}
-      {state.status === 'error' && state.error && (
-        <p role="alert" className="text-xs text-[var(--color-error)]">
-          {state.error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-export function NameDictionaryBanner({ onSelectQuery: _onSelectQuery }: { onSelectQuery?: (query: string) => void }) {
-  const [draft, setDraft] = useState('');
-  const [localQuery, setLocalQuery] = useState('');
-  const [localAttempt, setLocalAttempt] = useState(0);
-
-  const runLocalLookup = (value: string) => {
-    const trimmed = value.trim();
-    setDraft(trimmed);
-    setLocalQuery(trimmed);
-    if (trimmed) setLocalAttempt((count) => count + 1);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    runLocalLookup(draft);
-  };
-
-  return (
-    <section
-      aria-labelledby="name-dictionary-banner-heading"
-      className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 sm:p-6"
-    >
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div className="min-w-0 flex-1">
-          <h2
-            id="name-dictionary-banner-heading"
-            className="inline-flex items-center gap-2 text-base font-bold text-[var(--color-text-primary)]"
-          >
-            <Database size={18} weight="duotone" aria-hidden="true" className="text-[var(--color-primary-700)]" />
-            Tên riêng offline
-          </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Tra họ, tên người, địa danh và ga tàu Nhật Bản (JMnedict). Tải trước dữ liệu rồi giữ trang đang mở để tra ngoại tuyến không cần tải lại trang.
-          </p>
-        </div>
-        <div className="shrink-0">
-          <NameDictionaryDownloadControl />
-        </div>
-      </div>
-
-      <form
-        role="search"
-        aria-label="Tra tên riêng ngoại tuyến"
-        onSubmit={handleSubmit}
-        className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center"
-      >
-        <label htmlFor="offline-name-lookup" className="sr-only">
-          Nhập chính xác họ, địa danh hoặc ga tàu để tra ngoại tuyến
-        </label>
-        <input
-          id="offline-name-lookup"
-          type="search"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="Nhập chính xác họ, địa danh, ga tàu (VD: 佐藤, 渋谷)…"
-          autoComplete="off"
-          className="jp-text min-h-11 w-full flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-3.5 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-500)] focus:bg-[var(--color-surface)] focus:outline-none"
-        />
-        <div className="flex items-center gap-2">
-          <Button type="submit" variant="secondary" size="sm" disabled={!draft.trim()}>
-            Tra tên riêng
-          </Button>
-          {localQuery && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDraft('');
-                setLocalQuery('');
-              }}
-            >
-              Xóa
-            </Button>
-          )}
-        </div>
-      </form>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-[var(--color-text-muted)]">Thử tra tại chỗ:</span>
-        {LANDING_SAMPLES.map((sample) => (
-          <button
-            key={sample}
-            type="button"
-            lang="ja"
-            onClick={() => runLocalLookup(sample)}
-            className="jp-text min-h-11 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-subtle)] px-3 py-1 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary-400)] hover:bg-[var(--color-surface)]"
-          >
-            {sample}
-          </button>
-        ))}
-      </div>
-
-      {localQuery && (
-        <NameResults
-          query={localQuery}
-          attempt={localAttempt}
-          headingId="offline-name-results-heading"
-          headingLevel="h3"
-          className="mt-5 border-t border-[var(--color-border-subtle)] pt-4"
-        />
-      )}
-    </section>
-  );
-}
-
 export interface NameResultsProps {
   query: string;
   variant?: 'search' | 'reader';
   attempt?: number;
-  showOfflineDownload?: boolean;
   headingId?: string;
   headingLevel?: 'h2' | 'h3';
   className?: string;
@@ -311,7 +71,6 @@ export function NameResults({
   query,
   variant = 'search',
   attempt = 0,
-  showOfflineDownload = false,
   headingId: headingIdProp,
   headingLevel = 'h2',
   className,
@@ -344,13 +103,9 @@ export function NameResults({
       }
     }, LOOKUP_TIMEOUT_MS);
 
-    void loadNameDictionary()
-      .then(({ searchNames }) => {
-        if (cancelled || controller.signal.aborted) return null;
-        return searchNames(trimmed, controller.signal, isReader ? { includePrefix: false } : undefined);
-      })
+    void searchNameDictionary(trimmed, controller.signal, isReader ? { includePrefix: false } : undefined)
       .then((found) => {
-        if (cancelled || controller.signal.aborted || found === null) return;
+        if (cancelled || controller.signal.aborted) return;
         setSettled({
           key: requestKey,
           status: 'done',
@@ -404,7 +159,7 @@ export function NameResults({
           ) : current?.status === 'error' ? (
             <div>
               <p className="text-xs text-[var(--color-text-secondary)]">
-                Chưa thể tra cứu tên riêng offline.
+                Chưa thể tra cứu tên riêng.
               </p>
               <button
                 type="button"
@@ -501,10 +256,9 @@ export function NameResults({
             )}
           </div>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Họ, tên người, địa danh và ga tàu (JMnedict offline)
+            Họ, tên người, địa danh và ga tàu (JMnedict)
           </p>
         </div>
-        {showOfflineDownload && <NameDictionaryDownloadControl compact />}
       </div>
 
       <div aria-live="polite" aria-busy={loading}>
@@ -523,7 +277,7 @@ export function NameResults({
         ) : current?.status === 'error' ? (
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center text-[var(--color-text-secondary)]">
             <p className="text-sm">
-              Chưa thể tra cứu tên riêng offline. Kiểm tra kết nối hoặc bộ nhớ trình duyệt rồi thử lại.
+              Chưa thể tra cứu tên riêng. Kiểm tra kết nối hoặc tải dữ liệu tên riêng offline trong Cài đặt rồi thử lại.
             </p>
             <Button
               type="button"
@@ -539,7 +293,9 @@ export function NameResults({
           <>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {visibleEntries.map((entry, idx) => {
-                const categories = formatNameCategories(entry.category);
+                const categories = entry.categoryLabels?.length
+                  ? entry.categoryLabels
+                  : formatNameCategories(entry.categories?.length ? entry.categories : entry.category);
                 const reading = entry.reading && entry.reading !== entry.surface ? entry.reading : '';
                 return (
                   <li

@@ -8,7 +8,7 @@ import {
   normalizeKanjiRecord,
   normalizeTermRecord,
 } from '@/lib/dictionary/formatters';
-import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
+import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult, SearchNamesInput, SearchNamesResult } from './types';
 
 function mapTermRow(t: any, q: string): DictionarySearchResult {
   const term = normalizeTermRecord({
@@ -146,6 +146,10 @@ export class SupabaseDictionaryRepository implements DictionaryRepository {
 
     if (error) throw new Error(`Supabase searchKanji: ${error.message}`);
     return { kanji: (data || []).map((k) => mapKanjiRow(k, q)) };
+  }
+
+  async searchNames(_input: SearchNamesInput): Promise<SearchNamesResult> {
+    return { names: [], supported: false };
   }
 
   async getTermByIdOrSlug(slug: string): Promise<TermRecord | null> {

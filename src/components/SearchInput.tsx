@@ -2,11 +2,12 @@
 
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { lookupWordRoute } from '@/lib/dictionaryService';
+import { lookupWordRoute, searchNameDictionary } from '@/lib/dictionaryService';
 import { KeyReturn, MagnifyingGlass, PencilSimple, Sparkle, X } from '@phosphor-icons/react';
 import { HandwritingSearch } from './HandwritingSearch';
 import { TermWrittenForms } from './dictionary/TermWrittenForms';
 import { searchDictionary, searchKanjiDictionary, useDictionary } from '@/lib/mockDictionary';
+import { searchHref } from '@/lib/navigation';
 import { exactWordHref, wordHref, wordSlug } from '@/lib/wordRoutes';
 import { recordRecentSearch } from '@/lib/recentSearches';
 import { searchResultId, withSearchOrigin } from '@/lib/dictionary/searchReturn';
@@ -14,6 +15,7 @@ import {
   formatKanjiMatchType,
   formatMatchType,
 } from '@/lib/dictionary/formatters';
+import type { NameEntry } from '@/lib/nameDictionary';
 import type { DictionarySearchResult, KanjiDictionarySearchResult } from '@/types/dictionary';
 
 interface SearchInputProps {
@@ -30,10 +32,12 @@ interface SearchInputProps {
 
 const noTerms: DictionarySearchResult[] = [];
 const noKanji: KanjiDictionarySearchResult[] = [];
+const noNames: NameEntry[] = [];
 
 type CommandItem =
   | { kind: 'search'; id: string }
   | { kind: 'term'; id: string; href: string; result: DictionarySearchResult }
+  | { kind: 'name'; id: string; href: string; result: NameEntry }
   | { kind: 'kanji'; id: string; href: string; result: KanjiDictionarySearchResult };
 
 export function SearchInput({
@@ -60,7 +64,7 @@ export function SearchInput({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [settledSuggestions, setSettledSuggestions] = useState<{
     query: string;
-    results: [DictionarySearchResult[], KanjiDictionarySearchResult[]] | null;
+    results: [DictionarySearchResult[], KanjiDictionarySearchResult[], NameEntry[]] | null;
   } | null>(null);
   const suggestionQuery = isFocused && !isComposing && !handwritingOpen ? query.trim() : '';
   const suggestions = settledSuggestions?.query === suggestionQuery ? settledSuggestions : null;
@@ -68,6 +72,7 @@ export function SearchInput({
   const searchFailed = suggestions?.results === null;
   const termSuggestions = suggestions?.results?.[0] ?? noTerms;
   const kanjiSuggestions = suggestions?.results?.[1] ?? noKanji;
+  const nameSuggestions = suggestions?.results?.[2] ?? noNames;
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingLookup = useRef<AbortController | null>(null);
   const [checkingExact, setCheckingExact] = useState(false);
@@ -105,6 +110,12 @@ export function SearchInput({
         const results = await Promise.all([
           searchDictionary(suggestionQuery, variant === 'compact' ? 4 : 7, controller.signal),
           searchKanjiDictionary(suggestionQuery, variant === 'compact' ? 3 : 5, controller.signal),
+          searchNameDictionary(suggestionQuery, controller.signal, {
+            limit: variant === 'compact' ? 2 : 3,
+          }).catch((error: unknown) => {
+            if (controller.signal.aborted) throw error;
+            return noNames;
+          }),
         ]);
         if (controller.signal.aborted) return;
         setSettledSuggestions({ query: suggestionQuery, results });
@@ -129,7 +140,7 @@ export function SearchInput({
     if (blurTimer.current) clearTimeout(blurTimer.current);
   }, []);
 
-  const suggestionCount = termSuggestions.length + kanjiSuggestions.length;
+  const suggestionCount = termSuggestions.length + nameSuggestions.length + kanjiSuggestions.length;
   const commandItems = useMemo<CommandItem[]>(() => [
     ...(suggestionCount ? [{ kind: 'search' as const, id: `${listboxId}-search-all` }] : []),
     ...termSuggestions.map((result) => ({
@@ -138,13 +149,19 @@ export function SearchInput({
       href: wordHref(result.term),
       result,
     })),
+    ...nameSuggestions.map((result, index) => ({
+      kind: 'name' as const,
+      id: `${listboxId}-name-${index}`,
+      href: searchHref(result.surface),
+      result,
+    })),
     ...kanjiSuggestions.map((result) => ({
       kind: 'kanji' as const,
       id: `${listboxId}-kanji-${result.kanji.literal}`,
       href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
       result,
     })),
-  ], [kanjiSuggestions, listboxId, suggestionCount, termSuggestions]);
+  ], [kanjiSuggestions, listboxId, nameSuggestions, suggestionCount, termSuggestions]);
 
   const activeItem = activeIndex >= 0 ? commandItems[activeIndex] : commandItems[0];
   const hasQuery = query.trim().length >= 1;
@@ -229,6 +246,12 @@ export function SearchInput({
     onNavigate?.();
   };
 
+  const openNameSuggestion = (surface: string) => {
+    cancelExactLookup();
+    setQuery(surface);
+    finishSearch(surface);
+  };
+
   const compact = variant === 'compact';
   const panelClassName = compact
     ? 'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]'
@@ -289,6 +312,7 @@ export function SearchInput({
               e.preventDefault();
               if (activeIndex < 0 || !activeItem) void handleSearch();
               else if (activeItem.kind === 'search') finishSearch(query.trim());
+              else if (activeItem.kind === 'name') openNameSuggestion(activeItem.result.surface);
               else openSuggestion(activeItem.href);
               return;
             }
@@ -414,15 +438,22 @@ export function SearchInput({
                 <SuggestionSection
                   title="Từ vựng"
                   emptyLabel="Không có từ phù hợp"
-                  items={termSuggestions.map((result) => ({
-                    key: `${listboxId}-term-${result.term.id}`,
-                    item: commandItems.findIndex((entry) => entry.id === `${listboxId}-term-${result.term.id}`),
-                    href: wordHref(result.term),
-                    content: <TermSuggestion result={result} query={query} />,
-                  }))}
+                  items={[
+                    ...termSuggestions.map((result) => ({
+                      key: `${listboxId}-term-${result.term.id}`,
+                      item: commandItems.findIndex((entry) => entry.id === `${listboxId}-term-${result.term.id}`),
+                      onSelect: () => openSuggestion(wordHref(result.term)),
+                      content: <TermSuggestion result={result} query={query} />,
+                    })),
+                    ...nameSuggestions.map((result, index) => ({
+                      key: `${listboxId}-name-${index}`,
+                      item: commandItems.findIndex((entry) => entry.id === `${listboxId}-name-${index}`),
+                      onSelect: () => openNameSuggestion(result.surface),
+                      content: <NameSuggestion result={result} query={query} />,
+                    })),
+                  ]}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={openSuggestion}
                 />
 
                 <SuggestionSection
@@ -431,12 +462,11 @@ export function SearchInput({
                   items={kanjiSuggestions.map((result) => ({
                     key: `${listboxId}-kanji-${result.kanji.literal}`,
                     item: commandItems.findIndex((entry) => entry.id === `${listboxId}-kanji-${result.kanji.literal}`),
-                    href: `/kanji/${encodeURIComponent(result.kanji.literal)}`,
+                    onSelect: () => openSuggestion(`/kanji/${encodeURIComponent(result.kanji.literal)}`),
                     content: <KanjiSuggestion result={result} query={query} />,
                   }))}
                   activeIndex={activeIndex}
                   onActive={setActiveIndex}
-                  onOpen={openSuggestion}
                 />
               </div>
 
@@ -472,14 +502,12 @@ function SuggestionSection({
   items,
   activeIndex,
   onActive,
-  onOpen,
 }: {
   title: string;
   emptyLabel: string;
-  items: Array<{ key: string; item: number; href: string; content: React.ReactNode }>;
+  items: Array<{ key: string; item: number; onSelect: () => void; content: React.ReactNode }>;
   activeIndex: number;
   onActive: (index: number) => void;
-  onOpen: (href: string) => void;
 }) {
   const labelId = useId();
 
@@ -487,7 +515,7 @@ function SuggestionSection({
     <section role="group" aria-labelledby={labelId} className="py-1">
       <div id={labelId} className="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)]">{title}</div>
       {items.length ? (
-        items.map(({ key, item, href, content }) => (
+        items.map(({ key, item, onSelect, content }) => (
           <button
             key={key}
             id={key}
@@ -497,7 +525,7 @@ function SuggestionSection({
             aria-selected={activeIndex === item}
             onMouseEnter={() => onActive(item)}
             onPointerDown={(event) => event.preventDefault()}
-            onClick={() => onOpen(href)}
+            onClick={onSelect}
             className={`relative block w-full min-h-11 text-left active:bg-[var(--color-primary-100)] ${
               activeIndex === item ? 'bg-[var(--color-primary-50)]' : 'hover:bg-[var(--color-surface-subtle)]'
             }`}
@@ -553,6 +581,46 @@ function TermSuggestion({ result, query }: { result: DictionarySearchResult; que
   );
 }
 
+function NameSuggestion({ result, query }: { result: NameEntry; query: string }) {
+  const reading = result.reading && result.reading !== result.surface ? result.reading : '';
+  const categories = result.categoryLabels?.length
+    ? result.categoryLabels
+    : result.categoryLabel
+      ? [result.categoryLabel]
+      : ['Tên riêng'];
+  return (
+    <div className="flex min-h-16 items-start gap-3 px-4 py-3 pl-5">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span lang="ja" className="jp-text text-lg font-semibold leading-6 text-[var(--color-text-primary)]">
+            <Highlight text={result.surface} query={query} />
+          </span>
+          {reading && (
+            <span lang="ja" className="jp-text text-sm leading-5 text-[var(--color-text-muted)]">
+              <Highlight text={reading} query={query} />
+            </span>
+          )}
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          {categories.map((label) => (
+            <span
+              key={label}
+              className="rounded-full bg-[var(--color-surface-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="mt-1 flex shrink-0 flex-col items-end gap-1">
+        <span className="rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]">
+          Tên riêng
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function KanjiSuggestion({ result, query }: { result: KanjiDictionarySearchResult; query: string }) {
   const { kanji, matchType } = result;
   return (
@@ -589,11 +657,48 @@ function SuggestionPreview({ item, query }: { item?: CommandItem; query: string 
         <div className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary-700)]">Tra cứu đầy đủ</div>
         <div className="mt-3 break-words text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">&ldquo;{query.trim()}&rdquo;</div>
         <p className="mt-4 text-sm leading-6 text-[var(--color-text-secondary)]">
-          Xem tất cả từ vựng và Hán tự phù hợp với cụm từ đã nhập.
+          Xem tất cả từ vựng, tên riêng và Hán tự phù hợp với cụm từ đã nhập.
         </p>
         <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
           <KeyReturn aria-hidden="true" size={14} />
           Enter để tra đầy đủ
+        </div>
+      </aside>
+    );
+  }
+
+  if (item.kind === 'name') {
+    const entry = item.result;
+    const reading = entry.reading && entry.reading !== entry.surface ? entry.reading : '';
+    const categories = entry.categoryLabels?.length
+      ? entry.categoryLabels
+      : entry.categoryLabel
+        ? [entry.categoryLabel]
+        : ['Tên riêng'];
+    return (
+      <aside className="hidden border-l border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 lg:block">
+        <div className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary-700)]">Tên riêng</div>
+        <div lang="ja" className="jp-text mt-2 text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">
+          <Highlight text={entry.surface} query={query} />
+        </div>
+        {reading && (
+          <div lang="ja" className="jp-text mt-2 text-sm text-[var(--color-text-muted)]">
+            <Highlight text={reading} query={query} />
+          </div>
+        )}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {categories.map((label) => (
+            <span
+              key={label}
+              className="rounded-full bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+          <KeyReturn aria-hidden="true" size={14} />
+          Enter để tra tên riêng
         </div>
       </aside>
     );

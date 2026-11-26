@@ -1,6 +1,5 @@
 export const navItems = [
   { name: 'Từ điển', href: '/', group: 'Tra cứu & đọc' },
-  { name: 'Tra từ bằng ảnh', href: '/ocr', group: 'Tra cứu & đọc' },
   { name: 'Ngữ pháp JLPT', href: '/grammar', group: 'Tra cứu & đọc' },
   { name: 'Tra Kanji theo bộ', href: '/kanji-components', group: 'Tra cứu & đọc' },
   { name: 'Đếm tiếng Nhật', href: '/counters', group: 'Tra cứu & đọc' },

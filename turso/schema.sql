@@ -132,6 +132,21 @@ CREATE VIRTUAL TABLE IF NOT EXISTS kanjis_fts USING fts5(
   tokenize='unicode61 remove_diacritics 2'
 );
 
+-- JMnedict Proper Names; additive so existing dictionary tables stay intact.
+CREATE TABLE IF NOT EXISTS names (
+  surface TEXT NOT NULL,
+  reading TEXT NOT NULL,
+  norm_surface TEXT NOT NULL,
+  norm_reading TEXT NOT NULL,
+  mask INTEGER NOT NULL,
+  data_version TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY (surface, reading)
+);
+
+CREATE INDEX IF NOT EXISTS idx_names_norm_surface ON names(norm_surface);
+CREATE INDEX IF NOT EXISTS idx_names_norm_reading ON names(norm_reading);
+CREATE INDEX IF NOT EXISTS idx_names_data_version ON names(data_version);
+
 -- 3. Auxiliary & Operational Tables
 CREATE TABLE IF NOT EXISTS dictionary_metadata (
   key TEXT PRIMARY KEY,

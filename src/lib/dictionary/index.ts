@@ -6,6 +6,7 @@ import { CompareDictionaryRepository } from './compareRepository';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 let cachedRepository: DictionaryRepository | null = null;
+let cachedProperNamesRepository: DictionaryRepository | null = null;
 
 export function isDictionaryBackendConfigured(): boolean {
   const backend = (process.env.DICTIONARY_BACKEND || 'supabase').toLowerCase().trim();
@@ -16,6 +17,11 @@ export function isDictionaryBackendConfigured(): boolean {
     return isSupabaseConfigured && Boolean(process.env.TURSO_DATABASE_URL);
   }
   return isSupabaseConfigured;
+}
+
+export function getProperNamesRepository(): DictionaryRepository | null {
+  if (!process.env.TURSO_DATABASE_URL) return null;
+  return cachedProperNamesRepository ??= new TursoDictionaryRepository();
 }
 
 export function getDictionaryRepository(): DictionaryRepository {

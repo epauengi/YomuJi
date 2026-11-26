@@ -1,5 +1,5 @@
 import type { TermRecord, KanjiRecord, HomophoneTerm } from '@/types/dictionary';
-import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult } from './types';
+import type { DictionaryRepository, SearchTermsInput, SearchTermsResult, SearchKanjiInput, SearchKanjiResult, SearchNamesInput, SearchNamesResult } from './types';
 import { SupabaseDictionaryRepository } from './supabaseRepository';
 import { TursoDictionaryRepository } from './tursoRepository';
 
@@ -54,6 +54,25 @@ export class CompareDictionaryRepository implements DictionaryRepository {
       })
       .catch((err) => {
         console.error('[CompareRepo] Turso searchKanji failed:', err.message);
+      });
+
+    return primaryRes;
+  }
+
+  async searchNames(input: SearchNamesInput): Promise<SearchNamesResult> {
+    const primaryRes = await this.primaryRepo.searchNames(input);
+
+    const t1 = performance.now();
+    this.shadowRepo
+      .searchNames(input)
+      .then((shadowRes) => {
+        const durationShadow = (performance.now() - t1).toFixed(2);
+        console.log(
+          `[CompareRepo] searchNames query="${input.query}" | Turso: ${shadowRes.names.length} items, supported=${shadowRes.supported} (${durationShadow}ms)`
+        );
+      })
+      .catch((err) => {
+        console.error('[CompareRepo] Turso searchNames failed:', err.message);
       });
 
     return primaryRes;

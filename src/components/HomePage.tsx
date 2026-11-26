@@ -4,10 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  BookOpen,
   CaretRight,
   ClockCounterClockwise,
-  Scan,
   Sparkle,
   Trash,
 } from '@phosphor-icons/react';
@@ -15,18 +13,20 @@ import { toast } from 'sonner';
 import { SearchInput } from '@/components/SearchInput';
 import { TermCard } from '@/components/dictionary/TermCard';
 import { ConjugationAnalysis } from '@/components/dictionary/ConjugationAnalysis';
-import { NameDictionaryBanner, NameResults } from '@/components/dictionary/NameResults';
 import { SentenceAnalysis } from '@/components/dictionary/SentenceAnalysis';
+import { InteractiveJapaneseReader } from '@/components/dictionary/InteractiveJapaneseReader';
 import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { AudioButton } from '@/components/AudioButton';
-import { useDictionary, searchDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
+import { useDictionary, searchDictionary, searchNameDictionary, getWordOfTheDay } from '@/lib/mockDictionary';
 import { Button } from '@/components/ui/Button';
 import { searchHref } from '@/lib/navigation';
 import { wordHref } from '@/lib/wordRoutes';
 import { termBookmark } from '@/lib/browserState';
 import { readRecentSearches, removeRecentSearches, restoreRecentSearches } from '@/lib/recentSearches';
-import { books } from '@/data/books';
+import type { NameEntry } from '@/lib/nameDictionary';
 import type { DictionarySearchResult, TermRecord } from '@/types/dictionary';
+
+const NAME_PREVIEW_LIMIT = 12;
 
 // ponytail: Keep the hero decoration static; add motion only if it improves the lookup experience.
 const decorativeKanji = [
@@ -37,10 +37,6 @@ const decorativeKanji = [
 ];
 
 const suggestionChips = ['食べる', '日本', '勉強', 'học tập'];
-
-const featuredBook = Array.isArray(books)
-  ? (books.find((book) => book.slug === 'chumon-no-ooi-ryoriten') ?? books[0] ?? null)
-  : null;
 
 function readStoredRecentSearches(): string[] {
   if (typeof window === 'undefined') return [];
@@ -62,10 +58,12 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
     query: string;
     attempt: number;
     results: DictionarySearchResult[] | null;
+    names?: NameEntry[];
   } | null>(null);
   const search = settledSearch?.query === query && settledSearch.attempt === searchAttempt ? settledSearch : null;
   const loading = !search;
   const results = search?.results;
+  const nameResults = search?.names ?? [];
   const searchInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const restoredFocus = useRef<string | null>(null);
@@ -98,6 +96,11 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
   const [wordLoading, setWordLoading] = useState(true);
   const [wordError, setWordError] = useState<string | null>(null);
   const [wordRetryKey, setWordRetryKey] = useState(0);
+  const [expandedNamesKey, setExpandedNamesKey] = useState<string | null>(null);
+  const nameRequestKey = `${query}\0${searchAttempt}`;
+  const namesExpanded = expandedNamesKey === nameRequestKey;
+  const visibleNames = namesExpanded ? nameResults : nameResults.slice(0, NAME_PREVIEW_LIMIT);
+  const remainingNames = Math.max(0, nameResults.length - visibleNames.length);
 
   const commitSearch = (value: string) => {
     if (value === query && value) {
@@ -212,18 +215,23 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
     setSettledSearch(null);
     const timeout = window.setTimeout(() => {
       controller.abort();
-      setSettledSearch({ query, attempt: searchAttempt, results: null });
+      setSettledSearch({ query, attempt: searchAttempt, results: null, names: [] });
     }, 15_000);
-    searchDictionary(query, 12, controller.signal)
-      .then((next) => {
+    Promise.allSettled([
+      searchDictionary(query, 12, controller.signal),
+      searchNameDictionary(query, controller.signal, { limit: 24 }),
+    ])
+      .then(([termOutcome, nameOutcome]) => {
         if (cancelled || controller.signal.aborted) return;
-        setSettledSearch({ query, attempt: searchAttempt, results: next });
-        addRecentSearch(query);
-      })
-      .catch((error: unknown) => {
-        if (cancelled || controller.signal.aborted) return;
-        console.error('Home search error:', error);
-        setSettledSearch({ query, attempt: searchAttempt, results: null });
+        if (termOutcome.status === 'rejected') {
+          console.error('Home search error:', termOutcome.reason);
+        }
+        const next = termOutcome.status === 'fulfilled' ? termOutcome.value : null;
+        const names = nameOutcome.status === 'fulfilled' ? nameOutcome.value : [];
+        setSettledSearch({ query, attempt: searchAttempt, results: next, names });
+        if (next !== null || names.length > 0) {
+          addRecentSearch(query);
+        }
       })
       .finally(() => window.clearTimeout(timeout));
 
@@ -279,13 +287,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                 <p id="dictionary-search-hint" className="text-sm text-[var(--color-text-secondary)]">
                   Nhập Kanji, kana, romaji hoặc nghĩa tiếng Việt.
                 </p>
-                <Link
-                  href="/ocr"
-                  className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)] hover:underline"
-                >
-                  <Scan size={16} aria-hidden="true" />
-                  Tra từ bằng ảnh
-                </Link>
               </div>
             )}
 
@@ -302,13 +303,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                     {word}
                   </button>
                 ))}
-                <Link
-                  href="/ocr"
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-teal-100 transition-colors hover:border-teal-200/50 hover:bg-white/10 hover:text-white focus-visible:outline-white"
-                >
-                  <Scan size={15} aria-hidden="true" />
-                  Tra từ bằng ảnh
-                </Link>
               </div>
             )}
           </div>
@@ -325,15 +319,19 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                   {sentenceShown ? 'Phân tích câu' : <>Kết quả tra cứu cho &ldquo;{query}&rdquo;</>}
                 </h2>
                 {!sentenceShown && <p role="status" className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                  {loading ? 'Đang tra trong từ điển…' : results?.length ? `Hiển thị ${results.length} mục từ` : !results ? 'Chưa thể tra cứu.' : 'Không tìm thấy mục từ phù hợp.'}
+                  {loading
+                    ? 'Đang tra trong từ điển…'
+                    : results?.length
+                      ? nameResults.length
+                        ? `Hiển thị ${results.length} mục từ · ${nameResults.length} tên riêng`
+                        : `Hiển thị ${results.length} mục từ`
+                      : nameResults.length
+                        ? `Hiển thị ${nameResults.length} tên riêng`
+                        : !results
+                          ? 'Chưa thể tra cứu.'
+                          : 'Không tìm thấy mục từ phù hợp.'}
                 </p>}
               </div>
-              <a
-                href="#name-results-heading"
-                className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-xs font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-400)] hover:text-[var(--color-primary-700)]"
-              >
-                Tên riêng
-              </a>
             </div>
 
             {results && <SentenceAnalysis query={query} results={results} onShown={setSentenceShown} />}
@@ -350,7 +348,7 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                     <div key={index} className="skeleton-quiet h-36 rounded-[var(--radius-lg)] bg-[var(--color-surface-subtle)]" />
                   ))}
                 </div>
-              ) : !results ? (
+              ) : !results && nameResults.length === 0 ? (
                 <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-[var(--color-text-secondary)] sm:p-8">
                   <p className="text-sm">Kiểm tra kết nối rồi thử lại. Truy vấn của bạn vẫn được giữ.</p>
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
@@ -365,14 +363,90 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                     )}
                   </div>
                 </div>
-              ) : results.length > 0 ? (
+              ) : (results?.length ?? 0) > 0 || nameResults.length > 0 ? (
                 <>
-                  {sentenceShown && <h3 className="mb-3 text-sm font-bold text-[var(--color-text-secondary)]">Mục từ khớp với cả câu</h3>}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {results.map(({ term, matchType }) => (
-                      <TermCard key={term.id} term={term} matchType={matchType} query={query} origin={{ query }} />
-                    ))}
-                  </div>
+                  {results && results.length > 0 && (
+                    <>
+                      {sentenceShown && <h3 className="mb-3 text-sm font-bold text-[var(--color-text-secondary)]">Mục từ khớp với cả câu</h3>}
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {results.map(({ term, matchType }) => (
+                          <TermCard key={term.id} term={term} matchType={matchType} query={query} origin={{ query }} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {nameResults.length > 0 && (
+                    <div className={results && results.length > 0 ? 'mt-8 border-t border-[var(--color-border-subtle)] pt-6' : ''}>
+                      <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm font-bold text-[var(--color-text-secondary)]">Tên riêng</h3>
+                        <span className="rounded-full bg-[var(--color-surface-subtle)] px-2 py-0.5 text-xs font-semibold text-[var(--color-text-secondary)]">
+                          {nameResults.length}
+                        </span>
+                      </div>
+                      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {visibleNames.map((entry, idx) => {
+                          const reading = entry.reading && entry.reading !== entry.surface ? entry.reading : '';
+                          const categories = entry.categoryLabels?.length
+                            ? entry.categoryLabels
+                            : entry.categoryLabel
+                              ? [entry.categoryLabel]
+                              : ['Tên riêng'];
+                          return (
+                            <li
+                              key={`${entry.surface}-${entry.reading}-${idx}`}
+                              className="flex items-start justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+                            >
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                                  <span
+                                    lang="ja"
+                                    className="jp-text break-all text-lg font-semibold leading-7 text-[var(--color-text-primary)]"
+                                  >
+                                    {entry.surface}
+                                  </span>
+                                  {reading && (
+                                    <span
+                                      lang="ja"
+                                      className="jp-text break-all text-sm leading-5 text-[var(--color-text-secondary)]"
+                                    >
+                                      {reading}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                  {categories.map((label) => (
+                                    <span
+                                      key={label}
+                                      className="inline-flex items-center rounded-[--radius-sm] bg-[var(--color-surface-muted)] px-1.5 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]"
+                                    >
+                                      {label}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                              <AudioButton
+                                text={entry.reading || entry.surface}
+                                label={`Nghe phát âm ${entry.surface}`}
+                                variant="icon-only"
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {remainingNames > 0 && (
+                        <div className="mt-4">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setExpandedNamesKey(nameRequestKey)}
+                          >
+                            Xem thêm {remainingNames} tên riêng
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               ) : sentenceShown ? null : (
                 <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-[var(--color-text-secondary)]">
@@ -386,7 +460,6 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               )}
             </div>
           </section>
-          <NameResults query={query} attempt={searchAttempt} showOfflineDownload />
           </div>
         ) : (
           <div className="space-y-10">
@@ -422,7 +495,7 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
               </section>
             )}
 
-            {/* Word of the day + Featured Aozora excerpt */}
+            {/* Word of the day + Wikipedia reader */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2.2fr)] items-stretch">
               <article className="flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-7">
                 <div>
@@ -517,61 +590,9 @@ export function HomePage({ initialQuery, returnFocus }: { initialQuery: string; 
                 ) : null}
               </article>
 
-              {/* Featured Aozora Excerpt */}
-              {featuredBook && (
-                <article className="flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-7">
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <h2 className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-50)] px-3.5 py-1 text-xs font-extrabold text-[var(--color-primary-700)]">
-                        <BookOpen aria-hidden="true" size={15} weight="duotone" />
-                        Đọc thử từ tủ sách
-                      </h2>
-                      {featuredBook.minutes && (
-                        <span className="rounded-full bg-[var(--color-surface-subtle)] px-3 py-1 text-xs font-semibold text-[var(--color-text-secondary)]">
-                          ~{featuredBook.minutes} phút
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 lang="ja" className="jp-text mt-5 text-xl font-extrabold leading-snug text-[var(--color-text-primary)]">
-                      {featuredBook.japaneseTitle}
-                    </h3>
-                    <p className="mt-1 text-sm font-medium text-[var(--color-text-secondary)]">
-                      {featuredBook.title} · <span lang="ja" className="jp-text">{featuredBook.author}</span> ({featuredBook.romanizedAuthor})
-                    </p>
-
-                    <blockquote
-                      lang="ja"
-                      className="jp-text mt-4 rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-surface-subtle)] p-4 text-[15px] leading-8 text-[var(--color-text-primary)]"
-                    >
-                      {featuredBook.excerpt}
-                    </blockquote>
-
-                    <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-                      {featuredBook.intro}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border-subtle)] pt-3">
-                    <Link
-                      href="/books"
-                      className="inline-flex min-h-11 items-center text-xs font-semibold text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary-700)]"
-                    >
-                      Tủ sách Aozora
-                    </Link>
-                    <Link
-                      href={`/books/${featuredBook.slug}#excerpt`}
-                      className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-[var(--color-primary-700)] transition-colors hover:text-[var(--color-primary-800)]"
-                    >
-                      Đọc đoạn trích
-                      <CaretRight aria-hidden="true" size={14} weight="bold" />
-                    </Link>
-                  </div>
-                </article>
-              )}
+              <InteractiveJapaneseReader />
             </div>
 
-            <NameDictionaryBanner onSelectQuery={commitSearch} />
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 let currentAudio: HTMLAudioElement | null = null;
 let playbackRun = 0;
+let cancelPlayback: (() => void) | undefined;
 
 interface PlayTTSOptions {
   voice?: string;
@@ -7,9 +8,12 @@ interface PlayTTSOptions {
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (err: unknown) => void;
+  onCancel?: () => void;
 }
 
 export function stopCurrentAudio() {
+  const onCancel = cancelPlayback;
+  cancelPlayback = undefined;
   playbackRun++;
   if (currentAudio) {
     const audio = currentAudio;
@@ -21,6 +25,7 @@ export function stopCurrentAudio() {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+  onCancel?.();
 }
 
 export async function playJapaneseAudio(text: string, options: PlayTTSOptions = {}): Promise<void> {
@@ -30,6 +35,7 @@ export async function playJapaneseAudio(text: string, options: PlayTTSOptions = 
   stopCurrentAudio();
 
   const { voice = 'ja-JP-NanamiNeural', rate = '0%', onStart, onEnd, onError } = options;
+  cancelPlayback = options.onCancel;
   const run = playbackRun;
   let fallbackStarted = false;
   let finished = false;
@@ -40,12 +46,14 @@ export async function playJapaneseAudio(text: string, options: PlayTTSOptions = 
   const end = () => {
     if (!active()) return;
     finished = true;
+    cancelPlayback = undefined;
     currentAudio = null;
     onEnd?.();
   };
   const fail = (err: unknown) => {
     if (!active()) return;
     finished = true;
+    cancelPlayback = undefined;
     onError?.(err);
     if (run === playbackRun) onEnd?.();
   };

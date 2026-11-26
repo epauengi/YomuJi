@@ -17,6 +17,13 @@ import type {
   DictionaryShard,
   DictionaryShardPayload,
 } from '@/types/dictionary';
+import type {
+  NameCategory,
+  NameDictionaryStatus,
+  NameEntry,
+  NameMatchType,
+  SearchNamesOptions,
+} from '@/lib/nameDictionary';
 import {
   classifyTermMatch,
   compareTermSearchResults,
@@ -29,6 +36,7 @@ import {
 
 export { normalizeQuery } from '@/lib/dictionary/formatters';
 export type { DictionarySource } from '@/types/dictionary';
+export type { NameDictionaryStatus, NameEntry, SearchNamesOptions } from '@/lib/nameDictionary';
 import type { DictionarySource } from '@/types/dictionary';
 
 function setDictionarySource(source: DictionarySource) {
@@ -39,6 +47,8 @@ function isSearchResponse(value: unknown): value is {
   source?: 'api';
   terms: DictionarySearchResult[];
   kanji: KanjiDictionarySearchResult[];
+  names?: unknown[];
+  namesSupported?: boolean;
 } {
   return isRecord(value)
     && Array.isArray(value.terms)
@@ -566,6 +576,149 @@ export function useDictionary() {
   };
 }
 
+// ── Proper Names Offline Service & Hook ────────────────────────────────────
+
+export type NameDictionaryProgressStatus = 'idle' | 'checking' | 'downloading' | 'ready' | 'error';
+
+export interface NameDictionaryProgress {
+  status: NameDictionaryProgressStatus;
+  cachedShards: number;
+  totalShards: number;
+  totalBytes: number;
+  dataVersion: string | null;
+  isOfflineReady: boolean;
+  error?: string;
+}
+
+const nameListeners = new Set<() => void>();
+let nameInitPromise: Promise<NameDictionaryStatus> | null = null;
+let nameDownloadPromise: Promise<void> | null = null;
+
+let globalNameProgress: NameDictionaryProgress = {
+  status: 'idle',
+  cachedShards: 0,
+  totalShards: 64,
+  totalBytes: 0,
+  dataVersion: null,
+  isOfflineReady: false,
+};
+
+function updateNameProgress(patch: Partial<NameDictionaryProgress>) {
+  globalNameProgress = { ...globalNameProgress, ...patch };
+  nameListeners.forEach((listener) => listener());
+}
+
+function applyNameStatus(status: NameDictionaryStatus) {
+  updateNameProgress({
+    status: status.isComplete ? 'ready' : 'idle',
+    cachedShards: status.cachedShards,
+    totalShards: status.totalShards,
+    totalBytes: status.totalBytes,
+    dataVersion: status.dataVersion,
+    isOfflineReady: status.isComplete,
+    error: undefined,
+  });
+}
+
+export async function getNameDictionaryStatus(signal?: AbortSignal): Promise<NameDictionaryStatus> {
+  const { getNameDictionaryStatus: readStatus } = await import('@/lib/nameDictionary');
+  const status = await readStatus(signal);
+  if (!nameDownloadPromise) applyNameStatus(status);
+  return status;
+}
+
+export function initNameDictionary(): Promise<NameDictionaryStatus> {
+  if (nameDownloadPromise) {
+    return Promise.resolve({
+      cachedShards: globalNameProgress.cachedShards,
+      totalShards: globalNameProgress.totalShards,
+      totalBytes: globalNameProgress.totalBytes,
+      isComplete: globalNameProgress.isOfflineReady,
+      dataVersion: globalNameProgress.dataVersion,
+    });
+  }
+  if (nameInitPromise) return nameInitPromise;
+
+  nameInitPromise = (async () => {
+    if (globalNameProgress.status !== 'ready') {
+      updateNameProgress({ status: 'checking', error: undefined });
+    }
+    const status = await getNameDictionaryStatus();
+    if (!nameDownloadPromise) applyNameStatus(status);
+    return status;
+  })()
+    .catch((error: unknown) => {
+      if (!nameDownloadPromise) {
+        updateNameProgress({
+          status: globalNameProgress.isOfflineReady ? 'ready' : 'idle',
+          error: getErrorMessage(error),
+        });
+      }
+      throw error;
+    })
+    .finally(() => {
+      nameInitPromise = null;
+    });
+
+  return nameInitPromise;
+}
+
+export function downloadNameDictionary(
+  onProgress?: (done: number, total: number) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  if (nameDownloadPromise) return nameDownloadPromise;
+
+  updateNameProgress({ status: 'downloading', error: undefined });
+
+  nameDownloadPromise = (async () => {
+    const { downloadNameDictionary: downloadNames, getNameDictionaryStatus: readStatus } = await import('@/lib/nameDictionary');
+    await downloadNames((done, total) => {
+      updateNameProgress({
+        status: 'downloading',
+        cachedShards: done,
+        totalShards: total,
+        error: undefined,
+      });
+      onProgress?.(done, total);
+    }, signal);
+    const status = await readStatus(signal);
+    applyNameStatus(status);
+  })()
+    .catch((error: unknown) => {
+      updateNameProgress({
+        status: 'error',
+        error: getErrorMessage(error),
+      });
+      throw error;
+    })
+    .finally(() => {
+      nameDownloadPromise = null;
+    });
+
+  return nameDownloadPromise;
+}
+
+export function useNameDictionary() {
+  const [progress, setProgress] = useState<NameDictionaryProgress>(globalNameProgress);
+
+  useEffect(() => {
+    const handleUpdate = () => setProgress(globalNameProgress);
+    nameListeners.add(handleUpdate);
+    handleUpdate();
+    void initNameDictionary().catch(() => {});
+    return () => {
+      nameListeners.delete(handleUpdate);
+    };
+  }, []);
+
+  return {
+    isOfflineReady: progress.isOfflineReady,
+    progress,
+    download: downloadNameDictionary,
+  };
+}
+
 // ── Search & Retrieval Public APIs ─────────────────────────────────────────
 
 export async function searchDictionary(
@@ -705,6 +858,130 @@ export async function searchKanjiDictionary(
   }
 
   return results.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+const VALID_NAME_CATEGORIES = new Set<NameCategory>([
+  'surname',
+  'given',
+  'fem',
+  'masc',
+  'person',
+  'place',
+  'station',
+]);
+
+const VALID_NAME_MATCH_TYPES = new Set<NameMatchType>([
+  'exact-surface',
+  'exact-reading',
+  'prefix-surface',
+  'prefix-reading',
+]);
+
+const NAME_CATEGORY_LABELS_VI: Record<NameCategory, string> = {
+  surname: 'Họ',
+  given: 'Tên',
+  fem: 'Tên nữ',
+  masc: 'Tên nam',
+  person: 'Họ tên',
+  place: 'Địa danh',
+  station: 'Nhà ga',
+};
+
+function normalizeNameKeyForFilter(value: string): string {
+  return value
+    .normalize('NFKC')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s・･]+/g, '')
+    .replace(/[\u30A1-\u30F6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+function normalizeNameEntry(raw: unknown): NameEntry | null {
+  if (!isRecord(raw) || typeof raw.surface !== 'string') return null;
+  const surface = raw.surface.trim();
+  if (!surface) return null;
+  const reading = typeof raw.reading === 'string' && raw.reading.trim() ? raw.reading.trim() : surface;
+
+  const rawCategories = Array.isArray(raw.categories)
+    ? raw.categories
+    : typeof raw.category === 'string'
+      ? [raw.category]
+      : [];
+  const categories: NameCategory[] = [];
+  for (const item of rawCategories) {
+    if (typeof item === 'string' && VALID_NAME_CATEGORIES.has(item as NameCategory)) {
+      const cat = item as NameCategory;
+      if (!categories.includes(cat)) categories.push(cat);
+    }
+  }
+  if (categories.length === 0) categories.push('person');
+
+  const primary = categories[0];
+  const categoryLabels = Array.isArray(raw.categoryLabels) && raw.categoryLabels.every((v) => typeof v === 'string')
+    ? raw.categoryLabels
+    : categories.map((cat) => NAME_CATEGORY_LABELS_VI[cat]);
+  const categoryLabel = typeof raw.categoryLabel === 'string' && raw.categoryLabel
+    ? raw.categoryLabel
+    : categoryLabels[0];
+  const matchType: NameMatchType =
+    typeof raw.matchType === 'string' && VALID_NAME_MATCH_TYPES.has(raw.matchType as NameMatchType)
+      ? (raw.matchType as NameMatchType)
+      : 'exact-surface';
+
+  return {
+    surface,
+    reading,
+    category: primary,
+    categories,
+    categoryLabel,
+    categoryLabels,
+    matchType,
+  };
+}
+
+export async function searchNameDictionary(
+  query: string,
+  signal?: AbortSignal,
+  options?: SearchNamesOptions,
+): Promise<NameEntry[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  signal?.throwIfAborted();
+
+  const limit = Math.max(1, options?.limit ?? 30);
+  const includePrefix = options?.includePrefix ?? true;
+
+  try {
+    const apiResponse = await fetch(
+      `/api/search?q=${encodeURIComponent(trimmed)}&limit=${limit}${includePrefix ? '' : '&includePrefix=false'}`,
+      { signal },
+    );
+    if (apiResponse.ok) {
+      const value: unknown = await apiResponse.json();
+      if (signal?.aborted) throw new DOMException('Search aborted.', 'AbortError');
+      if (isRecord(value) && value.namesSupported === true && Array.isArray(value.names)) {
+        const normalizedQuery = normalizeNameKeyForFilter(trimmed);
+        const entries = value.names
+          .map(normalizeNameEntry)
+          .filter((entry): entry is NameEntry => entry !== null)
+          .filter((entry) => {
+            if (includePrefix) return true;
+            if (entry.matchType === 'prefix-surface' || entry.matchType === 'prefix-reading') return false;
+            return (
+              normalizeNameKeyForFilter(entry.surface) === normalizedQuery
+              || normalizeNameKeyForFilter(entry.reading) === normalizedQuery
+            );
+          });
+        return entries.slice(0, limit);
+      }
+    }
+  } catch (error) {
+    if (signal?.aborted) throw error;
+  }
+
+  signal?.throwIfAborted();
+  const { searchNames } = await import('@/lib/nameDictionary');
+  return searchNames(trimmed, signal, options);
 }
 
 function termFromSearchEntry(entry: SearchIndexEntry): TermRecord {

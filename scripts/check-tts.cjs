@@ -221,6 +221,20 @@ async function main() {
     assert.deepEqual(cb.events, ['end']);
   }
 
+  // Only an active request is notified when its playback is preempted.
+  {
+    const env = createEnv(), events = [];
+    const first = env.playJapaneseAudio('first', { onCancel: () => events.push('first') });
+    const a1 = env.lastAudio;
+    const second = env.playJapaneseAudio('second', { onCancel: () => events.push('second') });
+    assert.deepEqual(events, ['first']);
+    a1.playDef.resolve(); await first;
+    env.lastAudio.playDef.resolve(); await second;
+    env.lastAudio.onended();
+    env.stopCurrentAudio();
+    assert.deepEqual(events, ['first']);
+  }
+
   console.log('PASS tts primary, fallback, stop/replacement guards, queued callbacks, chaining');
 }
 

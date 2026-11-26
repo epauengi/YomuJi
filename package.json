@@ -10,6 +10,7 @@
     "turso:migrate": "npx tsx scripts/migrate-turso.ts",
     "turso:validate": "npx tsx scripts/validate-turso.ts",
     "turso:sync-senses": "node --env-file=.env.local scripts/sync-turso-senses.cjs",
+    "turso:sync-names": "node scripts/sync-turso-names.cjs",
     "start": "next start",
     "lint": "next lint"
   },

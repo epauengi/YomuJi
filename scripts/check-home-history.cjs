@@ -41,8 +41,6 @@ global.window = Object.assign(events, {
 });
 
 const history = load('src/lib/recentSearches.ts');
-const booksModule = load('src/data/books.ts');
-const booksPageSource = fs.readFileSync('src/app/books/[slug]/page.tsx', 'utf8');
 
 function createElement(type, props) {
   return { type, props: props || {} };
@@ -102,7 +100,6 @@ function renderHomeWithWotd(wordOfTheDay) {
     '@/components/dictionary/TermCard': { TermCard: 'TermCard' },
     '@/components/dictionary/ConjugationAnalysis': { ConjugationAnalysis: 'ConjugationAnalysis' },
     '@/components/dictionary/SentenceAnalysis': { SentenceAnalysis: 'SentenceAnalysis' },
-    '@/components/dictionary/NameResults': { NameDictionaryBanner: 'NameDictionaryBanner', NameResults: 'NameResults' },
     '@/components/ui/BookmarkButton': { BookmarkButton: 'BookmarkButton' },
     '@/components/ui/Button': { Button: 'Button' },
     '@/components/AudioButton': { AudioButton: 'AudioButton' },
@@ -111,7 +108,7 @@ function renderHomeWithWotd(wordOfTheDay) {
     '@/lib/wordRoutes': { wordHref: (t) => `/word/${t.surface}` },
     '@/lib/browserState': { termBookmark: (t) => t },
     '@/lib/recentSearches': history,
-    '@/data/books': booksModule,
+    '@/components/dictionary/InteractiveJapaneseReader': { InteractiveJapaneseReader: 'InteractiveJapaneseReader' },
   });
   return home.HomePage({ initialQuery: '' });
 }
@@ -171,19 +168,9 @@ async function check() {
   const kanjiText = collectText(kanjiTree);
   assert(kanjiText.includes('勉強') && kanjiText.includes('べんきょう'), 'Word of the day must display reading when distinct from surface');
 
-  // Featured Aozora excerpt link must point to a real curated book with an excerpt and matching #excerpt anchor
-  const nodes = collectNodes(kanaTree);
-  const excerptLink = nodes.find(
-    (node) => node.type === 'Link' && typeof node.props?.href === 'string' && node.props.href.endsWith('#excerpt')
-  );
-  assert(excerptLink, 'HomePage must render curated book excerpt link ending with #excerpt');
-  const slugMatch = excerptLink.props.href.match(/^\/books\/([^/#]+)#excerpt$/);
-  assert(slugMatch, `Unexpected book excerpt href: ${excerptLink.props.href}`);
-  const referencedBook = booksModule.getBook(slugMatch[1]);
-  assert(referencedBook && referencedBook.excerpt.trim().length > 0, `Curated book ${slugMatch[1]} must exist with non-empty excerpt`);
-  assert(booksPageSource.includes('id="excerpt"'), 'Book detail page must expose id="excerpt" anchor');
+  assert(collectNodes(kanaTree).some((node) => node.type === 'InteractiveJapaneseReader'), 'HomePage must render the Wikipedia reader');
 
-  console.log('PASS history delete/undo storage safety, duplicate WOTD suppression, and curated book excerpt anchor');
+  console.log('PASS history delete/undo storage safety, duplicate WOTD suppression, and Wikipedia reader');
 }
 
 check().catch((error) => {

@@ -35,6 +35,7 @@ export function AudioButton({
       onStart: () => setSpeaking(true),
       onEnd: () => setSpeaking(false),
       onError: () => setSpeaking(false),
+      onCancel: () => setSpeaking(false),
     });
   };
 

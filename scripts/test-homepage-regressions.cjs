@@ -38,22 +38,18 @@ assert(
   'Word-of-the-day section label must be an h2'
 );
 assert(/<h3\b[^>]*>\s*\{wordOfTheDay\.surface\}\s*<\/h3>/i.test(homePage), 'Word of the day must remain an h3');
+const wikiReaderPath = 'src/components/dictionary/InteractiveJapaneseReader.tsx';
+const wikiReader = read(wikiReaderPath);
+assert(homePage.includes('<InteractiveJapaneseReader />'), 'HomePage must show the Wikipedia reader');
+assert(!homePage.includes('featuredBook'), 'The Aozora preview belongs in the book library');
 assert(
-  /<h2\b[^>]*>[\s\S]*?Đọc thử từ tủ sách[\s\S]*?<\/h2>/i.test(homePage)
-    && /<h3\b[^>]*>\s*\{featuredBook\.japaneseTitle\}\s*<\/h3>/i.test(homePage),
-  'Featured Aozora excerpt section and title must use h2 and h3'
+  /<h2\b[^>]*>[\s\S]*?Đọc Wikipedia tiếng Nhật[\s\S]*?<\/h2>/i.test(wikiReader)
+    && /<h3\b[^>]*>\s*\{article\.title\}\s*<\/h3>/i.test(wikiReader),
+  'Wikipedia reader section and title must use h2 and h3'
 );
 
-// 4. Flat Home surfaces, curated local Aozora excerpt, and no random Wikipedia fetch
+// 4. Flat Home surfaces and existing word-of-the-day behavior.
 assert(!homePage.includes('TiltCard'), 'HomePage must use flat surfaces without TiltCard');
-assert(
-  !homePage.includes('InteractiveJapaneseReader') && !homePage.includes('wikipedia.org'),
-  'HomePage must replace random Wikipedia reader with local Aozora excerpt'
-);
-assert(
-  homePage.includes("from '@/data/books'") && homePage.includes('#excerpt'),
-  'HomePage must reference local curated book data and link to #excerpt'
-);
 assert(
   /wordOfTheDay\.reading\s*!==\s*wordOfTheDay\.surface/.test(homePage),
   'HomePage must hide duplicate kana reading when equal to surface'
@@ -62,12 +58,8 @@ assert(
 // 5. Minimum 44px touch target on interactive links
 const minHitPattern = /\b(min-h-11|min-h-\[44px\]|h-11|h-\[44px\])\b/;
 
-// 5a. Featured book excerpt link in HomePage
-const excerptLinkMatch = homePage.match(/<Link\b[^>]*href=\{`\/books\/\$\{featuredBook\.slug\}#excerpt`\}[^>]*>/);
-assert(
-  excerptLinkMatch && minHitPattern.test(excerptLinkMatch[0]),
-  'HomePage curated book excerpt link must provide at least 44px hit size (e.g. min-h-11)'
-);
+const wikiLink = wikiReader.match(/<a\s+href=\{`https:\/\/ja\.wikipedia\.org[^>]*>/);
+assert(wikiLink && minHitPattern.test(wikiLink[0]), 'Wikipedia source link must be at least 44px high');
 
 // 5b. Word of the day detail link in HomePage
 const wordDetailLinkMatch = homePage.match(/<Link\b[^>]*href=\{wordHref\(wordOfTheDay\)\}[^>]*>/)
@@ -136,6 +128,34 @@ assert(homePage.includes('setRecentSearches(restoreRecentSearches(removed))'), '
 require('node:child_process').execFileSync(process.execPath, ['scripts/check-home-history.cjs'], { cwd: root, stdio: 'inherit' });
 
 (async () => {
+  const wikiSandbox = { exports: {}, require: () => ({}), URLSearchParams };
+  vm.runInNewContext(ts.transpileModule(wikiReader, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
+  }).outputText, wikiSandbox);
+  const { fetchWikipediaExcerpt } = wikiSandbox.exports;
+  const signal = new AbortController().signal;
+  const page = { pageid: 42, title: '日本語', extract: '日本語について説明します。'.repeat(4) };
+  wikiSandbox.fetch = async (url, options) => {
+    const parsed = new URL(url);
+    assert.equal(parsed.origin, 'https://ja.wikipedia.org');
+    assert.equal(parsed.searchParams.get('generator'), 'random');
+    assert.equal(parsed.searchParams.get('formatversion'), '2');
+    assert.equal(options.signal, signal);
+    assert.equal(options.credentials, 'omit');
+    assert.equal(options.referrerPolicy, 'no-referrer');
+    return Response.json({ query: { pages: [null, { ...page, pageid: 39, extract: 'Non-Japanese text '.repeat(4) }, { ...page, pageid: 40, pageprops: { disambiguation: true } }, { ...page, pageid: 41 }, page] } });
+  };
+  assert.deepEqual({ ...await fetchWikipediaExcerpt(signal, 41) }, { pageId: 42, title: page.title, extract: page.extract });
+  const extract = 'に'.repeat(494) + '𠮷' + '本'.repeat(10);
+  wikiSandbox.fetch = async () => Response.json({ query: { pages: [{ ...page, extract }] } });
+  const clipped = await fetchWikipediaExcerpt(signal);
+  assert.equal(clipped.extract, 'に'.repeat(494) + '…');
+  assert(`${clipped.title}。${clipped.extract}`.length <= 500);
+  wikiSandbox.fetch = async () => Response.json({ query: { pages: [{ ...page, pageid: '42' }] } });
+  await assert.rejects(fetchWikipediaExcerpt(signal), /No Wikipedia excerpt/);
+  wikiSandbox.fetch = async () => new Response(null, { status: 503 });
+  await assert.rejects(fetchWikipediaExcerpt(signal), /Wikipedia request failed/);
+
   // Test daily-word states: success, rejection, undefined, retry
   const ok = await testWordEffect(() => Promise.resolve({ surface: '\u732B' }));
   assert.equal(ok.loading, false);
@@ -157,7 +177,7 @@ require('node:child_process').execFileSync(process.execPath, ['scripts/check-hom
   assert.equal(retried.error, null);
   assert.equal(retried.term?.surface, '\u72AC');
 
-  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, flat surfaces & curated Aozora excerpt, duplicate WOTD suppression, hero motion removed, entry hero preserved and active query compact, daily-word states & retry, sonner history undo merge (8 cap)');
+  console.log('PASS homepage regressions: offline prompt removed, settings download preserved, headings semantic, 44px links, flat surfaces & Wikipedia excerpts, duplicate WOTD suppression, hero motion removed, entry hero preserved and active query compact, daily-word states & retry, sonner history undo merge (8 cap)');
 })().catch((err) => {
   console.error(err);
   process.exit(1);
